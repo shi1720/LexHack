@@ -157,7 +157,7 @@ export default async function NewSystemPage({ searchParams }: { searchParams: Pr
             </p>
           </div>
 
-          <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+          <fieldset style={{ border: 0, padding: 0, marginInline: 0 }}>
             <legend className="eyebrow" style={{ marginBottom: 7 }}>
               Markets the system is offered in
             </legend>

@@ -13,9 +13,10 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 - [ ] Browser at **1440 × 900**, zoom 100 %, bookmarks bar hidden, no extensions visible
 - [ ] Light theme (it reads better on compressed video than dark)
 - [ ] A second tab open at the `HireFlow` **Evidence** page, pre-loaded
+- [ ] A third tab open at the `HireFlow v3` **Evidence** page, pre-loaded — the `Evidenced` beat needs it
 - [ ] A terminal window, font size ~16pt, dark background, sitting in the repo root
 - [ ] Pre-type this in the terminal so you only press Enter:
-      `node packages/cli/dist/bin.js diff fixtures/hireflow --base fixtures/hireflow-remediated --markets eu,us-nyc`
+      `node packages/cli/dist/bin.js diff --base fixtures/hireflow-remediated --head fixtures/hireflow --markets eu,us-nyc`
 - [ ] Phone on silent, notifications off, Do Not Disturb on
 - [ ] A real microphone if you have one. Bad audio is a top-six reason judges disengage
 - [ ] Record at 1080p or better, then upload to YouTube as **Unlisted**, marked **"Not made for kids"**, with captions cleaned up
@@ -74,7 +75,9 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 > **Article 14 says a person must be able to override the system. Annex searched the whole repository and found no review step, no override, and no stop control — and it records what it searched for, so you can disagree with the search instead of having to trust the verdict.**
 
-**Screen:** Click the `Evidenced` filter, then click any satisfied control so a green `Evidenced` badge and a real code citation are visible. Two seconds.
+**Screen:** Switch to the **HireFlow v3** tab (pre-loaded on its Evidence page), click the `Evidenced` filter, then click any satisfied control so a green `Evidenced` badge and a real code citation are visible. Two seconds.
+
+> On HireFlow itself `Evidenced` is **0** — it satisfies nothing — so this beat has to be on v3 or it puts "Nothing matches that filter" on camera.
 
 **Say:**
 
@@ -84,25 +87,27 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **This is the Annex Four technical documentation, generated. Nine sections, twelve citations — and fourteen items left deliberately blank, because the residual-risk acceptance is a human judgement, and a generated document that invents it is a false statement to a regulator.**
+> **This is the Annex Four technical documentation, generated. Nine sections, every statement cited to a file and a line — and fifteen items left deliberately blank, because the residual-risk acceptance is a human judgement, and a generated document that invents it is a false statement to a regulator.**
 
 **Screen:** Cut to the **Remediation** tab. Expand one file — `lib/ai-act/audit-log.ts` — and scroll a few lines so the statutory comment is readable.
 
 **Say:**
 
-> **Then it writes the fix. Ten files, additive only, with the article number in the comment and a TODO wherever a person has to decide.**
+> **Then it writes the fix. Additive files only, with the article number in the comment and a TODO wherever a person has to decide. And merging it doesn't make you compliant — the next scan reads these files the way an auditor would, so a document with unfilled placeholders counts as partial, and a module nothing calls counts as partial.**
 
-**Screen:** Cut to the terminal. Press Enter on the pre-typed `annex diff` command. (It compares the remediated build against the current one, so the regression is real and reproducible.)
+**Screen:** Cut to the **History** tab of HireFlow. The red `Substantial modification` badge, `78 → 4`, `high → prohibited`, and the regressed list underneath. Hold three seconds.
 
 **Say:**
 
 > **And because it reads code, it can do the one thing a questionnaire can't.**
 
-**Screen:** The red `SUBSTANTIAL MODIFICATION` banner appears with `Effective human oversight  satisfied → missing`. Hold three seconds.
+**Screen:** Scroll one notch so `Effective human oversight  satisfied → missing` is centred.
 
 **Say:**
 
-> **Someone deleted the human review gate. Article 43(4) says that re-opens the whole conformity assessment. Annex caught it in the pull request, before it merged.**
+> **Between these two scans of the same system, someone put the affect-inference feature back and deleted the human review gate. Article 43(4) says that re-opens the whole conformity assessment. Annex caught it from the diff.**
+
+> Optional, if the pacing allows: cut to the terminal and press Enter on the pre-typed `annex diff` for two seconds, to show the same finding is available in CI. Drop it first if you are over time — the History page is the stronger shot, because it is the product rather than a log.
 
 *(180 words)*
 
@@ -110,7 +115,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 ## 1:55 – 2:20 · How it works
 
-**Screen:** The architecture diagram (`docs/diagram-architecture.svg`), full frame, static.
+**Screen:** The architecture diagram (`docs/diagram-architecture.png`), full frame, static.
 
 **Say:**
 
@@ -126,7 +131,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **And it publishes its error rate. Twenty-nine hand-labelled cases, half of them carve-outs designed to catch a keyword matcher. Ninety-six percent tier accuracy — and the one it gets wrong is in the report.**
+> **And it publishes its error rate. Forty-one hand-labelled cases, half of them carve-outs designed to catch a keyword matcher, including five written to find the edge of what static analysis can decide. It passes all forty-one — and the report says plainly that this is a statement about the corpus, not about the world.**
 
 *(115 words)*
 
@@ -138,7 +143,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **This is who buys it. When an enterprise customer asks an AI vendor for their AI Act evidence, today they get a PDF. This is the same evidence, published, with a root the reviewer can check.**
+> **This is what a customer actually asks you for. When an enterprise buyer asks an AI vendor for their AI Act evidence, today they get a PDF. This is the same evidence, published, with a root the reviewer can check.**
 >
 > **What Annex is not: it's not a conformity assessment, and finding a logging call doesn't prove the logs are retained. It reports what's observable and marks the rest open.**
 
@@ -175,9 +180,9 @@ Add these as simple captions. No animation, no transitions beyond hard cuts.
 | 0:30 | `Annex III high-risk: moved to 2 Dec 2027. Article 50: unchanged.` |
 | 0:40 | `Evidence explorer` |
 | 1:10 | `Annex IV technical documentation — Article 11` |
-| 1:35 | `annex diff --base <previous build> --head HEAD` |
+| 1:35 | `Substantial modification — Article 3(23), Article 43(4)` |
 | 1:58 | `45 obligations · 5 jurisdictions · 0 model calls` |
-| 2:12 | `29 cases · 96.6% tier accuracy · 100% carve-out precision` |
+| 2:12 | `41 cases · 100% tier accuracy · 100% carve-out precision` |
 | 2:44 | `github.com/shi1720/LexHack` |
 
 ## Things not to do

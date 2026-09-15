@@ -147,17 +147,17 @@
               }
             },
             {
-              "id": "eu-ai-act.art25.role-determination",
-              "name": "EuAiActArt25RoleDetermination",
+              "id": "eu-ai-act.art3.role-determination",
+              "name": "EuAiActArt3RoleDetermination",
               "shortDescription": {
-                "text": "Determine and record whether you are the provider"
+                "text": "Determine and record whether you are the provider or the deployer"
               },
               "fullDescription": {
-                "text": "Article 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack."
+                "text": "Article 3(3) makes whoever develops an AI system and places it on the market or puts it into service under their own name or trademark the provider; Article 3(4) makes whoever uses one under their own authority the deployer. The distinction decides which Article 50 transparency duty binds you today — 50(1) and 50(2) fall on providers, 50(4) on deployers — and, from 2 December 2027, whether the Chapter III provider stack attaches at all."
               },
               "help": {
-                "text": "Article 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack.\n\nRecord your role in writing. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone.\n\nEU AI Act Art. 3(3) — Definitions — 'provider': https://artificialintelligenceact.eu/article/3/\nEU AI Act Art. 25(1)(c) — Responsibilities along the AI value chain — change of intended purpose: https://artificialintelligenceact.eu/article/25/\nEU AI Act Art. 25(2) — Duty of the initial provider to cooperate and hand over documentation: https://artificialintelligenceact.eu/article/25/",
-                "markdown": "**Determine and record whether you are the provider**\nArticle 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack.\n**How to close it:** Record your role in writing. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone.\n**Citations**\n- [EU AI Act Art. 3(3) — Definitions — 'provider'](https://artificialintelligenceact.eu/article/3/)\n- [EU AI Act Art. 25(1)(c) — Responsibilities along the AI value chain — change of intended purpose](https://artificialintelligenceact.eu/article/25/)\n- [EU AI Act Art. 25(2) — Duty of the initial provider to cooperate and hand over documentation](https://artificialintelligenceact.eu/article/25/)\n_In force from 2026-08-02._"
+                "text": "Article 3(3) makes whoever develops an AI system and places it on the market or puts it into service under their own name or trademark the provider; Article 3(4) makes whoever uses one under their own authority the deployer. The distinction decides which Article 50 transparency duty binds you today — 50(1) and 50(2) fall on providers, 50(4) on deployers — and, from 2 December 2027, whether the Chapter III provider stack attaches at all.\n\nRecord the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or used only internally. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.\n\nEU AI Act Art. 3(3) — Definitions — 'provider': https://artificialintelligenceact.eu/article/3/\nEU AI Act Art. 3(4) — Definitions — 'deployer': https://artificialintelligenceact.eu/article/3/\nEU AI Act Art. 50 — Transparency obligations — allocated by role: https://artificialintelligenceact.eu/article/50/",
+                "markdown": "**Determine and record whether you are the provider or the deployer**\nArticle 3(3) makes whoever develops an AI system and places it on the market or puts it into service under their own name or trademark the provider; Article 3(4) makes whoever uses one under their own authority the deployer. The distinction decides which Article 50 transparency duty binds you today — 50(1) and 50(2) fall on providers, 50(4) on deployers — and, from 2 December 2027, whether the Chapter III provider stack attaches at all.\n**How to close it:** Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or used only internally. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.\n**Citations**\n- [EU AI Act Art. 3(3) — Definitions — 'provider'](https://artificialintelligenceact.eu/article/3/)\n- [EU AI Act Art. 3(4) — Definitions — 'deployer'](https://artificialintelligenceact.eu/article/3/)\n- [EU AI Act Art. 50 — Transparency obligations — allocated by role](https://artificialintelligenceact.eu/article/50/)\n_In force from 2026-08-02._"
               },
               "defaultConfiguration": {
                 "level": "error"
@@ -318,8 +318,8 @@
                 "text": "Article 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs."
               },
               "help": {
-                "text": "Article 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.\n\nWrite the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.\n\nEU AI Act Art. 13(3) — Transparency and provision of information to deployers: https://artificialintelligenceact.eu/article/13/",
-                "markdown": "**Instructions for use for deployers**\nArticle 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.\n**How to close it:** Write the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.\n**Citations**\n- [EU AI Act Art. 13(3) — Transparency and provision of information to deployers](https://artificialintelligenceact.eu/article/13/)\n_In force from 2027-12-02._"
+                "text": "Article 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.\n\nWrite the instructions against Article 13(3)(a)-(f), including the seven romanettes of (b). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.\n\nEU AI Act Art. 13(3) — Transparency and provision of information to deployers: https://artificialintelligenceact.eu/article/13/",
+                "markdown": "**Instructions for use for deployers**\nArticle 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.\n**How to close it:** Write the instructions against Article 13(3)(a)-(f), including the seven romanettes of (b). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.\n**Citations**\n- [EU AI Act Art. 13(3) — Transparency and provision of information to deployers](https://artificialintelligenceact.eu/article/13/)\n_In force from 2027-12-02._"
               },
               "defaultConfiguration": {
                 "level": "error"
@@ -744,7 +744,7 @@
         }
       },
       "automationDetails": {
-        "id": "annex/46942a231e61504368e449373c6135af",
+        "id": "annex/6ae38e31d3b286677f670d2ed7a7125a",
         "description": {
           "text": "Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting."
         }
@@ -752,12 +752,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-15T18:30:50.116Z",
+          "endTimeUtc": "2026-09-15T19:35:29.642Z",
           "properties": {
-            "conformityScore": 2,
-            "liveScore": 0,
+            "conformityScore": 3,
+            "liveScore": 2,
             "riskTier": "prohibited",
-            "ledgerRoot": "b43ad61982827f4d3efd7371256330756f9880ddef7c6d5d002662a3ae4b94f6"
+            "ledgerRoot": "160ce181595b69680af20124ac272ab95b8a7a8773974e82e88c37c5d5e74cd3"
           }
         }
       ],
@@ -924,10 +924,10 @@
           }
         },
         {
-          "ruleId": "eu-ai-act.art25.role-determination",
+          "ruleId": "eu-ai-act.art3.role-determination",
           "level": "error",
           "message": {
-            "text": "Determine and record whether you are the provider: This repository calls a third-party model and ships the result under its own name. On the Article 3(3) definition that makes it the provider of an AI system, not merely a deployer — the distinction that decides who owns the Article 16 stack. Record your role in writing. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone."
+            "text": "Determine and record whether you are the provider or the deployer: This repository calls a third-party model and builds a product around the result. If that product is placed on the market or put into service under your own name or trademark, Article 3(3) makes you its provider rather than merely a deployer — and Annex cannot settle that from source code alone. Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or used only internally. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV."
           },
           "locations": [
             {
@@ -997,11 +997,11 @@
             }
           ],
           "partialFingerprints": {
-            "annexControl": "eu-ai-act.art25.role-determination"
+            "annexControl": "eu-ai-act.art3.role-determination"
           },
           "properties": {
             "pack": "eu-ai-act",
-            "status": "missing",
+            "status": "needs_review",
             "appliesFrom": "2026-08-02",
             "inForce": true,
             "citation": "EU AI Act Art. 3(3)"
@@ -1156,7 +1156,7 @@
           "ruleId": "eu-ai-act.art13.instructions-for-use",
           "level": "error",
           "message": {
-            "text": "Instructions for use for deployers: No instructions for use aimed at a deployer were found. Write the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall."
+            "text": "Instructions for use for deployers: No instructions for use aimed at a deployer were found. Write the instructions against Article 13(3)(a)-(f), including the seven romanettes of (b). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall."
           },
           "locations": [
             {

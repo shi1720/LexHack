@@ -150,6 +150,35 @@ for (const [name, path] of PAGES) {
 }
 
 // --------------------------------------------------------------------------
+// Tailwind's `space-y-*` sets margin-block-end on each child rather than a gap
+// on the parent, so a child that zeroes its own margin silently collapses the
+// stack. Two real gaps had disappeared this way before the check existed.
+// --------------------------------------------------------------------------
+
+process.stdout.write('\nStack spacing\n');
+const collapsed = [];
+for (const [name, path] of PAGES) {
+  await dp.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+  const found = await dp.evaluate(() => {
+    const out = [];
+    for (const parent of document.querySelectorAll('[class*="space-y-"]')) {
+      const wanted = /space-y-([1-9]\d*)/.exec(parent.className.toString());
+      if (!wanted) continue; // space-y-0 is a deliberate zero
+      for (const kid of [...parent.children].slice(0, -1)) {
+        const style = getComputedStyle(kid);
+        if (style.position === 'absolute' || style.display === 'none') continue;
+        if ((parseFloat(style.marginBlockEnd) || 0) >= 2) continue;
+        out.push(`${kid.tagName.toLowerCase()}${kid.className ? '.' + String(kid.className).split(' ')[0] : ''}`);
+      }
+    }
+    return [...new Set(out)];
+  });
+  if (found.length) collapsed.push(`${name}: ${found.join(', ')}`);
+  process.stdout.write(`  ${found.length ? '✖' : '✔'} ${name.padEnd(14)} ${found.length ? found.join(', ') : 'clean'}\n`);
+}
+if (collapsed.length) failures.push(`collapsed stack spacing — ${collapsed.join(' · ')}`);
+
+// --------------------------------------------------------------------------
 // Invalid ARIA is worse than none: a role promises interactions to a screen
 // reader that the markup then has to honour.
 // --------------------------------------------------------------------------

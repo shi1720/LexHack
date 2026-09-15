@@ -51,7 +51,8 @@ $ annex scan . --markets eu,us-nyc --turnover 9800000 --employees 40
 ```
 
 That block is a capture, not a mock-up: run the command against the bundled
-`fixtures/hireflow` and you get those numbers, ledger fingerprint included. The
+`fixtures/hireflow` and you get those numbers, ledger fingerprint included —
+only the timing moves. The
 exposure figure applies the Article 99(6) SME inversion to a €9.8m turnover;
 without `--turnover` it shows the flat €35m cap instead, and Article 99(1) and
 99(7) make it a statutory ceiling rather than a prediction.
@@ -80,10 +81,19 @@ Or stay in the terminal:
 
 ```bash
 npm run build
-node packages/cli/dist/bin.js scan fixtures/hireflow --markets eu,us-nyc
-node packages/cli/dist/bin.js dossier fixtures/hireflow-remediated --html --out dossier.html
-node packages/cli/dist/bin.js benchmark
+alias annex="node packages/cli/dist/bin.js"
+
+annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employees 40
+annex dossier fixtures/hireflow-remediated --html --out dossier.html
+annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
+annex scan fixtures/hireflow --format json --out report.json
+annex verify report.json --against fixtures/hireflow
+annex benchmark
 ```
+
+`annex diff` is the one worth running twice: it detects that removing the human
+oversight gate is a substantial modification under Article 3(23), which re-opens
+the conformity assessment under Article 43(4).
 
 ## How it works
 
@@ -144,10 +154,26 @@ tests: [
 Every control result is reduced to a canonical line — the control, its status and score, the rule-pack version, and the SHA-256 digest of every file it cites — and hashed into a chain. The root goes on the front page of the dossier and on the public trust page.
 
 ```
-$ annex verify report.json
+$ annex verify report.json --against .
 
- LEDGER INTACT   0760-ABE2-82CF-F156
- 45 entries verified against root 0760abe282cff156…
+ LEDGER INTACT   3D5C-D863-6117-7FFD
+ 29 entries re-derived from the results they describe
+ root 3d5cd86361177ffdf5c36181…
+
+ Cited files, re-hashed from .
+ 6 file(s) checked
+ ✔ every cited file still hashes to the digest in the report
+```
+
+Flip one status in that report from `missing` to `satisfied` and nothing else,
+and it says so — naming the entry, and exiting 1:
+
+```
+ LEDGER BROKEN
+
+ Entry 13 ("eu-ai-act.art5.emotion-workplace") does not hash to its recorded
+ value: the status, score, rule version or cited evidence in this report is not
+ what the ledger was built over.
 ```
 
 `annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value. `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree it claims to describe says so. That is the whole difference between a document and a proof.
@@ -196,11 +222,11 @@ and never edited by hand.
 
 | Metric | Result |
 |---|---|
-| Risk-tier accuracy | **100 %** (40/40) |
+| Risk-tier accuracy | **100 %** (41/41) |
 | Finding recall | **100 %** (22/22) |
-| Carve-out precision | **100 %** (26/26) |
+| Carve-out precision | **100 %** (29/29) |
 
-Roughly half the 40-case corpus exists to catch **false positives**: card-fraud
+Roughly half the 41-case corpus exists to catch **false positives**: card-fraud
 detection (expressly excluded from Annex III 5(b)), one-to-one identity
 verification (excluded from 1(a)), a consumer mood-journal app (Annex III 1(c)
 high-risk, *not* the Article 5(1)(f) prohibition), campaign logistics tooling
@@ -215,9 +241,11 @@ standing weakness of any self-authored benchmark. Building it is still what
 found the bugs: domain signals firing on prose, a missing Article 50(2) rule for
 generated text, broken `go.mod` parsing, and — in the round that produced this
 version — an Article 50(2) carve-out that was stated in the caveat text and
-never implemented. Five cases in the corpus exist specifically to find the edge
-of what static analysis can decide, including a lending decision expressed only
-in SQL and a chat widget whose AI-ness may or may not be "obvious to a
+never implemented, and a domain detector that fired on a `//` comment rather
+than on code — which Annex found by scanning itself and reporting itself as an
+emotion-recognition system. Five cases in the corpus exist specifically to find
+the edge of what static analysis can decide, including a lending decision
+expressed only in SQL and a chat widget whose AI-ness may or may not be "obvious to a
 reasonably well-informed" person, which is a judgement about a reader rather
 than a fact about a file.
 
@@ -289,7 +317,7 @@ was originally scoped against had been amended six weeks earlier.
 - **`satisfied` means the evidence is there, not that the duty is discharged.** Annex now refuses two specific ways of faking it — a module nothing in the tree reaches, and a generated document whose `_TODO_` placeholders are unfilled, both of which cap at *partial* — but it still cannot tell you that an override is reachable by a trained, authorised person, or that a log sink is durable. On an Article 14 finding, that is exactly what an assessor will ask. Reachability analysis is the fix and it is not built.
 - **Coverage is TypeScript, JavaScript and Python first.** Go, Java, Ruby, Rust, C# and PHP are detected and scanned, but the detector corpus is thinner for them.
 - **Ingest caps at 4,000 files and 32 MB,** in path order. Larger repositories are scanned partially and the report carries a warning rather than pretending to completeness — but the cut is alphabetical, so on a very large monorepo the sample is arbitrary rather than representative. Prioritising by likely relevance is a known gap.
-- **The benchmark is 40 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
+- **The benchmark is 41 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
 - **One AI system rarely maps to one repository.** Under the Act the unit is the system — a service, a model, a prompt store, a feature pipeline and a UI, often across four repositories and two teams. Annex scans one tree at a time and has no way to compose a system from several. That is the next structural thing to build.
 - **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.

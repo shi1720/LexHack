@@ -51,6 +51,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 16,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.employment.management',
@@ -67,6 +68,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 
   // --- Annex III(5): essential services ------------------------------------
@@ -85,6 +87,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.insurance.pricing',
@@ -100,6 +103,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.public-benefits',
@@ -115,6 +119,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.emergency.triage',
@@ -131,6 +136,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 
   // --- Annex III(3): education ---------------------------------------------
@@ -149,6 +155,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 
   // --- Annex III(1): biometrics --------------------------------------------
@@ -167,6 +174,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.biometric.verification-only',
@@ -184,6 +192,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.biometric.categorisation',
@@ -198,6 +207,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.emotion.recognition',
@@ -214,6 +224,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.biometric.scraping',
@@ -228,6 +239,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 
   // --- Art. 5 prohibitions --------------------------------------------------
@@ -244,6 +256,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.predictive-policing',
@@ -258,6 +271,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.vulnerability.exploitation',
@@ -272,6 +286,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 
   // --- Annex III(6)-(8): law enforcement, migration, justice ---------------
@@ -287,6 +302,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.justice.administration',
@@ -301,6 +317,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.democratic.process',
@@ -315,6 +332,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.critical-infrastructure',
@@ -330,6 +348,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 
   // --- Art. 50 transparency triggers ---------------------------------------
@@ -348,6 +367,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.synthetic.content',
@@ -363,6 +383,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.automated.decision',
@@ -379,6 +400,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   // --- Article 6(3) and Article 50(2) carve-outs ---------------------------
   //
@@ -404,6 +426,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'task.assists-human',
@@ -420,6 +443,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
   defineSignal({
     id: 'domain.profiling',
@@ -438,5 +462,6 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
   }),
 ];

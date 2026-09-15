@@ -15,10 +15,10 @@ it, plus a documentation site that merely *writes about* prohibited practices.
 
 | Metric | Result | What it measures |
 |---|---|---|
-| Risk-tier accuracy | **100.0%** (40/40) | The tier Annex assigns matches the label |
+| Risk-tier accuracy | **100.0%** (41/41) | The tier Annex assigns matches the label |
 | Finding recall | **100.0%** (22/22) | Classification findings a competent reader would make, that Annex makes |
-| Carve-out precision | **100.0%** (26/26) | Findings the statute expressly excludes, that Annex correctly does not make |
-| Runtime | 109 ms | The whole corpus, single-threaded, no network |
+| Carve-out precision | **100.0%** (29/29) | Findings the statute expressly excludes, that Annex correctly does not make |
+| Runtime | 110 ms | The whole corpus, single-threaded, no network |
 
 ## Cases Annex gets wrong
 
@@ -37,6 +37,7 @@ and any obligation whose answer is a judgement rather than a fact about code.
 
 | Case | Expected | Produced | |
 |---|---|---|---|
+| `carveout.prose-in-comments` — Payments service whose comments explain the AI rules it deliberately avoids | transparency | transparency | ✓ |
 | `hard.obvious-ai-chatbot` — Chat widget branded "AI Assistant" throughout the interface | transparency | transparency | ✓ |
 | `hard.biometric-hair-colour` — Photo app that groups portraits by hair colour | transparency | transparency | ✓ |
 | `hard.driver-drowsiness` — In-car camera detecting driver drowsiness | high | high | ✓ |

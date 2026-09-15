@@ -53,6 +53,29 @@ def predict(features):
 `;
 
 export const BENCHMARK: BenchmarkCase[] = [
+  {
+    id: 'carveout.prose-in-comments',
+    description: 'Payments service whose comments explain the AI rules it deliberately avoids',
+    tier: 'transparency',
+    forbidFindings: ['annex-iii.4a.recruitment', 'annex-iii.1c.emotion', 'art5.1f.emotion-workplace'],
+    rationale:
+      'A comment is prose that happens to live in a .ts file. Annex found this case by scanning itself and classifying itself as an emotion-recognition system on the strength of a comment describing a test fixture. Domain detectors now skip comment-only lines, so none of the Annex III findings fire; a trailing comment on a real line of code still counts, because the claim rests on the code half. The Article 50 transparency duty is real and stays.',
+    files: {
+      'package.json': pkg('payments'),
+      'src/charge.ts': `${OPENAI_CALL}
+// This service deliberately does NOT rank candidates, screen applicants, or
+// infer candidate emotion from video interviews. Those are Annex III point
+// 4(a) and Article 5(1)(f) territory and we keep well clear of them.
+//
+// See docs/compliance.md for the hiring-adjacent features we rejected:
+// resume scoring, shortlist ranking and interview sentiment analysis.
+export async function charge(customerId: string, amountMinor: number) {
+  return { customerId, amountMinor, status: 'captured' };
+}
+`,
+    },
+  },
+
   // =======================================================================
   // Hard cases. These exist to find the edge of what static analysis can
   // decide, not to be passed. Where Annex gets one wrong the benchmark says

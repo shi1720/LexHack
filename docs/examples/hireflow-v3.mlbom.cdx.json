@@ -4,7 +4,7 @@
   "serialNumber": "urn:uuid:ff7802f0-a0b1-4cd4-acd8-6b99951863b8",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-15T18:30:50.498Z",
+    "timestamp": "2026-09-15T19:35:30.052Z",
     "tools": {
       "components": [
         {
@@ -18,7 +18,7 @@
       "type": "application",
       "bom-ref": "component:hireflow-remediated",
       "name": "hireflow-remediated",
-      "version": "3549765d90a3"
+      "version": "2ef661459b56"
     },
     "properties": [
       {
@@ -31,11 +31,11 @@
       },
       {
         "name": "annex:conformityScore",
-        "value": "76"
+        "value": "74"
       },
       {
         "name": "annex:ledgerRoot",
-        "value": "478741223ffeb84fd40d3066cdbc2754566bdd096bdebd4915565b597a4f6503"
+        "value": "1d8654777d80f2d241343d2beb854f974c6c6f1a93f5e5056208d753740d1378"
       }
     ]
   },

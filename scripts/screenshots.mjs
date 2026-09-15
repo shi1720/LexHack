@@ -24,7 +24,7 @@ const SHOTS = [
   { name: '06-dossier', path: 'SYSTEM:HireFlow/dossier', full: false },
   { name: '07-remediation', path: 'SYSTEM:HireFlow/remediation', full: false },
   { name: '08-overview-remediated', path: 'SYSTEM:HireFlow v3', full: false },
-  { name: '09-history-drift', path: 'SYSTEM:HireFlow v3/history', full: false },
+  { name: '09-history-drift', path: 'SYSTEM:HireFlow/history', full: false },
   { name: '10-trust-page', path: 'TRUST:HireFlow v3', full: false },
   { name: '11-supportly', path: 'SYSTEM:Supportly', full: false },
   { name: '12-add-system', path: '/app/new', full: false },

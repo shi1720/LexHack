@@ -47,7 +47,7 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
               </span>
             </div>
 
-            <p className="legal" style={{ fontSize: 14.5, margin: 0 }}>{drift.summary}</p>
+            <p className="legal" style={{ fontSize: 14.5, marginInline: 0 }}>{drift.summary}</p>
 
             <div className="grid gap-5 sm:grid-cols-3">
               <Stat

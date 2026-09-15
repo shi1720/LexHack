@@ -31,8 +31,16 @@
     margin: 0 auto 8mm;
     overflow: hidden;
     display: flex; flex-direction: column;
+    /* Content sits in the optical middle rather than piling up under the
+       heading, which left a third of several slides empty. Slides that end in
+       a `.grid` still push it to the bottom edge via `margin-top: auto`. */
+    justify-content: center;
     break-after: page; page-break-after: always;
   }
+  /* The eyebrow and heading stay pinned to the top; everything after them
+     centres in the space that is left. */
+  .slide > .eyebrow { position: absolute; top: 16mm; left: 18mm; }
+  .slide > .eyebrow + h1, .slide > .eyebrow + h2 { margin-top: 4mm; }
   @media print { body { background: #fff; } .slide { margin: 0; box-shadow: none; } }
   @media screen { .slide { box-shadow: 0 2px 20px rgba(20,24,31,.13); } }
 
@@ -184,16 +192,16 @@
   <span class="blue">src/screening/rank.ts:28</span>
     <span class="grey">const decision = candidateScore &gt;= ADVANCE_THRESHOLD ? 'advance' : 'reject';</span>
 
-  <span class="red">✖ missing</span>   Art. 14        Human oversight — no review step, no override, no stop control
-  <span class="red">✖ missing</span>   Art. 12        Record-keeping — nothing records which model made which decision
+  <span class="red">✖ missing</span>   Art. 5(1)(f)   <span class="amberc">IN FORCE</span>   emotion inference from video interviews
   <span class="red">✖ missing</span>   Art. 50(1)     <span class="amberc">IN FORCE</span>   the chat UI never says it is an AI
+  <span class="red">✖ missing</span>   Art. 14        human oversight — no review step, no override, no stop control
   <span class="red">✖ missing</span>   LL 144 §5-301  no independent bias audit in the last twelve months
 
-  conformity   <span class="red">█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   2/100
-  exposure     €294,000   ledger  <span class="green">B43A-D619-8282-7F4D</span>   14 files · 35 ms · no model called</pre>
+  conformity   <span class="red">█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   4/100     in force today  4/100
+  exposure     €294,000 statutory ceiling   ledger  <span class="green">53CC-FAD4-DDAF-DD63</span>   14 files · 47 ms</pre>
   <div class="grid g4">
     <div class="card"><h3>Evidence explorer</h3><p>Statute on the left, the lines that answer it on the right.</p></div>
-    <div class="card"><h3>Annex IV dossier</h3><p>EN · DE · FR, with every unanswerable point left open.</p></div>
+    <div class="card"><h3>Annex IV dossier</h3><p>Headings in EN · DE · FR, every unanswerable point left open.</p></div>
     <div class="card"><h3>A pull request</h3><p>Additive files that close what code can close.</p></div>
     <div class="card"><h3>Standards exports</h3><p>SARIF, CycloneDX attestation, ML-BOM.</p></div>
   </div>
@@ -212,16 +220,19 @@
   <div class="grid g2" style="margin-top:20px">
     <div class="card navy">
       <h3>The law gets a test suite</h3>
-      <p>A control is a function, so it can be tested. Every high-severity obligation ships golden
-      fixtures — a minimal repository and the status the control must return. If a regex gets greedier,
-      the obligation fails the build rather than silently mis-reporting somebody's conformity.</p>
+      <p>A control is a function, so it can be tested. 43 golden fixtures across all five packs — each a
+      minimal repository and the status the control must return — plus a suite that checks every control
+      against a written-down Article 113 table. If a regex gets greedier, the obligation fails the build
+      rather than silently mis-reporting somebody's conformity.</p>
     </div>
     <div class="card moss">
       <h3>The evidence ledger</h3>
       <p>Every result is hashed into a chain: the control, its status, the rule-pack version, the
       SHA-256 of every file it cites. The root goes on the dossier's front page. Re-run on the same
-      commit and you get the same root; change one character of one cited file and
-      <span class="mono">annex&nbsp;verify</span> names the entry that broke.</p>
+      commit and you get the same root. <span class="mono">annex&nbsp;verify</span> re-derives every
+      entry from the results the report describes, so an edited status stops matching, and
+      <span class="mono">--against</span> re-hashes each cited file off disk. A checksum chain, not a
+      signature — it makes a silent edit detectable, not impossible.</p>
     </div>
   </div>
   <p class="lead" style="margin-top:18px">
@@ -260,9 +271,9 @@
 <section class="slide">
   <p class="eyebrow">How it works</p>
   <h2>A regulation is a function over a repository.</h2>
-  <div style="flex:1; overflow:hidden; margin-top:2px; display:flex; align-items:center;">
-    <img src="../diagram-architecture.svg" alt="Annex architecture: ingest, deterministic core, artefacts, with the evidence ledger between them"
-         style="width:104%; margin-left:-2%; margin-top:-58px; margin-bottom:-12px;">
+  <div style="flex:1; margin-top:6px; display:flex; align-items:center;">
+    <img src="diagram-core.svg" alt="Annex architecture: ingest, deterministic core, artefacts, with the evidence ledger between them"
+         style="width:100%;">
   </div>
   <span class="brand">ANNEX</span><span class="num">7</span>
 </section>
@@ -272,26 +283,29 @@
   <p class="eyebrow">Accuracy</p>
   <h2>It is a classifier, so it owes you its error rate.</h2>
   <p class="lead">
-    29 hand-labelled cases. Roughly half exist to catch <strong>false positives</strong>: card-fraud
+    41 hand-labelled cases. Roughly half exist to catch <strong>false positives</strong>: card-fraud
     detection (excluded from Annex III 5(b)), one-to-one identity verification (excluded from 1(a)),
-    a mood-journal app that is 1(c) high-risk and <em class="q">not</em> the Art. 5(1)(f) prohibition,
-    and a blog post about prohibited practices.
+    campaign logistics (excluded by 8(b) — nobody sees the output), invoice OCR (Art. 50(2) does not
+    reach re-expression), a mood-journal app that is 1(c) high-risk and <em class="q">not</em> the
+    Art. 5(1)(f) prohibition, and a blog post about prohibited practices.
   </p>
   <div class="grid g3" style="margin-top:18px">
-    <div class="card"><div class="stat">96.6%</div><div class="cap">risk-tier accuracy</div></div>
+    <div class="card moss"><div class="stat green">100%</div><div class="cap">risk-tier accuracy</div></div>
     <div class="card moss"><div class="stat green">100%</div><div class="cap">finding recall</div></div>
     <div class="card moss"><div class="stat green">100%</div><div class="cap">carve-out precision</div></div>
   </div>
   <div class="grid g2" style="margin-top:14px">
     <div class="card amber">
-      <h3 class="amberc">The one it gets wrong is in the report</h3>
-      <p>Receipt OCR is flagged under Art. 50(2) because Annex cannot yet tell the assistive-editing
-      carve-out from substantive generation. Published, with the reasoning, unedited.</p>
+      <h3 class="amberc">A clean sheet is a claim about the corpus, not the world</h3>
+      <p>These labels were written by the people who wrote the detectors. The report says so, and five
+      cases exist to find the edge: a lending decision expressed only in SQL, and a chatbot whose
+      AI-ness may or may not be &ldquo;obvious to a reasonably well-informed person&rdquo;.</p>
     </div>
     <div class="card">
-      <h3>Building it found three real bugs</h3>
+      <h3>Building it found four real bugs</h3>
       <p>Domain signals firing on prose; a missing Art. 50(2) rule; broken <span class="mono">go.mod</span>
-      parsing. Then the self-scan found a GDPR Article 17 gap <em class="q">in us</em> — which we fixed.</p>
+      parsing; an Art. 50(2) carve-out stated in the caveat and never implemented. Then the self-scan
+      found a GDPR Article 17 gap <em class="q">in us</em> — which we fixed.</p>
     </div>
   </div>
   <span class="brand">ANNEX</span><span class="num">8</span>

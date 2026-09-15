@@ -465,36 +465,42 @@ async function runDiff(args: Args): Promise<number> {
   const root = resolve(target);
   const profile = profileFrom(args.flags);
 
-  // --base may be a git ref or a directory. Comparing two directories is the
-  // form that works in a demo, in a tarball, and in a repo with no history.
-  const baseIsDir = await stat(resolve(base))
-    .then((s) => s.isDirectory())
-    .catch(() => false);
+  /**
+   * Either side may be a git ref or a directory.
+   *
+   * Comparing two directories is the form that works in a demo, in a tarball,
+   * and in a repository with no history — and `git archive` gives us a ref's
+   * tree without touching the working copy, so there is nothing to stash and
+   * nothing to clean up if the scan throws.
+   */
+  const treeFor = async (ref: string, label: string): Promise<RepoSnapshot> => {
+    const isDir = await stat(resolve(ref))
+      .then((s) => s.isDirectory())
+      .catch(() => false);
+    if (isDir) return ingestDirectory(resolve(ref), { name: ref });
+
+    const tar = execFileSync('git', ['-C', root, 'archive', '--format=tar', ref], {
+      maxBuffer: 256 * 1024 * 1024,
+    });
+    return buildSnapshot({
+      name: `${root.split('/').pop()}@${label}`,
+      files: readTar(Buffer.from(tar)).map((e) => ({ path: e.path, bytes: e.bytes })),
+    });
+  };
 
   let beforeSnapshot: RepoSnapshot;
-  if (baseIsDir) {
-    beforeSnapshot = await ingestDirectory(resolve(base), { name: `${base}` });
-  } else {
-    // `git archive` gives us the base tree without touching the working copy —
-    // no stashing, no detached HEAD, nothing to clean up if the scan throws.
-    try {
-      const tar = execFileSync('git', ['-C', root, 'archive', '--format=tar', base], {
-        maxBuffer: 256 * 1024 * 1024,
-      });
-      beforeSnapshot = buildSnapshot({
-        name: `${root.split('/').pop()}@${base}`,
-        files: readTar(Buffer.from(tar)).map((e) => ({ path: e.path, bytes: e.bytes })),
-      });
-    } catch (err) {
-      process.stderr.write(c.red(`Could not read ${base}: ${(err as Error).message}\n`));
-      process.stderr.write(
-        c.grey('  --base must be a git ref that exists locally, or a directory path.\n'),
-      );
-      return 2;
-    }
+  let afterSnapshot: RepoSnapshot;
+  try {
+    beforeSnapshot = await treeFor(base, base);
+    afterSnapshot = await treeFor(head, head);
+  } catch (err) {
+    process.stderr.write(c.red(`Could not read the tree to compare: ${(err as Error).message}\n`));
+    process.stderr.write(
+      c.grey('  --base and --head each take a git ref that exists locally, or a directory path.\n'),
+    );
+    return 2;
   }
 
-  const afterSnapshot = await loadSnapshot(target, args.flags);
   const before = scan(beforeSnapshot, { profile });
   const after = scan(afterSnapshot, { profile });
   const drift = diffReports(before, after);

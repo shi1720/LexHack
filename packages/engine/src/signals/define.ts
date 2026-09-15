@@ -25,6 +25,21 @@ export interface SignalSpec {
   evidenceKind?: EvidenceKind;
   /** Extra guard evaluated against the whole file, e.g. to demand co-occurrence. */
   fileGuard?: (file: SourceFile) => boolean;
+  /**
+   * Ignore comment-only lines.
+   *
+   * "Domain signals fire on code, never on prose" was implemented one level too
+   * coarsely: it excluded documentation *files*, but a sentence in a `//`
+   * comment inside a TypeScript file is prose too. Annex found this by scanning
+   * itself and classifying itself as an emotion-recognition system on the
+   * strength of a comment explaining that one of its fixtures reintroduces
+   * affect inference.
+   *
+   * Every domain signal sets this. Control and transparency signals do not:
+   * there, a docstring reading "Human review: a reviewer can override the model
+   * output" is exactly the evidence being looked for.
+   */
+  ignoreComments?: boolean;
 }
 
 export interface DetectionResult {
@@ -49,6 +64,13 @@ export interface CompiledSignal extends SignalSpec {
 }
 
 const CONFIG_LANGS: ReadonlySet<Language> = new Set<Language>(['yaml', 'json', 'toml', 'text', 'shell']);
+
+/**
+ * A line that is only a comment, in any of the languages Annex reads. This
+ * is not a parser: a line carrying code *and* a trailing comment counts as
+ * code, which is the right call, because the claim rests on the code half.
+ */
+const COMMENT_LINE = /^\s*(\/\/|\/\*|\*\/?|#|--|<!--|"""|''')/;
 
 function inScope(file: SourceFile, scope: SignalSpec['scope']): boolean {
   switch (scope) {
@@ -124,6 +146,7 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
         for (let i = 0; i < lines.length && fileHits.length < perFileScan; i++) {
           const line = lines[i] ?? '';
           if (line.length > 2000) continue;
+          if (spec.ignoreComments && COMMENT_LINE.test(line)) continue;
           for (let p = 0; p < spec.patterns.length; p++) {
             const pattern = spec.patterns[p]!;
             pattern.lastIndex = 0;

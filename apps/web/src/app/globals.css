@@ -134,6 +134,13 @@ body {
 
 a { color: inherit; }
 
+/*
+  Tailwind's `space-y-*` puts `margin-block-end` on each child rather than a
+  gap on the parent, so a child that sets `margin: 0` inline deletes its own
+  spacing and the stack silently collapses. Anything that needs to zero its
+  margins should zero `margin-inline` and leave the block axis to the layout.
+*/
+
 /* A sticky header eats the top of whatever an in-page link jumps to. */
 [id] { scroll-margin-top: 78px; }
 
