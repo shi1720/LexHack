@@ -16,7 +16,7 @@ import {
 } from './evaluate/index.js';
 import { buildLedger } from './ledger/index.js';
 import { planRemediation } from './remediate/index.js';
-import { DEFAULT_PACKS, packsForMarkets } from './packs/index.js';
+import { DEFAULT_PACKS, MARKET_PACKS, resolveMarkets } from './packs/index.js';
 import { sha256, stableStringify } from './util/hash.js';
 
 export const ENGINE_VERSION = '0.1.0';
@@ -40,7 +40,9 @@ export function defaultProfile(snapshot: RepoSnapshot, overrides: Partial<System
     role: overrides.role ?? 'unknown',
     euNexus: overrides.euNexus ?? true,
     markets: overrides.markets ?? ['eu', 'us-federal'],
+    ...(overrides.scopeExclusions?.length ? { scopeExclusions: overrides.scopeExclusions } : {}),
     ...(overrides.turnoverEur !== undefined ? { turnoverEur: overrides.turnoverEur } : {}),
+    ...(overrides.balanceSheetEur !== undefined ? { balanceSheetEur: overrides.balanceSheetEur } : {}),
     ...(overrides.employees !== undefined ? { employees: overrides.employees } : {}),
     ...(overrides.attestations ? { attestations: overrides.attestations } : {}),
     ...(overrides.tierOverride ? { tierOverride: overrides.tierOverride } : {}),
@@ -56,10 +58,21 @@ export function defaultProfile(snapshot: RepoSnapshot, overrides: Partial<System
  */
 export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport {
   const started = Date.now();
-  const packs = opts.packs ?? packsForMarkets(opts.profile?.markets);
+  const markets = resolveMarkets(opts.profile?.markets);
+  const packs = opts.packs ?? markets.packs;
   const today = opts.today ?? new Date();
   const profile = defaultProfile(snapshot, opts.profile ?? {});
   const warnings: string[] = [];
+
+  if (!opts.packs && markets.unknown.length > 0) {
+    const codes = markets.unknown.map((m) => `"${m}"`).join(', ');
+    const known = Object.keys(MARKET_PACKS).join(', ');
+    warnings.push(
+      markets.fellBack
+        ? `No market code was recognised (${codes}), so every rule pack was evaluated. Known markets: ${known}.`
+        : `Unrecognised market code ${codes} was ignored. Known markets: ${known}.`,
+    );
+  }
 
   if (snapshot.truncated) {
     warnings.push(
@@ -94,7 +107,6 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
   opts.onProgress?.('ledger', 1, 1, ledger.root.slice(0, 12));
 
   const liveControls = controls.filter((r) => r.inForce);
-  const isSme = (profile.employees ?? 0) > 0 ? (profile.employees ?? 0) < 250 : true;
 
   const report: ScanReport = {
     id: sha256(
@@ -115,7 +127,7 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
     score: scoreControls(controls),
     liveScore: scoreControls(liveControls),
     clock: buildClock(packs, controls, today),
-    exposure: estimateExposure(packs, controls, profile.turnoverEur, isSme),
+    exposure: estimateExposure(packs, controls, profile),
     ledger,
     warnings,
   };
@@ -178,7 +190,7 @@ export function diffReports(before: ScanReport, after: ScanReport): DriftReport 
   }
 
   const classificationChanged = before.classification.tier !== after.classification.tier;
-  // "Substantial" under Art. 3(49): compliance with Chapter III Section 2 is
+  // "Substantial" under Art. 3(23): compliance with Chapter III Section 2 is
   // affected, or the intended purpose changed. A regression in a Chapter III
   // control, or a tier change, is the code-visible proxy for exactly that.
   const substantial =
@@ -188,7 +200,7 @@ export function diffReports(before: ScanReport, after: ScanReport): DriftReport 
   const summary = substantial
     ? classificationChanged
       ? `The risk classification moved from ${before.classification.tier} to ${after.classification.tier}. Under Article 25(1)(c) and Article 43(4) this is a substantial modification: the conformity assessment has to be re-opened and the technical documentation updated.`
-      : `${regressed.length} control${regressed.length === 1 ? '' : 's'} regressed, including at least one that affects compliance with Chapter III, Section 2. On the Article 3(49) definition this is a substantial modification.`
+      : `${regressed.length} control${regressed.length === 1 ? '' : 's'} regressed, including at least one that affects compliance with Chapter III, Section 2. On the Article 3(23) definition this is a substantial modification.`
     : regressed.length > 0
       ? `${regressed.length} low-severity control${regressed.length === 1 ? '' : 's'} regressed. Not substantial on its own, but the dossier is now out of date.`
       : improved.length > 0

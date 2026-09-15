@@ -8,7 +8,7 @@ const LABELS = {
     provider: 'Provider',
     version: 'Version under assessment',
     classification: 'Classification',
-    role: 'Role under Article 3',
+    role: 'Role under Articles 3(3) and 3(4)',
     fingerprint: 'Evidence ledger',
     method: 'Statement of method',
     evidence: 'Evidence',
@@ -118,8 +118,16 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
   for (const control of report.controls) {
     if (control.status === 'not_applicable') continue;
     const cite = control.citations[0];
+    // The Article 11 row is about whether a dossier is *checked into the
+    // repository*, which is a different question from whether one exists. A
+    // register that reads "missing" inside the document it asks for looks like
+    // a bug unless the document says why it is not one.
+    const finding =
+      control.controlId === 'eu-ai-act.art11.technical-documentation' && control.status !== 'satisfied'
+        ? `${control.finding} This document is that artefact; the row closes once it is committed to the repository.`
+        : control.finding;
     lines.push(
-      `| ${control.title} | ${cite ? `${cite.short} ${cite.locator}` : control.controlId} | ${control.status} | ${control.finding.replace(/\|/g, '\\|').slice(0, 220)} |`,
+      `| ${control.title} | ${cite ? `${cite.short} ${cite.locator}` : control.controlId} | ${control.status} | ${finding.replace(/\|/g, '\\|').slice(0, 260)} |`,
     );
   }
   lines.push('');
@@ -128,7 +136,7 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
   lines.push(
     `Algorithm: \`${report.ledger.algorithm}\`. Root: \`${report.ledger.root}\`.`,
     '',
-    'Each entry hashes the previous entry, the control identifier, its status and score, the rule-pack version, and the digest of every piece of evidence cited. Re-running Annex on the same commit reproduces this root exactly. If a cited file changes by one character, the chain breaks and `annex verify` names the entry that stopped matching.',
+    'Each entry hashes the previous entry, the control identifier, its status and score, the rule-pack version, and the digest of every piece of evidence cited. Re-running Annex on the same commit reproduces this root exactly. `annex verify <report.json>` re-derives every entry from the results it describes, so an edited status no longer hashes to its recorded value; `annex verify <report.json> --against <dir>` additionally re-hashes each cited file off disk, so a document that no longer describes the tree says so. This is a checksum chain, not a signature: it makes a silent edit detectable by anyone holding the source, not impossible.',
     '',
     '| # | Control | Status | Entry hash |',
     '|---|---|---|---|',
@@ -327,7 +335,7 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
 
   <h2><span class="num">B</span>${t.ledgerAppendix}</h2>
   <p>Algorithm <code>${report.ledger.algorithm}</code>. Root <code>${report.ledger.root}</code>.</p>
-  <p>Each entry hashes the previous entry, the control identifier, its status and score, the rule-pack version, and the digest of every piece of evidence cited. Re-running Annex on the same commit reproduces this root exactly. If a cited file changes by one character, the chain breaks and <code>annex verify</code> names the entry that stopped matching.</p>
+  <p>Each entry hashes the previous entry, the control identifier, its status and score, the rule-pack version, and the digest of every piece of evidence cited. Re-running Annex on the same commit reproduces this root exactly. <code>annex verify</code> re-derives every entry from the results this document describes, so an edited status no longer hashes to its recorded value; <code>annex verify --against &lt;dir&gt;</code> additionally re-hashes each cited file off disk, so a document that no longer describes the tree says so. This is a checksum chain, not a signature: it makes a silent edit detectable by anyone holding the source, not impossible.</p>
   <div class="scroll">
   <table class="reg">
     <thead><tr><th>#</th><th>${t.control}</th><th>${t.status}</th><th>Entry hash</th></tr></thead>

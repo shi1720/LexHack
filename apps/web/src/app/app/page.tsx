@@ -3,7 +3,7 @@ import { ALL_PACKS, CORPUS_SIZE } from '@annex/engine';
 import { currentUser } from '@/server/auth';
 import { listSystems, latestReport } from '@/server/systems';
 import { seedDemoScans } from '@/server/seed-demo';
-import { Empty, Panel, ScoreDial, StatusBadge, TierBadge, euro, relativeDays } from '@/components/primitives';
+import { Empty, Panel, ScoreDial, StatusBadge, TierBadge, money, relativeDays } from '@/components/primitives';
 
 export const metadata = { title: 'Systems' };
 export const dynamic = 'force-dynamic';
@@ -27,7 +27,12 @@ export default async function Dashboard() {
     r.data!.report.controls.filter((c) => c.inForce && (c.status === 'missing' || c.status === 'partial')),
   );
   const prohibitions = scanned.filter((r) => r.data!.report.classification.tier === 'prohibited');
-  const totalExposure = scanned.reduce((n, r) => n + r.data!.report.exposure.maxFineEur, 0);
+  // Only euro-denominated ceilings are summed. A NYC per-day civil penalty is
+  // a different kind of number and is shown on the system it belongs to.
+  const totalExposure = scanned.reduce(
+    (n, r) => n + (r.data!.report.exposure.currency === 'EUR' ? r.data!.report.exposure.maxFine : 0),
+    0,
+  );
 
   const nextMilestone = ALL_PACKS.flatMap((p) => p.milestones)
     .map((m) => ({ ...m, days: Math.round((new Date(m.date).getTime() - Date.now()) / DAY) }))
@@ -65,10 +70,10 @@ export default async function Dashboard() {
             hint={prohibitions.length ? prohibitions.map((p) => p.system.name).join(', ') : 'none detected'}
           />
           <Tile
-            label="Maximum exposure"
-            value={euro(totalExposure)}
+            label="Statutory maximum"
+            value={money(totalExposure)}
             tone={totalExposure > 0 ? 'warn' : 'ok'}
-            hint="administrative fines, in-force obligations only"
+            hint="administrative ceiling, in force today"
           />
           <Tile
             label="Next deadline"

@@ -57,9 +57,9 @@ So the two things Annex does that nobody else does:
 
 **The law gets a test suite.** A control is a function, so it can be tested. Every high-severity obligation ships golden fixtures — a minimal repository and the status the control must return for it. `npm test` runs all of them. If a regex gets greedier or a keyword gets dropped, the obligation fails there rather than silently mis-reporting somebody's conformity.
 
-**The evidence ledger.** Every control result is reduced to a canonical line — the control, its status, the rule-pack version, the SHA-256 digest of every file it cites — and hashed into a chain. The root goes on the front page of the dossier. Re-run the scan on the same commit and you get the same root; change one character of one cited file and the chain breaks, and `annex verify` names the entry that stopped matching. That is the whole difference between a document and a proof.
+**The evidence ledger.** Every control result is reduced to a canonical line — the control, its status, the rule-pack version, the SHA-256 digest of every file it cites — and hashed into a chain. The root goes on the front page of the dossier. Re-run the scan on the same commit and you get the same root. `annex verify` re-derives every entry from the results the report describes — edit one status and it names the entry that stopped matching — and `--against <dir>` re-hashes each cited file off disk. It is a checksum chain, not a signature: it makes a silent edit detectable by anyone holding the source, not impossible.
 
-And one thing only a code-grounded tool *can* do. Article 3(49) defines a **substantial modification** as a change that affects compliance with Chapter III, and Article 43(4) then requires a new conformity assessment. `annex diff --base origin/main --head HEAD` detects it — delete the human-review gate and Annex says so, in the pull request, before it merges. A questionnaire structurally cannot.
+And one thing only a code-grounded tool *can* do. Article 3(23) defines a **substantial modification** as a change that affects compliance with Chapter III, and Article 43(4) then requires a new conformity assessment. `annex diff --base origin/main --head HEAD` detects it — delete the human-review gate and Annex says so, in the pull request, before it merges. A questionnaire structurally cannot.
 
 ## How we built it
 

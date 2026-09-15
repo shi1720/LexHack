@@ -124,6 +124,30 @@ function evidenceOf(controls: ControlResult[], limit = 6) {
     .map((e) => ({ path: e.path, line: e.line, snippet: e.snippet.trim() }));
 }
 
+/**
+ * An open item is a question this document cannot answer *yet*.
+ *
+ * It used to be a hardcoded string, which meant the dossier could cite
+ * `risk-management.md:41` — "residual risk judged acceptable by the VP
+ * Engineering" — while simultaneously listing residual-risk acceptance as
+ * unanswered, three inches apart. An assessor finds that in the first ten
+ * minutes, and it is the kind of contradiction that costs a document its
+ * credibility regardless of what else it gets right.
+ *
+ * So every open item now names the controls that would close it. It survives
+ * into the list only if none of them came back satisfied, which makes
+ * `openCount` a measurement and `declarationReady` a claim the document is
+ * entitled to make. Items no control can settle — the hardware description,
+ * the list of standards applied — pass no ids and stay open by construction.
+ */
+function openItem(report: ScanReport, label: string, ...closedBy: string[]): string[] {
+  if (closedBy.length === 0) return [label];
+  const closed = closedBy.some((id) =>
+    report.controls.some((c) => c.controlId === id && (c.status === 'satisfied' || c.status === 'not_applicable')),
+  );
+  return closed ? [] : [label];
+}
+
 function statusLine(controls: ControlResult[]): string[] {
   return controls.map((c) => {
     const citation = c.citations[0];
@@ -164,7 +188,11 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
       n?.systemDescription ?? '',
       `**(b) Interaction with other systems.** ${
         modelSignals.length > 0
-          ? `The system calls externally provided models: ${modelSignals.map((s) => s.label).join(', ')}. Under Article 25(1)(c), directing a general-purpose AI system at an Annex III use case makes this repository's owner the provider of a high-risk AI system.`
+          ? `The system calls externally provided models: ${modelSignals.map((s) => s.label).join(', ')}. ${
+              report.classification.tier === 'high' || report.classification.tier === 'prohibited'
+                ? 'Article 25(1)(c) should be considered: a deployer who modifies the intended purpose of a general-purpose AI system that has not been classified as high-risk and has already been placed on the market, such that it becomes high-risk under Article 6, becomes its provider. Whether those three conditions are met here is a determination for the operator; Annex records the model dependency, not the conclusion.'
+                : 'The classification below does not place the system in Annex III, so the Article 25(1)(c) conversion is not engaged on the present facts.'
+            }`
           : 'No external model provider was detected in the codebase.'
       }`,
       `**(c) Software versions.** ${deps.length} production dependencies were resolved from the manifests in this repository. The full inventory is emitted as a CycloneDX ML-BOM alongside this document.`,
@@ -180,13 +208,15 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
         'Not assessed.'
       }`,
     ].filter(Boolean),
-    evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art25.role-determination', 'eu-ai-act.art13.instructions-for-use')),
+    evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art3.role-determination', 'eu-ai-act.art13.instructions-for-use')),
     open: [
-      !report.profile.purpose ? 'Intended purpose (point 1(a))' : '',
+      ...(report.profile.purpose ? [] : ['Intended purpose (point 1(a))']),
       'Hardware and runtime environment (point 1(e))',
-      'Forms of placement on the market (point 1(d))',
-    ].filter(Boolean),
-    controlIds: ['eu-ai-act.art25.role-determination', 'eu-ai-act.art13.instructions-for-use'],
+      ...(report.signals.some((s) => s.id === 'domain.chat.enduser')
+        ? []
+        : ['Forms of placement on the market (point 1(d))']),
+    ],
+    controlIds: ['eu-ai-act.art3.role-determination', 'eu-ai-act.art13.instructions-for-use'],
   });
 
   // --- Point 2 ------------------------------------------------------------
@@ -211,7 +241,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
         report.signals.some((s) => s.id === 'ai.prompt.system')
           ? 'The general logic is expressed in system prompts and orchestration code located in the evidence below. What the system optimises for, and the trade-offs accepted to meet Chapter III Section 2, are design decisions that must be recorded here.'
           : `${OPEN_MARKER}. Describe the general logic, the key design choices and their rationale, what the system optimises for, and the trade-offs accepted.`
-      }`,
+      } Annex IV point 2(b) also requires the **main design choices including rationale and assumptions made with regard to the persons or groups of persons on whom the system is intended to be used**. That half of the sub-point is the one an assessor probes hardest on an Annex III point 4(a) system, and it cannot be derived from source: state who the system is used on, and what was assumed about them.`,
       `**(c) System architecture and computational resources.** ${report.snapshot.fileCount} source files were analysed. ${OPEN_MARKER}: describe how components feed into each other and the resources used to develop, train, test and validate the system.`,
       `**(d) Data requirements and datasheets.** ${
         report.controls.find((c) => c.controlId === 'eu-ai-act.art10.data-governance')?.finding ?? 'Not assessed.'
@@ -229,10 +259,11 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     ],
     evidence: evidenceOf(p2Controls, 10),
     open: [
-      'General logic, key design choices and optimisation target (point 2(b))',
+      ...openItem(report, 'General logic, key design choices and optimisation target (point 2(b))'),
+      ...openItem(report, 'Design assumptions about the persons or groups the system is used on (point 2(b))'),
       'System architecture and computational resources (point 2(c))',
       'Pre-determined changes (point 2(f))',
-      'Dated and signed test reports (point 2(g))',
+      ...openItem(report, 'Dated and signed test reports (point 2(g))', 'eu-ai-act.art15.accuracy'),
     ],
     controlIds: p2Controls.map((c) => c.controlId),
   });
@@ -253,7 +284,10 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
       `**Input data specifications.** ${OPEN_MARKER}. Specify the expected input format, range and quality.`,
     ],
     evidence: evidenceOf(p3Controls, 6),
-    open: ['Accuracy for specific persons or groups', 'Input data specifications'],
+    open: [
+      ...openItem(report, 'Accuracy for specific persons or groups', 'eu-ai-act.art10.bias-examination'),
+      ...openItem(report, 'Input data specifications', 'eu-ai-act.art10.data-governance'),
+    ],
     controlIds: p3Controls.map((c) => c.controlId),
   });
 
@@ -267,7 +301,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
         : `${OPEN_MARKER}: no evaluation suite was found, so there are no metrics whose appropriateness could be assessed.`,
     ],
     evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art15.accuracy'), 4),
-    open: ['Justification that the chosen metrics suit the intended purpose'],
+    open: openItem(report, 'Justification that the chosen metrics suit the intended purpose'),
     controlIds: ['eu-ai-act.art15.accuracy'],
   });
 
@@ -282,7 +316,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
       'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. That judgement, and the person who made it, cannot be derived from code.',
     ].filter(Boolean),
     evidence: evidenceOf(p5, 6),
-    open: ['Residual risk acceptance and the accountable person (Article 9(5))'],
+    open: openItem(report, 'Residual risk acceptance and the accountable person (Article 9(5))', 'eu-ai-act.art9.risk-management'),
     controlIds: p5.map((c) => c.controlId),
   });
 
@@ -291,13 +325,13 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     point: '6',
     title: h.point['6'] ?? 'Relevant changes through the lifecycle',
     body: [
-      `This document describes the system at commit \`${versionRef(report)}\`. Annex maintains change history by comparing consecutive scans: where a change affects compliance with Chapter III Section 2 or modifies the intended purpose, it is a substantial modification within Article 3(49) and reopens the conformity assessment under Article 43(4).`,
+      `This document describes the system at commit \`${versionRef(report)}\`. Annex maintains change history by comparing consecutive scans: where a change affects compliance with Chapter III Section 2 or modifies the intended purpose, it is a substantial modification within Article 3(23) and reopens the conformity assessment under Article 43(4).`,
       report.signals.some((s) => s.id === 'governance.change-control')
         ? 'Change control is evidenced in the repository (see evidence).'
         : `${OPEN_MARKER}: no change control artefacts were found. Article 17(1)(a) expects management of modifications to be part of the quality management system.`,
     ],
     evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art17.quality-management'), 4),
-    open: ['Log of relevant changes since the initial conformity assessment'],
+    open: openItem(report, 'Log of relevant changes since the initial conformity assessment', 'eu-ai-act.art17.quality-management'),
     controlIds: ['eu-ai-act.art17.quality-management'],
   });
 
@@ -313,7 +347,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
       'The solutions adopted are the controls assessed in this document; each is listed with its evidence in the appendix.',
     ],
     evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art17.quality-management'), 3),
-    open: ['List of other standards and technical specifications applied'],
+    open: openItem(report, 'List of other standards and technical specifications applied'),
     controlIds: ['eu-ai-act.art17.quality-management'],
   });
 
@@ -329,7 +363,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
         : `${OPEN_MARKER}: no EU declaration of conformity was found. It cannot be drawn up until the open items in this document are closed — by drawing it up, the provider assumes responsibility for compliance.`,
     ],
     evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art49.registration'), 3),
-    open: ['EU declaration of conformity (Article 47, Annex V)'],
+    open: openItem(report, 'EU declaration of conformity (Article 47, Annex V)'),
     controlIds: ['eu-ai-act.art49.registration'],
   });
 
@@ -343,13 +377,17 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
       'Article 72(3) makes the post-market monitoring plan part of this technical documentation. The Commission template is not due until 2 September 2027, so the plan is free-form until then.',
     ],
     evidence: evidenceOf(p9, 4),
-    open: ['Post-market monitoring plan (Article 72(3))'],
+    open: openItem(report, 'Post-market monitoring plan (Article 72(3))', 'eu-ai-act.art72.post-market-monitoring'),
     controlIds: p9.map((c) => c.controlId),
   });
 
   const openCount = sections.reduce((n2, s) => n2 + s.open.length, 0);
   const evidenceCount = sections.reduce((n2, s) => n2 + s.evidence.length, 0);
-  const answered = sections.filter((s) => s.evidence.length > 0).length;
+  // "Answered" means evidenced *and* nothing left open. A section that scores
+  // a single incidental citation from a unit test is not an answered section,
+  // and a completeness figure that says otherwise is the same self-attestation
+  // this product exists to replace.
+  const answered = sections.filter((s) => s.evidence.length > 0 && s.open.length === 0).length;
 
   return {
     title: h.doc,

@@ -58,7 +58,7 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
               {system.purpose}
             </p>
             <p className="mt-3" style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '12px 0 0', maxWidth: '62ch' }}>
-              {report.classification.summary} Role under Article 3(3):{' '}
+              {report.classification.summary} Role under Articles 3(3) and 3(4):{' '}
               <strong>{report.classification.role.replace('+', ' and ')}</strong>.
             </p>
           </div>
@@ -73,7 +73,9 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
             <span className="code">{(report.snapshot.commit ?? report.snapshot.id).slice(0, 12)}</span> by a
             deterministic, offline analysis. No language model participated in any determination. The results
             are hashed into a chain whose root is printed here: re-run the same scan on the same commit and you
-            get the same root, and if a cited file changes by one character the chain breaks.
+            get the same root. Every entry can be re-derived from the results it describes, and{' '}
+            <span className="code">annex verify --against .</span> re-hashes each cited file off disk — so an
+            edited status, or source that has moved since, is detectable by anyone holding the repository.
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div>

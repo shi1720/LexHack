@@ -2,6 +2,7 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   ALL_PACKS,
   CORPUS_SIZE,
@@ -26,12 +27,12 @@ import {
   toAttestation,
   toMlBom,
   toSarif,
-  verifyLedger,
+  verifyLedgerAgainstResults,
   type RepoSnapshot,
   type ScanReport,
   type SystemProfile,
 } from '@annex/engine';
-import { c, SYMBOL, clearProgress, euro, heading, progress, rule, scoreBar, statusBadge, tierBanner, wrap } from './ui.js';
+import { c, SYMBOL, clearProgress, money, heading, progress, rule, scoreBar, statusBadge, tierBanner, wrap } from './ui.js';
 
 const CLI_VERSION = '0.1.0';
 
@@ -91,7 +92,7 @@ ${c.bold('COMMANDS')}
   ${c.cyan('dossier')} [path]           Generate the Annex IV technical documentation
   ${c.cyan('fix')} [path]               Write the files that close the gaps, or emit a patch
   ${c.cyan('diff')} --base --head       Detect a substantial modification (git ref or directory)
-  ${c.cyan('verify')} <report.json>     Re-verify an evidence ledger
+  ${c.cyan('verify')} <report.json>     Re-derive an evidence ledger from the results it describes
   ${c.cyan('packs')}                    List the rule-pack corpus
   ${c.cyan('benchmark')}                Run the labelled corpus and report accuracy, honestly
   ${c.cyan('explain')} <control-id>     Show an obligation, its citation and how it is detected
@@ -109,6 +110,10 @@ ${c.bold('SCAN OPTIONS')}
   --all                Show satisfied and not-applicable controls too
   --quiet              Suppress the progress indicator
 
+${c.bold('VERIFY OPTIONS')}
+  --against <dir>      Re-hash every cited file off disk, so a report that no
+                       longer describes the tree it claims to describe says so
+
 ${c.bold('DOSSIER OPTIONS')}
   --locale <en|de|fr>  Article 11 requires documentation in a language the
                        Member State determines. Headings are localised.
@@ -122,7 +127,33 @@ ${c.bold('EXAMPLES')}
   ${c.grey('$')} annex dossier . --html --out dossier.html
   ${c.grey('$')} annex fix . --patch conformity.patch
   ${c.grey('$')} annex diff --base origin/main --head HEAD
+  ${c.grey('$')} annex verify report.json --against .
 `;
+
+// ---------------------------------------------------------------------------
+
+/**
+ * A misspelt flag is silently ignored by every hand-rolled parser, which in a
+ * compliance tool means `--fail-undr 70` is a green build. Annex names them.
+ */
+const GLOBAL_FLAGS = ['help', 'h', 'version', 'v', 'quiet'];
+const KNOWN_FLAGS: Record<string, string[]> = {
+  scan: ['format', 'out', 'fail-under', 'markets', 'purpose', 'name', 'turnover', 'employees', 'token', 'all', 'ref'],
+  dossier: ['locale', 'html', 'out', 'markets', 'purpose', 'name', 'token', 'simplified', 'ref'],
+  fix: ['patch', 'out', 'write', 'markets', 'purpose', 'name', 'token', 'ref'],
+  diff: ['base', 'head', 'markets', 'purpose', 'name', 'token'],
+  verify: ['against'],
+  packs: [],
+  explain: [],
+  benchmark: ['format', 'out'],
+  help: [],
+};
+
+function unknownFlags(args: Args): string[] {
+  const known = KNOWN_FLAGS[args.command];
+  if (!known) return [];
+  return Object.keys(args.flags).filter((f) => !known.includes(f) && !GLOBAL_FLAGS.includes(f));
+}
 
 // ---------------------------------------------------------------------------
 
@@ -225,6 +256,18 @@ async function runScan(args: Args): Promise<number> {
   }
 
   const floor = str(args.flags['fail-under']);
+  if (floor && Number.isNaN(Number(floor))) {
+    process.stderr.write(c.red(`--fail-under expects a number, got "${floor}".\n`));
+    return 2;
+  }
+  // A gate over nothing is the worst failure mode a CI tool has: it passes.
+  if (floor && report.snapshot.fileCount === 0) {
+    process.stderr.write(
+      `\n${c.red(SYMBOL.fail)} Nothing was analysed — the snapshot contains no readable source files.\n` +
+        c.grey('  A conformity score over an empty tree is meaningless, so --fail-under refuses it.\n'),
+    );
+    return 2;
+  }
   if (floor && report.score < Number(floor)) {
     process.stderr.write(
       `\n${c.red(SYMBOL.fail)} conformity score ${c.bold(String(report.score))} is below the floor of ${c.bold(floor)}.\n`,
@@ -248,8 +291,13 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   out.write(`  ${c.grey('conformity')}   ${scoreBar(report.score)}\n`);
   out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
-  if (report.exposure.maxFineEur > 0) {
-    out.write(`  ${c.grey('exposure')}     ${c.red(c.bold(euro(report.exposure.maxFineEur)))} ${c.grey('maximum administrative fine')}\n`);
+  if (report.exposure.maxFine > 0) {
+    out.write(
+      `  ${c.grey('exposure')}     ${c.red(c.bold(money(report.exposure.maxFine, report.exposure.currency)))} ${c.grey('statutory ceiling, not a forecast (Art. 99(1), 99(7))')}\n`,
+    );
+    for (const r of report.exposure.byRegime.slice(1)) {
+      out.write(`               ${c.grey(`+ ${r.packName}: ${money(r.amount, r.currency)}${r.multiplier ? ` ${r.multiplier}` : ''}`)}\n`);
+    }
   }
 
   if (report.classification.findings.length > 0) {
@@ -327,8 +375,8 @@ function renderMarkdown(report: ScanReport): string {
     `|---|---|`,
     `| Conformity score | **${report.score}/100** |`,
     `| Obligations in force today | ${report.liveScore}/100 |`,
-    `| Role under Article 3(3) | ${report.classification.role.replace('+', ' and ')} |`,
-    `| Maximum administrative exposure | ${euro(report.exposure.maxFineEur)} |`,
+    `| Role under Articles 3(3) and 3(4) | ${report.classification.role.replace('+', ' and ')} |`,
+    `| Statutory maximum administrative fine | ${money(report.exposure.maxFine, report.exposure.currency)} |`,
     `| Evidence ledger | \`${ledgerFingerprint(report.ledger)}\` |`,
     `| Scanned | ${report.snapshot.fileCount} files in ${report.durationMs} ms |`,
     '',
@@ -476,25 +524,120 @@ async function runDiff(args: Args): Promise<number> {
   return drift.substantial ? 1 : 0;
 }
 
+/**
+ * A report is untrusted input — it arrives as a file, often from the party
+ * being audited. Check its shape before touching it, so a malformed dossier
+ * produces a sentence rather than a stack trace.
+ */
+function assertReportShape(value: unknown, path: string): asserts value is ScanReport {
+  const r = value as Partial<ScanReport> | null;
+  const problem =
+    !r || typeof r !== 'object'
+      ? 'not a JSON object'
+      : !Array.isArray(r.controls)
+        ? 'no "controls" array'
+        : !Array.isArray(r.packs)
+          ? 'no "packs" array'
+          : !r.ledger || !Array.isArray(r.ledger.entries) || typeof r.ledger.root !== 'string'
+            ? 'no evidence ledger'
+            : null;
+  if (problem) throw new Error(`${path} is not an Annex scan report (${problem}).`);
+}
+
+/**
+ * Re-hash every file the report cites, straight off disk.
+ *
+ * The ledger proves the report is internally consistent. It cannot, on its
+ * own, prove that the *source* still says what the report says it said —
+ * `fileSha256` is a number the report carries about itself. This closes that
+ * loop: point `--against` at the working tree and every cited digest is
+ * recomputed from the bytes actually on disk.
+ */
+async function reHashCitedFiles(
+  report: ScanReport,
+  root: string,
+): Promise<{ checked: number; missing: string[]; changed: string[] }> {
+  const expected = new Map<string, string>();
+  for (const control of report.controls) {
+    for (const e of control.evidence) {
+      if (e.kind === 'absence' || !e.fileSha256) continue;
+      expected.set(e.path, e.fileSha256);
+    }
+  }
+
+  const missing: string[] = [];
+  const changed: string[] = [];
+  for (const [relPath, digest] of expected) {
+    let bytes: Buffer;
+    try {
+      bytes = await readFile(resolve(root, relPath));
+    } catch {
+      missing.push(relPath);
+      continue;
+    }
+    if (createHash('sha256').update(bytes).digest('hex') !== digest) changed.push(relPath);
+  }
+  return { checked: expected.size, missing, changed };
+}
+
 async function runVerify(args: Args): Promise<number> {
   const path = args.positional[0];
   if (!path) {
     process.stderr.write(c.red('annex verify needs a report JSON file.\n'));
+    process.stderr.write(c.grey('  annex verify report.json [--against <dir>]\n'));
     return 2;
   }
-  const report = JSON.parse(await readFile(resolve(path), 'utf8')) as ScanReport;
-  const check = verifyLedger(report.ledger);
+
+  let report: ScanReport;
+  try {
+    const parsed: unknown = JSON.parse(await readFile(resolve(path), 'utf8'));
+    assertReportShape(parsed, path);
+    report = parsed;
+  } catch (err) {
+    process.stderr.write(c.red(`${(err as Error).message}\n`));
+    return 2;
+  }
+
+  // Re-derive the whole chain from the results the report carries. This is the
+  // check that matters: flip one status from "missing" to "satisfied" and the
+  // entry for that control no longer hashes to the recorded value.
+  const ruleVersions = Object.fromEntries(report.packs.map((p) => [p.packId, p.version]));
+  const check = verifyLedgerAgainstResults(report.ledger, report.controls, ruleVersions);
 
   process.stdout.write('\n');
-  if (check.valid) {
-    process.stdout.write(`${c.bgGreen(' LEDGER INTACT ')}  ${c.bold(ledgerFingerprint(report.ledger))}\n\n`);
-    process.stdout.write(`  ${check.checked} entries verified against root ${c.grey(check.expectedRoot.slice(0, 24) + '…')}\n`);
-    process.stdout.write(`  ${c.grey('Re-run the scan on the same commit to confirm the evidence itself has not moved.')}\n`);
+  if (!check.valid) {
+    process.stdout.write(`${c.bgRed(' LEDGER BROKEN ')}\n\n`);
+    process.stdout.write(`  ${check.reason}\n`);
+    process.stdout.write(`  ${c.grey(`recomputed ${check.root.slice(0, 24)}… vs recorded ${check.expectedRoot.slice(0, 24)}…`)}\n`);
+    return 1;
+  }
+
+  process.stdout.write(`${c.bgGreen(' LEDGER INTACT ')}  ${c.bold(ledgerFingerprint(report.ledger))}\n\n`);
+  process.stdout.write(`  ${check.checked} entries re-derived from the results they describe\n`);
+  process.stdout.write(`  ${c.grey(`root ${check.expectedRoot.slice(0, 24)}…`)}\n`);
+
+  const against = str(args.flags.against);
+  if (!against) {
+    process.stdout.write(
+      `\n  ${c.grey('Pass --against <dir> to re-hash every cited file off disk and confirm the')}\n` +
+        `  ${c.grey('source itself has not moved since the report was issued.')}\n`,
+    );
     return 0;
   }
-  process.stdout.write(`${c.bgRed(' LEDGER BROKEN ')}\n\n`);
-  process.stdout.write(`  ${check.reason}\n`);
-  process.stdout.write(`  ${c.grey(`recomputed ${check.root.slice(0, 24)}… vs recorded ${check.expectedRoot.slice(0, 24)}…`)}\n`);
+
+  const files = await reHashCitedFiles(report, resolve(against));
+  process.stdout.write(`\n  ${c.bold('Cited files, re-hashed from')} ${c.cyan(against)}\n`);
+  process.stdout.write(`  ${files.checked} file(s) checked\n`);
+
+  if (files.changed.length === 0 && files.missing.length === 0) {
+    process.stdout.write(`  ${c.green(SYMBOL.pass)} every cited file still hashes to the digest in the report\n`);
+    return 0;
+  }
+  for (const f of files.changed) process.stdout.write(`  ${c.red(SYMBOL.fail)} changed since the report: ${f}\n`);
+  for (const f of files.missing) process.stdout.write(`  ${c.red(SYMBOL.fail)} cited but not found: ${f}\n`);
+  process.stdout.write(
+    `\n  ${c.grey('The dossier describes a different tree than the one on disk. Re-scan before relying on it.')}\n`,
+  );
   return 1;
 }
 
@@ -591,6 +734,16 @@ async function main(): Promise<void> {
 
   if (args.flags.version || args.flags.v || args.command === 'version') {
     process.stdout.write(`annex ${CLI_VERSION} (engine ${ENGINE_VERSION}, ${CORPUS_SIZE} obligations)\n`);
+    return;
+  }
+
+  const stray = unknownFlags(args);
+  if (stray.length) {
+    process.stderr.write(
+      c.red(`Unknown option${stray.length > 1 ? 's' : ''} for \`annex ${args.command}\`: ${stray.map((f) => `--${f}`).join(', ')}\n`),
+    );
+    process.stderr.write(c.grey('Run `annex help` for the options each command accepts.\n'));
+    process.exitCode = 2;
     return;
   }
 

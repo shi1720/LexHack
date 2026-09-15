@@ -16,6 +16,8 @@ export interface ClassificationRule {
   boosts?: string[];
   /** Signals that suppress the rule entirely (documented carve-outs). */
   suppressedBy?: string[];
+  /** Signals that cancel a suppression — the carve-out's own carve-out. */
+  suppressionLiftedBy?: string[];
   baseConfidence: number;
   /** Carve-out or nuance an operator must confirm. Shown as a review prompt. */
   caveat?: string;
@@ -281,13 +283,15 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     requires: ['domain.democratic.process'],
     requiresAny: ['ai.inference.call', 'ai.provider.*'],
     baseConfidence: 0.68,
+    caveat:
+      'Point 8(b) expressly excludes AI systems to the output of which natural persons are not directly exposed — such as tools used to organise, optimise or structure political campaigns from an administrative or logistical point of view. If nobody sees the output, the point does not bite.',
   },
   {
     id: 'annex-iii.2.infrastructure',
     tier: 'high',
     title: 'Critical infrastructure safety component',
     basis:
-      'The system is a safety component in the management or operation of critical digital infrastructure, road traffic or the supply of water, gas, heating or electricity — Annex III, point 2.',
+      'The system is a safety component in the management and operation of critical digital infrastructure, road traffic or the supply of water, gas, heating or electricity — Annex III, point 2.',
     citations: [aiActAnnex('III', '2', 'High-risk AI systems — critical infrastructure')],
     requires: ['domain.critical-infrastructure'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical'],
@@ -352,9 +356,15 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     requires: ['ai.inference.call'],
     requiresAny: ['ai.provider.openai', 'ai.provider.anthropic', 'ai.provider.google', 'ai.provider.cloud', 'ai.provider.openweights', 'ai.framework.agent'],
     boosts: ['domain.chat.enduser', 'ai.prompt.system'],
+    // Second limb of the Article 50(2) carve-out, in code: a system that reads
+    // a receipt and returns what it says has not "generated synthetic content",
+    // it has re-expressed content that already existed. The carve-out lifts
+    // again the moment the same system also writes free text of its own.
+    suppressedBy: ['task.extraction-only'],
+    suppressionLiftedBy: ['domain.chat.enduser', 'domain.synthetic.content', 'ai.prompt.system'],
     baseConfidence: 0.62,
     caveat:
-      'Article 50(2) does not apply to the extent the system performs an assistive function for standard editing, or does not substantially alter the input data or its semantics. Code completion, spell-checking and faithful translation are the usual candidates for that carve-out — confirm which limb your system falls in.',
+      'Article 50(2) does not apply to the extent the system performs an assistive function for standard editing, does not substantially alter the input data or its semantics, or where the system is authorised by law to detect, prevent, investigate or prosecute criminal offences. Code completion, spell-checking and faithful translation are the usual candidates for the first carve-out — confirm which limb your system falls in.',
   },
 
   // ---------------------------------------------------------------------
@@ -362,7 +372,9 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
   // ---------------------------------------------------------------------
   {
     id: 'gdpr.art22.automated-decision',
-    tier: 'transparency',
+    // A restriction on processing plus a bundle of data-subject rights. It is
+    // not a transparency duty, and labelling it one propagated into the UI.
+    tier: 'high',
     title: 'Solely automated decision with legal or similarly significant effect',
     basis:
       'An automated decision is taken about a person without a human in the loop. GDPR Article 22 restricts this and requires safeguards including a right to obtain human intervention.',
@@ -375,10 +387,19 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       gdpr('Art. 22(3)', 'Safeguards — right to obtain human intervention'),
     ],
     requires: ['domain.automated.decision', 'data.pii.handling'],
-    suppressedBy: ['control.human.review'],
+    // Deliberately NOT suppressed by `control.human.review`. A function named
+    // `human_review()` is not a Article 22 safeguard: EDPB WP251rev.01 requires
+    // the involvement to be meaningful, carried out by someone with the
+    // authority and competence to change the decision, and CJEU C-634/21
+    // (SCHUFA) went further still — a probability value a third party draws
+    // strongly on is itself the "decision". Suppressing the finding on a
+    // keyword would be exactly the "code presence is conformity" mistake this
+    // product exists to argue against. The GDPR pack's own Art. 22 control
+    // then asks the harder question: review *and* a contest path.
+    boosts: ['domain.profiling'],
     baseConfidence: 0.6,
     caveat:
-      'Article 22 applies only where the decision is based *solely* on automated processing and produces legal or similarly significant effects.',
+      'Article 22(1) applies only where the decision is based *solely* on automated processing and produces legal or similarly significant effects. Article 22(2) then permits it where it is necessary for a contract, authorised by Union or Member State law, or based on explicit consent — with Article 22(3) safeguards, and Article 22(4) restricting special-category data. If a human review step exists, the question is whether the reviewer has the authority and competence to reach a different outcome; a rubber stamp does not take the processing outside Article 22 (EDPB WP251rev.01; CJEU C-634/21 SCHUFA).',
   },
 ];
 
@@ -386,6 +407,12 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
 export function ruleMatches(rule: ClassificationRule, signals: SignalIndex): boolean {
   if (!rule.requires.every((id) => signals.hasAny(id))) return false;
   if (rule.requiresAny && rule.requiresAny.length > 0 && !signals.hasAny(...rule.requiresAny)) return false;
-  if (rule.suppressedBy && signals.hasAny(...rule.suppressedBy)) return false;
+  if (rule.suppressedBy && signals.hasAny(...rule.suppressedBy)) {
+    // A carve-out stops applying the moment the system also does the thing the
+    // carve-out excludes: an OCR pipeline that also drafts replies is not
+    // "merely re-expressing the input".
+    const lifted = rule.suppressionLiftedBy ? signals.hasAny(...rule.suppressionLiftedBy) : false;
+    if (!lifted) return false;
+  }
   return true;
 }

@@ -1,4 +1,4 @@
-import type { RiskTier } from '../types.js';
+import type { RiskTier, SystemProfile } from '../types.js';
 
 /**
  * The benchmark corpus.
@@ -19,6 +19,12 @@ export interface BenchmarkCase {
   /** What a lawyer would call this system. */
   description: string;
   files: Record<string, string>;
+  /**
+   * Operator-supplied facts for this case. Some determinations are not in the
+   * code by construction — the Article 6(3) derogation is one an operator
+   * claims — and a benchmark that cannot express them cannot test them.
+   */
+  profile?: Partial<SystemProfile>;
   /** The tier a competent reader of the Act would assign. */
   tier: RiskTier;
   /** Classification finding ids that must fire. */
@@ -47,6 +53,244 @@ def predict(features):
 `;
 
 export const BENCHMARK: BenchmarkCase[] = [
+  // =======================================================================
+  // Hard cases. These exist to find the edge of what static analysis can
+  // decide, not to be passed. Where Annex gets one wrong the benchmark says
+  // so, in the README, unedited.
+  // =======================================================================
+  {
+    id: 'hard.obvious-ai-chatbot',
+    description: 'Chat widget branded "AI Assistant" throughout the interface',
+    tier: 'transparency',
+    expectFindings: ['art50.1.chat-disclosure'],
+    rationale:
+      'Article 50(1) does not apply where it is obvious to a reasonably well-informed, observant and circumspect natural person that they are interacting with an AI system. Whether branding makes it obvious is a judgement about a reader, not a fact about a file — Annex should raise the duty and say the carve-out has to be assessed, not silently decide either way.',
+    files: {
+      'package.json': pkg('assistant-widget'),
+      'src/widget.ts': `${OPENAI_CALL}
+const systemPrompt = 'You are the AI Assistant for Acme.';
+
+export async function sendMessage(text: string) {
+  const chatResponse = await infer(systemPrompt + text);
+  return { role: 'assistant', content: chatResponse, widgetTitle: 'AI Assistant' };
+}
+`,
+    },
+  },
+  {
+    id: 'hard.biometric-hair-colour',
+    description: 'Photo app that groups portraits by hair colour',
+    tier: 'transparency',
+    forbidFindings: ['art5.1g.biometric-categorisation'],
+    rationale:
+      'Article 5(1)(g) prohibits biometric categorisation that deduces race, political opinions, trade union membership, religious or philosophical beliefs, sex life or sexual orientation. Hair colour is none of those, and a rule that fires on the word "categorise" next to the word "face" would be unusable.',
+    files: {
+      'package.json': pkg('photo-groups'),
+      'src/group.ts': `${OPENAI_CALL}
+export async function groupPortraits(faces: string[]) {
+  return faces.map((f) => ({ face: f, categorise: 'hair_colour', bucket: 'brown' }));
+}
+`,
+    },
+  },
+  {
+    id: 'hard.driver-drowsiness',
+    description: 'In-car camera detecting driver drowsiness',
+    tier: 'high',
+    forbidFindings: ['art5.1f.emotion-workplace'],
+    rationale:
+      'Article 5(1)(f) carves out emotion inference put in place for medical or safety reasons, and a drowsiness detector is the paradigm safety case. It is still a safety component of a vehicle, so it does not fall out of the Act altogether.',
+    files: {
+      'package.json': pkg('drowsiness', { 'scikit-learn': '^1.4.0' }),
+      'detect.py': `${SKLEARN_CALL}
+
+
+def detect_drowsiness(frame):
+    """Safety feature: infer driver fatigue from eyelid closure and alert."""
+    emotion_state = predict([frame])[0]
+    return {"drowsy": emotion_state > 0.6, "safety_alert": True, "vehicle_speed_limiter": True}
+`,
+    },
+  },
+  {
+    id: 'hard.regulated-use-in-sql-only',
+    description: 'Lending model called from Python, with the use case visible only in SQL',
+    tier: 'high',
+    expectFindings: ['annex-iii.5b.credit'],
+    rationale:
+      'Not every regulated use case is written in application code. The inference lives in a two-line Python module; everything that makes it creditworthiness assessment is in a stored procedure. A scanner that reads only the languages it likes would call this minimal-risk.',
+    files: {
+      'package.json': pkg('lending-db', { 'scikit-learn': '^1.4.0' }),
+      'score.py': `${SKLEARN_CALL}
+
+
+def run(features):
+    return predict(features)
+`,
+      'db/decide.sql': `-- Creditworthiness scoring for consumer loan applicants.
+CREATE PROCEDURE score_applicant(IN borrower_id INT)
+BEGIN
+  SELECT credit_score, loan_decision, underwriting_outcome
+  FROM loan_applications
+  WHERE applicant_id = borrower_id AND credit_score < 600;
+END;
+`,
+    },
+  },
+  {
+    id: 'hard.vendored-copy',
+    description: 'Unrelated product that vendors a third-party hiring SDK it never calls',
+    tier: 'transparency',
+    forbidFindings: ['annex-iii.4a.recruitment'],
+    rationale:
+      'A vendored dependency sitting in the tree is not a use case the repository owner operates. Treating vendor directories as the system under assessment is how a scanner ends up classifying its own node_modules.',
+    files: {
+      'package.json': pkg('unrelated-app'),
+      'src/app.ts': `${OPENAI_CALL}
+const systemPrompt = 'Summarise this changelog.';
+
+export async function summarise(text: string) {
+  return infer(systemPrompt + text);
+}
+`,
+      'vendor/hire-sdk/screen.ts': `export function scoreCandidate(resume: string) {
+  return { applicant: true, shortlist: true, hiring_decision: 'advance', candidate: resume };
+}
+`,
+    },
+  },
+
+  // =======================================================================
+  // Article 6(3) — the derogation most real Annex III conversations turn on
+  // =======================================================================
+  {
+    id: 'derogation.narrow-procedural-claimed',
+    description: 'Routes inbound CVs to the right requisition by job family, with no scoring',
+    tier: 'minimal',
+    profile: { article63Derogation: 'narrow-procedural' },
+    rationale:
+      'Annex III point 4(a) is engaged on the face of it, but the operator has claimed the Article 6(3)(a) narrow-procedural-task derogation and no profiling of natural persons appears in the code. Annex applies the claim, and adds the Article 6(4) documentation duty and the Article 49(2) registration duty that survive it.',
+    files: {
+      'package.json': pkg('cv-router', { 'scikit-learn': '^1.4.0' }),
+      'router.py': `${SKLEARN_CALL}
+FAMILIES = ["engineering", "sales", "finance"]
+
+
+def route_applicant(resume_text, candidate_id):
+    """Place an applicant CV on the right requisition queue. No ranking."""
+    family = FAMILIES[predict([resume_text]).argmax()]
+    return {"requisition_family": family, "candidate_id": candidate_id, "applicant": True}
+`,
+    },
+  },
+  {
+    id: 'derogation.blocked-by-profiling',
+    description: 'CV router that also builds a candidate profile and a propensity score',
+    tier: 'high',
+    profile: { article63Derogation: 'narrow-procedural' },
+    expectFindings: ['annex-iii.4a.recruitment'],
+    rationale:
+      'The final subparagraph of Article 6(3) closes the derogation for any system performing profiling of natural persons, whichever limb is relied on. Claiming it here must not demote the system.',
+    files: {
+      'package.json': pkg('cv-router-plus', { 'scikit-learn': '^1.4.0' }),
+      'router.py': `${SKLEARN_CALL}
+
+
+def build_candidate_profile(resume_text):
+    """User profile: segment the person and predict performance."""
+    return {"segment_user": "senior", "predict_performance": 0.7, "user_profile": resume_text}
+
+
+def score_candidate(resume_text, applicant_id):
+    candidate_profile = build_candidate_profile(resume_text)
+    propensity_score = predict([resume_text])[0]
+    return {"applicant_id": applicant_id, "shortlist": propensity_score > 0.7, "candidate_profile": candidate_profile}
+`,
+    },
+  },
+  {
+    id: 'derogation.claimed-but-not-annex-iii',
+    description: 'Internal document tagger that claims a derogation it does not need',
+    tier: 'minimal',
+    profile: { article63Derogation: 'preparatory' },
+    rationale:
+      'A derogation from a classification the system never had is not a finding. Annex records that the claim had nothing to displace rather than reporting a successful derogation.',
+    files: {
+      'package.json': pkg('doc-tagger', { 'scikit-learn': '^1.4.0' }),
+      'tagger.py': `${SKLEARN_CALL}
+
+
+def tag_document(text):
+    return {"tags": ["policy", "finance"], "confidence": float(predict([text])[0])}
+`,
+    },
+  },
+
+  // =======================================================================
+  // Article 50(2) — the "does not substantially alter the input" carve-out
+  // =======================================================================
+  {
+    id: 'carveout.invoice-ocr',
+    description: 'Invoice OCR that returns the fields printed on the page',
+    tier: 'minimal',
+    forbidFindings: ['art50.2.generated-text'],
+    rationale:
+      'Article 50(2) does not apply where the system does not substantially alter the input data or its semantics. Transcribing an invoice is re-expression, not generation.',
+    files: {
+      'package.json': pkg('invoice-ocr'),
+      'src/ocr.ts': `${OPENAI_CALL}
+export async function extractInvoice(image: string) {
+  const ocrText = await infer('extract text');
+  return { extractField: true, parseDocument: ocrText, total: 0 };
+}
+`,
+    },
+  },
+  {
+    id: 'carveout.ocr-that-also-drafts',
+    description: 'Invoice OCR that also drafts the chase email',
+    tier: 'transparency',
+    expectFindings: ['art50.2.generated-text'],
+    rationale:
+      'The carve-out is limb-specific, not product-specific. A pipeline that transcribes an invoice and then writes a new message to a person is generating synthetic text for that second output.',
+    files: {
+      'package.json': pkg('invoice-chaser'),
+      'src/ocr.ts': `${OPENAI_CALL}
+const systemPrompt = 'You are a polite accounts-receivable assistant.';
+
+export async function extractInvoice(image: string) {
+  return { extractField: true, parseDocument: await infer('extract text') };
+}
+
+export async function draftChaseEmail(invoice: unknown) {
+  return infer(systemPrompt + ' Write a chase email.');
+}
+`,
+    },
+  },
+
+  // =======================================================================
+  // Annex III point 8(b) — the "not directly exposed" exclusion
+  // =======================================================================
+  {
+    id: 'carveout.campaign-logistics',
+    description: 'Rota and doorstep-route planner for a political campaign office',
+    tier: 'minimal',
+    forbidFindings: ['annex-iii.8b.elections'],
+    rationale:
+      'Point 8(b) expressly excludes systems to the output of which natural persons are not directly exposed, such as tools used to organise, optimise or structure political campaigns from an administrative or logistical point of view.',
+    files: {
+      'package.json': pkg('canvass-rota', { 'scikit-learn': '^1.4.0' }),
+      'rota.py': `${SKLEARN_CALL}
+
+
+def plan_routes(volunteers, streets):
+    """Assign canvassing streets to volunteers for an election campaign office."""
+    return [{"volunteer": v, "street": s} for v, s in zip(volunteers, streets)]
+`,
+    },
+  },
+
   // =======================================================================
   // Prohibited practices — Article 5
   // =======================================================================

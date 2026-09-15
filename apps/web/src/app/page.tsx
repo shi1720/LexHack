@@ -25,9 +25,9 @@ export default function Landing() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b backdrop-blur" style={{ borderColor: 'var(--line)', background: 'color-mix(in srgb, var(--paper) 85%, transparent)' }}>
-        <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5">
+        <nav className="mx-auto flex min-h-14 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-2">
           <Link href="/" className="no-underline"><Logo /></Link>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <a className="btn btn-sm" href="#how">How it works</a>
             <a className="btn btn-sm hidden sm:inline-flex" href="https://github.com/shi1720/LexHack" target="_blank" rel="noreferrer noopener">
               Source

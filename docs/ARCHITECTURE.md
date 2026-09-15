@@ -176,7 +176,7 @@ The root, formatted as `1DB2-8665-D219-34D9`, goes on the front page of the doss
 
 ### Drift detection
 
-`diffReports(before, after)` compares two scans. A regression in a Chapter III control, or a change of risk tier, is the code-visible proxy for the Article 3(49) definition of a **substantial modification** — which under Article 43(4) re-opens the conformity assessment. This is the one thing a questionnaire structurally cannot do.
+`diffReports(before, after)` compares two scans. A regression in a Chapter III control, or a change of risk tier, is the code-visible proxy for the Article 3(23) definition of a **substantial modification** — which under Article 43(4) re-opens the conformity assessment. This is the one thing a questionnaire structurally cannot do.
 
 ---
 

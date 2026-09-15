@@ -33,7 +33,7 @@ const controls: Control[] = [
     ],
     appliesWhen: isAedt,
     evaluate: (ctx) => {
-      const audit = ctx.grepDocs(/\bbias\s+audit\b/i, 4);
+      const audit = ctx.grepDocs(/\bbias\s+audit\b/i, 4, /(bias|audit|fairness|readme|compliance|ll144|aedt)/i);
       const testing = ctx.signals.get('data.bias.testing');
       if (audit.length > 0) {
         return satisfied('Bias audit documentation was found.', audit);
@@ -51,6 +51,38 @@ const controls: Control[] = [
         ['bias audit', 'independent auditor', 'audit summary'],
       );
     },
+    tests: [
+      {
+        name: 'missing when an AEDT ships with no bias audit anywhere',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        // Local Law 144 wants an *independent* auditor. A team's own fairness
+        // suite is good engineering and not the thing the rule asks for.
+        name: 'partial when the team runs its own fairness tests instead',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/fairness.ts':
+            'export function disparateImpact(results) {\n  const selectionRate = rate(results, "female");\n  return demographicParity(selectionRate);\n}\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when an independent bias audit is recorded in the repository',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/bias-audit-2026.md':
+            '# Bias audit\n\nIndependent bias audit conducted on 2026-03-01 by an auditor with no employment relationship to us and no material financial interest in the tool.\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nyc-ll144.impact-ratio',
@@ -96,6 +128,28 @@ const controls: Control[] = [
         ['impact ratio', 'selection rate', 'scoring rate', 'EEO-1 categories'],
       );
     },
+    tests: [
+      {
+        name: 'partial when the impact ratio is computed for sex and race but not intersectionally',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/audit.ts':
+            'export function impactRatio(rates) {\n  const selectionRate = rates.category;\n  return selectionRate / Math.max(...Object.values(rates)); // four-fifths rule\n}\n\nexport function demographicParity(byGroup) {\n  return impactRatio(byGroup);\n}\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied only once sex x ethnicity x race is calculated as well',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/audit.ts':
+            'export function impactRatio(rates) {\n  const selectionRate = rates.category;\n  return selectionRate / Math.max(...Object.values(rates)); // four-fifths rule\n}\n\n// 6 RCNY 5-301(b)(3): intersectional categories of sex x ethnicity x race.\nexport function intersectionalRates(rows) {\n  return group(rows, (r) => r.sex + "|" + r.ethnicity + "|" + r.race);\n}\n\nexport const demographicParity = impactRatio;\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nyc-ll144.publish-summary',
@@ -156,6 +210,30 @@ const controls: Control[] = [
         ['candidate notice', '10 business days', 'alternative selection process'],
       );
     },
+    tests: [
+      {
+        name: 'partial when candidates are notified but not told how to ask for an alternative process',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/notice.ts':
+            'export const CANDIDATE_NOTICE = "We use an automated employment decision tool. You are receiving this candidate notice at least 10 business days before it is used.";\n',
+        },
+        expect: 'partial',
+      },
+      {
+        // The clause everyone misreads: the rule requires the *instructions*,
+        // not an actual alternative process.
+        name: 'satisfied when the notice carries the instructions the rule actually asks for',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/notice.ts':
+            'export const CANDIDATE_NOTICE = "We use an automated employment decision tool. You are receiving this candidate notice at least 10 business days before it is used. To request an alternative selection process or a reasonable accommodation, email careers@example.com.";\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nyc-ll144.data-policy',
@@ -204,17 +282,21 @@ export const NYC_LL144_PACK: RulePack = {
     { date: IN_FORCE, label: 'Enforcement began', note: 'The Department of Consumer and Worker Protection has enforced Local Law 144 since 5 July 2023.' },
   ],
   penalty: {
+    // NYC Admin. Code § 20-872 is denominated in US dollars.
+    currency: 'USD',
     description:
       'Civil penalties under NYC Admin. Code § 20-872. Each day an AEDT is used in violation is a separate violation, and each missing notice is a separate violation.',
     tiers: [
       {
         label: 'First violation, and each additional violation on the same day',
-        amountEur: 500,
+        amount: 500,
+        multiplier: 'per day of use and per missing notice, each of which is a separate violation',
         citation: nycLL144('§ 20-872', 'Penalties'),
       },
       {
         label: 'Each subsequent violation',
-        amountEur: 1_500,
+        amount: 1_500,
+        multiplier: 'per day of use and per missing notice, each of which is a separate violation',
         citation: nycLL144('§ 20-872', 'Penalties'),
       },
     ],

@@ -100,6 +100,38 @@ const controls: Control[] = [
         ['adverse action notice', 'explanation', 'reason codes'],
       );
     },
+    tests: [
+      {
+        name: 'missing when an adverse outcome is returned with no explanation path',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        name: 'partial when reason codes exist but nothing distinguishes an adverse outcome',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
+          'src/explain.ts':
+            'export function reasonCodes(features) {\n  return featureImportance(features).map((f) => ({ reason_code: f.name, rationale: f.why }));\n}\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when the adverse path carries the explanation',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
+          'src/explain.ts':
+            'export function reasonCodes(features) {\n  return featureImportance(features).map((f) => ({ reason_code: f.name, rationale: f.why }));\n}\n',
+          'src/adverse.ts':
+            'export async function sendAdverseActionNotice(applicationId, features) {\n  const explanation = reasonCodes(features);\n  return notify({ applicationId, adverse_outcome: true, explanation, dueWithinDays: 30 });\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'colorado-admt.human-review-override',
@@ -134,6 +166,38 @@ const controls: Control[] = [
         ['human review', 'override', 'reviewer role'],
       );
     },
+    tests: [
+      {
+        name: 'missing when a consequential decision has neither review nor override',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        // The statute asks for a designated individual *authorised to
+        // override*. A reviewer who cannot change the outcome is a spectator.
+        name: 'partial when a reviewer exists but cannot change the outcome',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
+          'src/review.ts':
+            'export async function queueForHumanReview(applicationId) {\n  return db.reviews.create({ applicationId, status: "pending_review" });\n}\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when the designated reviewer can override the outcome',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
+          'src/review.ts':
+            'export async function queueForHumanReview(applicationId) {\n  return db.reviews.create({ applicationId, status: "pending_review" });\n}\n\nexport async function overrideDecision(applicationId, reviewerId, newOutcome) {\n  await queueForHumanReview(applicationId);\n  return db.decisions.update({ applicationId, manual_override: true, reviewerId, newOutcome });\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'colorado-admt.data-correction',
@@ -172,7 +236,7 @@ const controls: Control[] = [
     appliesWhen: consequential,
     evaluate: (ctx) => {
       const instructions = ctx.signals.hasAny('transparency.instructions');
-      const limitations = ctx.grepDocs(/^#+\s*(limitations|known issues|inappropriate uses|out[- ]of[- ]scope)/im, 3);
+      const limitations = ctx.grepDocs(/^#+\s*(limitations|known issues|inappropriate uses|out[- ]of[- ]scope)/im, 3, /(limitation|model[-_]?card|known[-_]?issue|readme|compliance|governance)/i);
       const ev = [...evidenceFrom(ctx, 'transparency.instructions'), ...limitations];
       if (instructions && limitations.length > 0) {
         return satisfied('Deployer documentation including known limitations was found.', ev.slice(0, 5));
@@ -208,6 +272,7 @@ export const COLORADO_ADMT_PACK: RulePack = {
     { date: APPLIES, label: 'Colorado ADMT Act applies', note: 'Duties on developers and deployers begin. The Attorney General must adopt clarifying rules by this date.' },
   ],
   penalty: {
+    currency: 'USD',
     description:
       'Enforced exclusively by the Attorney General under the Colorado Consumer Protection Act as a deceptive trade practice. No private right of action. A sixty-day notice-and-cure period applies until it sunsets on 1 January 2030.',
     tiers: [],

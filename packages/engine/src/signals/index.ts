@@ -50,16 +50,17 @@ export function extractSignals(snapshot: RepoSnapshot, opts: ExtractOptions = {}
   const out: Signal[] = [];
 
   catalogue.forEach((spec, i) => {
-    const evidence: Evidence[] = spec.detect(snapshot);
-    const files = new Set(evidence.map((e) => e.path));
+    const result = spec.detect(snapshot);
     out.push({
       id: spec.id,
       label: spec.label,
       category: spec.category,
       description: spec.description,
-      evidence,
-      fileCount: files.size,
-      hits: evidence.length,
+      evidence: result.evidence,
+      // Counted before the evidence cap, so a signal that fires four hundred
+      // times is distinguishable from one that fires eight.
+      fileCount: result.fileCount,
+      hits: result.matches,
     });
     opts.onProgress?.(i + 1, catalogue.length, spec.id);
   });

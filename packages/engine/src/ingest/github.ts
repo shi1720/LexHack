@@ -1,6 +1,9 @@
 import type { RepoSnapshot } from '../types.js';
 import { buildSnapshot, type SnapshotInput } from './snapshot.js';
 import { readTarGz, stripRootDir } from './tar.js';
+import { IngestError } from './error.js';
+
+export { IngestError, type IngestErrorCode } from './error.js';
 
 export interface GitHubRef {
   owner: string;
@@ -8,22 +11,6 @@ export interface GitHubRef {
   ref?: string;
 }
 
-export class IngestError extends Error {
-  constructor(
-    message: string,
-    readonly code:
-      | 'invalid-url'
-      | 'not-found'
-      | 'rate-limited'
-      | 'too-large'
-      | 'network'
-      | 'private',
-    readonly hint?: string,
-  ) {
-    super(message);
-    this.name = 'IngestError';
-  }
-}
 
 /** Accepts `owner/repo`, full https URLs, `.git` suffixes and `/tree/<ref>` paths. */
 export function parseGitHubUrl(input: string): GitHubRef {

@@ -1,11 +1,13 @@
 import type {
   ActorRole,
+  Article63Assessment,
   Classification,
   ClassificationFinding,
   RiskTier,
   SignalIndex,
   SystemProfile,
 } from '../types.js';
+import { aiActArticle } from '../packs/citations.js';
 import { CLASSIFICATION_RULES, ruleMatches, type ClassificationRule } from './rules.js';
 
 export { CLASSIFICATION_RULES, ruleMatches } from './rules.js';
@@ -83,6 +85,64 @@ export function inferRole(signals: SignalIndex, profile: SystemProfile): ActorRo
   return 'unknown';
 }
 
+const ARTICLE_63_LIMBS: Record<NonNullable<SystemProfile['article63Derogation']>, string> = {
+  'narrow-procedural': 'the system performs a narrow procedural task (Article 6(3)(a))',
+  'improves-human-activity':
+    'the system is intended to improve the result of a previously completed human activity (Article 6(3)(b))',
+  'pattern-detection':
+    'the system detects decision-making patterns or deviations from prior decision-making patterns and is not meant to replace or influence the previously completed human assessment, without proper human review (Article 6(3)(c))',
+  preparatory: 'the system performs a preparatory task to an assessment relevant to an Annex III use case (Article 6(3)(d))',
+};
+
+/**
+ * Evaluate an Article 6(3) claim. Annex never makes the claim itself — a
+ * scanner cannot know whether a task is "narrow" in the sense the Regulation
+ * means — but once an operator makes it, one part *is* checkable in code: the
+ * final subparagraph closes the derogation whenever the system performs
+ * profiling of natural persons, no matter which limb is relied on.
+ */
+function assessArticle63(
+  claimed: NonNullable<SystemProfile['article63Derogation']>,
+  signals: SignalIndex,
+  annexIiiFindings: ClassificationFinding[],
+): Article63Assessment {
+  const profiling = signals.get('domain.profiling');
+  const citations = [
+    aiActArticle(6, '(3)', 'Classification rules for high-risk AI systems — derogation'),
+    aiActArticle(6, '(4)', 'Obligation to document the assessment before placing on the market'),
+    aiActArticle(49, '(2)', 'Registration of Annex III systems considered not high-risk'),
+  ];
+
+  if (annexIiiFindings.length === 0) {
+    return {
+      claimed,
+      available: false,
+      rationale:
+        'The Article 6(3) derogation was claimed, but nothing in this repository places the system in Annex III to begin with, so there is no high-risk classification for it to displace.',
+      evidence: [],
+      citations,
+    };
+  }
+
+  if (profiling && profiling.hits > 0) {
+    return {
+      claimed,
+      available: false,
+      rationale: `The Article 6(3) derogation is not available: the final subparagraph of Article 6(3) closes it for any AI system that performs profiling of natural persons, and profiling was found in this repository. The system remains high-risk under ${annexIiiFindings[0]?.title ?? 'Annex III'}.`,
+      evidence: profiling.evidence.slice(0, 4),
+      citations,
+    };
+  }
+
+  return {
+    claimed,
+    available: true,
+    rationale: `The operator has assessed that ${ARTICLE_63_LIMBS[claimed]}, and no profiling of natural persons was found in the code. On that assessment the system is not high-risk. Article 6(4) requires the assessment to be documented before the system is placed on the market or put into service, and Article 49(2) still requires registration in the EU database. Annex records the claim and checks the profiling limb; it does not make the assessment.`,
+    evidence: [],
+    citations,
+  };
+}
+
 export interface ClassifyOptions {
   /** Operator override; recorded in the report and the dossier. */
   tierOverride?: RiskTier;
@@ -116,7 +176,27 @@ export function classify(
 
   const usesAi = signals.hasAny('ai.provider.*', 'ai.inference.call', 'ai.ml.classical', 'ai.framework.agent');
   const detectedTier: RiskTier = findings[0]?.tier ?? (usesAi ? 'minimal' : 'unknown');
-  const tier = opts.tierOverride ?? profile.tierOverride ?? detectedTier;
+
+  // Article 6(3), where the operator has claimed it. An Annex III finding that
+  // survives the claim is kept in the record with its rationale rewritten, so
+  // the dossier shows the derogation being applied rather than the finding
+  // quietly disappearing.
+  let effectiveTier = detectedTier;
+  let article63: Article63Assessment | undefined;
+  if (profile.article63Derogation) {
+    const annexIii = findings.filter((f) => f.id.startsWith('annex-iii.'));
+    article63 = assessArticle63(profile.article63Derogation, signals, annexIii);
+    if (article63.available) {
+      for (const f of annexIii) {
+        f.tier = 'minimal';
+        f.rationale = `${f.rationale}\n\nArticle 6(3) derogation claimed: ${article63.rationale}`;
+      }
+      findings.sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier] || b.confidence - a.confidence);
+      effectiveTier = findings[0]?.tier ?? (usesAi ? 'minimal' : 'unknown');
+    }
+  }
+
+  const tier = opts.tierOverride ?? profile.tierOverride ?? effectiveTier;
   const role = inferRole(signals, profile);
 
   const classification: Classification = {
@@ -126,7 +206,8 @@ export function classify(
     summary: summarise(tier, findings, usesAi),
     confidence: findings[0]?.confidence ?? (usesAi ? 0.6 : 0.3),
   };
-  if (tier !== detectedTier) classification.overridden = true;
+  if (article63) classification.article63 = article63;
+  if (tier !== effectiveTier) classification.overridden = true;
   return classification;
 }
 

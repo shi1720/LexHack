@@ -12,7 +12,7 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "build": "npm run build -w @annex/engine && npm run build -w @annex/cli",
+    "build": "npm run build -w @annex/engine && npm run build -w @annex/cli && npm run build -w @annex/web",
     "dev": "npm run dev -w @annex/web",
     "test": "npm run test -w @annex/engine",
     "test:run": "npm run test:run -w @annex/engine",

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { currentUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
-import { Citation, Empty, EvidenceLine, Panel, ScoreDial, StatusBadge, euro, relativeDays } from '@/components/primitives';
+import { Citation, Empty, EvidenceLine, Panel, ScoreDial, StatusBadge, money, relativeDays } from '@/components/primitives';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,18 +47,26 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
             <p className="legal mt-2" style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
               Article 3(3) makes whoever develops an AI system and places it on the market under their own name
               the <strong>provider</strong>. Calling someone else&rsquo;s model does not make you only a deployer
-              — and Article 25(1)(c) says that pointing a general-purpose model at an Annex III use case makes
-              you the provider of a high-risk system, while the model vendor is not.
+              — and Article 25(1)(c) can convert a deployer into the provider where they repoint a
+              general-purpose AI system, already on the market and not classified high-risk, at an Annex III
+              use case. Whether that applies here is a determination for you; Annex records the dependency,
+              not the conclusion.
             </p>
           </Panel>
 
-          <Panel title="Maximum exposure">
-            <p style={{ fontSize: 26, fontWeight: 660, letterSpacing: '-0.03em', color: report.exposure.maxFineEur > 0 ? 'var(--crimson)' : 'var(--moss)', margin: 0, lineHeight: 1.2 }}>
-              {euro(report.exposure.maxFineEur)}
+          <Panel title="Statutory maximum">
+            <p style={{ fontSize: 26, fontWeight: 660, letterSpacing: '-0.03em', color: report.exposure.maxFine > 0 ? 'var(--crimson)' : 'var(--moss)', margin: 0, lineHeight: 1.2 }}>
+              {money(report.exposure.maxFine, report.exposure.currency)}
             </p>
             <p className="legal mt-2" style={{ fontSize: 13, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
               {report.exposure.basis}
             </p>
+            {report.exposure.maxFine > 0 ? (
+              <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
+                A ceiling, not a forecast. Article 99(1) and 99(7) make administrative fines discretionary and
+                require them to be effective, proportionate and dissuasive in each case.
+              </p>
+            ) : null}
             {report.exposure.citations[0] ? (
               <p style={{ margin: '8px 0 0' }}>
                 <Citation {...report.exposure.citations[0]} />

@@ -16,6 +16,7 @@ import {
   whenHighRisk,
   whenProvider,
   whenSignal,
+  wiredIn,
 } from './define.js';
 import {
   auditLogModule,
@@ -63,6 +64,32 @@ export const DATES = {
 } as const;
 
 const ANNEX_IV_DOC = 'docs/ai-act/annex-iv-technical-documentation.md';
+
+/**
+ * Which documents may answer which duty.
+ *
+ * A repo-wide grep for "risk management" is happily answered by those two
+ * words appearing inside an incident-response runbook, and Article 9 goes
+ * green because a document about something else mentioned it. Every
+ * documentation control names the files that are entitled to satisfy it —
+ * generously (README and any `docs/ai-act/` file always qualify), but not
+ * indiscriminately.
+ */
+const GENERAL_DOC = 'readme|ai[-_]?act|compliance|conformity|governance|annex[-_]?iv';
+const docScope = (topic: string): RegExp => new RegExp(`(${topic}|${GENERAL_DOC})`, 'i');
+
+const DOC_SCOPES = {
+  risk: docScope('risk|hazard|safety|fmea'),
+  data: docScope('data|dataset|datasheet|corpus|training'),
+  instructions: docScope('instruction|manual|user[-_]?guide|usage|deploy'),
+  postMarket: docScope('post[-_]?market|monitor|observab|drift|slo'),
+  incident: docScope('incident|escalation|runbook|on[-_]?call|postmortem|post[-_]?mortem'),
+  literacy: docScope('literacy|training|onboarding|policy|handbook'),
+  limitations: docScope('limitation|model[-_]?card|known[-_]?issue|caveat'),
+  accuracy: docScope('accurac|eval|benchmark|metric|model[-_]?card|test'),
+  bias: docScope('bias|audit|fairness|impact[-_]?ratio|disparate'),
+} as const;
+
 
 // ===========================================================================
 // Chapter II — prohibited practices. In force since 2 February 2025.
@@ -217,7 +244,7 @@ const liveControls: Control[] = [
     citations: [aiActArticle(4, '', 'AI literacy')],
     appliesWhen: whenAiPresent,
     evaluate: (ctx) => {
-      const ev = ctx.grepDocs(/\bai[\s-]?(literacy|training|onboarding|usage[\s-]?polic)/i, 4);
+      const ev = ctx.grepDocs(/\bai[\s-]?(literacy|training|onboarding|usage[\s-]?polic)/i, 4, DOC_SCOPES.literacy);
       if (ev.length > 0) {
         return satisfied('Documentation referring to AI training or usage policy was found.', ev);
       }
@@ -361,6 +388,38 @@ const liveControls: Control[] = [
         ];
       },
     },
+    tests: [
+      {
+        name: 'missing when synthetic text is generated with no provenance marking',
+        files: {
+          'src/generate.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nconst systemPrompt = "You write marketing copy.";\nexport async function generateCopy(brief) {\n  const completion = await client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "system", content: systemPrompt }, { role: "user", content: brief }] });\n  return completion.choices[0].message.content;\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        // The statutory test is machine readability, not visibility. A badge in
+        // the UI is a design decision; a manifest is the obligation.
+        name: 'partial when a visible watermark exists but nothing machine-readable does',
+        files: {
+          'src/generate.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nconst systemPrompt = "You write marketing copy.";\nexport async function generateCopy(brief) {\n  const completion = await client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "system", content: systemPrompt }, { role: "user", content: brief }] });\n  return completion.choices[0].message.content;\n}\n',
+          'src/label.ts':
+            'export const AI_BADGE = "AI-generated";\nexport function watermark(text) {\n  return AI_BADGE + ": " + text;\n}\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when a C2PA provenance manifest is attached to the output',
+        files: {
+          'src/generate.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nconst systemPrompt = "You write marketing copy.";\nexport async function generateCopy(brief) {\n  const completion = await client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "system", content: systemPrompt }, { role: "user", content: brief }] });\n  return completion.choices[0].message.content;\n}\n',
+          'src/provenance.ts':
+            'export function attachContentCredentials(asset) {\n  return { ...asset, c2pa: { manifest: buildProvenanceManifest(asset), claim_generator: "acme/1.0" } };\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'eu-ai-act.art50.3.biometric-notification',
@@ -415,19 +474,22 @@ const liveControls: Control[] = [
     },
   }),
   c({
-    id: 'eu-ai-act.art25.role-determination',
-    title: 'Determine and record whether you are the provider',
+    id: 'eu-ai-act.art3.role-determination',
+    title: 'Determine and record whether you are the provider or the deployer',
     obligation:
-      'Article 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack.',
+      'Article 3(3) makes whoever develops an AI system and places it on the market or puts it into service under their own name or trademark the provider; Article 3(4) makes whoever uses one under their own authority the deployer. The distinction decides which Article 50 transparency duty binds you today — 50(1) and 50(2) fall on providers, 50(4) on deployers — and, from 2 December 2027, whether the Chapter III provider stack attaches at all.',
     family: 'documentation',
     severity: 'high',
     weight: 5,
     method: 'documentation',
+    // Anchored to Article 50, which is in force. The Chapter III consequences
+    // of the same determination (Arts. 16 and 25) sit in Section 3 and are
+    // deferred with the rest of the high-risk regime by Art. 113 as amended.
     appliesFrom: DATES.GENERAL,
     citations: [
       aiActArticle(3, '(3)', "Definitions — 'provider'"),
-      aiActArticle(25, '(1)(c)', 'Responsibilities along the AI value chain — change of intended purpose'),
-      aiActArticle(25, '(2)', 'Duty of the initial provider to cooperate and hand over documentation'),
+      aiActArticle(3, '(4)', "Definitions — 'deployer'"),
+      aiActArticle(50, '', 'Transparency obligations — allocated by role'),
     ],
     appliesWhen: allOf(whenAiPresent, whenSignal('ai.provider.*')),
     evaluate: (ctx) => {
@@ -438,12 +500,15 @@ const liveControls: Control[] = [
       if (documented.length > 0) {
         return satisfied('The repository records its role under the AI Act in writing.', documented);
       }
-      return {
-        status: 'missing',
-        finding:
-          'This repository calls a third-party model and ships the result under its own name. On the Article 3(3) definition that makes it the provider of an AI system, not merely a deployer — the distinction that decides who owns the Article 16 stack.',
-        gap: 'Record your role in writing. Then check whether your model vendor has specified that its system is "not to be changed into a high-risk AI system": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone.',
-        evidence: evidenceFrom(
+      // Deliberately not a verdict. Article 3(3) turns on two facts Annex
+      // cannot read out of a repository — whether the system is placed on the
+      // market or put into service, and whether that happens under this
+      // organisation's own name. Code can show that a model is called and a
+      // product is built around it; only the organisation knows the rest.
+      return needsReview(
+        'This repository calls a third-party model and builds a product around the result. If that product is placed on the market or put into service under your own name or trademark, Article 3(3) makes you its provider rather than merely a deployer — and Annex cannot settle that from source code alone.',
+        'Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or used only internally. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is "not to be changed into a high-risk AI system": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.',
+        evidenceFrom(
           ctx,
           'ai.provider.openai',
           'ai.provider.anthropic',
@@ -451,7 +516,7 @@ const liveControls: Control[] = [
           'ai.provider.cloud',
           'ai.provider.openweights',
         ),
-      };
+      );
     },
   }),
 ];
@@ -474,8 +539,8 @@ const highRiskControls: Control[] = [
     citations: [aiActArticle(9, '', 'Risk management system'), aiActAnnex('IV', '5', 'Technical documentation — risk management system')],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
-      const docs = ctx.grepDocs(/\brisk\s+(register|assessment|management|matrix)\b/i, 5);
-      const residual = ctx.grepDocs(/\bresidual\s+risk\b/i, 2);
+      const docs = ctx.grepDocs(/\brisk\s+(register|assessment|management|matrix)\b/i, 5, DOC_SCOPES.risk);
+      const residual = ctx.grepDocs(/\bresidual\s+risk\b/i, 2, DOC_SCOPES.risk);
       if (docs.length > 0 && residual.length > 0) {
         return satisfied('A risk register with an explicit residual-risk judgement was found.', [...docs.slice(0, 3), ...residual]);
       }
@@ -577,6 +642,7 @@ const highRiskControls: Control[] = [
       const docs = ctx.grepDocs(
         /\b(data|dataset)[\s-]?(card|sheet|provenance|lineage|source|governance)\b|^#+\s*(training data|data ?sources?|datasets?)/im,
         5,
+        DOC_SCOPES.data,
       );
       return docs.length > 0
         ? satisfied('Dataset documentation was found.', docs.slice(0, 4))
@@ -668,9 +734,20 @@ const highRiskControls: Control[] = [
         );
       }
       if (versioned && traceable) {
+        const ev = [...inference.evidence.slice(0, 3), ...ctx.signals.evidenceFor('control.model.version').slice(0, 2)];
+        // Article 12(1) requires logs to be recorded *while the system is in
+        // use*. A recorder that no inference path calls records nothing.
+        const wiring = wiredIn(ctx, inference.evidence.slice(0, 3));
+        if (!wiring.wired) {
+          return partial(
+            'An inference logger is defined, carrying a model version and a traceable identifier, but nothing in the repository appears to call it.',
+            `Article 12(1) requires logs to be recorded automatically over the lifetime of the system. Call the recorder on every model invocation that can affect a person. Orphaned: ${wiring.orphans.slice(0, 3).join(', ')}.`,
+            ev,
+          );
+        }
         return satisfied(
-          'Inference logging was found, carrying both a model version and a traceable identifier.',
-          [...inference.evidence.slice(0, 3), ...ctx.signals.evidenceFor('control.model.version').slice(0, 2)],
+          'Inference logging was found, carrying both a model version and a traceable identifier, and is called from elsewhere in the codebase.',
+          [...ev, ...wiring.callSites],
         );
       }
       return partial(
@@ -741,7 +818,10 @@ const highRiskControls: Control[] = [
         .map(Number)
         .filter((n) => n > 0);
       const shortest = numbers.length ? Math.min(...numbers) : undefined;
-      if (shortest !== undefined && shortest < 180) {
+      // Six months. Use one number for the test and the message; 180 in the
+      // predicate and 183 in the prose let a 181-day window pass while the
+      // document said it should not.
+      if (shortest !== undefined && shortest < 183) {
         return {
           status: 'missing',
           finding: `A retention period of ${shortest} days was found. Article 19(1) sets a floor of six months (about 183 days).`,
@@ -766,7 +846,7 @@ const highRiskControls: Control[] = [
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
       const instructions = ctx.signals.get('transparency.instructions');
-      const limitations = ctx.grepDocs(/^#+\s*(limitations|known issues|out[- ]of[- ]scope)/im, 3);
+      const limitations = ctx.grepDocs(/^#+\s*(limitations|known issues|out[- ]of[- ]scope)/im, 3, DOC_SCOPES.limitations);
       if (instructions && instructions.hits > 0 && limitations.length > 0) {
         return satisfied('Deployer-facing instructions including a limitations section were found.', [
           ...instructions.evidence.slice(0, 3),
@@ -782,7 +862,7 @@ const highRiskControls: Control[] = [
       }
       return missing(
         'No instructions for use aimed at a deployer were found.',
-        'Write the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.',
+        'Write the instructions against Article 13(3)(a)-(f), including the seven romanettes of (b). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.',
         ['instructions for use', 'intended purpose', 'limitations'],
       );
     },
@@ -833,7 +913,22 @@ const highRiskControls: Control[] = [
       ].filter(Boolean) as string[];
 
       if (present.length === 3) {
-        return satisfied(`All three oversight affordances were found: ${present.join(', ')}.`, ev);
+        // Existence is not oversight. If every affordance lives in a module
+        // that nothing in the tree reaches, the duty is not discharged — and
+        // this is exactly the state Annex's own remediation PR leaves behind
+        // until a human wires it in.
+        const wiring = wiredIn(ctx, ev);
+        if (!wiring.wired) {
+          return partial(
+            `All three oversight affordances are defined — ${present.join(', ')} — but nothing in the repository appears to call them.`,
+            `Route consequential outcomes through the oversight gate. Article 14(4)(d)-(e) require that a person *can* override or stop the system in use; a module no code path reaches cannot do that. Orphaned: ${wiring.orphans.slice(0, 3).join(', ')}.`,
+            ev,
+          );
+        }
+        return satisfied(
+          `All three oversight affordances were found — ${present.join(', ')} — and are reached from elsewhere in the codebase.`,
+          [...ev, ...wiring.callSites],
+        );
       }
       if (present.length === 0) {
         return missing(
@@ -878,15 +973,29 @@ const highRiskControls: Control[] = [
         expect: 'missing',
       },
       {
-        name: 'satisfied with review, override and a stop control',
+        name: 'satisfied when all three affordances exist and the decision path calls them',
         files: {
           'src/decide.py':
-            'import os\nAI_ENABLED = os.getenv("AI_ENABLED") != "false"\n\ndef decide(applicant):\n    if not AI_ENABLED:\n        return "halted"\n    score = model.predict(applicant)\n    return {"status": "pending_review", "human_review": True}\n',
+            'import os\nfrom src.review import override_decision\n\nAI_ENABLED = os.getenv("AI_ENABLED") != "false"\n\ndef decide(applicant):\n    if not AI_ENABLED:\n        return "halted"\n    score = model.predict(applicant)\n    outcome = {"status": "pending_review", "human_review": True}\n    if score < 0.4:\n        override_decision(applicant["id"], None, "auto-escalated")\n    return outcome\n',
           'src/review.py':
             'def override_decision(decision_id, reviewer_id, reason):\n    """Human review: a reviewer can override the model output."""\n    return record_override(decision_id, reviewer_id, reason)\n',
         },
         profile: { tierOverride: 'high' },
         expect: 'satisfied',
+      },
+      {
+        // The laundering case. An oversight module that exists and is never
+        // called is the state Annex's own remediation PR leaves behind, and it
+        // must not turn the highest-weight control in the corpus green.
+        name: 'partial when the oversight module exists but nothing calls it',
+        files: {
+          'src/decide.py':
+            'def decide(applicant):\n    score = model.predict(applicant)\n    if score < 0.4:\n        return "reject"\n    return "advance"\n',
+          'ai_act/human_oversight.py':
+            'import os\n\nAI_ENABLED = os.getenv("AI_ENABLED") != "false"\n\ndef gate(outcome):\n    """Human review gate: adverse outcomes never auto-apply."""\n    if not AI_ENABLED:\n        return "halted"\n    return {"status": "pending_review", "human_review": True}\n\ndef override_decision(decision_id, reviewer_id, reason):\n    """A reviewer can override or reverse the model output."""\n    return record_override(decision_id, reviewer_id, reason)\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
       },
     ],
   }),
@@ -907,7 +1016,7 @@ const highRiskControls: Control[] = [
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
       const evals = ctx.signals.get('quality.eval.suite');
-      const declared = ctx.grepDocs(/\b(accuracy|precision|recall|f1|auc)\b[\s\S]{0,40}[\d.]+\s*%?/i, 3);
+      const declared = ctx.grepDocs(/\b(accuracy|precision|recall|f1|auc)\b[\s\S]{0,40}[\d.]+\s*%?/i, 3, DOC_SCOPES.accuracy);
       if (evals && evals.hits >= 2 && declared.length > 0) {
         return satisfied('An evaluation suite and declared accuracy figures were both found.', [
           ...evals.evidence.slice(0, 3),
@@ -927,6 +1036,43 @@ const highRiskControls: Control[] = [
         ['eval suite', 'benchmark', 'ground truth', 'accuracy metric'],
       );
     },
+    tests: [
+      {
+        name: 'missing when a high-risk system ships with no evaluation suite',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'missing',
+      },
+      {
+        // Article 15(3) wants the declared number in the instructions for use.
+        // A harness that nobody publishes the output of is half the duty.
+        name: 'partial when an eval harness exists but no accuracy level is published',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'evals/run.py':
+            'GROUND_TRUTH = "evals/golden.jsonl"\n\n\ndef evaluate(model):\n    """Score the model against a fixed benchmark set."""\n    return {"precision": precision(model), "recall": recall(model), "f1": f1(model)}\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied once the declared accuracy level appears in the documentation',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'evals/run.py':
+            'GROUND_TRUTH = "evals/golden.jsonl"\n\n\ndef evaluate(model):\n    """Score the model against a fixed benchmark set."""\n    return {"precision": precision(model), "recall": recall(model), "f1": f1(model)}\n',
+          'docs/accuracy.md':
+            '# Declared accuracy (Article 15(3))\n\nMetric: macro F1 on the frozen evaluation set of 4,200 labelled CVs.\n\nDeclared accuracy: 0.87 (87%). Measured 2026-08-30, re-measured on every release.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'eu-ai-act.art15.cybersecurity',
@@ -1031,7 +1177,7 @@ const highRiskControls: Control[] = [
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
-      const plan = ctx.grepDocs(/post[\s-]?market\s+monitoring/i, 3);
+      const plan = ctx.grepDocs(/post[\s-]?market\s+monitoring/i, 3, DOC_SCOPES.postMarket);
       const telemetry = ctx.signals.hasAny('quality.monitoring');
       if (plan.length > 0) return satisfied('A post-market monitoring plan was found.', plan);
       if (telemetry) {
@@ -1079,8 +1225,8 @@ const highRiskControls: Control[] = [
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
-      const procedure = ctx.grepDocs(/\b(incident\s+(response|report\w*)|runbook|escalation|post[\s-]?mortem)\b/i, 4);
-      const deadlines = ctx.grepDocs(/\b(15\s*days?|2\s*days?|10\s*days?)\b[\s\S]{0,60}\b(report|authority|incident)/i, 2);
+      const procedure = ctx.grepDocs(/\b(incident\s+(response|report\w*)|runbook|escalation|post[\s-]?mortem)\b/i, 4, DOC_SCOPES.incident);
+      const deadlines = ctx.grepDocs(/\b(15\s*days?|2\s*days?|10\s*days?)\b[\s\S]{0,60}\b(report|authority|incident)/i, 2, DOC_SCOPES.incident);
       if (procedure.length > 0 && deadlines.length > 0) {
         return satisfied('An incident procedure naming the statutory reporting deadlines was found.', [
           ...procedure.slice(0, 3),
@@ -1169,24 +1315,25 @@ export const EU_AI_ACT_PACK: RulePack = {
     { date: DATES.HIGH_RISK_ANNEX_I, label: 'Annex I embedded high-risk obligations', note: 'Moved from 2 August 2027 by Regulation (EU) 2026/1744.' },
   ],
   penalty: {
+    currency: 'EUR',
     description:
       'Administrative fines under Article 99. For SMEs and start-ups, Article 99(6) inverts the rule: the cap is the lower of the two figures, not the higher.',
     tiers: [
       {
         label: 'Prohibited practices (Article 5)',
-        amountEur: 35_000_000,
+        amount: 35_000_000,
         turnoverPct: 7,
         citation: aiActArticle(99, '(3)', 'Penalties — prohibited practices'),
       },
       {
         label: 'Provider, deployer and Article 50 transparency obligations',
-        amountEur: 15_000_000,
+        amount: 15_000_000,
         turnoverPct: 3,
         citation: aiActArticle(99, '(4)', 'Penalties — other obligations'),
       },
       {
         label: 'Incorrect, incomplete or misleading information to authorities',
-        amountEur: 7_500_000,
+        amount: 7_500_000,
         turnoverPct: 1,
         citation: aiActArticle(99, '(5)', 'Penalties — misleading information'),
       },

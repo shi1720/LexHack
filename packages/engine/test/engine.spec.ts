@@ -10,7 +10,7 @@ import { renderPatch } from '../src/remediate/index.js';
 import { EU_AI_ACT_PACK } from '../src/packs/eu-ai-act.js';
 import { ALL_PACKS, packsForMarkets } from '../src/packs/index.js';
 import { BASE_APP, scanFiles, statusOf, firedSignals } from './helpers.js';
-import type { ControlResult } from '../src/types.js';
+import type { ControlResult, SystemProfile } from '../src/types.js';
 
 // ---------------------------------------------------------------------------
 // Ingest
@@ -213,7 +213,7 @@ describe('evidence ledger', () => {
     changed[0]!.evidence[0]!.fileSha256 = 'deadbeef';
     const check = verifyLedgerAgainstResults(ledger, changed, versions);
     expect(check.valid).toBe(false);
-    expect(check.reason).toContain('no longer produces the recorded result');
+    expect(check.reason).toContain('does not hash to its recorded value');
   });
 
   it('prints a human-quotable fingerprint', () => {
@@ -277,20 +277,43 @@ describe('exposure', () => {
     },
   ];
 
+  const profile = (over: Partial<SystemProfile>): SystemProfile => ({
+    name: 'test', purpose: '', role: 'provider', euNexus: true, ...over,
+  });
+
   it('applies the higher-of rule for a large undertaking', () => {
-    const e = estimateExposure([EU_AI_ACT_PACK], failing, 900_000_000, false);
-    expect(e.maxFineEur).toBe(27_000_000); // 3% of turnover beats EUR 15m
+    const e = estimateExposure([EU_AI_ACT_PACK], failing, profile({ turnoverEur: 900_000_000, employees: 4000 }));
+    expect(e.maxFine).toBe(27_000_000); // 3% of turnover beats EUR 15m
+    expect(e.currency).toBe('EUR');
   });
 
   it('applies the Article 99(6) inversion for an SME', () => {
-    const e = estimateExposure([EU_AI_ACT_PACK], failing, 2_000_000, true);
-    expect(e.maxFineEur).toBe(60_000); // the *lower* of EUR 15m and 3% of EUR 2m
+    const e = estimateExposure(
+      [EU_AI_ACT_PACK],
+      failing,
+      profile({ turnoverEur: 2_000_000, employees: 12 }),
+    );
+    expect(e.maxFine).toBe(60_000); // the *lower* of EUR 15m and 3% of EUR 2m
     expect(e.basis).toContain('99(6)');
+  });
+
+  it('treats unknown financials as NOT an SME, because the inversion lowers the cap', () => {
+    // Recommendation 2003/361/EC needs headcount *and* a financial test. A
+    // 200-person subsidiary of a large group is not an SME, and guessing that
+    // it is hands the operator a ceiling an order of magnitude too low.
+    const e = estimateExposure([EU_AI_ACT_PACK], failing, profile({ turnoverEur: 900_000_000, employees: 200 }));
+    expect(e.maxFine).toBe(27_000_000);
   });
 
   it('counts nothing when no in-force obligation is failing', () => {
     const notYet = [{ ...failing[0]!, inForce: false }];
-    expect(estimateExposure([EU_AI_ACT_PACK], notYet, 900_000_000).maxFineEur).toBe(0);
+    expect(estimateExposure([EU_AI_ACT_PACK], notYet, profile({ turnoverEur: 900_000_000 })).maxFine).toBe(0);
+  });
+
+  it('models no exposure at all where Article 2(1) does not reach the system', () => {
+    const e = estimateExposure([EU_AI_ACT_PACK], failing, profile({ turnoverEur: 900_000_000, euNexus: false }));
+    expect(e.maxFine).toBe(0);
+    expect(e.basis).toContain('Article 2(1)');
   });
 });
 

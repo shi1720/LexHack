@@ -126,9 +126,9 @@ export default async function DossierPage({
       {/* The document itself */}
       <Panel tight>
         <article className="p-6 sm:p-9" style={{ maxWidth: 820, margin: '0 auto' }}>
-          <h1 className="legal" style={{ fontSize: 26, fontWeight: 620, letterSpacing: '-0.02em', margin: 0, lineHeight: 1.25 }}>
+          <h2 className="legal" style={{ fontSize: 26, fontWeight: 620, letterSpacing: '-0.02em', margin: 0, lineHeight: 1.25 }}>
             {dossier.title}
-          </h1>
+          </h2>
           <p style={{ fontSize: 12, color: 'var(--ink-faint)', margin: '6px 0 0' }}>
             Regulation (EU) 2024/1689, Annex IV{simplified ? ' — simplified form under Article 11(1)' : ''} ·
             compiled from source by Annex
@@ -142,7 +142,7 @@ export default async function DossierPage({
                 ['Version under assessment', dossier.version],
                 ['Issued', dossier.issuedAt.slice(0, 10)],
                 ['Classification', dossier.classification],
-                ['Role under Article 3', dossier.role.replace('+', ' and ')],
+                ['Role under Articles 3(3) and 3(4)', dossier.role.replace('+', ' and ')],
                 ['Evidence ledger', dossier.ledgerFingerprint],
                 ['Open items', String(dossier.openCount)],
               ].map(([k, v]) => (
@@ -158,10 +158,10 @@ export default async function DossierPage({
 
           {dossier.sections.map((section) => (
             <section key={section.point} className="mt-8">
-              <h2 className="legal" style={{ fontSize: 17, fontWeight: 620, margin: 0, paddingBottom: 6, borderBottom: '1px solid var(--line)' }}>
+              <h3 className="legal" style={{ fontSize: 17, fontWeight: 620, margin: 0, paddingBottom: 6, borderBottom: '1px solid var(--line)' }}>
                 <span style={{ color: 'var(--navy)', display: 'inline-block', minWidth: 26 }}>{section.point}</span>
                 {section.title}
-              </h2>
+              </h3>
               {section.body.map((p, i) => (
                 <p key={i} className="legal" style={{ margin: '11px 0 0', color: 'var(--ink-soft)' }}>
                   {renderInline(p)}

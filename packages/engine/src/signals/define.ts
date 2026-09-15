@@ -27,9 +27,25 @@ export interface SignalSpec {
   fileGuard?: (file: SourceFile) => boolean;
 }
 
+export interface DetectionResult {
+  /** The best `maxEvidence` lines, ranked. What a reader actually sees. */
+  evidence: Evidence[];
+  /**
+   * Every line that matched, before the cap.
+   *
+   * These are different numbers and conflating them was a real bug: `hits` used
+   * to be `evidence.length`, which saturates at `maxEvidence`, while density
+   * thresholds elsewhere read it as a match count. A signal firing 400 times
+   * and one firing 8 times looked identical to the classifier.
+   */
+  matches: number;
+  /** Distinct files the signal fired in, before the cap. */
+  fileCount: number;
+}
+
 export interface CompiledSignal extends SignalSpec {
   maxEvidence: number;
-  detect(snapshot: RepoSnapshot): Evidence[];
+  detect(snapshot: RepoSnapshot): DetectionResult;
 }
 
 const CONFIG_LANGS: ReadonlySet<Language> = new Set<Language>(['yaml', 'json', 'toml', 'text', 'shell']);
@@ -80,13 +96,15 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
   return {
     ...spec,
     maxEvidence,
-    detect(snapshot: RepoSnapshot): Evidence[] {
+    detect(snapshot: RepoSnapshot): DetectionResult {
       interface Hit {
         evidence: Evidence;
         patternIndex: number;
         density: number;
       }
       const hits: Hit[] = [];
+      const matchedFiles = new Set<string>();
+      let totalMatches = 0;
 
       for (const file of snapshot.files) {
         if (!file.text || file.skipped) continue;
@@ -125,6 +143,8 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
         }
 
         if (fileHits.length === 0) continue;
+        totalMatches += fileHits.length;
+        matchedFiles.add(file.path);
 
         // Keep the *best* lines from this file, not the first ones. A match on
         // the function that makes the decision is better evidence than a match
@@ -142,16 +162,18 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
       // Best evidence first: a definition line, in a file the signal is dense
       // in, matched by the most specific pattern. Whoever reads this report
       // reads the first two citations, so those two have to be the right ones.
-      return hits
-        .sort(
-          (a, b) =>
-            evidenceRank(a.evidence) - evidenceRank(b.evidence) ||
-            b.density - a.density ||
-            a.patternIndex - b.patternIndex ||
-            a.evidence.path.localeCompare(b.evidence.path),
-        )
-        .slice(0, maxEvidence)
-        .map((h) => h.evidence);
+      const ranked = hits.sort(
+        (a, b) =>
+          evidenceRank(a.evidence) - evidenceRank(b.evidence) ||
+          b.density - a.density ||
+          a.patternIndex - b.patternIndex ||
+          a.evidence.path.localeCompare(b.evidence.path),
+      );
+      return {
+        evidence: ranked.slice(0, maxEvidence).map((h) => h.evidence),
+        matches: totalMatches,
+        fileCount: matchedFiles.size,
+      };
     },
   };
 }

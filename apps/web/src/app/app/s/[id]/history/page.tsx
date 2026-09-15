@@ -21,7 +21,7 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
     <div className="space-y-5">
       <Panel title="Substantial modification">
         <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '78ch' }}>
-          Article 3(49) defines a substantial modification as a change, not foreseen in the initial conformity
+          Article 3(23) defines a substantial modification as a change, not foreseen in the initial conformity
           assessment, that affects compliance with Chapter III Section 2 or modifies the intended purpose.
           Article 43(4) then requires a new conformity assessment. Only something that reads the code can tell
           you a modification was substantial — which is the one thing a questionnaire can never do.

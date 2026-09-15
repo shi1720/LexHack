@@ -50,6 +50,40 @@ const controls: Control[] = [
         ['human review', 'appeal', 'contest decision'],
       );
     },
+    tests: [
+      {
+        name: 'missing when an automated decision about a person has no human path at all',
+        files: {
+          'src/decide.ts':
+            'export function decide(person) {\n  const record = { full_name: person.full_name, email: person.email, date_of_birth: person.dob };\n  const score = model.predict(record);\n  const decision = score > 0.5 ? "approve" : "reject";\n  return { auto_decision: decision, eligible: score > 0.5 };\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        // Article 22(3) needs both halves. A reviewer queue nobody can enter is
+        // not a safeguard, and neither is an appeal form with nobody behind it.
+        name: 'partial when a human reviewer exists but the person cannot reach them',
+        files: {
+          'src/decide.ts':
+            'export function decide(person) {\n  const record = { full_name: person.full_name, email: person.email, date_of_birth: person.dob };\n  const score = model.predict(record);\n  const decision = score > 0.5 ? "approve" : "reject";\n  return { auto_decision: decision, eligible: score > 0.5 };\n}\n',
+          'src/review.ts':
+            'export async function queueForHumanReview(decisionId) {\n  return db.reviews.create({ decisionId, status: "pending_review", reviewer: null });\n}\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when the person can contest and a human can reverse it',
+        files: {
+          'src/decide.ts':
+            'export function decide(person) {\n  const record = { full_name: person.full_name, email: person.email, date_of_birth: person.dob };\n  const score = model.predict(record);\n  const decision = score > 0.5 ? "approve" : "reject";\n  return { auto_decision: decision, eligible: score > 0.5 };\n}\n',
+          'src/review.ts':
+            'export async function queueForHumanReview(decisionId) {\n  return db.reviews.create({ decisionId, status: "pending_review" });\n}\n',
+          'src/appeal.ts':
+            'export async function submitAppeal(decisionId, subjectId, grounds) {\n  await queueForHumanReview(decisionId);\n  return db.appeals.create({ decisionId, subjectId, grounds, contest: true });\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'gdpr.art13-15.meaningful-information',
@@ -68,7 +102,7 @@ const controls: Control[] = [
     appliesWhen: allOf(touchesPeople, whenSignal('domain.automated.decision')),
     evaluate: (ctx) => {
       const explanation = ctx.signals.get('transparency.explanation');
-      const policy = ctx.grepDocs(/privacy\s+(policy|notice)/i, 2);
+      const policy = ctx.grepDocs(/privacy\s+(policy|notice)/i, 2, /(privacy|gdpr|data[-_]?protection|readme|legal|compliance)/i);
       if (explanation && explanation.hits >= 2) {
         return satisfied('The system produces reasons alongside its outputs.', explanation.evidence.slice(0, 4));
       }
@@ -134,6 +168,26 @@ const controls: Control[] = [
             ['delete user data', 'right to erasure', 'rectification'],
           );
     },
+    tests: [
+      {
+        name: 'missing when personal data has no erasure or rectification path',
+        files: {
+          'src/store.ts':
+            'export async function saveApplicant(a) {\n  return db.applicants.create({ full_name: a.full_name, email: a.email, address: a.address });\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        name: 'satisfied when erasure and rectification endpoints exist',
+        files: {
+          'src/store.ts':
+            'export async function saveApplicant(a) {\n  return db.applicants.create({ full_name: a.full_name, email: a.email, address: a.address });\n}\n',
+          'src/rights.ts':
+            'export async function deleteUserData(subjectId) {\n  await db.applicants.delete({ subjectId });\n  return { right_to_erasure: true };\n}\n\nexport async function rectify(subjectId, patch) {\n  return db.applicants.update({ subjectId, ...patch });\n}\n\nexport async function exportMyData(subjectId) {\n  return db.applicants.find({ subjectId });\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'gdpr.art9.special-category',
@@ -162,6 +216,28 @@ const controls: Control[] = [
             ['consent', 'lawful basis', 'Article 9(2)'],
           );
     },
+    tests: [
+      {
+        name: 'missing when protected attributes are in the data model with no lawful basis recorded',
+        files: {
+          'src/model.ts':
+            'export interface Applicant {\n  full_name: string;\n  email: string;\n  ethnicity: string;\n  religion: string;\n  disability: boolean;\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        // Never better than partial: consent machinery shows a basis *exists*,
+        // not that the right Article 9(2) condition was picked per attribute.
+        name: 'partial when a consent mechanism exists — the condition still has to be named',
+        files: {
+          'src/model.ts':
+            'export interface Applicant {\n  full_name: string;\n  email: string;\n  ethnicity: string;\n  religion: string;\n  disability: boolean;\n}\n',
+          'src/consent.ts':
+            'export async function recordConsent(subjectId, purpose) {\n  return db.consent.create({ subjectId, purpose, lawful_basis: "explicit_consent", optIn: true });\n}\n',
+        },
+        expect: 'partial',
+      },
+    ],
   }),
 ];
 
@@ -177,17 +253,18 @@ export const GDPR_PACK: RulePack = {
   url: 'https://gdpr-info.eu/',
   milestones: [{ date: IN_FORCE, label: 'GDPR applies', note: 'In force since 25 May 2018.' }],
   penalty: {
+    currency: 'EUR',
     description: 'Administrative fines under Article 83.',
     tiers: [
       {
         label: 'Breach of data subject rights, including Article 22',
-        amountEur: 20_000_000,
+        amount: 20_000_000,
         turnoverPct: 4,
         citation: gdpr('Art. 83(5)', 'General conditions for imposing administrative fines'),
       },
       {
         label: 'Breach of controller obligations, including Article 35',
-        amountEur: 10_000_000,
+        amount: 10_000_000,
         turnoverPct: 2,
         citation: gdpr('Art. 83(4)', 'General conditions for imposing administrative fines'),
       },

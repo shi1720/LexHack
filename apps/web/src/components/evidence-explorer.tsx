@@ -103,14 +103,14 @@ export function EvidenceExplorer({
           })}
         </div>
 
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-1 sm:justify-end">
           <label htmlFor="pack-filter" className="sr-only">
             Filter by rule pack
           </label>
           <select
             id="pack-filter"
             className="input"
-            style={{ width: 'auto', minWidth: 170 }}
+            style={{ width: '100%', minWidth: 0, maxWidth: 220 }}
             value={packFilter}
             onChange={(e) => setPackFilter(e.target.value)}
           >
@@ -127,7 +127,7 @@ export function EvidenceExplorer({
           <input
             id="search"
             className="input"
-            style={{ width: 'auto', minWidth: 200, flex: '0 1 260px' }}
+            style={{ width: '100%', minWidth: 0, flex: '1 1 180px', maxWidth: 280 }}
             placeholder="Search article, control, text…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}

@@ -22,7 +22,7 @@
   --color-line-strong: #cbccc7;
   --color-ink: #14181f;
   --color-ink-soft: #444b57;
-  --color-ink-faint: #737b88;
+  --color-ink-faint: #667080;
 
   --color-navy: #17356b;
   --color-navy-soft: #e8edf6;
@@ -122,6 +122,7 @@ html {
 
 body {
   margin: 0;
+  overflow-wrap: anywhere;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
@@ -160,7 +161,19 @@ a { color: inherit; }
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
+
+/* Tables, diagrams and code are the only things allowed to be wider than the
+   viewport, and only inside their own scroll container. */
+pre { overflow-x: auto; max-width: 100%; }
+table { max-width: 100%; }
+
+/* A grid item's automatic minimum size is its min-content size, so one long
+   line of evidence — a source snippet is deliberately unwrapped — would size
+   the whole column and push the page sideways on a phone. The snippet already
+   owns a scroll container; the document must never inherit it. */
+.grid > * { min-width: 0; }
 
 .card {
   background: var(--surface);

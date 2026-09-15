@@ -12,6 +12,24 @@ import type {
 import { DOC_LANGUAGES } from '../ingest/languages.js';
 import { trimSnippet } from '../signals/define.js';
 
+const DOC_FILE = /\.(md|mdx|rst|txt|adoc)$/i;
+
+/**
+ * Turn a topic scope into a whole-path matcher that only consults the base
+ * name, so `docs/ai-act/risk-management.md` matches a `risk` scope and
+ * `docs/ai-act/incident-reporting.md` does not.
+ */
+function namedDoc(topic: RegExp): RegExp {
+  return {
+    test: (path: string) => {
+      if (!DOC_FILE.test(path)) return false;
+      const base = path.split('/').pop() ?? path;
+      topic.lastIndex = 0;
+      return topic.test(base);
+    },
+  } as RegExp;
+}
+
 export function createContext(input: {
   snapshot: RepoSnapshot;
   signals: SignalIndex;
@@ -65,6 +83,55 @@ export function createContext(input: {
     return out;
   };
 
+  /**
+   * Find call sites for a module, from any other file in the tree.
+   *
+   * Deliberately syntactic and deliberately generous: an import of the module
+   * path, or a call to one of the names it exports. Generous is the right bias
+   * here — a false "this is wired in" is a missed gap, but a false "nothing
+   * calls this" would nag teams whose wiring lives somewhere we cannot see, so
+   * the callers below degrade to `partial` rather than `missing` when this
+   * comes back empty.
+   */
+  const isReferenced = (file: SourceFile): Evidence[] => {
+    const stem = (file.path.split('/').pop() ?? '').replace(/\.[^.]+$/, '');
+    if (!stem) return [];
+
+    // Exported names: `export function gate(`, `def gate(`, `class Gate`, …
+    const exported = new Set<string>();
+    const EXPORTS = /(?:export\s+(?:async\s+)?(?:function|const|class)|^\s*(?:async\s+)?def|^\s*class)\s+([A-Za-z_]\w{3,})/gm;
+    for (const m of file.text.matchAll(EXPORTS)) if (m[1]) exported.add(m[1]);
+
+    const escaped = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const names = [...exported].slice(0, 24).map(escaped);
+    const importPattern = new RegExp(
+      `(?:import|require|from)\\s*\\(?['"\`][^'"\`]*${escaped(stem)}['"\`]|\\b(?:import|from)\\s+[\\w.]*${escaped(stem)}\\b`,
+    );
+    const callPattern = names.length ? new RegExp(`\\b(?:${names.join('|')})\\s*\\(`) : null;
+
+    const out: Evidence[] = [];
+    for (const other of readable) {
+      if (out.length >= 3) break;
+      if (other.path === file.path) continue;
+      const lines = other.text.split('\n');
+      for (let i = 0; i < lines.length && out.length < 3; i++) {
+        const line = lines[i] ?? '';
+        if (line.length > 2000) continue;
+        if (!importPattern.test(line) && !(callPattern && callPattern.test(line))) continue;
+        out.push({
+          path: other.path,
+          line: i + 1,
+          snippet: trimSnippet(line),
+          fileSha256: other.sha256,
+          kind: 'code',
+          note: `Call site for ${file.path}.`,
+        });
+        break;
+      }
+    }
+    return out;
+  };
+
   return {
     snapshot,
     signals: input.signals,
@@ -73,9 +140,18 @@ export function createContext(input: {
     findFile: (pattern) => findFiles(pattern)[0],
     findFiles,
     grep,
-    grepDocs: (pattern, limit = 6) =>
-      grep(pattern, { paths: /\.(md|mdx|rst|txt|adoc)$/i, limit, kind: 'doc' }),
+    // `paths` is matched against the *file name*, never the directory. Every
+    // scaffold Annex writes lives under `docs/ai-act/`, so a scope tested
+    // against the whole path lets `docs/ai-act/incident-reporting.md` answer
+    // the risk-management duty purely because its folder is called "ai-act".
+    grepDocs: (pattern, limit = 6, paths) =>
+      grep(pattern, {
+        paths: paths ? namedDoc(paths) : DOC_FILE,
+        limit,
+        kind: 'doc',
+      }),
     hasDependency: (name: string | RegExp): Dependency | undefined =>
       snapshot.dependencies.find((d) => (typeof name === 'string' ? d.name === name : name.test(d.name))),
+    isReferenced,
   };
 }

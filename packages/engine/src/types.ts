@@ -117,9 +117,11 @@ export interface Signal {
   label: string;
   category: SignalCategory;
   description: string;
+  /** The best few citations, ranked. Capped for readability. */
   evidence: Evidence[];
-  /** Number of distinct files the signal fired in. */
+  /** Number of distinct files the signal fired in. Not capped. */
   fileCount: number;
+  /** Total matching lines across the snapshot. Not capped — see `evidence`. */
   hits: number;
 }
 
@@ -177,9 +179,23 @@ export interface ClassificationFinding {
   evidence: Evidence[];
 }
 
+export interface Article63Assessment {
+  /** The limb of Article 6(3) the operator relies on. */
+  claimed: 'narrow-procedural' | 'improves-human-activity' | 'pattern-detection' | 'preparatory';
+  /** False when the derogation is blocked or was not available to begin with. */
+  available: boolean;
+  /** Why, in a sentence an assessor can read. */
+  rationale: string;
+  /** Evidence of profiling, where that is what blocked it. */
+  evidence: Evidence[];
+  citations: Citation[];
+}
+
 export interface Classification {
   tier: RiskTier;
   role: ActorRole;
+  /** Present when the operator claimed the Article 6(3) derogation. */
+  article63?: Article63Assessment;
   findings: ClassificationFinding[];
   /** Human-readable one-liner used in headlines and the dossier. */
   summary: string;
@@ -322,7 +338,21 @@ export interface RulePack {
   /** Maximum administrative fine, for exposure modelling. */
   penalty?: {
     description: string;
-    tiers: { label: string; amountEur?: number; turnoverPct?: number; citation: Citation }[];
+    /**
+     * Currency of the flat amounts in this regime. NYC's civil penalties are
+     * dollars, and running them through a euro formatter — as this did until
+     * the field existed — turns $1,500 into €1,500 and invites a comparison
+     * across regimes that is not a comparison at all.
+     */
+    currency: 'EUR' | 'USD';
+    tiers: {
+      label: string;
+      amount?: number;
+      turnoverPct?: number;
+      /** Set where the statute multiplies the amount, e.g. per day or per notice. */
+      multiplier?: string;
+      citation: Citation;
+    }[];
   };
 }
 
@@ -335,8 +365,27 @@ export interface SystemProfile {
   /** What the system does, in the operator's words. Feeds classification. */
   purpose: string;
   role: ActorRole;
-  /** Does the system get placed on the EU market / used in the EU? */
+  /**
+   * Article 2(1): does the Regulation reach this system at all?
+   *
+   * True where the system is placed on the Union market or put into service in
+   * the Union, the deployer is established or located in the Union, or the
+   * output produced by the system is used in the Union. When this is false the
+   * EU packs still evaluate — a team usually wants to know what *would* bind
+   * them — but the exposure figure is suppressed, because a €35M banner over a
+   * product with no Union nexus is the error most likely to embarrass its
+   * author.
+   */
   euNexus: boolean;
+  /**
+   * Article 2 exclusions the operator claims: scientific research and
+   * development only (2(6)), pre-market research, testing or development
+   * (2(8)), or free and open-source release (2(12) — which does not reach
+   * Articles 5 and 50, or a high-risk placing on the market).
+   */
+  scopeExclusions?: ('research' | 'pre-market' | 'foss')[];
+  /** Balance-sheet total in EUR. With turnover, decides SME status. */
+  balanceSheetEur?: number;
   /**
    * Markets the system is offered in. Drives which rule packs are evaluated:
    * a product that never touches New York should not be graded against
@@ -350,6 +399,23 @@ export interface SystemProfile {
   attestations?: Record<string, boolean>;
   /** Operator override of the detected tier. */
   tierOverride?: RiskTier;
+  /**
+   * Article 6(3) derogation, claimed by the operator.
+   *
+   * An Annex III system is not high-risk where it does not pose a significant
+   * risk of harm to health, safety or fundamental rights — because it performs
+   * a narrow procedural task, improves the result of a previously completed
+   * human activity, detects decision-making patterns or deviations from prior
+   * patterns without replacing or influencing the human assessment, or performs
+   * a preparatory task. This is the provision most real Annex III conversations
+   * turn on, and it is a determination the provider makes and documents under
+   * Article 6(4), not one a scanner can make for them. Annex evaluates the
+   * consequences of the claim; it never claims it on anyone's behalf.
+   *
+   * It is never available where the system performs profiling of natural
+   * persons (Article 6(3), final subparagraph), which Annex checks in code.
+   */
+  article63Derogation?: 'narrow-procedural' | 'improves-human-activity' | 'pattern-detection' | 'preparatory';
 }
 
 // ---------------------------------------------------------------------------
@@ -366,9 +432,26 @@ export interface EvaluationContext {
   findFiles: (pattern: RegExp) => SourceFile[];
   /** Search file *contents*; returns line-anchored evidence. */
   grep: (pattern: RegExp, opts?: { paths?: RegExp; limit?: number; kind?: EvidenceKind }) => Evidence[];
-  /** Documentation-only search (markdown/rst/txt). */
-  grepDocs: (pattern: RegExp, limit?: number) => Evidence[];
+  /**
+   * Documentation-only search (markdown/rst/txt).
+   *
+   * `paths` narrows which documents may answer. Without it, a repo-wide grep
+   * for "risk management" is answered by the words "risk management" appearing
+   * in an incident-response runbook — which is how a documentation control
+   * ends up satisfied by a document about something else.
+   */
+  grepDocs: (pattern: RegExp, limit?: number, paths?: RegExp) => Evidence[];
   hasDependency: (name: string | RegExp) => Dependency | undefined;
+  /**
+   * Does any *other* file in the tree import or call into this one?
+   *
+   * The difference between a control that exists and a control that runs. A
+   * generated `human_oversight.py` that nothing imports satisfies nobody's
+   * Article 14 duty, and a scanner that says otherwise is a laundering
+   * machine: it would let a team merge Annex's own remediation PR and watch
+   * the score rise without a line of running code changing.
+   */
+  isReferenced: (file: SourceFile) => Evidence[];
 }
 
 // ---------------------------------------------------------------------------
@@ -393,11 +476,27 @@ export interface PackScore {
 }
 
 export interface ExposureEstimate {
-  /** Worst-case administrative fine, EUR. */
-  maxFineEur: number;
+  /** Statutory ceiling in the headline currency. Not a forecast. */
+  maxFine: number;
+  currency: 'EUR' | 'USD';
   basis: string;
   citations: Citation[];
   drivers: { controlId: string; title: string; severity: Severity }[];
+  /**
+   * One entry per regime that is failing. Regimes are modelled separately
+   * rather than reduced to a single maximum: a €15m EU ceiling and a $1,500
+   * per-day NYC penalty are different kinds of number, and the headline shows
+   * the largest EUR-denominated one.
+   */
+  byRegime: {
+    packId: string;
+    packName: string;
+    amount: number;
+    currency: 'EUR' | 'USD';
+    label: string;
+    multiplier?: string;
+    citation: Citation;
+  }[];
 }
 
 export interface LedgerEntry {

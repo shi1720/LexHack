@@ -72,6 +72,38 @@ const controls: Control[] = [
             ['ai-bom.json', 'model registry', 'model inventory'],
           );
     },
+    tests: [
+      {
+        name: 'missing when no model inventory exists at all',
+        files: {
+          'src/infer.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nexport const infer = (prompt) => client.responses.create({ input: prompt });\n',
+        },
+        expect: 'missing',
+      },
+      {
+        // Pinned model ids scattered through the code are an inventory only in
+        // the sense that a pile of receipts is a ledger.
+        name: 'partial when model identifiers are pinned in code but never collected',
+        files: {
+          'src/infer.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nexport const infer = (p) => client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "user", content: p }] });\n',
+          'src/models.ts':
+            'export const MODEL_VERSION = "gpt-4o-2024-08-06";\nexport const modelName = "gpt-4o";\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when a machine-readable inventory artefact is present',
+        files: {
+          'src/infer.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nexport const infer = (p) => client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "user", content: p }] });\n',
+          'ai-bom.json':
+            '{\n  "bomFormat": "CycloneDX",\n  "components": [{ "type": "machine-learning-model", "name": "gpt-4o" }]\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nist-ai-rmf.map-1-1',
@@ -95,6 +127,26 @@ const controls: Control[] = [
             ['intended purpose', 'model card', 'instructions for use'],
           );
     },
+    tests: [
+      {
+        name: 'missing when the intended purpose is nowhere in the repository',
+        files: {
+          'src/infer.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nexport const infer = (p) => client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "user", content: p }] });\n',
+        },
+        expect: 'missing',
+      },
+      {
+        name: 'satisfied when a model card states the intended purpose',
+        files: {
+          'src/infer.ts':
+            'import OpenAI from "openai";\nconst client = new OpenAI();\nexport const infer = (p) => client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "user", content: p }] });\n',
+          'docs/model-card.md':
+            '# Model card\n\n## Intended purpose\n\nDrafts replies to inbound support email for a human agent to send.\n\n## Out-of-scope uses\n\nNot for medical or legal advice.\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nist-ai-rmf.measure-2-11',
@@ -119,6 +171,36 @@ const controls: Control[] = [
         ['fairness', 'bias evaluation', 'disparate impact'],
       );
     },
+    tests: [
+      {
+        name: 'missing when nothing measures outcomes across groups',
+        files: {
+          'src/decide.ts':
+            'export function decide(person) {\n  const record = { full_name: person.full_name, email: person.email };\n  const score = model.predict(record);\n  return { auto_decision: score > 0.5 ? "approve" : "reject", eligible: score > 0.5 };\n}\n',
+        },
+        expect: 'missing',
+      },
+      {
+        name: 'partial when fairness is mentioned once and never measured',
+        files: {
+          'src/decide.ts':
+            'export function decide(person) {\n  const record = { full_name: person.full_name, email: person.email };\n  const score = model.predict(record);\n  return { auto_decision: score > 0.5 ? "approve" : "reject", eligible: score > 0.5 };\n}\n',
+          'src/notes.ts':
+            'export const TODO_FAIRNESS = "we should run a disparate impact check before launch";\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when outcome rates are actually computed across groups',
+        files: {
+          'src/decide.ts':
+            'export function decide(person) {\n  const record = { full_name: person.full_name, email: person.email };\n  const score = model.predict(record);\n  return { auto_decision: score > 0.5 ? "approve" : "reject", eligible: score > 0.5 };\n}\n',
+          'src/fairness.ts':
+            'export function disparateImpact(results) {\n  const selectionRate = rate(results);\n  return { demographic_parity: demographicParity(results), equalised_odds: equalizedOdds(results), selectionRate };\n}\n',
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nist-ai-rmf.measure-2-7',

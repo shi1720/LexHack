@@ -141,11 +141,13 @@ $ annex verify report.json
  45 entries verified against root 0760abe282cff156…
 ```
 
-Change one character of one cited file and the chain breaks, and `annex verify` names the entry that stopped matching. That is the whole difference between a document and a proof.
+`annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value, and `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree says so. That is the whole difference between a document and a proof.
+
+Being precise about what this is: a checksum chain, not a signature. There is no key and no external anchor, so anyone holding the report can recompute a self-consistent chain over different numbers. It makes a silent edit detectable by anyone who has the source. Notarisation is on the roadmap for exactly that reason.
 
 ### And one more thing only a code-grounded tool can do
 
-Article 3(49) defines a **substantial modification** as a change, not foreseen in the initial conformity assessment, that affects compliance with Chapter III Section 2 — and Article 43(4) then requires a *new* conformity assessment. Only something that reads the code can tell you a modification was substantial:
+Article 3(23) defines a **substantial modification** as a change, not foreseen in the initial conformity assessment, that affects compliance with Chapter III Section 2 — and Article 43(4) then requires a *new* conformity assessment. Only something that reads the code can tell you a modification was substantial:
 
 ```
 $ annex diff --base origin/main --head HEAD
@@ -153,7 +155,7 @@ $ annex diff --base origin/main --head HEAD
  SUBSTANTIAL MODIFICATION   origin/main → HEAD
 
  1 control regressed, including at least one that affects compliance with
- Chapter III, Section 2. On the Article 3(49) definition this is a
+ Chapter III, Section 2. On the Article 3(23) definition this is a
  substantial modification.
 
  ✖ Effective human oversight while the system is in use   satisfied → missing

@@ -368,7 +368,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     id: 'domain.automated.decision',
     label: 'Automated decision affecting a person',
     category: 'domain',
-    description: 'Produces an outcome that determines how a person is treated — GDPR Art. 22 and Colorado SB 24-205 trigger.',
+    description: 'Produces an outcome that determines how a person is treated — GDPR Art. 22 and Colorado SB 26-189 trigger.',
     keywords: ['approve', 'reject', 'decision', 'eligib', 'verdict', 'outcome', 'deny'],
     patterns: [
       /\b(auto|automatic|automated|ai|model)[_\s]?(approve|reject|decision|deny|decline|accept)\w*\b/i,
@@ -376,6 +376,65 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\bif\s*\(?\s*score\s*[<>]=?\s*[\d.]+\s*\)?[\s\S]{0,40}\b(reject|approve|deny|decline|advance|shortlist)/i,
     ],
     fileGuard: corroborate(['score', 'decision', 'approve', 'reject', 'threshold', 'eligib'], 2),
+    maxEvidence: 8,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+  }),
+  // --- Article 6(3) and Article 50(2) carve-outs ---------------------------
+  //
+  // The statute provides its own exits, and a classifier that only knows how
+  // to say "high-risk" over-reports — which is the fastest way for a
+  // compliance tool to lose an engineering team. These signals do not demote
+  // anything by themselves; they are the facts an operator needs in order to
+  // decide whether a derogation is available, and the evidence they will cite
+  // when they document it.
+  defineSignal({
+    id: 'task.extraction-only',
+    label: 'Extraction, transcription or translation of existing content',
+    category: 'ai-usage',
+    description:
+      'Reads content that already exists and re-expresses it without changing its meaning — OCR, transcription, parsing, faithful translation. Candidate for the Article 50(2) carve-out for systems that do not substantially alter the input data or its semantics.',
+    keywords: ['ocr', 'extract', 'transcri', 'parse', 'translat', 'recogni'],
+    patterns: [
+      /\b(ocr|optical[_\s]?character|text[_\s]?extract\w*|extract[_\s]?(text|receipt|invoice|field|entit\w+|data))\b/i,
+      /\b(transcri\w+|speech[_\s]?to[_\s]?text|stt|whisper)\b/i,
+      /\b(parse|parser|parsing)[_\s]?(document|pdf|invoice|receipt|resume|form)\b/i,
+      /\b(translate|translation)[_\s]?(text|content|document|string)\b/i,
+    ],
+    maxEvidence: 8,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+  }),
+  defineSignal({
+    id: 'task.assists-human',
+    label: 'Output is a suggestion a person acts on',
+    category: 'control',
+    description:
+      'The system produces a draft, a suggestion or a flag for a person to act on rather than an outcome that applies itself. Relevant to Article 6(3)(b) and 6(3)(c): improving the result of a previously completed human activity, or detecting patterns without replacing or influencing the human assessment.',
+    keywords: ['suggest', 'recommend', 'draft', 'assist', 'propose', 'flag'],
+    patterns: [
+      /\b(suggest\w*|recommend\w*|propose\w*|draft)[_\s]?(only|for[_\s]?review|to[_\s]?(user|reviewer|human))\b/i,
+      /\b(requires?|needs?|awaiting)[_\s]?(human|manual|reviewer)[_\s]?(approval|confirmation|action|sign[_\s]?off)\b/i,
+      /\b(flag(ged)?[_\s]?for[_\s]?review|for_review|needs_review|pending_review)\b/i,
+    ],
+    maxEvidence: 8,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+  }),
+  defineSignal({
+    id: 'domain.profiling',
+    label: 'Profiling of natural persons',
+    category: 'domain',
+    description:
+      'Automated processing of personal data to evaluate personal aspects — performance, economic situation, health, preferences, reliability, behaviour, location or movements. GDPR Article 4(4). Its presence permanently closes the Article 6(3) derogation, by the final subparagraph of that Article.',
+    keywords: ['profile', 'segment', 'persona', 'behaviour', 'behavior', 'propensity'],
+    patterns: [
+      /\b(user|customer|candidate|applicant|employee|person)[_\s]?(profile|profiling|segment\w*|persona|score)\b/i,
+      /\b(profil\w+)[_\s]?(user|customer|person|individual|behaviou?r)\b/i,
+      /\b(propensity|churn|risk|credit|trust|reliability)[_\s]?(score|model|rating)\b/i,
+      /\b(predict|infer|estimate)[_\s]?(income|health|preference|location|behaviou?r|performance)\b/i,
+    ],
+    fileGuard: corroborate(['profile', 'score', 'user', 'customer', 'person', 'predict', 'segment'], 2),
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,

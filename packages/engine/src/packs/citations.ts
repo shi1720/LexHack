@@ -45,18 +45,6 @@ export function gdpr(locator: string, title: string, quote?: string): Citation {
   return c;
 }
 
-export function colorado(locator: string, title: string, quote?: string): Citation {
-  const c: Citation = {
-    instrument: 'Colorado Revised Statutes tit. 6, art. 1, pt. 17 (SB 24-205, the Colorado AI Act)',
-    short: 'Colorado AI Act',
-    locator,
-    title,
-    url: 'https://leg.colorado.gov/bills/sb24-205',
-  };
-  if (quote) c.quote = quote;
-  return c;
-}
-
 export function nycLL144(locator: string, title: string, quote?: string): Citation {
   const c: Citation = {
     instrument: 'NYC Admin. Code tit. 20, ch. 5, subch. 25 (Local Law 144 of 2021)',
@@ -79,14 +67,4 @@ export function nistRmf(locator: string, title: string, quote?: string): Citatio
   };
   if (quote) c.quote = quote;
   return c;
-}
-
-export function iso42001(locator: string, title: string): Citation {
-  return {
-    instrument: 'ISO/IEC 42001:2023 — Artificial intelligence management system',
-    short: 'ISO/IEC 42001',
-    locator,
-    title,
-    url: 'https://www.iso.org/standard/81230.html',
-  };
 }

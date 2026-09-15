@@ -3,6 +3,7 @@ import { join, relative, sep } from 'node:path';
 import { IGNORED_DIRS, INGEST_LIMITS } from './ignore.js';
 import { buildSnapshot, type RawFile, type SnapshotInput } from './snapshot.js';
 import type { RepoSnapshot } from '../types.js';
+import { IngestError } from './error.js';
 
 export interface LocalIngestOptions {
   name?: string;
@@ -17,12 +18,22 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
   const files: RawFile[] = [];
   const maxFiles = opts.maxFiles ?? INGEST_LIMITS.maxFiles;
 
-  async function walk(dir: string): Promise<void> {
+  async function walk(dir: string, top = false): Promise<void> {
     if (files.length >= maxFiles) return;
     let entries;
     try {
       entries = await readdir(dir, { withFileTypes: true });
-    } catch {
+    } catch (err) {
+      // A nested directory that vanished mid-walk or cannot be read is a file
+      // we skip. The *root* being unreadable means we were pointed at the
+      // wrong place, and reporting a score over nothing would be a lie.
+      if (top) {
+        throw new IngestError(
+          `Cannot read "${dir}": ${(err as Error).message}`,
+          'not-found',
+          'Check the path. Annex will not score a repository it could not read.',
+        );
+      }
       return;
     }
     for (const entry of entries) {
@@ -45,7 +56,15 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
     }
   }
 
-  await walk(root);
+  await walk(root, true);
+
+  if (files.length === 0) {
+    throw new IngestError(
+      `No readable files under "${root}".`,
+      'empty',
+      'An empty snapshot cannot evidence anything, so Annex refuses to score one.',
+    );
+  }
 
   const input: SnapshotInput = {
     name: opts.name ?? (root.split(sep).filter(Boolean).pop() || 'repository'),

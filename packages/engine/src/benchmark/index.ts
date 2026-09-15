@@ -40,6 +40,7 @@ function runCase(bench: BenchmarkCase): CaseOutcome {
     name: bench.id,
     purpose: bench.description,
     markets: ['eu', 'us-nyc', 'us-co', 'us-federal'],
+    ...bench.profile,
   };
   const report = scan(snapshot, { profile });
   const found = new Set(report.classification.findings.map((f) => f.id));

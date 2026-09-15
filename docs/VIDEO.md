@@ -120,7 +120,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **Every result is hashed into a chain. Re-run it on the same commit and you get the same root. Change one character of one cited file and the chain breaks and it names the entry that stopped matching. That's the difference between a document and a proof.**
+> **Every result is hashed into a chain. Re-run it on the same commit and you get the same root. Edit one status in the report and verify names the entry that stopped matching. That's the difference between a document and a proof.**
 
 **Screen:** Cut to the terminal, run `npm run benchmark`.
 

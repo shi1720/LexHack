@@ -196,9 +196,10 @@ export function Empty({ title, body, action }: { title: string; body: string; ac
   );
 }
 
-export function euro(n: number): string {
-  if (n >= 1_000_000) return `€${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`;
-  return `€${n.toLocaleString('en-GB', { maximumFractionDigits: 0 })}`;
+export function money(n: number, currency: 'EUR' | 'USD' = 'EUR'): string {
+  const symbol = currency === 'USD' ? '$' : '€';
+  if (n >= 1_000_000) return `${symbol}${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`;
+  return `${symbol}${n.toLocaleString('en-GB', { maximumFractionDigits: 0 })}`;
 }
 
 export function relativeDays(days: number): string {

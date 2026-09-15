@@ -31,6 +31,20 @@ function runControl(control: Control, files: Record<string, string>, profileOver
   return evaluateControl(control, ctx, new Date('2030-01-01T00:00:00Z'));
 }
 
+/** A context over a small but non-empty repository, for exercising templates. */
+function remediationContext() {
+  const snapshot = buildSnapshot({
+    name: 'remediation',
+    files: [
+      { path: 'package.json', bytes: '{"name":"app","dependencies":{"openai":"^4.0.0"}}' },
+      { path: 'src/decide.ts', bytes: 'export const decide = (x: number) => x > 0.5;\n' },
+    ],
+  });
+  const signals = createSignalIndex(extractSignals(snapshot));
+  const profile = defaultProfile(snapshot, {});
+  return createContext({ snapshot, signals, classification: classify(signals, profile), profile });
+}
+
 describe('rule pack corpus', () => {
   it('ships every pack with a version, a reconciliation date and at least one control', () => {
     for (const pack of ALL_PACKS) {
@@ -85,6 +99,15 @@ describe('rule pack corpus', () => {
         if (!control.remediation) continue;
         expect(control.remediation.summary, control.id).toBeTruthy();
         expect(control.remediation.reviewerNote, control.id).toBeTruthy();
+
+        // The claim on the tin: an Annex remediation never edits your code.
+        const files = control.remediation.files(remediationContext());
+        expect(files.length, control.id).toBeGreaterThan(0);
+        for (const file of files) {
+          expect(file.createOnly, `${control.id} → ${file.path}`).toBe(true);
+          expect(file.contents.length, `${control.id} → ${file.path}`).toBeGreaterThan(40);
+          expect(file.description, `${control.id} → ${file.path}`).toBeTruthy();
+        }
       }
     }
   });
@@ -96,7 +119,9 @@ describe('golden fixtures — every control that ships tests must pass them', ()
   );
 
   it('ships golden fixtures for the highest-severity controls', () => {
-    expect(cases.length).toBeGreaterThanOrEqual(6);
+    // Raise this with the corpus. It is the number that turns "the law gets
+    // a test suite" from a slogan into a thing CI can fail on.
+    expect(cases.length).toBeGreaterThanOrEqual(43);
   });
 
   for (const { control, test } of cases) {

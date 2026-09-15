@@ -94,8 +94,8 @@ export function wrap(text: string, width = 76, indent = '  '): string {
   return lines.map((l) => indent + l).join('\n');
 }
 
-export function euro(n: number): string {
-  return `€${n.toLocaleString('en-GB', { maximumFractionDigits: 0 })}`;
+export function money(n: number, currency: 'EUR' | 'USD' = 'EUR'): string {
+  return `${currency === 'USD' ? '$' : '€'}${n.toLocaleString('en-GB', { maximumFractionDigits: 0 })}`;
 }
 
 /** Overwrite-in-place progress line, used while a scan streams. */

@@ -25,15 +25,6 @@ export const ALL_PACKS: RulePack[] = [
 /** Packs enabled unless the caller narrows the set. */
 export const DEFAULT_PACKS: RulePack[] = ALL_PACKS;
 
-export function packById(id: string): RulePack | undefined {
-  return ALL_PACKS.find((p) => p.id === id);
-}
-
-export function selectPacks(ids?: string[]): RulePack[] {
-  if (!ids || ids.length === 0) return DEFAULT_PACKS;
-  return ALL_PACKS.filter((p) => ids.includes(p.id));
-}
-
 /** Market code -> the packs that bind someone operating there. */
 export const MARKET_PACKS: Record<string, { label: string; packs: string[] }> = {
   eu: { label: 'European Union / EEA', packs: ['eu-ai-act', 'gdpr'] },
@@ -42,13 +33,44 @@ export const MARKET_PACKS: Record<string, { label: string; packs: string[] }> = 
   'us-federal': { label: 'United States (framework alignment)', packs: ['nist-ai-rmf'] },
 };
 
-/** Resolve the packs that apply to a set of markets. */
-export function packsForMarkets(markets?: string[]): RulePack[] {
-  if (!markets || markets.length === 0) return DEFAULT_PACKS;
+export interface MarketResolution {
+  packs: RulePack[];
+  /** Market codes that matched nothing. Never silently dropped. */
+  unknown: string[];
+  /** True when nothing resolved and the full corpus was used instead. */
+  fellBack: boolean;
+}
+
+/**
+ * Resolve the packs that bind someone operating in a set of markets.
+ *
+ * An unrecognised market code used to expand silently to the whole corpus, so
+ * `--markets uk` scored you against New York City and said nothing. The
+ * fallback is still the safe default — it is better to over-report than to
+ * report nothing — but the caller is now told, and the warning reaches the
+ * report.
+ */
+export function resolveMarkets(markets?: string[]): MarketResolution {
+  if (!markets || markets.length === 0) return { packs: DEFAULT_PACKS, unknown: [], fellBack: false };
   const ids = new Set<string>();
-  for (const m of markets) for (const id of MARKET_PACKS[m]?.packs ?? []) ids.add(id);
+  const unknown: string[] = [];
+  for (const m of markets) {
+    const entry = MARKET_PACKS[m];
+    if (!entry) {
+      unknown.push(m);
+      continue;
+    }
+    for (const id of entry.packs) ids.add(id);
+  }
   const selected = ALL_PACKS.filter((p) => ids.has(p.id));
-  return selected.length > 0 ? selected : DEFAULT_PACKS;
+  return selected.length > 0
+    ? { packs: selected, unknown, fellBack: false }
+    : { packs: DEFAULT_PACKS, unknown, fellBack: true };
+}
+
+/** Resolve markets to packs, discarding the diagnostics. */
+export function packsForMarkets(markets?: string[]): RulePack[] {
+  return resolveMarkets(markets).packs;
 }
 
 export function controlById(id: string) {

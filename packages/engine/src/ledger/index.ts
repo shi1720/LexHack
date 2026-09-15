@@ -9,17 +9,31 @@ const GENESIS = '0'.repeat(64);
  *
  * Every conformity dossier in existence today is a self-attested document: it
  * asserts that controls are in place, and nobody can check the assertion
- * without redoing the work. The ledger closes that gap.
+ * without redoing the work. The ledger narrows that gap — precisely, and no
+ * further than it actually goes.
  *
  * Each control result is reduced to a canonical line — control id, status, the
  * digest of every piece of evidence, and the version of the rule that produced
- * it — and hashed into a chain. Change one character of one cited source file
- * and the digest changes, the chain breaks, and `verifyLedger` says exactly
- * which entry stopped matching.
+ * it — and hashed into a chain whose root is short enough to print on the
+ * front page of the dossier.
  *
- * The root hash is short enough to print on the front page of the dossier. An
- * auditor who re-runs the scan on the same commit gets the same root, or knows
- * something moved.
+ * What that buys, exactly:
+ *
+ *  - **Re-derivability.** `verifyLedgerAgainstResults` rebuilds every hash from
+ *    the results the report carries. Edit a status from `missing` to
+ *    `satisfied` and the entry for that control no longer matches. This is
+ *    what `annex verify` runs.
+ *  - **Correspondence to source.** The digests describe specific bytes at
+ *    specific paths. `annex verify --against <dir>` re-hashes each cited file
+ *    off disk, so a dossier that no longer describes the tree says so.
+ *  - **Reproducibility.** Re-run the scan on the same commit with the same
+ *    rule versions and the root is identical, or something moved.
+ *
+ * What it explicitly does *not* buy: this is a checksum chain, not a
+ * signature. There is no key and no external anchor, so anyone holding the
+ * report can recompute a self-consistent chain over different numbers. It
+ * makes silent edits detectable by anyone who has the source; it does not make
+ * them impossible. Notarisation is on the roadmap for exactly this reason.
  */
 export function buildLedger(results: ControlResult[], ruleVersions: Record<string, string>): EvidenceLedger {
   const ordered = [...results].sort((a, b) => a.controlId.localeCompare(b.controlId));
@@ -66,7 +80,12 @@ export interface LedgerVerification {
   checked: number;
 }
 
-/** Recompute the chain and report the first entry that does not match. */
+/**
+ * Structural check only: confirm the links join up and the root is the last
+ * hash. It cannot detect an edited *result*, because entries do not carry the
+ * score — that is `verifyLedgerAgainstResults`, which is what the CLI runs.
+ * This exists for callers holding a ledger without the report it came from.
+ */
 export function verifyLedger(ledger: EvidenceLedger): LedgerVerification {
   let prevHash = GENESIS;
 
@@ -121,7 +140,7 @@ export function verifyLedgerAgainstResults(
     ...(firstMismatch >= 0 && entry
       ? {
           brokenAt: firstMismatch,
-          reason: `Control "${entry.controlId}" no longer produces the recorded result. The evidence it cites has changed since the dossier was issued.`,
+          reason: `Entry ${firstMismatch} ("${entry.controlId}") does not hash to its recorded value: the status, score, rule version or cited evidence in this report is not what the ledger was built over.`,
         }
       : { reason: 'The ledger has a different number of entries than the current scan.' }),
   };
