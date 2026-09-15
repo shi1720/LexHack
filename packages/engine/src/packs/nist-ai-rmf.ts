@@ -43,7 +43,8 @@ const controls: Control[] = [
   c({
     id: 'nist-ai-rmf.govern-1-6',
     title: 'GOVERN 1.6 — an inventory of AI systems is maintained',
-    obligation: 'Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities.',
+    obligation:
+      'Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. An inventory nobody maintains by hand is an inventory that is wrong by the second sprint, so it should be generated from the codebase rather than typed into a spreadsheet.',
     family: 'documentation',
     severity: 'medium',
     weight: 3,
@@ -122,7 +123,8 @@ const controls: Control[] = [
   c({
     id: 'nist-ai-rmf.measure-2-7',
     title: 'MEASURE 2.7 — security and resilience are evaluated',
-    obligation: 'AI system security and resilience are evaluated and documented.',
+    obligation:
+      'AI system security and resilience are evaluated and documented. For a system built on a language model this means the AI-specific attack surface: prompt injection, jailbreaks, model evasion and data exfiltration through the model, not only the surrounding web application.',
     family: 'accuracy-robustness',
     severity: 'medium',
     weight: 4,

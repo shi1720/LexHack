@@ -234,6 +234,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       'The system identifies natural persons from biometric data — Annex III, point 1(a). One-to-one verification to confirm a claimed identity is excluded.',
     citations: [aiActAnnex('III', '1(a)', 'High-risk AI systems — remote biometric identification')],
     requires: ['domain.biometric.identification'],
+    suppressedBy: ['domain.biometric.verification-only'],
     baseConfidence: 0.7,
     caveat:
       'AI systems intended to be used for biometric verification whose sole purpose is to confirm that a person is who they claim to be are outside point 1(a).',
@@ -331,6 +332,29 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     ],
     requires: ['domain.synthetic.content'],
     baseConfidence: 0.78,
+  },
+
+  {
+    id: 'art50.2.generated-text',
+    tier: 'transparency',
+    title: 'Generation of synthetic text',
+    basis:
+      'The system asks a model to produce text that leaves the system. Article 50(2) requires providers of AI systems generating synthetic text to mark the output in a machine-readable format and make it detectable as artificially generated.',
+    citations: [
+      aiActArticle(
+        50,
+        '(2)',
+        'Transparency obligations — marking of synthetic content',
+        'Providers of AI systems, including general-purpose AI systems, generating synthetic audio, image, video or text content, shall ensure that the outputs of the AI system are marked in a machine-readable format and detectable as artificially generated or manipulated',
+      ),
+      aiActArticle(111, '(4)', 'Transitional provision — marking deadline of 2 December 2026'),
+    ],
+    requires: ['ai.inference.call'],
+    requiresAny: ['ai.provider.openai', 'ai.provider.anthropic', 'ai.provider.google', 'ai.provider.cloud', 'ai.provider.openweights', 'ai.framework.agent'],
+    boosts: ['domain.chat.enduser', 'ai.prompt.system'],
+    baseConfidence: 0.62,
+    caveat:
+      'Article 50(2) does not apply to the extent the system performs an assistive function for standard editing, or does not substantially alter the input data or its semantics. Code completion, spell-checking and faithful translation are the usual candidates for that carve-out — confirm which limb your system falls in.',
   },
 
   // ---------------------------------------------------------------------

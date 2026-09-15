@@ -1,0 +1,4 @@
+/src/screening/   @hireflow/ml @hireflow/compliance
+/lib/ai-act/      @hireflow/compliance
+/docs/ai-act/     @hireflow/compliance
+/evals/           @hireflow/ml

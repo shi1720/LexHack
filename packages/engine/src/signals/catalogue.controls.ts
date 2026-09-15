@@ -14,7 +14,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Human review step',
     category: 'control',
     description: 'A person reviews or approves model output before it takes effect.',
-    keywords: ['human_review', 'humanreview', 'manual_review', 'manualreview', 'reviewer', 'needs_review', 'awaiting_approval', 'human_in_the_loop'],
+    keywords: ['human review', 'human_review', 'humanreview', 'manual review', 'manual_review', 'manualreview', 'reviewer', 'needs_review', 'needs review', 'pending_review', 'pending review', 'awaiting_approval', 'human_in_the_loop', 'human in the loop', 'oversight', 'approval'],
     patterns: [
       /\b(human|manual)[_\s-]?(review|approval|check|verification|in[_\s-]the[_\s-]loop|oversight)\b/i,
       /\b(requires?|needs|pending|awaiting)[_\s]?(review|approval|human)\b/i,
@@ -28,7 +28,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Human override of model output',
     category: 'control',
     description: 'A person can reverse, discard or correct what the model decided — Art. 14(4)(d)-(e).',
-    keywords: ['override', 'overrule', 'reverse_decision', 'revert_decision', 'discard_output'],
+    keywords: ['override', 'overrid', 'overrule', 'reverse_decision', 'revert_decision', 'discard_output', 'disregard'],
     patterns: [
       /\b(override|overrule|overridden)[_\s]?(decision|output|result|score|recommendation|reason)?\b/i,
       /\b(reverse|revert|discard|disregard)[_\s]?(decision|output|recommendation)\b/i,
@@ -40,7 +40,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Appeal / contest mechanism',
     category: 'control',
     description: 'The affected person can contest the outcome and reach a human — Art. 86, GDPR Art. 22(3), Colorado 6-1-1703(4)(b).',
-    keywords: ['appeal', 'contest', 'dispute', 'reconsider', 'grievance'],
+    keywords: ['appeal', 'contest', 'dispute', 'reconsider', 'grievance', 'accommodation'],
     patterns: [
       /\b(appeal|contest|dispute|grievance|reconsider\w*)[_\s]?(request|process|endpoint|route|flow|handler|button)?\b/i,
       /['"]\/(api\/)?(appeals?|disputes?|contest)\b/i,
@@ -65,7 +65,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Stop button / kill switch',
     category: 'control',
     description: 'The system can be interrupted or halted by an operator — Art. 14(4)(e).',
-    keywords: ['kill_switch', 'killswitch', 'circuit_breaker', 'circuitbreaker', 'feature_flag', 'featureflag', 'disable_ai', 'emergency_stop'],
+    keywords: ['kill_switch', 'killswitch', 'kill switch', 'circuit_breaker', 'circuitbreaker', 'circuit breaker', 'feature_flag', 'featureflag', 'feature flag', 'disable_ai', 'disable ai', 'emergency_stop', 'emergency stop', 'ai_enabled', 'stop control', 'launchdarkly'],
     patterns: [
       /\b(kill[_\s]?switch|circuit[_\s]?breaker|emergency[_\s]?(stop|shutdown)|panic[_\s]?button)\b/i,
       /\b(feature[_\s]?flag|launchdarkly|unleash|flagsmith)\b/i,
@@ -80,12 +80,22 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Inference logging',
     category: 'control',
     description: 'Model inputs, outputs and metadata are recorded — Art. 12 automatic logging.',
-    keywords: ['audit_log', 'auditlog', 'inference_log', 'model_log', 'prediction_log', 'log_inference', 'langfuse', 'langsmith', 'helicone'],
+    keywords: [
+      'audit_log', 'auditlog', 'inference_log', 'model_log', 'prediction_log', 'log_inference',
+      'langfuse', 'langsmith', 'helicone', 'decision', 'prediction',
+    ],
     patterns: [
       /\b(audit|inference|model|prediction|decision|completion)[_\s]?log(s|ging|ger|_entry)?\b/i,
       /\blog[_\s]?(inference|prediction|decision|completion|request_and_response)\b/i,
+      // Structured log call naming a decision-shaped event, e.g.
+      //   log.info("credit_decision", application_id=..., model_version=...)
+      /\b(log|logger|logging|log)\w*\.(info|warn|warning|error|debug|event)\s*\(\s*['"`][\w.:-]*(decision|inference|prediction|score|outcome|completion)/i,
+      // Event-name string literal, which is how structured loggers are usually
+      // called — and the argument often sits on its own continuation line.
+      /['"`][\w.:-]*_(decision|inference|prediction|score|outcome)['"`]/i,
+      /['"`](decision|inference|prediction)[\w.:-]*['"`]\s*,/i,
       /\b(langfuse|langsmith|helicone|phoenix\.trace|openllmetry|traceloop)\b/i,
-      /\b(insert|create|record|persist)\w*\([\s\S]{0,40}\b(audit|inference|prediction)/i,
+      /\b(insert|create|record|persist)\w*\([\s\S]{0,40}\b(audit|inference|prediction|decision)/i,
     ],
     maxEvidence: 10,
   }),
@@ -94,7 +104,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Log retention policy',
     category: 'control',
     description: 'Logs are kept for a defined period — Art. 19 requires at least six months.',
-    keywords: ['retention', 'retain_days', 'ttl', 'expire_after', 'archive_after'],
+    keywords: ['retention', 'retain', 'ttl', 'expire_after', 'expires', 'archive_after', 'log_retention', 'retention_days', ' days'],
     patterns: [
       /\b(retention|retain)[_\s]?(period|days|months|policy|until)\b/i,
       /\b(RETENTION_DAYS|LOG_RETENTION|retention_days)\s*[:=]\s*\d+/i,
@@ -120,7 +130,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Traceable request / decision identifier',
     category: 'control',
     description: 'Each decision carries an identifier that links it back to inputs and model version.',
-    keywords: ['trace_id', 'traceid', 'request_id', 'requestid', 'correlation_id', 'decision_id'],
+    keywords: ['trace_id', 'traceid', 'request_id', 'requestid', 'correlation_id', 'correlationid', 'decision_id', 'decisionid', 'session_id', 'sessionid', 'run_id', 'runid'],
     patterns: [/\b(trace|request|correlation|decision|run|session)[_\s]?id\b/i],
     maxEvidence: 6,
   }),
@@ -129,7 +139,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Model version pinning',
     category: 'control',
     description: 'The exact model version used for a decision is recorded — Annex IV(2)(a) and Art. 12(2).',
-    keywords: ['model_version', 'modelversion', 'model_id', 'model=', 'model:'],
+    keywords: ['model_version', 'modelversion', 'model_id', 'modelid', 'model_name', 'modelname', 'model=', 'model:', 'model ', 'prompt_version', 'promptversion'],
     patterns: [
       /\bmodel[_\s]?(version|id|name|revision)\b/i,
       /\bmodel\s*[:=]\s*['"][\w.:@/-]+['"]/,
@@ -144,7 +154,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'AI interaction disclosure',
     category: 'transparency',
     description: 'Users are told they are interacting with an AI system — Art. 50(1).',
-    keywords: ['ai-generated', 'ai generated', 'generated by ai', 'powered by ai', 'you are chatting with', 'this is an ai', 'ai assistant', 'not a human', 'automated system'],
+    keywords: ['ai-generated', 'ai generated', 'ai_generated', 'generated by ai', 'powered by ai', 'you are chatting with', "you're chatting with", 'this is an ai', 'ai assistant', 'not a human', 'automated system', 'ai-disclosure', 'ai disclosure', 'ai_disclosure', 'aidisclosure', 'disclosure', 'disclaimer', 'ai notice', 'ai_notice'],
     patterns: [
       /(you('re| are) (chatting|speaking|interacting) with an? (ai|bot|automated)|this is an ai|not a (human|real person))/i,
       /\b(ai[_\s-]?(generated|disclosure|notice|disclaimer|banner|badge)|generated by ai|powered by ai)\b/i,
@@ -158,7 +168,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Synthetic content marking',
     category: 'transparency',
     description: 'Generated content is marked machine-readably — Art. 50(2) and 50(4).',
-    keywords: ['c2pa', 'content credentials', 'watermark', 'synthid', 'provenance', 'contentauthenticity'],
+    keywords: ['c2pa', 'content credentials', 'content_credentials', 'watermark', 'synthid', 'provenance', 'contentauthenticity', 'content authenticity', 'xmp'],
     patterns: [
       /\b(c2pa|content[_\s]?credentials|content[_\s]?authenticity|synthid)\b/i,
       /\bwatermark\w*\b/i,
@@ -172,7 +182,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Explanation of output',
     category: 'transparency',
     description: 'The system produces reasons for its outputs — Art. 86 and Colorado 6-1-1703(4)(a).',
-    keywords: ['explanation', 'reason_code', 'reasoncode', 'shap', 'lime', 'feature_importance', 'rationale', 'why_this'],
+    keywords: ['explanation', 'explain', 'reason_code', 'reasoncode', 'reason code', 'shap', 'lime', 'feature_importance', 'feature importance', 'rationale', 'why_this', 'justification'],
     patterns: [
       /\b(explanation|rationale|reason(ing|_code|s_for)?|justification)\b\s*[:=]/i,
       /\b(shap|lime|feature[_\s]?importance|counterfactual|saliency)\b/i,
@@ -185,7 +195,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Instructions for use / deployer documentation',
     category: 'transparency',
     description: 'Documentation aimed at whoever deploys the system — Art. 13(2)-(3).',
-    keywords: ['instructions for use', 'deployment guide', 'intended purpose', 'intended use', 'limitations', 'operator guide'],
+    keywords: ['instructions for use', 'instructions_for_use', 'deployment guide', 'intended purpose', 'intended use', 'limitations', 'known issues', 'operator guide', 'out of scope'],
     patterns: [
       /\b(instructions?[_\s]for[_\s]use|intended[_\s](purpose|use)|operator[_\s]guide|deployment[_\s]guide)\b/i,
       /^#+\s*(limitations|intended use|out[- ]of[- ]scope|known issues)/im,
@@ -224,7 +234,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Special-category / protected attributes',
     category: 'data',
     description: 'Protected characteristics appear in the data model — GDPR Art. 9 and Art. 10(5) AI Act.',
-    keywords: ['ethnicity', 'race', 'religion', 'sexual_orientation', 'disability', 'trade_union', 'political_opinion', 'health_data', 'gender', 'nationality'],
+    keywords: ['ethnicity', 'race', 'religion', 'sexual_orientation', 'sexual orientation', 'disability', 'trade_union', 'trade union', 'political_opinion', 'political opinion', 'health_data', 'gender', 'nationality', 'protected attribute', 'protected class', 'eeo'],
     patterns: [
       /\b(ethnicity|race|religion|sexual[_\s]?orientation|disabilit\w+|trade[_\s]?union|political[_\s]?(opinion|affiliation)|genetic|biometric[_\s]?data)\b\s*[:=?]/i,
       /\b(protected[_\s]?(attribute|class|characteristic)s?)\b/i,
@@ -250,10 +260,11 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Dataset provenance / documentation',
     category: 'data',
     description: 'Where the training or reference data came from is documented — Art. 10(2)(b)-(c), Annex IV(2)(d).',
-    keywords: ['dataset', 'data source', 'datasheet', 'data card', 'provenance', 'lineage', 'training data'],
+    keywords: ['dataset', 'data source', 'datasheet', 'data card', 'provenance', 'lineage', 'training data', 'validation set'],
     patterns: [
-      /\b(dataset|data)[_\s-]?(card|sheet|source|provenance|lineage|origin|license)\b/i,
-      /\b(training|reference|evaluation)[_\s]?data(set)?\b/i,
+      /\b(dataset|data)[_\s-]?(card|sheet|source|provenance|lineage|origin|licen[sc]e)\b/i,
+      /\b(training|reference|evaluation|validation)[_\s]?data(\s?set)?\b/i,
+      /^#+\s*(training data|data ?sources?|datasets?|data governance|provenance)/im,
     ],
     scope: 'any',
     maxEvidence: 8,
@@ -263,7 +274,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Consent capture',
     category: 'data',
     description: 'The system records a lawful basis or consent from the data subject.',
-    keywords: ['consent', 'opt_in', 'optin', 'lawful_basis', 'gdpr'],
+    keywords: ['consent', 'opt_in', 'optin', 'opt-in', 'lawful_basis', 'lawful basis', 'legal basis', 'legitimate interest', 'gdpr'],
     patterns: [
       /\b(consent)[_\s]?(given|granted|record|timestamp|version|required|withdrawn|banner)?\b/i,
       /\b(opt[_\s-]?in|lawful[_\s]?basis|legal[_\s]?basis|legitimate[_\s]?interest)\b/i,
@@ -275,7 +286,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Data subject rights endpoints',
     category: 'data',
     description: 'Access, correction and erasure of personal data are implemented — GDPR Arts. 15-17.',
-    keywords: ['delete_account', 'right_to_erasure', 'data_export', 'export_my_data', 'dsar', 'subject_access'],
+    keywords: ['delete_account', 'delete account', 'right_to_erasure', 'right to erasure', 'erasure', 'data_export', 'export_my_data', 'data export', 'dsar', 'subject_access', 'subject access', 'rectification', 'right to be forgotten', 'data deletion', 'portability'],
     patterns: [
       /\b(dsar|subject[_\s]?access|right[_\s]?to[_\s]?(erasure|be[_\s]?forgotten|access|rectification)|data[_\s]?(export|portability|deletion))\b/i,
       /\b(delete|erase|purge|export)[_\s]?(user|account|customer|personal)[_\s]?data\b/i,
@@ -289,11 +300,17 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Model evaluation suite',
     category: 'quality',
     description: 'Model behaviour is measured against a fixed set of cases — Art. 15(1) accuracy metrics.',
-    keywords: ['eval', 'evals', 'benchmark', 'golden', 'ground_truth', 'groundtruth', 'accuracy', 'precision', 'recall', 'f1'],
+    keywords: [
+      'eval', 'benchmark', 'golden', 'ground_truth', 'groundtruth',
+      'accuracy', 'precision', 'recall', 'f1', 'auc', 'threshold',
+    ],
     patterns: [
       /\b(eval(uation)?s?|benchmark)[_\s]?(suite|set|dataset|harness|runner|case|script)\b/i,
       /\b(golden|ground[_\s]?truth|regression)[_\s]?(set|data|cases?|file)\b/i,
+      /\b(roc_auc_score|precision_score|recall_score|f1_score|accuracy_score|classification_report|confusion_matrix)\b/,
       /\b(accuracy|precision|recall|f1[_\s]?score|auc|roc_auc|mae|rmse)\b\s*[:=(]/i,
+      /\b(AUC|ACCURACY|PRECISION|RECALL)_THRESHOLD\b/,
+      /\bdef\s+evaluate\b|\bfunction\s+evaluate\b/,
     ],
     maxEvidence: 8,
   }),
@@ -317,7 +334,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Production monitoring / drift detection',
     category: 'quality',
     description: 'Live performance is observed after deployment — Art. 72 post-market monitoring.',
-    keywords: ['drift', 'monitor', 'metrics', 'prometheus', 'grafana', 'alerting', 'dashboard', 'evidently'],
+    keywords: ['drift', 'monitor', 'metric', 'prometheus', 'grafana', 'alerting', 'alert', 'dashboard', 'evidently', 'whylabs', 'arize', 'post-market', 'post market'],
     patterns: [
       /\b(data|model|concept|prediction)[_\s]?drift\b/i,
       /\b(prometheus|grafana|evidently|whylabs|arize|alert(manager|ing)?)\b/i,
@@ -330,7 +347,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Prompt injection / jailbreak defence',
     category: 'security',
     description: 'Input is defended against adversarial manipulation — Art. 15(5) cybersecurity.',
-    keywords: ['prompt injection', 'prompt_injection', 'jailbreak', 'guardrail', 'sanitize_input', 'moderation', 'llm_guard', 'rebuff'],
+    keywords: ['prompt injection', 'prompt_injection', 'promptinjection', 'jailbreak', 'guardrail', 'sanitize', 'sanitise', 'moderation', 'llm_guard', 'rebuff', 'content_filter', 'content filter'],
     patterns: [
       /\b(prompt[_\s]?injection|jailbreak|guardrail|llm[_\s]?guard|rebuff|nemo[_\s]?guardrails)\b/i,
       /\b(sanitiz|escap|strip)\w*[_\s]?(input|prompt|user[_\s]?content)\b/i,
@@ -343,7 +360,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Adversarial / red-team testing',
     category: 'security',
     description: 'The system is deliberately attacked before release — Art. 15(5) and Art. 55(1)(b) for GPAI.',
-    keywords: ['red team', 'red_team', 'redteam', 'adversarial', 'penetration test', 'attack_suite'],
+    keywords: ['red team', 'red_team', 'redteam', 'adversarial', 'penetration test', 'pen test', 'pentest', 'attack_suite', 'injection_cases', 'jailbreak'],
     patterns: [/\b(red[_\s-]?team\w*|adversarial[_\s]?(test|example|robustness|suite)|pen[_\s]?test\w*)\b/i],
     scope: 'any',
     maxEvidence: 6,
@@ -381,7 +398,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Risk management documentation',
     category: 'governance',
     description: 'A documented, iterative risk process exists — Art. 9.',
-    keywords: ['risk register', 'risk_register', 'risk assessment', 'risk management', 'threat model', 'mitigation'],
+    keywords: ['risk register', 'risk_register', 'risk assessment', 'risk management', 'risk matrix', 'threat model', 'mitigation', 'residual risk', 'risk-management'],
     patterns: [
       /\b(risk)[_\s-]?(register|assessment|management|analysis|matrix|log|treatment)\b/i,
       /\b(threat[_\s]?model|mitigation[_\s]?(plan|measure|strategy)|residual[_\s]?risk)\b/i,
@@ -394,7 +411,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Incident response process',
     category: 'governance',
     description: 'Serious malfunctions are detected, escalated and reported — Art. 73.',
-    keywords: ['incident', 'postmortem', 'post-mortem', 'on-call', 'oncall', 'runbook', 'escalation', 'sev1', 'pagerduty'],
+    keywords: ['incident', 'postmortem', 'post-mortem', 'on-call', 'oncall', 'runbook', 'escalation', 'escalate', 'sev1', 'pagerduty', 'opsgenie', 'market surveillance'],
     patterns: [
       /\b(incident)[_\s-]?(response|report|management|log|playbook|severity|channel)\b/i,
       /\b(post[_\s-]?mortem|runbook|escalation[_\s]?(path|policy|matrix)|on[_\s-]?call|pagerduty|opsgenie)\b/i,
@@ -408,7 +425,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Quality management system reference',
     category: 'governance',
     description: 'A recognised management system is referenced — Art. 17, ISO/IEC 42001, ISO 9001, SOC 2.',
-    keywords: ['iso 42001', 'iso/iec 42001', 'iso 9001', 'iso 27001', 'soc 2', 'soc2', 'nist ai rmf', 'quality management'],
+    keywords: ['iso 42001', 'iso/iec 42001', 'iso 9001', 'iso 27001', 'soc 2', 'soc2', 'nist ai rmf', 'ai rmf', 'quality management', 'quality_management'],
     patterns: [
       /\bISO[\s/]?(IEC[\s/]?)?(42001|23894|27001|9001)\b/i,
       /\bSOC[\s-]?2\b|\bNIST[\s]?AI[\s]?RMF\b|\bAI[\s]?RMF[\s]?1\.0\b/i,
@@ -422,7 +439,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Data protection / fundamental rights impact assessment',
     category: 'governance',
     description: 'A documented impact assessment exists — GDPR Art. 35, AI Act Art. 27.',
-    keywords: ['dpia', 'data protection impact', 'fria', 'fundamental rights impact', 'privacy impact'],
+    keywords: ['dpia', 'data protection impact', 'fria', 'fundamental rights impact', 'privacy impact', 'impact assessment'],
     patterns: [/\b(dpia|fria|data[_\s]?protection[_\s]?impact|fundamental[_\s]?rights[_\s]?impact|privacy[_\s]?impact[_\s]?assessment)\b/i],
     scope: 'any',
     maxEvidence: 6,
@@ -467,7 +484,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Explicit AI Act / AI governance reference',
     category: 'governance',
     description: 'The repository already reasons about AI regulation.',
-    keywords: ['ai act', 'regulation (eu) 2024/1689', '2024/1689', 'annex iii', 'annex iv', 'gdpr', 'ai governance'],
+    keywords: ['ai act', 'regulation (eu) 2024/1689', '2024/1689', 'annex iii', 'annex iv', 'gdpr', 'ai governance', 'article 5', 'article 14', 'article 50', 'art. 50', 'eu ai act'],
     patterns: [
       /\b(EU[\s]?AI[\s]?Act|Regulation\s*\(EU\)\s*2024\/1689|2024\/1689)\b/i,
       /\bAnnex\s+(III|IV|XI|XII)\b/,

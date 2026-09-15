@@ -126,11 +126,16 @@ export const AI_SIGNALS: CompiledSignal[] = [
     label: 'Classical ML / statistical model',
     category: 'ai-usage',
     description: 'Trains or serves a classical ML model (scikit-learn, XGBoost, PyTorch, TensorFlow).',
-    keywords: ['sklearn', 'scikit-learn', 'xgboost', 'lightgbm', 'torch', 'tensorflow', 'keras', 'catboost', 'statsmodels'],
+    keywords: [
+      'sklearn', 'scikit-learn', 'xgboost', 'lightgbm', 'torch', 'tensorflow', 'keras', 'catboost',
+      'statsmodels', 'opencv', 'deepface', 'face_recognition', 'insightface', 'facenet', 'mediapipe',
+    ],
     patterns: [
       /from\s+sklearn|import\s+sklearn|from\s+xgboost|import\s+xgboost|import\s+lightgbm/,
       /import\s+torch\b|from\s+torch\b|import\s+tensorflow|from\s+tensorflow|from\s+keras/,
       /\b(RandomForest|LogisticRegression|GradientBoosting|XGBClassifier|LGBMClassifier|nn\.Module)\b/,
+      // Computer-vision and biometric model libraries are AI systems too.
+      /\b(import|from|require)\b[^\n]{0,30}\b(cv2|opencv|deepface|face_recognition|insightface|facenet|mediapipe|dlib)\b/i,
     ],
     excludePaths: NOT_DOCS,
     maxEvidence: 6,

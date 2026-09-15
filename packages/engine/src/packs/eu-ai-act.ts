@@ -320,7 +320,7 @@ const liveControls: Control[] = [
       aiActArticle(50, '(2)', 'Transparency obligations — machine-readable marking of synthetic content'),
       aiActArticle(111, '(4)', 'Transitional provision — marking deadline of 2 December 2026'),
     ],
-    appliesWhen: allOf(whenSignal('domain.synthetic.content'), whenProvider),
+    appliesWhen: allOf(anyOf(whenSignal('domain.synthetic.content'), whenFinding('art50.2.generated-text')), whenProvider),
     evaluate: (ctx) => {
       const marking = ctx.signals.get('transparency.content.marking');
       if (marking && marking.hits > 0) {
@@ -574,7 +574,10 @@ const highRiskControls: Control[] = [
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
-      const docs = ctx.grepDocs(/\b(data|dataset)[\s-]?(card|sheet|provenance|lineage|source|governance)\b/i, 5);
+      const docs = ctx.grepDocs(
+        /\b(data|dataset)[\s-]?(card|sheet|provenance|lineage|source|governance)\b|^#+\s*(training data|data ?sources?|datasets?)/im,
+        5,
+      );
       return docs.length > 0
         ? satisfied('Dataset documentation was found.', docs.slice(0, 4))
         : missing(
@@ -726,10 +729,17 @@ const highRiskControls: Control[] = [
           ['retention period', 'RETENTION_DAYS', 'log TTL'],
         );
       }
+      // The window can be written either way round:
+      //   RETENTION_DAYS = 30      |  retention: '30 days'
       const numbers = retention.evidence
-        .map((e) => /(\d{1,5})\s*(?:days?|d\b)/i.exec(e.snippet)?.[1])
+        .flatMap((e) => [
+          /(\d{1,5})\s*(?:days?\b|d\b)/i.exec(e.snippet)?.[1],
+          /\b(?:retention|retain)\w*[_\s]?days?\b[^\d]{0,12}(\d{1,5})/i.exec(e.snippet)?.[1],
+          /\b(?:retention|retain)\w*\s*[:=]\s*(\d{1,5})\b/i.exec(e.snippet)?.[1],
+        ])
         .filter((n): n is string => Boolean(n))
-        .map(Number);
+        .map(Number)
+        .filter((n) => n > 0);
       const shortest = numbers.length ? Math.min(...numbers) : undefined;
       if (shortest !== undefined && shortest < 180) {
         return {
@@ -1069,7 +1079,7 @@ const highRiskControls: Control[] = [
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
-      const procedure = ctx.grepDocs(/\b(incident\s+(response|report)|runbook|escalation|post[\s-]?mortem)\b/i, 4);
+      const procedure = ctx.grepDocs(/\b(incident\s+(response|report\w*)|runbook|escalation|post[\s-]?mortem)\b/i, 4);
       const deadlines = ctx.grepDocs(/\b(15\s*days?|2\s*days?|10\s*days?)\b[\s\S]{0,60}\b(report|authority|incident)/i, 2);
       if (procedure.length > 0 && deadlines.length > 0) {
         return satisfied('An incident procedure naming the statutory reporting deadlines was found.', [

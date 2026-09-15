@@ -1,0 +1,24 @@
+{
+  "name": "hireflow",
+  "version": "3.0.0",
+  "private": true,
+  "description": "AI-assisted candidate screening for high-volume hiring teams. Human review on every adverse outcome.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "15.1.0",
+    "openai": "^4.77.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "pino": "^9.5.0",
+    "zod": "^3.24.1",
+    "@prisma/client": "^6.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8",
+    "typescript": "^5.7.2"
+  }
+}

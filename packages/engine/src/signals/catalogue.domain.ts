@@ -37,6 +37,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['candidate', 'applicant', 'resume', 'job', 'hiring', 'recruit', 'interview'], 2),
     maxEvidence: 16,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.employment.management',
@@ -51,6 +52,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['employee', 'worker', 'staff', 'performance', 'shift', 'productivity'], 2),
     maxEvidence: 8,
+    scope: 'code',
   }),
 
   // --- Annex III(5): essential services ------------------------------------
@@ -67,6 +69,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['credit', 'loan', 'borrower', 'underwrit', 'risk', 'mortgage'], 2),
     maxEvidence: 8,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.insurance.pricing',
@@ -80,6 +83,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['insurance', 'premium', 'policyholder', 'actuarial'], 2),
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.public-benefits',
@@ -93,6 +97,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['benefit', 'welfare', 'eligibility', 'assistance', 'claimant'], 2),
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.emergency.triage',
@@ -107,6 +112,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['patient', 'triage', 'symptom', 'clinical', 'diagnosis', 'emergency'], 2),
     maxEvidence: 8,
+    scope: 'code',
   }),
 
   // --- Annex III(3): education ---------------------------------------------
@@ -123,6 +129,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['student', 'admission', 'exam', 'grade', 'course', 'learner'], 2),
     maxEvidence: 8,
+    scope: 'code',
   }),
 
   // --- Annex III(1): biometrics --------------------------------------------
@@ -139,6 +146,23 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(deepface|face_recognition|insightface|facenet|dlib\.face)/i,
     ],
     maxEvidence: 8,
+    scope: 'code',
+  }),
+  defineSignal({
+    id: 'domain.biometric.verification-only',
+    label: 'One-to-one biometric verification',
+    category: 'domain',
+    description:
+      'Confirms a claimed identity against a single reference — expressly outside Annex III, point 1(a), which excludes biometric verification whose sole purpose is to confirm that a person is who they claim to be.',
+    keywords: ['verify', 'verification', 'one-to-one', 'one_to_one', '1:1', 'selfie', 'passport', 'liveness', 'claimed identity'],
+    patterns: [
+      /\bone[_\s-]?to[_\s-]?one\b|\b1\s*:\s*1\s*(match|verification|compare)/i,
+      /\bverify[_\s]?identity\b|\bidentity[_\s]?verification\b|\bcompare[_\s]?one[_\s]?to[_\s]?one\b/i,
+      /\b(selfie|liveness)[\s\S]{0,40}\b(passport|document|id[_\s]?card|reference)\b/i,
+      /\bconfirm\w*[\s\S]{0,40}\bclaimed[_\s]?identity\b/i,
+    ],
+    maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.biometric.categorisation',
@@ -151,6 +175,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\bface[_\s]?attribute\w*|demographic[_\s]?(inference|prediction)\b/i,
     ],
     maxEvidence: 8,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.emotion.recognition',
@@ -165,6 +190,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(EMOTION_LABELS|emotion_labels|EMOTIONS)\b/,
     ],
     maxEvidence: 8,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.biometric.scraping',
@@ -177,6 +203,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(face|facial)[_\s]?(database|db|gallery|corpus)[\s\S]{0,30}\b(scrap|crawl|build|ingest)/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
 
   // --- Art. 5 prohibitions --------------------------------------------------
@@ -191,6 +218,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\bscore[_\s]?(citizen|person|individual)s?\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.predictive-policing',
@@ -203,6 +231,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\bpredictive[_\s]?policing\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.vulnerability.exploitation',
@@ -215,6 +244,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(target|segment)\w*[\s\S]{0,30}\b(minors?|children|elderly|disabled|low[_\s]?income|indebted)\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
 
   // --- Annex III(6)-(8): law enforcement, migration, justice ---------------
@@ -228,6 +258,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(visa|asylum|immigration|residence[_\s]?permit|border)[_\s]?(application|decision|risk|assessment|screening|eligibility)\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.justice.administration',
@@ -240,6 +271,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(sentenc\w+|bail|parole)[_\s]?(recommendation|score|prediction|decision)\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.democratic.process',
@@ -252,6 +284,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\bpolitical[_\s]?(ad|messaging|targeting)\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.critical-infrastructure',
@@ -265,6 +298,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\btraffic[_\s]?(signal|control|management)[_\s]?(system|ai|model)?\b/i,
     ],
     maxEvidence: 6,
+    scope: 'code',
   }),
 
   // --- Art. 50 transparency triggers ---------------------------------------
@@ -281,19 +315,21 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['chat', 'message', 'assistant', 'conversation', 'user'], 2),
     maxEvidence: 8,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.synthetic.content',
     label: 'Synthetic content generation',
     category: 'domain',
     description: 'Generates or manipulates image, audio, video or text content — Art. 50(2) and 50(4) marking duties.',
-    keywords: ['image generation', 'text_to_image', 'tts', 'text-to-speech', 'voice clone', 'dall-e', 'stable diffusion', 'midjourney', 'synthesize'],
+    keywords: ['image generation', 'imagegeneration', 'text_to_image', 'texttoimage', 'images/generations', 'images.generate', 'tts', 'text-to-speech', 'texttospeech', 'voice clone', 'voiceclone', 'dall-e', 'dalle', 'stable diffusion', 'midjourney', 'synthesize', 'synthesise', 'elevenlabs', 'deepfake', 'deep fake', 'face swap'],
     patterns: [
       /\b(images?\.generate|text[_\s-]?to[_\s-]?(image|speech|video)|dall[_\s-]?e|stable[_\s-]?diffusion|midjourney)\b/i,
       /\b(voice[_\s]?(clone|synth\w*)|speech[_\s]?synth\w*|tts|elevenlabs)\b/i,
       /\b(deep[_\s]?fake|face[_\s]?swap|video[_\s]?generat\w*|avatar[_\s]?generat\w*)\b/i,
     ],
     maxEvidence: 8,
+    scope: 'code',
   }),
   defineSignal({
     id: 'domain.automated.decision',
@@ -308,5 +344,6 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['score', 'decision', 'approve', 'reject', 'threshold', 'eligib'], 2),
     maxEvidence: 8,
+    scope: 'code',
   }),
 ];

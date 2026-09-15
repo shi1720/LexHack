@@ -155,7 +155,7 @@ export function extractDependencies(files: SourceFile[]): Dependency[] {
 
     if (base === 'go.mod' && file.text) {
       for (const line of file.text.split('\n')) {
-        const m = /^\s*([a-z0-9.-]+\.[a-z]{2,}\/[^\s]+)\s+(v[0-9][^\s]*)/.exec(line);
+        const m = /^\s*(?:require\s+)?([a-z0-9.-]+\.[a-z]{2,}\/[^\s]+)\s+(v[0-9][^\s]*)/.exec(line);
         if (m?.[1]) push({ name: m[1], version: m[2], ecosystem: 'go', source: file.path });
       }
     }
