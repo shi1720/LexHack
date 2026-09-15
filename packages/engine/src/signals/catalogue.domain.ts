@@ -36,7 +36,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(job_?requisition|job_?posting|interview_?score|hiring_?manager)\b/i,
     ],
     fileGuard: corroborate(['candidate', 'applicant', 'resume', 'job', 'hiring', 'recruit', 'interview'], 2),
-    maxEvidence: 10,
+    maxEvidence: 16,
   }),
   defineSignal({
     id: 'domain.employment.management',

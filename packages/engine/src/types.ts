@@ -253,6 +253,10 @@ export interface ControlResult {
   /** Deterministic vs LLM-assisted. Always deterministic in the core engine. */
   method: 'static-analysis' | 'manifest' | 'documentation' | 'attestation';
   remediationAvailable: boolean;
+  /** ISO date the obligation starts to bind. Drives the compliance clock. */
+  appliesFrom: string;
+  /** True when `appliesFrom` is in the past relative to the scan date. */
+  inForce: boolean;
 }
 
 export interface ControlEvaluation {
@@ -285,6 +289,12 @@ export interface Control {
   weight: number;
   citations: Citation[];
   method: ControlResult['method'];
+  /**
+   * ISO date from which the obligation binds. The EU AI Act phases in over
+   * four years and the Digital Omnibus moved two of those dates, so every
+   * control carries its own clock rather than inheriting one global deadline.
+   */
+  appliesFrom: string;
   /** Which risk tiers / roles this control binds. */
   appliesWhen: (ctx: EvaluationContext) => boolean;
   evaluate: (ctx: EvaluationContext) => ControlEvaluation;
@@ -325,6 +335,12 @@ export interface SystemProfile {
   role: ActorRole;
   /** Does the system get placed on the EU market / used in the EU? */
   euNexus: boolean;
+  /**
+   * Markets the system is offered in. Drives which rule packs are evaluated:
+   * a product that never touches New York should not be graded against
+   * Local Law 144, and a score that pretends otherwise is noise.
+   */
+  markets?: string[];
   /** Annual worldwide turnover in EUR — drives fine exposure modelling. */
   turnoverEur?: number;
   employees?: number;
@@ -369,6 +385,9 @@ export interface PackScore {
   missing: number;
   notApplicable: number;
   needsReview: number;
+  /** Score restricted to obligations already in force on the scan date. */
+  liveScore: number;
+  liveApplicable: number;
 }
 
 export interface ExposureEstimate {
@@ -411,8 +430,12 @@ export interface ScanReport {
   signals: Signal[];
   controls: ControlResult[];
   packs: PackScore[];
-  /** Weighted conformity score, 0-100. */
+  /** Weighted conformity score across every applicable obligation, 0-100. */
   score: number;
+  /** Score across obligations already in force on the scan date, 0-100. */
+  liveScore: number;
+  /** The next obligation deadline that bites, with days remaining. */
+  clock: ComplianceClock;
   exposure: ExposureEstimate;
   ledger: EvidenceLedger;
   /** Populated only when remediation is requested. */
@@ -420,6 +443,22 @@ export interface ScanReport {
   /** Optional LLM-authored narrative. Never required for a valid report. */
   narrative?: Narrative;
   warnings: string[];
+}
+
+export interface ComplianceMilestone {
+  date: string;
+  label: string;
+  note: string;
+  daysAway: number;
+  status: 'in-force' | 'upcoming';
+  controlIds: string[];
+}
+
+export interface ComplianceClock {
+  today: string;
+  milestones: ComplianceMilestone[];
+  /** The nearest future milestone that has failing controls attached. */
+  next?: ComplianceMilestone;
 }
 
 export interface RemediationPlan {
