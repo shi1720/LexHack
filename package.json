@@ -21,5 +21,8 @@
     "packs:verify": "npm run packs:verify -w @annex/engine",
     "selfscan": "node packages/cli/dist/bin.js scan . --format markdown",
     "seed": "npm run seed -w @annex/web"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
   }
 }

@@ -1,0 +1,63 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { currentUser, destroySession } from '@/server/auth';
+import { Logo } from '@/components/primitives';
+import { ThemeToggle } from '@/components/theme-toggle';
+
+export const dynamic = 'force-dynamic';
+
+async function signOut() {
+  'use server';
+  await destroySession();
+  redirect('/');
+}
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const user = await currentUser();
+  if (!user) redirect('/login');
+
+  return (
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-40 border-b" style={{ borderColor: 'var(--line)', background: 'var(--surface)' }}>
+        <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5">
+          <div className="flex items-center gap-5">
+            <Link href="/app" className="no-underline">
+              <Logo size={19} />
+            </Link>
+            <span style={{ color: 'var(--line-strong)' }} aria-hidden="true">
+              /
+            </span>
+            <span style={{ fontSize: 13.5, color: 'var(--ink-soft)' }}>
+              {user.orgName || user.name}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link className="btn btn-sm" href="/app/new">
+              Add system
+            </Link>
+            <Link className="btn btn-sm" href="/app/settings">
+              Settings
+            </Link>
+            <ThemeToggle />
+            <form action={signOut}>
+              <button type="submit" className="btn btn-sm">
+                Sign out
+              </button>
+            </form>
+          </div>
+        </nav>
+      </header>
+      <main id="main" className="mx-auto max-w-6xl px-5 py-8">
+        {children}
+      </main>
+      <footer className="border-t" style={{ borderColor: 'var(--line)' }}>
+        <div className="mx-auto max-w-6xl px-5 py-6">
+          <p style={{ fontSize: 12, color: 'var(--ink-faint)', margin: 0 }}>
+            Annex is a technical tool, not legal advice, and not a conformity assessment. It produces the
+            evidence a competent person needs in order to carry one out.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}

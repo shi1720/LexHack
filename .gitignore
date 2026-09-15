@@ -19,3 +19,4 @@ data/
 .turbo
 playwright-report/
 test-results/
+apps/web/data/
