@@ -13,7 +13,8 @@ export type { RawFile, SnapshotInput } from './ingest/snapshot.js';
 export { ingestDirectory } from './ingest/fs.js';
 export { ingestGitHub, parseGitHubUrl, IngestError } from './ingest/github.js';
 export type { GitHubIngestResult, GitHubIngestOptions } from './ingest/github.js';
-export { readTarGz, stripRootDir } from './ingest/tar.js';
+export { readTar, readTarGz, stripRootDir } from './ingest/tar.js';
+export type { TarEntry } from './ingest/tar.js';
 export { detectLanguage } from './ingest/languages.js';
 export { INGEST_LIMITS } from './ingest/ignore.js';
 

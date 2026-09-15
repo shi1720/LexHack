@@ -1,0 +1,585 @@
+#!/usr/bin/env node
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import {
+  ALL_PACKS,
+  CORPUS_SIZE,
+  buildSnapshot,
+  readTar,
+  ENGINE_VERSION,
+  IngestError,
+  MARKET_PACKS,
+  buildDossier,
+  controlById,
+  diffReports,
+  dossierToHtml,
+  dossierToMarkdown,
+  ingestDirectory,
+  ingestGitHub,
+  ledgerFingerprint,
+  packsForMarkets,
+  renderPatch,
+  scan,
+  toAttestation,
+  toMlBom,
+  toSarif,
+  verifyLedger,
+  type RepoSnapshot,
+  type ScanReport,
+  type SystemProfile,
+} from '@annex/engine';
+import { c, SYMBOL, clearProgress, euro, heading, progress, rule, scoreBar, statusBadge, tierBanner, wrap } from './ui.js';
+
+const CLI_VERSION = '0.1.0';
+
+// ---------------------------------------------------------------------------
+// Argument parsing — small enough not to need a dependency
+// ---------------------------------------------------------------------------
+
+interface Args {
+  command: string;
+  positional: string[];
+  flags: Record<string, string | boolean>;
+}
+
+function parseArgs(argv: string[]): Args {
+  // A leading flag means no command was given: `annex --version`, `annex -h`.
+  const [first = 'help', ...tail] = argv;
+  const command = first.startsWith('-') ? 'help' : first;
+  const rest = first.startsWith('-') ? argv : tail;
+  const positional: string[] = [];
+  const flags: Record<string, string | boolean> = {};
+
+  for (let i = 0; i < rest.length; i++) {
+    const token = rest[i]!;
+    if (token.startsWith('--')) {
+      const [key, inline] = token.slice(2).split('=');
+      if (!key) continue;
+      if (inline !== undefined) {
+        flags[key] = inline;
+      } else if (rest[i + 1] && !rest[i + 1]!.startsWith('-')) {
+        flags[key] = rest[++i]!;
+      } else {
+        flags[key] = true;
+      }
+    } else if (token.startsWith('-') && token.length === 2) {
+      flags[token.slice(1)] = rest[i + 1] && !rest[i + 1]!.startsWith('-') ? rest[++i]! : true;
+    } else {
+      positional.push(token);
+    }
+  }
+
+  return { command, positional, flags };
+}
+
+const str = (v: string | boolean | undefined): string | undefined => (typeof v === 'string' ? v : undefined);
+const list = (v: string | boolean | undefined): string[] | undefined => str(v)?.split(',').map((s) => s.trim()).filter(Boolean);
+
+// ---------------------------------------------------------------------------
+
+const HELP = `
+${c.bold('annex')} ${c.grey(`v${CLI_VERSION}`)} — conformity evidence, compiled from source code.
+
+${c.bold('USAGE')}
+  annex <command> [target] [options]
+
+${c.bold('COMMANDS')}
+  ${c.cyan('scan')} [path|owner/repo]   Classify a codebase and evaluate every applicable obligation
+  ${c.cyan('dossier')} [path]           Generate the Annex IV technical documentation
+  ${c.cyan('fix')} [path]               Write the files that close the gaps, or emit a patch
+  ${c.cyan('diff')} --base --head       Detect a substantial modification between two commits
+  ${c.cyan('verify')} <report.json>     Re-verify an evidence ledger
+  ${c.cyan('packs')}                    List the rule-pack corpus
+  ${c.cyan('explain')} <control-id>     Show an obligation, its citation and how it is detected
+
+${c.bold('SCAN OPTIONS')}
+  --format <fmt>       pretty (default) · json · markdown · sarif · cdxa · mlbom
+  --out <file>         Write the output to a file instead of stdout
+  --fail-under <n>     Exit 1 when the conformity score is below n
+  --markets <list>     eu,us-nyc,us-co,us-federal          (default: eu,us-federal)
+  --purpose <text>     The system's intended purpose, in one sentence
+  --name <text>        System name for the report
+  --turnover <eur>     Worldwide annual turnover, for exposure modelling
+  --employees <n>      Headcount, to apply the Article 99(6) SME cap
+  --token <pat>        GitHub token, for private repositories and rate limits
+  --all                Show satisfied and not-applicable controls too
+  --quiet              Suppress the progress indicator
+
+${c.bold('DOSSIER OPTIONS')}
+  --locale <en|de|fr>  Article 11 requires documentation in a language the
+                       Member State determines. Headings are localised.
+  --html               Emit print-ready HTML instead of Markdown
+  --simplified         Article 11(1) simplified form for SMEs and start-ups
+
+${c.bold('EXAMPLES')}
+  ${c.grey('$')} annex scan .
+  ${c.grey('$')} annex scan vercel/ai --markets eu --purpose "Chat assistant SDK"
+  ${c.grey('$')} annex scan . --format sarif --out annex.sarif --fail-under 70
+  ${c.grey('$')} annex dossier . --html --out dossier.html
+  ${c.grey('$')} annex fix . --patch conformity.patch
+  ${c.grey('$')} annex diff --base origin/main --head HEAD
+`;
+
+// ---------------------------------------------------------------------------
+
+async function loadSnapshot(target: string, flags: Args['flags']): Promise<RepoSnapshot> {
+  // A local directory always wins: `annex scan fixtures/hireflow` should not
+  // be interpreted as the GitHub repository "fixtures/hireflow".
+  const localDir = await stat(resolve(target))
+    .then((s) => s.isDirectory())
+    .catch(() => false);
+  const looksRemote =
+    !localDir &&
+    (/^(https?:\/\/|github\.com\/)/.test(target) || (/^[\w.-]+\/[\w.-]+$/.test(target) && !target.startsWith('.')));
+
+  if (looksRemote) {
+    const token = str(flags.token) ?? process.env.GITHUB_TOKEN;
+    const { snapshot } = await ingestGitHub(target, token ? { token } : {});
+    return snapshot;
+  }
+
+  const path = resolve(target);
+  const snapshot = await ingestDirectory(path, { name: str(flags.name) ?? undefined });
+  // Annotate with the git commit when there is one — it is what the dossier cites.
+  try {
+    const commit = execFileSync('git', ['-C', path, 'rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const branch = execFileSync('git', ['-C', path, 'rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return { ...snapshot, commit, ref: branch };
+  } catch {
+    return snapshot;
+  }
+}
+
+function profileFrom(flags: Args['flags']): Partial<SystemProfile> {
+  const profile: Partial<SystemProfile> = {};
+  const name = str(flags.name);
+  const purpose = str(flags.purpose);
+  const markets = list(flags.markets);
+  const turnover = str(flags.turnover);
+  const employees = str(flags.employees);
+  if (name) profile.name = name;
+  if (purpose) profile.purpose = purpose;
+  if (markets) profile.markets = markets;
+  if (turnover) profile.turnoverEur = Number(turnover.replace(/[_,]/g, ''));
+  if (employees) profile.employees = Number(employees);
+  return profile;
+}
+
+async function emit(content: string, out: string | undefined): Promise<void> {
+  if (!out) {
+    process.stdout.write(content.endsWith('\n') ? content : content + '\n');
+    return;
+  }
+  await mkdir(dirname(resolve(out)), { recursive: true });
+  await writeFile(resolve(out), content, 'utf8');
+  process.stderr.write(`${c.green(SYMBOL.pass)} wrote ${c.bold(out)}\n`);
+}
+
+// ---------------------------------------------------------------------------
+// scan
+// ---------------------------------------------------------------------------
+
+async function runScan(args: Args): Promise<number> {
+  const target = args.positional[0] ?? '.';
+  const quiet = Boolean(args.flags.quiet) || str(args.flags.format) !== undefined;
+
+  if (!quiet) process.stderr.write(`${c.grey('reading')} ${c.bold(target)}\n`);
+  const snapshot = await loadSnapshot(target, args.flags);
+
+  const report = scan(snapshot, {
+    profile: profileFrom(args.flags),
+    remediate: true,
+    onProgress: quiet ? undefined : (phase, done, total) => progress(phase, done, total),
+  });
+  if (!quiet) clearProgress();
+
+  const format = str(args.flags.format) ?? 'pretty';
+  const out = str(args.flags.out);
+
+  switch (format) {
+    case 'json':
+      await emit(JSON.stringify(report, null, 2), out);
+      break;
+    case 'sarif':
+      await emit(toSarif(report), out);
+      break;
+    case 'cdxa':
+      await emit(toAttestation(report, packsForMarkets(report.profile.markets)), out);
+      break;
+    case 'mlbom':
+      await emit(toMlBom(report), out);
+      break;
+    case 'markdown':
+      await emit(renderMarkdown(report), out);
+      break;
+    case 'pretty':
+      renderPretty(report, Boolean(args.flags.all));
+      break;
+    default:
+      process.stderr.write(c.red(`Unknown format "${format}".\n`));
+      return 2;
+  }
+
+  const floor = str(args.flags['fail-under']);
+  if (floor && report.score < Number(floor)) {
+    process.stderr.write(
+      `\n${c.red(SYMBOL.fail)} conformity score ${c.bold(String(report.score))} is below the floor of ${c.bold(floor)}.\n`,
+    );
+    return 1;
+  }
+  return 0;
+}
+
+function renderPretty(report: ScanReport, showAll: boolean): void {
+  const out = process.stdout;
+  const applicable = report.controls.filter((r) => r.status !== 'not_applicable');
+  const failing = applicable.filter((r) => r.status !== 'satisfied');
+  const live = applicable.filter((r) => r.inForce);
+  const liveFailing = live.filter((r) => r.status !== 'satisfied');
+
+  out.write('\n' + tierBanner(report.classification.tier, report.classification.summary) + '\n\n');
+
+  out.write(`  ${c.grey('repository')}   ${c.bold(report.snapshot.name)} ${c.grey(`· ${report.snapshot.fileCount} files · ${report.durationMs} ms`)}\n`);
+  out.write(`  ${c.grey('your role')}    ${report.classification.role.replace('+', ' and ')} ${c.grey('(Art. 3(3))')}\n`);
+  out.write(`  ${c.grey('conformity')}   ${scoreBar(report.score)}\n`);
+  out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
+  out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
+  if (report.exposure.maxFineEur > 0) {
+    out.write(`  ${c.grey('exposure')}     ${c.red(c.bold(euro(report.exposure.maxFineEur)))} ${c.grey('maximum administrative fine')}\n`);
+  }
+
+  if (report.classification.findings.length > 0) {
+    out.write(heading('Classification') + '\n');
+    for (const finding of report.classification.findings) {
+      const cite = finding.citations[0];
+      out.write(
+        `  ${finding.tier === 'prohibited' ? c.red(SYMBOL.fail) : c.yellow(SYMBOL.warn)} ${c.bold(finding.title)} ${c.grey(`${Math.round(finding.confidence * 100)}% confidence`)}\n`,
+      );
+      if (cite) out.write(`    ${c.cyan(`${cite.short} ${cite.locator}`)} ${c.grey(cite.title)}\n`);
+      for (const e of finding.evidence.slice(0, 2)) {
+        out.write(`    ${c.grey(`${e.path}:${e.line}`)}  ${e.snippet.trim().slice(0, 78)}\n`);
+      }
+      out.write('\n');
+    }
+  }
+
+  const shown = showAll ? applicable : failing;
+  if (shown.length > 0) {
+    out.write(heading(showAll ? 'Obligations' : 'Gaps') + '\n');
+    const byPack = new Map<string, typeof shown>();
+    for (const r of shown) byPack.set(r.pack, [...(byPack.get(r.pack) ?? []), r]);
+
+    for (const [packId, controls] of byPack) {
+      const pack = ALL_PACKS.find((p) => p.id === packId);
+      out.write(`\n  ${c.bold(pack?.name ?? packId)} ${c.grey(`${pack?.version ?? ''} · ${pack?.jurisdiction ?? ''}`)}\n`);
+      for (const control of controls) {
+        const cite = control.citations[0];
+        const clock = control.inForce ? c.red('IN FORCE') : c.grey(`from ${control.appliesFrom}`);
+        out.write(`    ${statusBadge(control.status)} ${c.bold(control.title)}  ${clock}\n`);
+        out.write(`      ${c.cyan(cite ? `${cite.short} ${cite.locator}` : control.controlId)}\n`);
+        out.write(wrap(control.finding, 74, '      ') + '\n');
+        if (control.gap) out.write(c.grey(wrap(`${SYMBOL.arrow} ${control.gap}`, 74, '      ')) + '\n');
+        for (const e of control.evidence.filter((x) => x.kind !== 'absence').slice(0, 2)) {
+          out.write(`      ${c.grey(`${e.path}:${e.line}`)}  ${e.snippet.trim().slice(0, 70)}\n`);
+        }
+        out.write('\n');
+      }
+    }
+  } else {
+    out.write(`\n  ${c.green(SYMBOL.pass)} every applicable obligation is evidenced.\n`);
+  }
+
+  if (report.clock.next) {
+    const n = report.clock.next;
+    out.write(heading('Next deadline') + '\n');
+    out.write(`  ${c.bold(n.label)} ${c.grey(`— ${n.date}, in ${n.daysAway} days`)}\n`);
+    out.write(wrap(n.note, 74) + '\n');
+    out.write(`  ${c.grey(`${n.controlIds.length} obligation${n.controlIds.length === 1 ? '' : 's'} attached to this date are not yet evidenced.`)}\n`);
+  }
+
+  if (report.remediation) {
+    out.write(heading('Remediation available') + '\n');
+    out.write(
+      `  ${c.green(SYMBOL.arrow)} ${c.bold('annex fix .')} writes ${report.remediation.files.length} files and closes ${report.remediation.closes.length} obligations ${c.grey(`(score ${report.remediation.scoreBefore} → ${report.remediation.scoreAfter})`)}\n`,
+    );
+    for (const f of report.remediation.files) out.write(`     ${c.grey(SYMBOL.bullet)} ${f.path}\n`);
+  }
+
+  for (const warning of report.warnings) out.write(`\n  ${c.yellow(SYMBOL.warn)} ${warning}\n`);
+
+  out.write(
+    `\n${rule()}\n${c.grey(`annex ${ENGINE_VERSION} · ${CORPUS_SIZE} obligations in corpus · deterministic, offline, no model called`)}\n`,
+  );
+}
+
+function renderMarkdown(report: ScanReport): string {
+  const applicable = report.controls.filter((r) => r.status !== 'not_applicable');
+  const lines = [
+    `# AI Act conformity — ${report.snapshot.name}`,
+    '',
+    `**${report.classification.summary}**`,
+    '',
+    `| | |`,
+    `|---|---|`,
+    `| Conformity score | **${report.score}/100** |`,
+    `| Obligations in force today | ${report.liveScore}/100 |`,
+    `| Role under Article 3(3) | ${report.classification.role.replace('+', ' and ')} |`,
+    `| Maximum administrative exposure | ${euro(report.exposure.maxFineEur)} |`,
+    `| Evidence ledger | \`${ledgerFingerprint(report.ledger)}\` |`,
+    `| Scanned | ${report.snapshot.fileCount} files in ${report.durationMs} ms |`,
+    '',
+  ];
+
+  if (report.classification.findings.length) {
+    lines.push('## Classification', '');
+    for (const f of report.classification.findings) {
+      const cite = f.citations[0];
+      lines.push(`### ${f.title}`, '', `${cite ? `**${cite.short} ${cite.locator}** — ` : ''}${f.rationale}`, '');
+      for (const e of f.evidence.slice(0, 3)) lines.push(`- \`${e.path}:${e.line}\` — \`${e.snippet.trim()}\``);
+      lines.push('');
+    }
+  }
+
+  lines.push('## Obligations', '', '| Status | Obligation | Citation | In force | Finding |', '|---|---|---|---|---|');
+  for (const r of applicable) {
+    const cite = r.citations[0];
+    lines.push(
+      `| ${r.status} | ${r.title} | ${cite ? `${cite.short} ${cite.locator}` : r.controlId} | ${r.inForce ? 'yes' : r.appliesFrom} | ${r.finding.replace(/\|/g, '\\|')} |`,
+    );
+  }
+  lines.push('', `_Generated by Annex ${ENGINE_VERSION}. Ledger root \`${report.ledger.root}\`._`);
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// dossier / fix / diff / verify / packs / explain
+// ---------------------------------------------------------------------------
+
+async function runDossier(args: Args): Promise<number> {
+  const snapshot = await loadSnapshot(args.positional[0] ?? '.', args.flags);
+  const report = scan(snapshot, { profile: profileFrom(args.flags) });
+  const locale = (str(args.flags.locale) ?? 'en') as 'en' | 'de' | 'fr';
+  const dossier = buildDossier(report, { locale, simplified: Boolean(args.flags.simplified) });
+  const content = args.flags.html ? dossierToHtml(dossier, report) : dossierToMarkdown(dossier, report);
+  await emit(content, str(args.flags.out));
+
+  if (!args.flags.out) return 0;
+  process.stderr.write(
+    `${c.grey('  ')}${dossier.evidenceCount} evidence citations · ${c.yellow(String(dossier.openCount))} open items only a human can close\n`,
+  );
+  return 0;
+}
+
+async function runFix(args: Args): Promise<number> {
+  const target = args.positional[0] ?? '.';
+  const snapshot = await loadSnapshot(target, args.flags);
+  const report = scan(snapshot, { profile: profileFrom(args.flags), remediate: true });
+
+  if (!report.remediation) {
+    process.stdout.write(`${c.green(SYMBOL.pass)} nothing to fix: every gap with an available remediation is already closed.\n`);
+    return 0;
+  }
+
+  const patchPath = str(args.flags.patch);
+  if (patchPath) {
+    await emit(renderPatch(report.remediation), patchPath);
+    process.stderr.write(c.grey(`  apply with: git apply ${patchPath}\n`));
+    return 0;
+  }
+
+  const root = resolve(target);
+  for (const file of report.remediation.files) {
+    const dest = resolve(root, file.path);
+    await mkdir(dirname(dest), { recursive: true });
+    await writeFile(dest, file.contents, 'utf8');
+    process.stdout.write(`${c.green(SYMBOL.pass)} ${file.path} ${c.grey(file.description)}\n`);
+  }
+  process.stdout.write(
+    `\n${c.bold(`${report.remediation.files.length} files written`)}, closing ${report.remediation.closes.length} obligations ${c.grey(`(projected score ${report.remediation.scoreBefore} → ${report.remediation.scoreAfter})`)}\n`,
+  );
+  process.stdout.write(c.grey(wrap('Each file is scaffolding backed by statute, not finished compliance. The TODO markers are the points where the answer is a judgement your organisation has to make; Annex leaves them blank on purpose.', 74, '  ')) + '\n');
+  return 0;
+}
+
+async function runDiff(args: Args): Promise<number> {
+  const target = args.positional[0] ?? '.';
+  const base = str(args.flags.base);
+  const head = str(args.flags.head) ?? 'HEAD';
+  if (!base) {
+    process.stderr.write(c.red('annex diff needs --base <ref>.\n'));
+    return 2;
+  }
+
+  const root = resolve(target);
+  const profile = profileFrom(args.flags);
+
+  // `git archive` gives us the base tree without touching the working copy —
+  // no stashing, no detached HEAD, nothing to clean up if the scan throws.
+  let beforeSnapshot: RepoSnapshot;
+  try {
+    const tar = execFileSync('git', ['-C', root, 'archive', '--format=tar', base], {
+      maxBuffer: 256 * 1024 * 1024,
+    });
+    beforeSnapshot = buildSnapshot({
+      name: `${root.split('/').pop()}@${base}`,
+      files: readTar(Buffer.from(tar)).map((e) => ({ path: e.path, bytes: e.bytes })),
+    });
+  } catch (err) {
+    process.stderr.write(c.red(`Could not read ${base}: ${(err as Error).message}\n`));
+    process.stderr.write(c.grey('  The base ref must exist locally. Try `git fetch origin <branch>` first.\n'));
+    return 2;
+  }
+
+  const afterSnapshot = await loadSnapshot(target, args.flags);
+  const before = scan(beforeSnapshot, { profile });
+  const after = scan(afterSnapshot, { profile });
+  const drift = diffReports(before, after);
+
+  process.stdout.write('\n');
+  process.stdout.write(
+    drift.substantial
+      ? `${c.bgRed(' SUBSTANTIAL MODIFICATION ')} ${c.bold(`${base} → ${head}`)}\n\n`
+      : `${c.bgGreen(' NO SUBSTANTIAL MODIFICATION ')} ${c.bold(`${base} → ${head}`)}\n\n`,
+  );
+  process.stdout.write(wrap(drift.summary, 76) + '\n\n');
+  process.stdout.write(`  ${c.grey('conformity')}  ${before.score} → ${after.score} ${drift.scoreDelta >= 0 ? c.green(`(+${drift.scoreDelta})`) : c.red(`(${drift.scoreDelta})`)}\n`);
+  process.stdout.write(`  ${c.grey('tier')}        ${drift.previousTier} → ${drift.classificationChanged ? c.red(drift.currentTier) : drift.currentTier}\n\n`);
+
+  for (const r of drift.regressed) {
+    process.stdout.write(`  ${c.red(SYMBOL.fail)} ${c.bold(r.title)} ${c.grey(`${r.from} → ${r.to}`)}\n    ${c.grey(r.controlId)}\n`);
+  }
+  for (const r of drift.improved) {
+    process.stdout.write(`  ${c.green(SYMBOL.pass)} ${r.title} ${c.grey(`${r.from} → ${r.to}`)}\n`);
+  }
+
+  if (drift.substantial) {
+    process.stdout.write(
+      `\n${c.grey(wrap('Article 43(4): where a high-risk AI system is substantially modified, it must undergo a new conformity assessment. The technical documentation is now out of date.', 74, '  '))}\n`,
+    );
+  }
+  return drift.substantial ? 1 : 0;
+}
+
+async function runVerify(args: Args): Promise<number> {
+  const path = args.positional[0];
+  if (!path) {
+    process.stderr.write(c.red('annex verify needs a report JSON file.\n'));
+    return 2;
+  }
+  const report = JSON.parse(await readFile(resolve(path), 'utf8')) as ScanReport;
+  const check = verifyLedger(report.ledger);
+
+  process.stdout.write('\n');
+  if (check.valid) {
+    process.stdout.write(`${c.bgGreen(' LEDGER INTACT ')}  ${c.bold(ledgerFingerprint(report.ledger))}\n\n`);
+    process.stdout.write(`  ${check.checked} entries verified against root ${c.grey(check.expectedRoot.slice(0, 24) + '…')}\n`);
+    process.stdout.write(`  ${c.grey('Re-run the scan on the same commit to confirm the evidence itself has not moved.')}\n`);
+    return 0;
+  }
+  process.stdout.write(`${c.bgRed(' LEDGER BROKEN ')}\n\n`);
+  process.stdout.write(`  ${check.reason}\n`);
+  process.stdout.write(`  ${c.grey(`recomputed ${check.root.slice(0, 24)}… vs recorded ${check.expectedRoot.slice(0, 24)}…`)}\n`);
+  return 1;
+}
+
+function runPacks(): number {
+  process.stdout.write(`\n${c.bold('Rule-pack corpus')} ${c.grey(`— ${CORPUS_SIZE} executable obligations`)}\n`);
+  for (const pack of ALL_PACKS) {
+    process.stdout.write(`\n  ${c.bold(pack.name)} ${c.cyan(pack.version)} ${c.grey(`· ${pack.jurisdiction} · reconciled ${pack.reconciledOn}`)}\n`);
+    process.stdout.write(c.grey(wrap(pack.summary, 74, '    ')) + '\n');
+    process.stdout.write(`    ${c.grey(`${pack.controls.length} obligations · ${pack.controls.filter((x) => x.tests?.length).length} with golden fixtures · ${pack.controls.filter((x) => x.remediation).length} auto-remediable`)}\n`);
+    for (const m of pack.milestones) {
+      const past = new Date(m.date) <= new Date();
+      process.stdout.write(`      ${past ? c.red('● in force') : c.grey('○ upcoming')} ${c.bold(m.date)}  ${m.label}\n`);
+    }
+  }
+  process.stdout.write(`\n${c.grey('Markets: ')}${Object.entries(MARKET_PACKS).map(([k, v]) => `${c.cyan(k)} ${c.grey(`(${v.label})`)}`).join(', ')}\n`);
+  return 0;
+}
+
+function runExplain(args: Args): number {
+  const id = args.positional[0];
+  if (!id) {
+    process.stderr.write(c.red('annex explain needs a control id. Run `annex packs` to list them.\n'));
+    return 2;
+  }
+  const control = controlById(id);
+  if (!control) {
+    const near = ALL_PACKS.flatMap((p) => p.controls).filter((x) => x.id.includes(id)).slice(0, 5);
+    process.stderr.write(c.red(`No control "${id}".\n`));
+    if (near.length) process.stderr.write(c.grey(`Did you mean: ${near.map((n) => n.id).join(', ')}\n`));
+    return 2;
+  }
+
+  process.stdout.write(`\n${c.bold(control.title)}\n${rule()}\n`);
+  process.stdout.write(`${c.grey('id')}          ${control.id}\n`);
+  process.stdout.write(`${c.grey('family')}      ${control.family}   ${c.grey('severity')} ${control.severity}   ${c.grey('weight')} ${control.weight}\n`);
+  process.stdout.write(`${c.grey('applies from')} ${control.appliesFrom} ${new Date(control.appliesFrom) <= new Date() ? c.red('(in force)') : c.grey('(upcoming)')}\n`);
+  process.stdout.write(`${c.grey('method')}      ${control.method}\n\n`);
+  process.stdout.write(c.bold('Obligation\n'));
+  process.stdout.write(wrap(control.obligation, 76) + '\n\n');
+  process.stdout.write(c.bold('Citations\n'));
+  for (const cite of control.citations) {
+    process.stdout.write(`  ${c.cyan(`${cite.short} ${cite.locator}`)} — ${cite.title}\n  ${c.grey(cite.url)}\n`);
+    if (cite.quote) process.stdout.write(c.italic(c.grey(wrap(`“${cite.quote}”`, 72, '    '))) + '\n');
+    process.stdout.write('\n');
+  }
+  if (control.remediation) {
+    process.stdout.write(c.bold('Remediation\n'));
+    process.stdout.write(wrap(control.remediation.summary, 76) + '\n');
+    process.stdout.write(c.grey(wrap(`Reviewer: ${control.remediation.reviewerNote}`, 74, '  ')) + '\n\n');
+  }
+  if (control.tests?.length) {
+    process.stdout.write(c.bold('Golden fixtures\n'));
+    for (const t of control.tests) process.stdout.write(`  ${c.grey(SYMBOL.bullet)} ${t.name} ${c.grey(`→ ${t.expect}`)}\n`);
+    process.stdout.write('\n');
+  }
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+
+async function main(): Promise<void> {
+  const args = parseArgs(process.argv.slice(2));
+
+  if (args.flags.version || args.flags.v || args.command === 'version') {
+    process.stdout.write(`annex ${CLI_VERSION} (engine ${ENGINE_VERSION}, ${CORPUS_SIZE} obligations)\n`);
+    return;
+  }
+
+  let code = 0;
+  try {
+    switch (args.command) {
+      case 'scan': code = await runScan(args); break;
+      case 'dossier': code = await runDossier(args); break;
+      case 'fix': code = await runFix(args); break;
+      case 'diff': code = await runDiff(args); break;
+      case 'verify': code = await runVerify(args); break;
+      case 'packs': code = runPacks(); break;
+      case 'explain': code = runExplain(args); break;
+      case 'help':
+      case '--help':
+      case '-h':
+        process.stdout.write(HELP);
+        break;
+      default:
+        process.stderr.write(c.red(`Unknown command "${args.command}".\n`) + HELP);
+        code = 2;
+    }
+  } catch (err) {
+    clearProgress();
+    if (err instanceof IngestError) {
+      process.stderr.write(`\n${c.red(SYMBOL.fail)} ${err.message}\n`);
+      if (err.hint) process.stderr.write(`${c.grey('  ' + err.hint)}\n`);
+      code = 2;
+    } else {
+      process.stderr.write(`\n${c.red(SYMBOL.fail)} ${(err as Error).message}\n`);
+      if (process.env.ANNEX_DEBUG) process.stderr.write(c.grey(String((err as Error).stack)) + '\n');
+      code = 2;
+    }
+  }
+  process.exitCode = code;
+}
+
+void main();
