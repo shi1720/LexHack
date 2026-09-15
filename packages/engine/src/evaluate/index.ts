@@ -441,12 +441,8 @@ export function estimateExposure(
           ? 'Worldwide annual turnover was not supplied, so only the flat cap is shown.'
           : 'This regime sets a flat civil penalty rather than a turnover-linked one.'
     }`;
-    const others = byRegime.filter((r) => r !== headline);
-    if (others.length) {
-      basis += ` ${others
-        .map((r) => `${r.packName} is separately exposed at ${r.currency} ${r.amount.toLocaleString('en-GB')}${r.multiplier ? ` ${r.multiplier}` : ''}.`)
-        .join(' ')}`;
-    }
+    // The other regimes are carried in `byRegime`, which every renderer lists
+    // beside this sentence. Repeating them here said the same thing twice.
     if (headline.multiplier) basis += ` This amount applies ${headline.multiplier}.`;
     if (outOfAiActScope) {
       basis += ` The AI Act is excluded from this figure because ${outOfAiActScope}; the regimes above are unaffected by that.`;

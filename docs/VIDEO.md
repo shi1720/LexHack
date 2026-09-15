@@ -95,7 +95,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 > **Then it writes the fix. Additive files only, with the article number in the comment and a TODO wherever a person has to decide. And merging it doesn't make you compliant — the next scan reads these files the way an auditor would, so a document with unfilled placeholders counts as partial, and a module nothing calls counts as partial.**
 
-**Screen:** Cut to the **History** tab of HireFlow. The red `Substantial modification` badge, `78 → 4`, `high → prohibited`, and the regressed list underneath. Hold three seconds.
+**Screen:** Cut to the **History** tab of HireFlow. The red `Substantial modification` badge, `80 → 3`, `high → prohibited`, and the regressed list underneath. Hold three seconds.
 
 **Say:**
 

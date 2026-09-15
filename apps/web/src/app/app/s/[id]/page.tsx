@@ -39,7 +39,7 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid items-start gap-4 sm:grid-cols-2">
           <Panel title="Your role">
             <p style={{ fontSize: 22, fontWeight: 650, letterSpacing: '-0.02em', margin: 0, lineHeight: 1.25 }}>
               {report.classification.role.replace('+', ' and ')}
@@ -88,12 +88,19 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
               </ul>
             ) : null}
             {report.exposure.maxFine > 0 ? (
-              <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '10px 0 0' }}>
-                A ceiling, not a forecast: every one of these regimes leaves the amount to the enforcing
-                authority, and the AI Act says so expressly in Article 99(1) and 99(7). Two systems in the same
-                penalty tier, owned by the same undertaking, share a ceiling — the figure describes the
-                undertaking&rsquo;s turnover, not the system&rsquo;s risk.
-              </p>
+              <details className="mt-3">
+                <summary style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer' }}>
+                  What this number is, and is not
+                </summary>
+                <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
+                  A ceiling, not a forecast: every one of these regimes leaves the amount to the enforcing
+                  authority, and the AI Act says so expressly in Article 99(1) and 99(7). Two systems in the
+                  same penalty tier, owned by the same undertaking, share a ceiling — the figure describes the
+                  undertaking&rsquo;s turnover, not the system&rsquo;s risk. Each regime is priced on its own
+                  terms: the Article 99(6) SME inversion applies to the AI Act and not to GDPR Article 83,
+                  which says &ldquo;whichever is higher&rdquo; without exception.
+                </p>
+              </details>
             ) : null}
             {report.exposure.citations[0] ? (
               <p style={{ margin: '8px 0 0' }}>

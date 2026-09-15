@@ -27,11 +27,16 @@ export default async function Dashboard() {
     r.data!.report.controls.filter((c) => c.inForce && (c.status === 'missing' || c.status === 'partial')),
   );
   const prohibitions = scanned.filter((r) => r.data!.report.classification.tier === 'prohibited');
-  // Only euro-denominated ceilings are summed. A NYC per-day civil penalty is
-  // a different kind of number and is shown on the system it belongs to.
-  const totalExposure = scanned.reduce(
-    (n, r) => n + (r.data!.report.exposure.currency === 'EUR' ? r.data!.report.exposure.maxFine : 0),
+  // The *largest* ceiling across the portfolio, not the sum.
+  //
+  // These are statutory maxima on an undertaking, and the same undertaking
+  // owns every system here — so adding them together would report €60m for
+  // three systems that share one €20m GDPR ceiling. A NYC per-day civil
+  // penalty is a different kind of number again, and stays on the system it
+  // belongs to.
+  const totalExposure = Math.max(
     0,
+    ...scanned.map((r) => (r.data!.report.exposure.currency === 'EUR' ? r.data!.report.exposure.maxFine : 0)),
   );
 
   const nextMilestone = ALL_PACKS.flatMap((p) => p.milestones)
@@ -73,7 +78,7 @@ export default async function Dashboard() {
             label="Statutory maximum"
             value={money(totalExposure)}
             tone={totalExposure > 0 ? 'warn' : 'ok'}
-            hint="ceiling, in force today"
+            hint="largest ceiling, not a sum"
           />
           <Tile
             label="Next deadline"

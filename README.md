@@ -244,16 +244,28 @@ Being precise about what this is: a checksum chain, not a signature. There is no
 Article 3(23) defines a **substantial modification** as a change, not foreseen in the initial conformity assessment, that affects compliance with Chapter III Section 2 — and Article 43(4) then requires a *new* conformity assessment. Only something that reads the code can tell you a modification was substantial:
 
 ```
-$ annex diff --base origin/main --head HEAD
+$ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
 
- SUBSTANTIAL MODIFICATION   origin/main → HEAD
+ SUBSTANTIAL MODIFICATION  fixtures/hireflow-remediated → fixtures/hireflow
 
- 1 control regressed, including at least one that affects compliance with
- Chapter III, Section 2. On the Article 3(23) definition this is a
- substantial modification.
+  The risk classification moved from high to prohibited. A change in the
+  intended purpose is a substantial modification on the face of Article 3(23),
+  and Article 43(4) then requires the conformity assessment to be re-opened
+  and the technical documentation updated.
 
- ✖ Effective human oversight while the system is in use   satisfied → missing
+  conformity  81 → 3 (-78)
+  tier        high → prohibited
+
+  ✖ No emotion inference in the workplace or education   not_applicable → missing
+  ✖ Measures to support AI literacy                          satisfied → missing
+  ✖ Tell people they are talking to an AI                    satisfied → missing
+  … 28 more
 ```
+
+Both sides take a git ref or a directory, so this works in CI against
+`origin/main`, and in a demo against two checked-in trees. Exit code 1 when the
+modification is substantial, which is what makes it a pull-request gate.
+
 
 A questionnaire cannot do this at all: it is answered once, by a person, about a system that then changes underneath it.
 
