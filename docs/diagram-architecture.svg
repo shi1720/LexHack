@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" width="1160" height="560" role="img" aria-labelledby="t d">
+  <title id="t">Annex architecture: ingest, deterministic core, artefacts</title>
+  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 48 signal detectors, a rule-based classifier and 45 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
+
+  <defs>
+    <style>
+      .bg    { fill: #fcfcfa; }
+      .card  { fill: #ffffff; stroke: #e3e4e0; stroke-width: 1.2; }
+      .core  { fill: #f2f6fc; stroke: #17356b; stroke-width: 1.4; }
+      .trust { fill: #e9f5ef; stroke: #0f6b45; stroke-width: 1.6; }
+      .zone  { fill: none; stroke: #cbccc7; stroke-width: 1; stroke-dasharray: 5 5; rx: 14; }
+      .h     { font: 600 15px 'Inter', system-ui, sans-serif; fill: #14181f; }
+      .s     { font: 400 12px 'Inter', system-ui, sans-serif; fill: #5b6572; }
+      .mono  { font: 400 11.5px ui-monospace, 'SF Mono', Menlo, monospace; fill: #17356b; }
+      .eyebrow { font: 600 10.5px 'Inter', system-ui, sans-serif; fill: #737b88; letter-spacing: 1.4px; }
+      .navy  { fill: #17356b; }
+      .moss  { fill: #0f6b45; }
+      .crim  { fill: #a11526; }
+      .arrow { stroke: #9aa2ae; stroke-width: 1.6; fill: none; marker-end: url(#a); }
+      .arrowStrong { stroke: #17356b; stroke-width: 2; fill: none; marker-end: url(#b); }
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#9aa2ae"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#17356b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1160" height="560" rx="0"/>
+
+  <!-- title -->
+  <text x="40" y="44" class="h" style="font-size:19px">Annex — one scan, end to end</text>
+  <text x="40" y="66" class="s">A regulation is a function over a repository. 220 ms on a 168-file tree, offline, no model call.</text>
+
+  <!-- ================= INGEST ================= -->
+  <rect class="zone" x="36" y="96" width="228" height="330" rx="14"/>
+  <text x="52" y="120" class="eyebrow">INGEST</text>
+
+  <rect class="card" x="56" y="136" width="188" height="66" rx="9"/>
+  <text x="72" y="160" class="h">Repository</text>
+  <text x="72" y="180" class="s">GitHub tar.gz, or a path</text>
+  <text x="72" y="195" class="mono" style="font-size:10.5px">codeload &#8594; memory, never disk</text>
+
+  <path class="arrow" d="M150 202 L150 232"/>
+
+  <rect class="card" x="56" y="236" width="188" height="80" rx="9"/>
+  <text x="72" y="260" class="h">Snapshot</text>
+  <text x="72" y="280" class="s">Content-addressed:</text>
+  <text x="72" y="296" class="mono" style="font-size:10.5px">sha256(path, filehash)&#8230;</text>
+  <text x="72" y="311" class="s" style="font-size:10.5px">.annexignore applied, still counted</text>
+
+  <rect class="card" x="56" y="332" width="188" height="70" rx="9"/>
+  <text x="72" y="356" class="h" style="font-size:12.5px">Dependency-free tar reader</text>
+  <text x="72" y="375" class="s" style="font-size:11px">90 lines. A compliance tool that</text>
+  <text x="72" y="390" class="s" style="font-size:10.5px">needs 40 packages to read .tar.gz</text>
+
+  <!-- ================= CORE ================= -->
+  <rect class="zone" x="292" y="96" width="358" height="330" rx="14"/>
+  <text x="308" y="120" class="eyebrow">DETERMINISTIC CORE</text>
+  <text x="512" y="120" class="eyebrow" style="fill:#a11526">NO MODEL · NO NETWORK</text>
+
+  <rect class="core" x="312" y="136" width="318" height="70" rx="9"/>
+  <text x="330" y="160" class="h">48 signal detectors</text>
+  <text x="330" y="180" class="s">ai-usage · domain · control · data · security</text>
+  <text x="330" y="196" class="s" style="font-size:11px">Domain signals fire on code, never on prose</text>
+
+  <path class="arrowStrong" d="M471 206 L471 232"/>
+
+  <rect class="core" x="312" y="236" width="318" height="70" rx="9"/>
+  <text x="330" y="260" class="h">Classifier</text>
+  <text x="330" y="280" class="s">Readable rule table → Annex III · Art. 5 · Art. 50</text>
+  <text x="330" y="296" class="s" style="font-size:11px">suppressedBy encodes the statutory carve-outs</text>
+
+  <path class="arrowStrong" d="M471 306 L471 332"/>
+
+  <rect class="core" x="312" y="336" width="318" height="74" rx="9"/>
+  <text x="330" y="360" class="h">45 controls · 5 rule packs</text>
+  <text x="330" y="380" class="s">Each with a citation, its own start date,</text>
+  <text x="330" y="396" class="s">a detector, and golden fixtures</text>
+
+  <!-- ================= LEDGER ================= -->
+  <path class="arrowStrong" d="M630 273 L688 273"/>
+
+  <rect class="trust" x="694" y="216" width="196" height="118" rx="10"/>
+  <text x="712" y="242" class="h moss">Evidence ledger</text>
+  <text x="712" y="262" class="s" style="font-size:11.5px">SHA-256 chain over every</text>
+  <text x="712" y="277" class="s" style="font-size:11.5px">result, in canonical order</text>
+  <text x="712" y="300" class="mono" style="fill:#0f6b45">1DB2-8665-D219-34D9</text>
+  <text x="712" y="320" class="s" style="font-size:11px">Same commit → same root</text>
+
+  <!-- ================= ARTEFACTS ================= -->
+  <rect class="zone" x="918" y="96" width="206" height="330" rx="14"/>
+  <text x="934" y="120" class="eyebrow">ARTEFACTS</text>
+
+  <path class="arrow" d="M890 250 C 906 250, 906 172, 934 172"/>
+  <path class="arrow" d="M890 262 C 906 262, 906 244, 934 244"/>
+  <path class="arrow" d="M890 286 C 906 286, 906 316, 934 316"/>
+  <path class="arrow" d="M890 298 C 906 298, 906 388, 934 388"/>
+
+  <rect class="card" x="938" y="142" width="168" height="60" rx="9"/>
+  <text x="954" y="164" class="h" style="font-size:13.5px">Annex IV dossier</text>
+  <text x="954" y="182" class="s" style="font-size:11px">EN · DE · FR, open items</text>
+  <text x="954" y="195" class="s" style="font-size:11px">left explicitly blank</text>
+
+  <rect class="card" x="938" y="214" width="168" height="60" rx="9"/>
+  <text x="954" y="236" class="h" style="font-size:13.5px">Remediation PR</text>
+  <text x="954" y="254" class="s" style="font-size:11px">Additive only, TODO at</text>
+  <text x="954" y="267" class="s" style="font-size:11px">every human judgement</text>
+
+  <rect class="card" x="938" y="286" width="168" height="60" rx="9"/>
+  <text x="954" y="308" class="h" style="font-size:13.5px">Standards exports</text>
+  <text x="954" y="326" class="s" style="font-size:11px">SARIF 2.1.0 · CycloneDX</text>
+  <text x="954" y="339" class="s" style="font-size:11px">attestation · ML-BOM</text>
+
+  <rect class="card" x="938" y="358" width="168" height="60" rx="9"/>
+  <text x="954" y="380" class="h" style="font-size:13.5px">Trust page</text>
+  <text x="954" y="398" class="s" style="font-size:11px">What a security reviewer</text>
+  <text x="954" y="411" class="s" style="font-size:11px">asks for. No source code.</text>
+
+  <!-- ================= FOOTER BAND ================= -->
+  <rect x="36" y="452" width="1088" height="74" rx="12" fill="#f4f6f8" stroke="#e3e4e0"/>
+  <text x="56" y="478" class="eyebrow">THE TWO THINGS THAT MAKE IT EVIDENCE</text>
+
+  <circle cx="64" cy="500" r="3.5" class="navy"/>
+  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> Every control ships golden fixtures, so a detector that drifts fails the build.</text>
+
+  <circle cx="64" cy="518" r="3.5" class="moss"/>
+  <text x="78" y="522" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The ledger is checkable.</tspan> Change one character of one cited file and the chain breaks, and annex verify names the entry.</text>
+
+  <!-- optional LLM callout -->
+  <rect x="694" y="358" width="196" height="60" rx="9" fill="#ffffff" stroke="#cbccc7" stroke-dasharray="4 4"/>
+  <text x="712" y="380" class="h" style="font-size:12.5px; fill:#737b88">Optional, and labelled</text>
+  <text x="712" y="397" class="s" style="font-size:11px">One model call: rewriting a</text>
+  <text x="712" y="410" class="s" style="font-size:11px">settled finding for a reader.</text>
+  <path class="arrow" d="M792 348 L792 356" stroke-dasharray="3 3"/>
+</svg>

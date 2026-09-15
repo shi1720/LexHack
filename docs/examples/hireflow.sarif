@@ -1,0 +1,1651 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Annex",
+          "fullName": "Annex — AI Act conformity engine",
+          "version": "0.1.0",
+          "semanticVersion": "0.1.0",
+          "informationUri": "https://github.com/shi1720/LexHack",
+          "rules": [
+            {
+              "id": "eu-ai-act.art5.emotion-workplace",
+              "name": "EuAiActArt5EmotionWorkplace",
+              "shortDescription": {
+                "text": "No emotion inference in the workplace or education"
+              },
+              "fullDescription": {
+                "text": "Article 5(1)(f) prohibits placing on the market, putting into service or using AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except for medical or safety reasons."
+              },
+              "help": {
+                "text": "Article 5(1)(f) prohibits placing on the market, putting into service or using AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except for medical or safety reasons.\n\nRemove the emotion inference feature, or establish and document that the system is placed on the market for medical or safety reasons — the only carve-out in Article 5(1)(f). No amount of consent, disclosure or human review cures a prohibited practice.\n\nEU AI Act Art. 5(1)(f) — Prohibited AI practices — emotion inference at work or school: https://artificialintelligenceact.eu/article/5/\nEU AI Act Art. 99(3) — Penalties — EUR 35 000 000 or 7 % of worldwide annual turnover: https://artificialintelligenceact.eu/article/99/",
+                "markdown": "**No emotion inference in the workplace or education**\nArticle 5(1)(f) prohibits placing on the market, putting into service or using AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except for medical or safety reasons.\n**How to close it:** Remove the emotion inference feature, or establish and document that the system is placed on the market for medical or safety reasons — the only carve-out in Article 5(1)(f). No amount of consent, disclosure or human review cures a prohibited practice.\n**Citations**\n- [EU AI Act Art. 5(1)(f) — Prohibited AI practices — emotion inference at work or school](https://artificialintelligenceact.eu/article/5/)\n- [EU AI Act Art. 99(3) — Penalties — EUR 35 000 000 or 7 % of worldwide annual turnover](https://artificialintelligenceact.eu/article/99/)\n_In force from 2025-02-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "prohibition",
+                  "in-force"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art4.ai-literacy",
+              "name": "EuAiActArt4AiLiteracy",
+              "shortDescription": {
+                "text": "Measures to support AI literacy"
+              },
+              "fullDescription": {
+                "text": "Article 4 requires providers and deployers to take measures to support the development of AI literacy of their staff and other persons operating the system on their behalf. It binds every AI system, not only high-risk ones."
+              },
+              "help": {
+                "text": "Article 4 requires providers and deployers to take measures to support the development of AI literacy of their staff and other persons operating the system on their behalf. It binds every AI system, not only high-risk ones.\n\nAdd a short internal page covering what the system does, what it cannot do, and how staff should treat its output. Article 4 as amended does not require you to guarantee any individual competence level — only to take measures.\n\nEU AI Act Art. 4 — AI literacy: https://artificialintelligenceact.eu/article/4/",
+                "markdown": "**Measures to support AI literacy**\nArticle 4 requires providers and deployers to take measures to support the development of AI literacy of their staff and other persons operating the system on their behalf. It binds every AI system, not only high-risk ones.\n**How to close it:** Add a short internal page covering what the system does, what it cannot do, and how staff should treat its output. Article 4 as amended does not require you to guarantee any individual competence level — only to take measures.\n**Citations**\n- [EU AI Act Art. 4 — AI literacy](https://artificialintelligenceact.eu/article/4/)\n_In force from 2025-02-02._"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "quality-management",
+                  "in-force"
+                ],
+                "security-severity": "2.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art50.1.interaction-disclosure",
+              "name": "EuAiActArt501InteractionDisclosure",
+              "shortDescription": {
+                "text": "Tell people they are talking to an AI"
+              },
+              "fullDescription": {
+                "text": "Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction."
+              },
+              "help": {
+                "text": "Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction.\n\nShow a persistent, clearly distinguishable notice at the start of every conversation stating that the user is interacting with an AI system. In force since 2 August 2026; exposure is EUR 15 000 000 or 3 % of worldwide annual turnover.\n\nEU AI Act Art. 50(1) — Transparency obligations — interaction with natural persons: https://artificialintelligenceact.eu/article/50/\nEU AI Act Art. 50(5) — Transparency obligations — manner and timing of disclosure: https://artificialintelligenceact.eu/article/50/\nEU AI Act Art. 99(4)(g) — Penalties — EUR 15 000 000 or 3 % of worldwide annual turnover: https://artificialintelligenceact.eu/article/99/",
+                "markdown": "**Tell people they are talking to an AI**\nArticle 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction.\n**How to close it:** Show a persistent, clearly distinguishable notice at the start of every conversation stating that the user is interacting with an AI system. In force since 2 August 2026; exposure is EUR 15 000 000 or 3 % of worldwide annual turnover.\n**Citations**\n- [EU AI Act Art. 50(1) — Transparency obligations — interaction with natural persons](https://artificialintelligenceact.eu/article/50/)\n- [EU AI Act Art. 50(5) — Transparency obligations — manner and timing of disclosure](https://artificialintelligenceact.eu/article/50/)\n- [EU AI Act Art. 99(4)(g) — Penalties — EUR 15 000 000 or 3 % of worldwide annual turnover](https://artificialintelligenceact.eu/article/99/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "transparency",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art50.2.content-marking",
+              "name": "EuAiActArt502ContentMarking",
+              "shortDescription": {
+                "text": "Mark synthetic output in a machine-readable format"
+              },
+              "fullDescription": {
+                "text": "Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4)."
+              },
+              "help": {
+                "text": "Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4).\n\nAttach a provenance manifest to every generated artefact (C2PA Content Credentials for image, audio and video). A visible \"AI-generated\" label is not enough: the statutory test is machine readability.\n\nEU AI Act Art. 50(2) — Transparency obligations — machine-readable marking of synthetic content: https://artificialintelligenceact.eu/article/50/\nEU AI Act Art. 111(4) — Transitional provision — marking deadline of 2 December 2026: https://artificialintelligenceact.eu/article/111/",
+                "markdown": "**Mark synthetic output in a machine-readable format**\nArticle 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4).\n**How to close it:** Attach a provenance manifest to every generated artefact (C2PA Content Credentials for image, audio and video). A visible \"AI-generated\" label is not enough: the statutory test is machine readability.\n**Citations**\n- [EU AI Act Art. 50(2) — Transparency obligations — machine-readable marking of synthetic content](https://artificialintelligenceact.eu/article/50/)\n- [EU AI Act Art. 111(4) — Transitional provision — marking deadline of 2 December 2026](https://artificialintelligenceact.eu/article/111/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "transparency",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art50.3.biometric-notification",
+              "name": "EuAiActArt503BiometricNotification",
+              "shortDescription": {
+                "text": "Notify people exposed to emotion recognition or biometric categorisation"
+              },
+              "fullDescription": {
+                "text": "Article 50(3) requires deployers of an emotion recognition system or a biometric categorisation system to inform the natural persons exposed to it of the operation of the system, and to process personal data in accordance with the GDPR."
+              },
+              "help": {
+                "text": "Article 50(3) requires deployers of an emotion recognition system or a biometric categorisation system to inform the natural persons exposed to it of the operation of the system, and to process personal data in accordance with the GDPR.\n\nInform exposed persons of the operation of the system before they are exposed, and record the GDPR lawful basis for processing the biometric data.\n\nEU AI Act Art. 50(3) — Transparency obligations — emotion recognition and biometric categorisation: https://artificialintelligenceact.eu/article/50/",
+                "markdown": "**Notify people exposed to emotion recognition or biometric categorisation**\nArticle 50(3) requires deployers of an emotion recognition system or a biometric categorisation system to inform the natural persons exposed to it of the operation of the system, and to process personal data in accordance with the GDPR.\n**How to close it:** Inform exposed persons of the operation of the system before they are exposed, and record the GDPR lawful basis for processing the biometric data.\n**Citations**\n- [EU AI Act Art. 50(3) — Transparency obligations — emotion recognition and biometric categorisation](https://artificialintelligenceact.eu/article/50/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "transparency",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art25.role-determination",
+              "name": "EuAiActArt25RoleDetermination",
+              "shortDescription": {
+                "text": "Determine and record whether you are the provider"
+              },
+              "fullDescription": {
+                "text": "Article 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack."
+              },
+              "help": {
+                "text": "Article 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack.\n\nRecord your role in writing. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone.\n\nEU AI Act Art. 3(3) — Definitions — 'provider': https://artificialintelligenceact.eu/article/3/\nEU AI Act Art. 25(1)(c) — Responsibilities along the AI value chain — change of intended purpose: https://artificialintelligenceact.eu/article/25/\nEU AI Act Art. 25(2) — Duty of the initial provider to cooperate and hand over documentation: https://artificialintelligenceact.eu/article/25/",
+                "markdown": "**Determine and record whether you are the provider**\nArticle 3(3) makes whoever develops an AI system and places it on the market under their own name the provider. Article 25(1)(c) converts a deployer into the provider of a high-risk system where they repoint a general-purpose AI system at an Annex III use case. Article 16 then attaches the full provider stack.\n**How to close it:** Record your role in writing. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone.\n**Citations**\n- [EU AI Act Art. 3(3) — Definitions — 'provider'](https://artificialintelligenceact.eu/article/3/)\n- [EU AI Act Art. 25(1)(c) — Responsibilities along the AI value chain — change of intended purpose](https://artificialintelligenceact.eu/article/25/)\n- [EU AI Act Art. 25(2) — Duty of the initial provider to cooperate and hand over documentation](https://artificialintelligenceact.eu/article/25/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "documentation",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art9.risk-management",
+              "name": "EuAiActArt9RiskManagement",
+              "shortDescription": {
+                "text": "Risk management system across the lifecycle"
+              },
+              "fullDescription": {
+                "text": "Article 9 requires a documented, continuous and iterative risk management system run throughout the lifecycle: identify and analyse risks under the intended purpose and reasonably foreseeable misuse, evaluate risks from post-market monitoring, adopt targeted measures, and judge residual risk acceptable."
+              },
+              "help": {
+                "text": "Article 9 requires a documented, continuous and iterative risk management system run throughout the lifecycle: identify and analyse risks under the intended purpose and reasonably foreseeable misuse, evaluate risks from post-market monitoring, adopt targeted measures, and judge residual risk acceptable.\n\nEstablish a risk register covering risks under the intended purpose and under reasonably foreseeable misuse, the measures adopted, and the residual-risk acceptance.\n\nEU AI Act Art. 9 — Risk management system: https://artificialintelligenceact.eu/article/9/\nEU AI Act Annex IV, point 5 — Technical documentation — risk management system: https://artificialintelligenceact.eu/annex/iv/",
+                "markdown": "**Risk management system across the lifecycle**\nArticle 9 requires a documented, continuous and iterative risk management system run throughout the lifecycle: identify and analyse risks under the intended purpose and reasonably foreseeable misuse, evaluate risks from post-market monitoring, adopt targeted measures, and judge residual risk acceptable.\n**How to close it:** Establish a risk register covering risks under the intended purpose and under reasonably foreseeable misuse, the measures adopted, and the residual-risk acceptance.\n**Citations**\n- [EU AI Act Art. 9 — Risk management system](https://artificialintelligenceact.eu/article/9/)\n- [EU AI Act Annex IV, point 5 — Technical documentation — risk management system](https://artificialintelligenceact.eu/annex/iv/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "risk-management",
+                  "upcoming"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art10.bias-examination",
+              "name": "EuAiActArt10BiasExamination",
+              "shortDescription": {
+                "text": "Examine training and evaluation data for bias"
+              },
+              "fullDescription": {
+                "text": "Article 10(2)(f) requires examination in view of possible biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law — especially where outputs influence inputs for future operations. Article 10(2)(g) requires measures to detect, prevent and mitigate them."
+              },
+              "help": {
+                "text": "Article 10(2)(f) requires examination in view of possible biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law — especially where outputs influence inputs for future operations. Article 10(2)(g) requires measures to detect, prevent and mitigate them.\n\nAdd a measurement that computes outcome rates per protected group and an impact ratio, run it on every release, and retain the results. Article 10(2)(f) cannot be satisfied by assertion.\n\nEU AI Act Art. 10(2)(f) — Data and data governance — examination for possible biases: https://artificialintelligenceact.eu/article/10/\nEU AI Act Art. 10(2)(g) — Data and data governance — bias mitigation measures: https://artificialintelligenceact.eu/article/10/",
+                "markdown": "**Examine training and evaluation data for bias**\nArticle 10(2)(f) requires examination in view of possible biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law — especially where outputs influence inputs for future operations. Article 10(2)(g) requires measures to detect, prevent and mitigate them.\n**How to close it:** Add a measurement that computes outcome rates per protected group and an impact ratio, run it on every release, and retain the results. Article 10(2)(f) cannot be satisfied by assertion.\n**Citations**\n- [EU AI Act Art. 10(2)(f) — Data and data governance — examination for possible biases](https://artificialintelligenceact.eu/article/10/)\n- [EU AI Act Art. 10(2)(g) — Data and data governance — bias mitigation measures](https://artificialintelligenceact.eu/article/10/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "data-governance",
+                  "upcoming"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art10.data-governance",
+              "name": "EuAiActArt10DataGovernance",
+              "shortDescription": {
+                "text": "Document data provenance and preparation"
+              },
+              "fullDescription": {
+                "text": "Article 10(2)(b)-(e) requires documented data collection processes and the origin of the data — including, for personal data, the original purpose of collection — data preparation operations, the assumptions the data encodes, and an assessment of availability, quantity and suitability."
+              },
+              "help": {
+                "text": "Article 10(2)(b)-(e) requires documented data collection processes and the origin of the data — including, for personal data, the original purpose of collection — data preparation operations, the assumptions the data encodes, and an assessment of availability, quantity and suitability.\n\nWrite a datasheet for each training, validation and testing dataset: where it came from, how it was selected and labelled, what it is assumed to represent, and what is missing from it.\n\nEU AI Act Art. 10(2) — Data and data governance — governance practices: https://artificialintelligenceact.eu/article/10/\nEU AI Act Annex IV, point 2(d) — Technical documentation — datasheets: https://artificialintelligenceact.eu/annex/iv/",
+                "markdown": "**Document data provenance and preparation**\nArticle 10(2)(b)-(e) requires documented data collection processes and the origin of the data — including, for personal data, the original purpose of collection — data preparation operations, the assumptions the data encodes, and an assessment of availability, quantity and suitability.\n**How to close it:** Write a datasheet for each training, validation and testing dataset: where it came from, how it was selected and labelled, what it is assumed to represent, and what is missing from it.\n**Citations**\n- [EU AI Act Art. 10(2) — Data and data governance — governance practices](https://artificialintelligenceact.eu/article/10/)\n- [EU AI Act Annex IV, point 2(d) — Technical documentation — datasheets](https://artificialintelligenceact.eu/annex/iv/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "data-governance",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art11.technical-documentation",
+              "name": "EuAiActArt11TechnicalDocumentation",
+              "shortDescription": {
+                "text": "Annex IV technical documentation exists and is current"
+              },
+              "fullDescription": {
+                "text": "Article 11(1) requires technical documentation to be drawn up before the system is placed on the market and kept up to date, containing at least the elements set out in Annex IV. SMEs, start-ups and small mid-caps may provide it in simplified form."
+              },
+              "help": {
+                "text": "Article 11(1) requires technical documentation to be drawn up before the system is placed on the market and kept up to date, containing at least the elements set out in Annex IV. SMEs, start-ups and small mid-caps may provide it in simplified form.\n\nGenerate the dossier. Annex produces a complete Annex IV skeleton at docs/ai-act/annex-iv-technical-documentation.md, populated from the evidence in this scan, with every unanswerable point marked TODO rather than invented.\n\nEU AI Act Art. 11(1) — Technical documentation: https://artificialintelligenceact.eu/article/11/\nEU AI Act Annex IV — Technical documentation referred to in Article 11(1): https://artificialintelligenceact.eu/annex/iv/",
+                "markdown": "**Annex IV technical documentation exists and is current**\nArticle 11(1) requires technical documentation to be drawn up before the system is placed on the market and kept up to date, containing at least the elements set out in Annex IV. SMEs, start-ups and small mid-caps may provide it in simplified form.\n**How to close it:** Generate the dossier. Annex produces a complete Annex IV skeleton at docs/ai-act/annex-iv-technical-documentation.md, populated from the evidence in this scan, with every unanswerable point marked TODO rather than invented.\n**Citations**\n- [EU AI Act Art. 11(1) — Technical documentation](https://artificialintelligenceact.eu/article/11/)\n- [EU AI Act Annex IV — Technical documentation referred to in Article 11(1)](https://artificialintelligenceact.eu/annex/iv/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "documentation",
+                  "upcoming"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art12.record-keeping",
+              "name": "EuAiActArt12RecordKeeping",
+              "shortDescription": {
+                "text": "Automatic logging of events over the system lifetime"
+              },
+              "fullDescription": {
+                "text": "Article 12(1) requires high-risk AI systems to technically allow the automatic recording of events over their lifetime. Article 12(2) requires logging that enables identification of situations that may result in an Article 79(1) risk or a substantial modification, and that facilitates post-market monitoring."
+              },
+              "help": {
+                "text": "Article 12(1) requires high-risk AI systems to technically allow the automatic recording of events over their lifetime. Article 12(2) requires logging that enables identification of situations that may result in an Article 79(1) risk or a substantial modification, and that facilitates post-market monitoring.\n\nRecord every inference: a decision identifier, the model and prompt version, digests of input and output, the outcome, the confidence, and who reviewed it.\n\nEU AI Act Art. 12(1) — Record-keeping — automatic logging: https://artificialintelligenceact.eu/article/12/\nEU AI Act Art. 12(2) — Record-keeping — what the logs must enable: https://artificialintelligenceact.eu/article/12/\nEU AI Act Art. 21(2) — Cooperation — access to logs on reasoned request: https://artificialintelligenceact.eu/article/21/",
+                "markdown": "**Automatic logging of events over the system lifetime**\nArticle 12(1) requires high-risk AI systems to technically allow the automatic recording of events over their lifetime. Article 12(2) requires logging that enables identification of situations that may result in an Article 79(1) risk or a substantial modification, and that facilitates post-market monitoring.\n**How to close it:** Record every inference: a decision identifier, the model and prompt version, digests of input and output, the outcome, the confidence, and who reviewed it.\n**Citations**\n- [EU AI Act Art. 12(1) — Record-keeping — automatic logging](https://artificialintelligenceact.eu/article/12/)\n- [EU AI Act Art. 12(2) — Record-keeping — what the logs must enable](https://artificialintelligenceact.eu/article/12/)\n- [EU AI Act Art. 21(2) — Cooperation — access to logs on reasoned request](https://artificialintelligenceact.eu/article/21/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "record-keeping",
+                  "upcoming"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art13.instructions-for-use",
+              "name": "EuAiActArt13InstructionsForUse",
+              "shortDescription": {
+                "text": "Instructions for use for deployers"
+              },
+              "fullDescription": {
+                "text": "Article 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs."
+              },
+              "help": {
+                "text": "Article 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.\n\nWrite the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.\n\nEU AI Act Art. 13(3) — Transparency and provision of information to deployers: https://artificialintelligenceact.eu/article/13/",
+                "markdown": "**Instructions for use for deployers**\nArticle 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.\n**How to close it:** Write the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall.\n**Citations**\n- [EU AI Act Art. 13(3) — Transparency and provision of information to deployers](https://artificialintelligenceact.eu/article/13/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "transparency",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art14.human-oversight",
+              "name": "EuAiActArt14HumanOversight",
+              "shortDescription": {
+                "text": "Effective human oversight while the system is in use"
+              },
+              "fullDescription": {
+                "text": "Article 14 requires high-risk systems to be designed so they can be effectively overseen by natural persons, who must be able to understand capacities and limitations, remain aware of automation bias, correctly interpret output, decide not to use the system or disregard, override or reverse its output, and intervene or interrupt it."
+              },
+              "help": {
+                "text": "Article 14 requires high-risk systems to be designed so they can be effectively overseen by natural persons, who must be able to understand capacities and limitations, remain aware of automation bias, correctly interpret output, decide not to use the system or disregard, override or reverse its output, and intervene or interrupt it.\n\nImplement a human review step (Art. 14(4)(d)), an override path (Art. 14(4)(d)), a stop control (Art. 14(4)(e)). Article 14 is the requirement auditors probe first, because it is the one that decides whether a wrong output becomes a wrong decision.\n\nEU AI Act Art. 14(1) — Human oversight: https://artificialintelligenceact.eu/article/14/\nEU AI Act Art. 14(4)(d) — Human oversight — disregard, override or reverse the output: https://artificialintelligenceact.eu/article/14/\nEU AI Act Art. 14(4)(e) — Human oversight — 'stop' button or similar procedure: https://artificialintelligenceact.eu/article/14/",
+                "markdown": "**Effective human oversight while the system is in use**\nArticle 14 requires high-risk systems to be designed so they can be effectively overseen by natural persons, who must be able to understand capacities and limitations, remain aware of automation bias, correctly interpret output, decide not to use the system or disregard, override or reverse its output, and intervene or interrupt it.\n**How to close it:** Implement a human review step (Art. 14(4)(d)), an override path (Art. 14(4)(d)), a stop control (Art. 14(4)(e)). Article 14 is the requirement auditors probe first, because it is the one that decides whether a wrong output becomes a wrong decision.\n**Citations**\n- [EU AI Act Art. 14(1) — Human oversight](https://artificialintelligenceact.eu/article/14/)\n- [EU AI Act Art. 14(4)(d) — Human oversight — disregard, override or reverse the output](https://artificialintelligenceact.eu/article/14/)\n- [EU AI Act Art. 14(4)(e) — Human oversight — 'stop' button or similar procedure](https://artificialintelligenceact.eu/article/14/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "human-oversight",
+                  "upcoming"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art15.accuracy",
+              "name": "EuAiActArt15Accuracy",
+              "shortDescription": {
+                "text": "Declared accuracy metrics measured against a fixed set"
+              },
+              "fullDescription": {
+                "text": "Article 15(1) requires an appropriate level of accuracy, robustness and cybersecurity, consistent throughout the lifecycle. Article 15(3) requires the declared accuracy levels and the relevant accuracy metrics to be stated in the instructions for use."
+              },
+              "help": {
+                "text": "Article 15(1) requires an appropriate level of accuracy, robustness and cybersecurity, consistent throughout the lifecycle. Article 15(3) requires the declared accuracy levels and the relevant accuracy metrics to be stated in the instructions for use.\n\nBuild a fixed evaluation set with a declared metric and a threshold, run it on every release, and publish the result in the instructions for use.\n\nEU AI Act Art. 15(1) — Accuracy, robustness and cybersecurity: https://artificialintelligenceact.eu/article/15/\nEU AI Act Art. 15(3) — Declared accuracy levels and metrics: https://artificialintelligenceact.eu/article/15/",
+                "markdown": "**Declared accuracy metrics measured against a fixed set**\nArticle 15(1) requires an appropriate level of accuracy, robustness and cybersecurity, consistent throughout the lifecycle. Article 15(3) requires the declared accuracy levels and the relevant accuracy metrics to be stated in the instructions for use.\n**How to close it:** Build a fixed evaluation set with a declared metric and a threshold, run it on every release, and publish the result in the instructions for use.\n**Citations**\n- [EU AI Act Art. 15(1) — Accuracy, robustness and cybersecurity](https://artificialintelligenceact.eu/article/15/)\n- [EU AI Act Art. 15(3) — Declared accuracy levels and metrics](https://artificialintelligenceact.eu/article/15/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "accuracy-robustness",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art15.cybersecurity",
+              "name": "EuAiActArt15Cybersecurity",
+              "shortDescription": {
+                "text": "AI-specific cybersecurity measures"
+              },
+              "fullDescription": {
+                "text": "Article 15(5) requires high-risk systems to be resilient against attempts by unauthorised third parties to alter their use, outputs or performance, with measures where appropriate to prevent, detect, respond to, resolve and control data poisoning, model poisoning, adversarial examples, model evasion and confidentiality attacks."
+              },
+              "help": {
+                "text": "Article 15(5) requires high-risk systems to be resilient against attempts by unauthorised third parties to alter their use, outputs or performance, with measures where appropriate to prevent, detect, respond to, resolve and control data poisoning, model poisoning, adversarial examples, model evasion and confidentiality attacks.\n\nAdd input and output moderation on the model path, and an adversarial test suite covering prompt injection, jailbreaks and model evasion.\n\nEU AI Act Art. 15(5) — Cybersecurity — AI-specific attack surface: https://artificialintelligenceact.eu/article/15/",
+                "markdown": "**AI-specific cybersecurity measures**\nArticle 15(5) requires high-risk systems to be resilient against attempts by unauthorised third parties to alter their use, outputs or performance, with measures where appropriate to prevent, detect, respond to, resolve and control data poisoning, model poisoning, adversarial examples, model evasion and confidentiality attacks.\n**How to close it:** Add input and output moderation on the model path, and an adversarial test suite covering prompt injection, jailbreaks and model evasion.\n**Citations**\n- [EU AI Act Art. 15(5) — Cybersecurity — AI-specific attack surface](https://artificialintelligenceact.eu/article/15/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "accuracy-robustness",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art17.quality-management",
+              "name": "EuAiActArt17QualityManagement",
+              "shortDescription": {
+                "text": "Quality management system"
+              },
+              "fullDescription": {
+                "text": "Article 17 requires a documented quality management system covering, among thirteen aspects, the regulatory compliance strategy, design and development controls, examination and validation procedures and their frequency, data management, the risk management system, post-market monitoring, incident reporting procedures, record-keeping and an accountability framework. Implementation must be proportionate to the size of the organisation."
+              },
+              "help": {
+                "text": "Article 17 requires a documented quality management system covering, among thirteen aspects, the regulatory compliance strategy, design and development controls, examination and validation procedures and their frequency, data management, the risk management system, post-market monitoring, incident reporting procedures, record-keeping and an accountability framework. Implementation must be proportionate to the size of the organisation.\n\nArticle 17(1) asks for the compliance strategy, validation procedures and their frequency, and an accountability framework to be written down — not only implemented in tooling.\n\nEU AI Act Art. 17(1) — Quality management system: https://artificialintelligenceact.eu/article/17/\nEU AI Act Art. 17(2) — Proportionality for SMEs: https://artificialintelligenceact.eu/article/17/",
+                "markdown": "**Quality management system**\nArticle 17 requires a documented quality management system covering, among thirteen aspects, the regulatory compliance strategy, design and development controls, examination and validation procedures and their frequency, data management, the risk management system, post-market monitoring, incident reporting procedures, record-keeping and an accountability framework. Implementation must be proportionate to the size of the organisation.\n**How to close it:** Article 17(1) asks for the compliance strategy, validation procedures and their frequency, and an accountability framework to be written down — not only implemented in tooling.\n**Citations**\n- [EU AI Act Art. 17(1) — Quality management system](https://artificialintelligenceact.eu/article/17/)\n- [EU AI Act Art. 17(2) — Proportionality for SMEs](https://artificialintelligenceact.eu/article/17/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "quality-management",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art72.post-market-monitoring",
+              "name": "EuAiActArt72PostMarketMonitoring",
+              "shortDescription": {
+                "text": "Post-market monitoring plan"
+              },
+              "fullDescription": {
+                "text": "Article 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation."
+              },
+              "help": {
+                "text": "Article 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.\n\nDefine the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one.\n\nEU AI Act Art. 72(1) — Post-market monitoring by providers: https://artificialintelligenceact.eu/article/72/\nEU AI Act Annex IV, point 9 — Technical documentation — post-market monitoring plan: https://artificialintelligenceact.eu/annex/iv/",
+                "markdown": "**Post-market monitoring plan**\nArticle 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.\n**How to close it:** Define the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one.\n**Citations**\n- [EU AI Act Art. 72(1) — Post-market monitoring by providers](https://artificialintelligenceact.eu/article/72/)\n- [EU AI Act Annex IV, point 9 — Technical documentation — post-market monitoring plan](https://artificialintelligenceact.eu/annex/iv/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "post-market",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art73.incident-reporting",
+              "name": "EuAiActArt73IncidentReporting",
+              "shortDescription": {
+                "text": "Serious incident reporting procedure"
+              },
+              "fullDescription": {
+                "text": "Article 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities."
+              },
+              "help": {
+                "text": "Article 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.\n\nWrite the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation.\n\nEU AI Act Art. 73(2) — Reporting of serious incidents — 15-day default: https://artificialintelligenceact.eu/article/73/\nEU AI Act Art. 73(3) — Reporting of serious incidents — 2 days: https://artificialintelligenceact.eu/article/73/\nEU AI Act Art. 73(4) — Reporting of serious incidents — 10 days where a person has died: https://artificialintelligenceact.eu/article/73/",
+                "markdown": "**Serious incident reporting procedure**\nArticle 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.\n**How to close it:** Write the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation.\n**Citations**\n- [EU AI Act Art. 73(2) — Reporting of serious incidents — 15-day default](https://artificialintelligenceact.eu/article/73/)\n- [EU AI Act Art. 73(3) — Reporting of serious incidents — 2 days](https://artificialintelligenceact.eu/article/73/)\n- [EU AI Act Art. 73(4) — Reporting of serious incidents — 10 days where a person has died](https://artificialintelligenceact.eu/article/73/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "incident-response",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art49.registration",
+              "name": "EuAiActArt49Registration",
+              "shortDescription": {
+                "text": "Registration in the EU database"
+              },
+              "fullDescription": {
+                "text": "Article 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk."
+              },
+              "help": {
+                "text": "Article 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.\n\nRegister the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4).\n\nEU AI Act Art. 49(1) — Registration of high-risk AI systems: https://artificialintelligenceact.eu/article/49/\nEU AI Act Art. 49(2) — Registration where the provider claims the Article 6(3) derogation: https://artificialintelligenceact.eu/article/49/\nEU AI Act Art. 6(4) — Documented assessment where a provider considers a system not high-risk: https://artificialintelligenceact.eu/article/6/",
+                "markdown": "**Registration in the EU database**\nArticle 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.\n**How to close it:** Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4).\n**Citations**\n- [EU AI Act Art. 49(1) — Registration of high-risk AI systems](https://artificialintelligenceact.eu/article/49/)\n- [EU AI Act Art. 49(2) — Registration where the provider claims the Article 6(3) derogation](https://artificialintelligenceact.eu/article/49/)\n- [EU AI Act Art. 6(4) — Documented assessment where a provider considers a system not high-risk](https://artificialintelligenceact.eu/article/6/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "registration",
+                  "upcoming"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "gdpr.art35.dpia",
+              "name": "GdprArt35Dpia",
+              "shortDescription": {
+                "text": "Data protection impact assessment"
+              },
+              "fullDescription": {
+                "text": "Article 35(1) requires a DPIA where processing is likely to result in a high risk to the rights and freedoms of natural persons. Article 35(3)(a) names systematic and extensive evaluation of personal aspects based on automated processing, including profiling, on which decisions producing legal or similarly significant effects are based."
+              },
+              "help": {
+                "text": "Article 35(1) requires a DPIA where processing is likely to result in a high risk to the rights and freedoms of natural persons. Article 35(3)(a) names systematic and extensive evaluation of personal aspects based on automated processing, including profiling, on which decisions producing legal or similarly significant effects are based.\n\nCarry out a DPIA before the processing starts. Under AI Act Article 27(4), a fundamental rights impact assessment may cross-reference or incorporate it, so doing this once serves both regimes.\n\nGDPR Art. 35(1) — Data protection impact assessment: https://gdpr-info.eu/\nGDPR Art. 35(3)(a) — When a DPIA is required — automated evaluation of personal aspects: https://gdpr-info.eu/",
+                "markdown": "**Data protection impact assessment**\nArticle 35(1) requires a DPIA where processing is likely to result in a high risk to the rights and freedoms of natural persons. Article 35(3)(a) names systematic and extensive evaluation of personal aspects based on automated processing, including profiling, on which decisions producing legal or similarly significant effects are based.\n**How to close it:** Carry out a DPIA before the processing starts. Under AI Act Article 27(4), a fundamental rights impact assessment may cross-reference or incorporate it, so doing this once serves both regimes.\n**Citations**\n- [GDPR Art. 35(1) — Data protection impact assessment](https://gdpr-info.eu/)\n- [GDPR Art. 35(3)(a) — When a DPIA is required — automated evaluation of personal aspects](https://gdpr-info.eu/)\n_In force from 2018-05-25._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "gdpr",
+                  "risk-management",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "gdpr.art17.erasure",
+              "name": "GdprArt17Erasure",
+              "shortDescription": {
+                "text": "Erasure and rectification of personal data"
+              },
+              "fullDescription": {
+                "text": "Articles 16 and 17 give data subjects the right to rectification of inaccurate personal data and to erasure. For an AI system this reaches the inputs, the stored decisions and any derived features."
+              },
+              "help": {
+                "text": "Articles 16 and 17 give data subjects the right to rectification of inaccurate personal data and to erasure. For an AI system this reaches the inputs, the stored decisions and any derived features.\n\nImplement deletion and correction that reaches the decision log as well as the primary record. Note the tension with AI Act Article 19: logs must be retained for six months, so erasure normally means pseudonymising the log rather than dropping it.\n\nGDPR Art. 16 — Right to rectification: https://gdpr-info.eu/\nGDPR Art. 17 — Right to erasure: https://gdpr-info.eu/",
+                "markdown": "**Erasure and rectification of personal data**\nArticles 16 and 17 give data subjects the right to rectification of inaccurate personal data and to erasure. For an AI system this reaches the inputs, the stored decisions and any derived features.\n**How to close it:** Implement deletion and correction that reaches the decision log as well as the primary record. Note the tension with AI Act Article 19: logs must be retained for six months, so erasure normally means pseudonymising the log rather than dropping it.\n**Citations**\n- [GDPR Art. 16 — Right to rectification](https://gdpr-info.eu/)\n- [GDPR Art. 17 — Right to erasure](https://gdpr-info.eu/)\n_In force from 2018-05-25._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "gdpr",
+                  "rights",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "gdpr.art9.special-category",
+              "name": "GdprArt9SpecialCategory",
+              "shortDescription": {
+                "text": "Lawful basis for special-category data"
+              },
+              "fullDescription": {
+                "text": "Article 9(1) prohibits processing personal data revealing racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic or biometric data for unique identification, health data, or data concerning sex life or sexual orientation, unless one of the Article 9(2) conditions applies."
+              },
+              "help": {
+                "text": "Article 9(1) prohibits processing personal data revealing racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic or biometric data for unique identification, health data, or data concerning sex life or sexual orientation, unless one of the Article 9(2) conditions applies.\n\nIdentify the Article 9(2) condition for each attribute before processing. Collecting protected attributes solely to measure bias is defensible, but it needs its own recorded basis.\n\nGDPR Art. 9(1) — Processing of special categories of personal data: https://gdpr-info.eu/\nGDPR Art. 9(2) — Conditions for lawful processing: https://gdpr-info.eu/",
+                "markdown": "**Lawful basis for special-category data**\nArticle 9(1) prohibits processing personal data revealing racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic or biometric data for unique identification, health data, or data concerning sex life or sexual orientation, unless one of the Article 9(2) conditions applies.\n**How to close it:** Identify the Article 9(2) condition for each attribute before processing. Collecting protected attributes solely to measure bias is defensible, but it needs its own recorded basis.\n**Citations**\n- [GDPR Art. 9(1) — Processing of special categories of personal data](https://gdpr-info.eu/)\n- [GDPR Art. 9(2) — Conditions for lawful processing](https://gdpr-info.eu/)\n_In force from 2018-05-25._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "gdpr",
+                  "data-governance",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nyc-ll144.bias-audit",
+              "name": "NycLl144BiasAudit",
+              "shortDescription": {
+                "text": "Annual independent bias audit"
+              },
+              "fullDescription": {
+                "text": "6 RCNY § 5-301(a): an employer or employment agency must not use an automated employment decision tool if more than one year has passed since its most recent bias audit, which must be carried out by an independent auditor."
+              },
+              "help": {
+                "text": "6 RCNY § 5-301(a): an employer or employment agency must not use an automated employment decision tool if more than one year has passed since its most recent bias audit, which must be carried out by an independent auditor.\n\nCommission an independent bias audit before use. Each day of use without a current audit is a separate violation under § 20-872.\n\nNYC Local Law 144 § 5-301(a) — Bias audit — annual requirement: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page\nNYC Local Law 144 § 5-300 — Definitions — 'independent auditor': https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
+                "markdown": "**Annual independent bias audit**\n6 RCNY § 5-301(a): an employer or employment agency must not use an automated employment decision tool if more than one year has passed since its most recent bias audit, which must be carried out by an independent auditor.\n**How to close it:** Commission an independent bias audit before use. Each day of use without a current audit is a separate violation under § 20-872.\n**Citations**\n- [NYC Local Law 144 § 5-301(a) — Bias audit — annual requirement](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n- [NYC Local Law 144 § 5-300 — Definitions — 'independent auditor'](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nyc-ll144",
+                  "data-governance",
+                  "in-force"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nyc-ll144.impact-ratio",
+              "name": "NycLl144ImpactRatio",
+              "shortDescription": {
+                "text": "Selection rate and impact ratio by category"
+              },
+              "fullDescription": {
+                "text": "6 RCNY § 5-301(b)-(c): the audit must calculate the selection rate (or scoring rate) and the impact ratio for each category, separately for sex categories, race/ethnicity categories, and intersectional sex × ethnicity × race categories, using EEO-1 Component 1 categories."
+              },
+              "help": {
+                "text": "6 RCNY § 5-301(b)-(c): the audit must calculate the selection rate (or scoring rate) and the impact ratio for each category, separately for sex categories, race/ethnicity categories, and intersectional sex × ethnicity × race categories, using EEO-1 Component 1 categories.\n\nImplement: impact ratio = selection rate for a category ÷ selection rate of the most selected category, computed for sex, race/ethnicity and intersectional categories, plus a count of individuals in an unknown category.\n\nNYC Local Law 144 § 5-301(b) — Bias audit — selection-type AEDT: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page\nNYC Local Law 144 § 5-301(c) — Bias audit — scoring-type AEDT: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page\nNYC Local Law 144 § 5-300 — Impact ratio formula: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
+                "markdown": "**Selection rate and impact ratio by category**\n6 RCNY § 5-301(b)-(c): the audit must calculate the selection rate (or scoring rate) and the impact ratio for each category, separately for sex categories, race/ethnicity categories, and intersectional sex × ethnicity × race categories, using EEO-1 Component 1 categories.\n**How to close it:** Implement: impact ratio = selection rate for a category ÷ selection rate of the most selected category, computed for sex, race/ethnicity and intersectional categories, plus a count of individuals in an unknown category.\n**Citations**\n- [NYC Local Law 144 § 5-301(b) — Bias audit — selection-type AEDT](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n- [NYC Local Law 144 § 5-301(c) — Bias audit — scoring-type AEDT](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n- [NYC Local Law 144 § 5-300 — Impact ratio formula](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nyc-ll144",
+                  "data-governance",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nyc-ll144.publish-summary",
+              "name": "NycLl144PublishSummary",
+              "shortDescription": {
+                "text": "Publish the audit summary before use"
+              },
+              "fullDescription": {
+                "text": "6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit, a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Keep it posted for at least six months after the last use."
+              },
+              "help": {
+                "text": "6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit, a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Keep it posted for at least six months after the last use.\n\nPublish the summary on the employment section of your website. An active hyperlink satisfies this if it is clearly identified as a link to bias audit results.\n\nNYC Local Law 144 § 5-303 — Published results: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
+                "markdown": "**Publish the audit summary before use**\n6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit, a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Keep it posted for at least six months after the last use.\n**How to close it:** Publish the summary on the employment section of your website. An active hyperlink satisfies this if it is clearly identified as a link to bias audit results.\n**Citations**\n- [NYC Local Law 144 § 5-303 — Published results](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nyc-ll144",
+                  "transparency",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nyc-ll144.candidate-notice",
+              "name": "NycLl144CandidateNotice",
+              "shortDescription": {
+                "text": "Ten business days notice to candidates"
+              },
+              "fullDescription": {
+                "text": "6 RCNY § 5-304 and NYC Admin. Code § 20-871(b): notify New York City resident candidates at least ten business days before use of the tool, and include instructions for how to request an alternative selection process or a reasonable accommodation, if available."
+              },
+              "help": {
+                "text": "6 RCNY § 5-304 and NYC Admin. Code § 20-871(b): notify New York City resident candidates at least ten business days before use of the tool, and include instructions for how to request an alternative selection process or a reasonable accommodation, if available.\n\nNotify NYC-resident candidates at least ten business days before the tool is used, via the employment section of the website, the job posting, or mail/email. Each missing notice is a separate violation.\n\nNYC Local Law 144 § 5-304 — Notice to candidates and employees: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page\nNYC Local Law 144 § 20-871(b) — Notice requirements: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
+                "markdown": "**Ten business days notice to candidates**\n6 RCNY § 5-304 and NYC Admin. Code § 20-871(b): notify New York City resident candidates at least ten business days before use of the tool, and include instructions for how to request an alternative selection process or a reasonable accommodation, if available.\n**How to close it:** Notify NYC-resident candidates at least ten business days before the tool is used, via the employment section of the website, the job posting, or mail/email. Each missing notice is a separate violation.\n**Citations**\n- [NYC Local Law 144 § 5-304 — Notice to candidates and employees](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n- [NYC Local Law 144 § 20-871(b) — Notice requirements](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nyc-ll144",
+                  "rights",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nyc-ll144.data-policy",
+              "name": "NycLl144DataPolicy",
+              "shortDescription": {
+                "text": "Publish the data retention policy and data sources"
+              },
+              "fullDescription": {
+                "text": "NYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool's data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days."
+              },
+              "help": {
+                "text": "NYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool's data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days.\n\nPublish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days.\n\nNYC Local Law 144 § 20-871(b)(3) — Data retention policy disclosure: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
+                "markdown": "**Publish the data retention policy and data sources**\nNYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool's data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days.\n**How to close it:** Publish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days.\n**Citations**\n- [NYC Local Law 144 § 20-871(b)(3) — Data retention policy disclosure](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nyc-ll144",
+                  "transparency",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            }
+          ]
+        }
+      },
+      "automationDetails": {
+        "id": "annex/46942a231e61504368e449373c6135af",
+        "description": {
+          "text": "Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting."
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "endTimeUtc": "2026-09-15T18:30:50.116Z",
+          "properties": {
+            "conformityScore": 2,
+            "liveScore": 0,
+            "riskTier": "prohibited",
+            "ledgerRoot": "b43ad61982827f4d3efd7371256330756f9880ddef7c6d5d002662a3ae4b94f6"
+          }
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "eu-ai-act.art5.emotion-workplace",
+          "level": "error",
+          "message": {
+            "text": "No emotion inference in the workplace or education: This repository infers emotional or affective state from people in a recruitment, employment or education context. Article 5(1)(f) prohibits that outright. Remove the emotion inference feature, or establish and document that the system is placed on the market for medical or safety reasons — the only carve-out in Article 5(1)(f). No amount of consent, disclosure or human review cures a prohibited practice."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/interview/signal.ts"
+                },
+                "region": {
+                  "startLine": 17,
+                  "snippet": {
+                    "text": "export async function detectEmotion(frames: string[], transcript: string): Promise<InterviewSignals> {"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/interview/signal.ts"
+                },
+                "region": {
+                  "startLine": 8,
+                  "snippet": {
+                    "text": "export const EMOTION_LABELS = ['engaged', 'hesitant', 'confident', 'anxious', 'flat'] as const;"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art5.emotion-workplace"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2025-02-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 5(1)(f)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art4.ai-literacy",
+          "level": "note",
+          "message": {
+            "text": "Measures to support AI literacy: No AI literacy or AI usage policy documentation was found. Add a short internal page covering what the system does, what it cannot do, and how staff should treat its output. Article 4 as amended does not require you to guarantee any individual competence level — only to take measures."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art4.ai-literacy"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2025-02-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 4"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art50.1.interaction-disclosure",
+          "level": "error",
+          "message": {
+            "text": "Tell people they are talking to an AI: This system talks directly to people and no AI disclosure was found anywhere in the codebase. Show a persistent, clearly distinguishable notice at the start of every conversation stating that the user is interacting with an AI system. In force since 2 August 2026; exposure is EUR 15 000 000 or 3 % of worldwide annual turnover."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art50.1.interaction-disclosure"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 50(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art50.2.content-marking",
+          "level": "error",
+          "message": {
+            "text": "Mark synthetic output in a machine-readable format: This system generates synthetic content and no machine-readable marking was found. Attach a provenance manifest to every generated artefact (C2PA Content Credentials for image, audio and video). A visible \"AI-generated\" label is not enough: the statutory test is machine readability."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art50.2.content-marking"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 50(2)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art50.3.biometric-notification",
+          "level": "error",
+          "message": {
+            "text": "Notify people exposed to emotion recognition or biometric categorisation: An emotion recognition or biometric categorisation capability was detected with no notification to the people exposed to it. Inform exposed persons of the operation of the system before they are exposed, and record the GDPR lawful basis for processing the biometric data."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art50.3.biometric-notification"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 50(3)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art25.role-determination",
+          "level": "error",
+          "message": {
+            "text": "Determine and record whether you are the provider: This repository calls a third-party model and ships the result under its own name. On the Article 3(3) definition that makes it the provider of an AI system, not merely a deployer — the distinction that decides who owns the Article 16 stack. Record your role in writing. Then check whether your model vendor has specified that its system is \"not to be changed into a high-risk AI system\": that switches off the Article 25(2) duty to hand you the documentation you need for Annex IV, and leaves you to produce it alone."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/openai.ts"
+                },
+                "region": {
+                  "startLine": 10,
+                  "snippet": {
+                    "text": "export const SCORING_MODEL = 'gpt-4o-mini';"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/openai.ts"
+                },
+                "region": {
+                  "startLine": 11,
+                  "snippet": {
+                    "text": "export const COPILOT_MODEL = 'gpt-4o';"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/app/api/chat/route.ts"
+                },
+                "region": {
+                  "startLine": 9,
+                  "snippet": {
+                    "text": "  const stream = await openai.chat.completions.create({"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/interview/signal.ts"
+                },
+                "region": {
+                  "startLine": 18,
+                  "snippet": {
+                    "text": "  const result = await openai.chat.completions.create({"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/screening/rank.ts"
+                },
+                "region": {
+                  "startLine": 18,
+                  "snippet": {
+                    "text": "  const completion = await openai.chat.completions.create({"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art25.role-determination"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 3(3)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art9.risk-management",
+          "level": "error",
+          "message": {
+            "text": "Risk management system across the lifecycle: No risk management documentation was found for a high-risk system. Establish a risk register covering risks under the intended purpose and under reasonably foreseeable misuse, the measures adopted, and the residual-risk acceptance."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art9.risk-management"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 9"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art10.bias-examination",
+          "level": "error",
+          "message": {
+            "text": "Examine training and evaluation data for bias: No bias or fairness testing was found for a high-risk system. Protected attributes were found in the data model, which raises the stakes: they can be used to measure disparity, or to cause it. Add a measurement that computes outcome rates per protected group and an impact ratio, run it on every release, and retain the results. Article 10(2)(f) cannot be satisfied by assertion."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art10.bias-examination"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 10(2)(f)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art10.data-governance",
+          "level": "error",
+          "message": {
+            "text": "Document data provenance and preparation: No dataset documentation was found. Write a datasheet for each training, validation and testing dataset: where it came from, how it was selected and labelled, what it is assumed to represent, and what is missing from it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art10.data-governance"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 10(2)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art11.technical-documentation",
+          "level": "error",
+          "message": {
+            "text": "Annex IV technical documentation exists and is current: No Annex IV technical documentation was found. Generate the dossier. Annex produces a complete Annex IV skeleton at docs/ai-act/annex-iv-technical-documentation.md, populated from the evidence in this scan, with every unanswerable point marked TODO rather than invented."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art11.technical-documentation"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 11(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art12.record-keeping",
+          "level": "error",
+          "message": {
+            "text": "Automatic logging of events over the system lifetime: Structured application logging exists, but nothing records the model inputs, outputs and versions behind each decision. Application logs are not Article 12 logs. Record every inference: a decision identifier, the model and prompt version, digests of input and output, the outcome, the confidence, and who reviewed it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art12.record-keeping"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 12(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art13.instructions-for-use",
+          "level": "error",
+          "message": {
+            "text": "Instructions for use for deployers: No instructions for use aimed at a deployer were found. Write the instructions against the eleven points of Article 13(3). The hardest and most important is (b)(v): accuracy for specific persons or groups, not just overall."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art13.instructions-for-use"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 13(3)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art14.human-oversight",
+          "level": "error",
+          "message": {
+            "text": "Effective human oversight while the system is in use: No human oversight affordances were found. Implement a human review step (Art. 14(4)(d)), an override path (Art. 14(4)(d)), a stop control (Art. 14(4)(e)). Article 14 is the requirement auditors probe first, because it is the one that decides whether a wrong output becomes a wrong decision."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art14.human-oversight"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 14(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art15.accuracy",
+          "level": "error",
+          "message": {
+            "text": "Declared accuracy metrics measured against a fixed set: No model evaluation suite was found for a high-risk system. Build a fixed evaluation set with a declared metric and a threshold, run it on every release, and publish the result in the instructions for use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art15.accuracy"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 15(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art15.cybersecurity",
+          "level": "error",
+          "message": {
+            "text": "AI-specific cybersecurity measures: No AI-specific security measures were found. Add input and output moderation on the model path, and an adversarial test suite covering prompt injection, jailbreaks and model evasion."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art15.cybersecurity"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 15(5)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art17.quality-management",
+          "level": "error",
+          "message": {
+            "text": "Quality management system: Found a CI pipeline and an automated test suite, which is a start on Article 17. Article 17(1) asks for the compliance strategy, validation procedures and their frequency, and an accountability framework to be written down — not only implemented in tooling."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/rank.test.ts"
+                },
+                "region": {
+                  "startLine": 10,
+                  "snippet": {
+                    "text": "describe('rankApplicants', () => {"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/rank.test.ts"
+                },
+                "region": {
+                  "startLine": 11,
+                  "snippet": {
+                    "text": "  it('sorts advanced applicants by score', async () => {"
+                  }
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".github/workflows/test.yml"
+                },
+                "region": {
+                  "startLine": 5,
+                  "snippet": {
+                    "text": "    runs-on: ubuntu-latest"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art17.quality-management"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "partial",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 17(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art72.post-market-monitoring",
+          "level": "error",
+          "message": {
+            "text": "Post-market monitoring plan: Neither a post-market monitoring plan nor production monitoring was found. Define the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art72.post-market-monitoring"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 72(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art73.incident-reporting",
+          "level": "error",
+          "message": {
+            "text": "Serious incident reporting procedure: No serious incident reporting procedure was found. Write the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art73.incident-reporting"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 73(2)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art49.registration",
+          "level": "warning",
+          "message": {
+            "text": "Registration in the EU database: No reference to EU database registration was found. Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art49.registration"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 49(1)"
+          }
+        },
+        {
+          "ruleId": "gdpr.art35.dpia",
+          "level": "error",
+          "message": {
+            "text": "Data protection impact assessment: No data protection impact assessment was found. Carry out a DPIA before the processing starts. Under AI Act Article 27(4), a fundamental rights impact assessment may cross-reference or incorporate it, so doing this once serves both regimes."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "gdpr.art35.dpia"
+          },
+          "properties": {
+            "pack": "gdpr",
+            "status": "missing",
+            "appliesFrom": "2018-05-25",
+            "inForce": true,
+            "citation": "GDPR Art. 35(1)"
+          }
+        },
+        {
+          "ruleId": "gdpr.art17.erasure",
+          "level": "warning",
+          "message": {
+            "text": "Erasure and rectification of personal data: No erasure or rectification path was found for personal data. Implement deletion and correction that reaches the decision log as well as the primary record. Note the tension with AI Act Article 19: logs must be retained for six months, so erasure normally means pseudonymising the log rather than dropping it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "gdpr.art17.erasure"
+          },
+          "properties": {
+            "pack": "gdpr",
+            "status": "missing",
+            "appliesFrom": "2018-05-25",
+            "inForce": true,
+            "citation": "GDPR Art. 16"
+          }
+        },
+        {
+          "ruleId": "gdpr.art9.special-category",
+          "level": "error",
+          "message": {
+            "text": "Lawful basis for special-category data: Special-category personal data appears in the data model with no recorded lawful basis. Identify the Article 9(2) condition for each attribute before processing. Collecting protected attributes solely to measure bias is defensible, but it needs its own recorded basis."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "gdpr.art9.special-category"
+          },
+          "properties": {
+            "pack": "gdpr",
+            "status": "missing",
+            "appliesFrom": "2018-05-25",
+            "inForce": true,
+            "citation": "GDPR Art. 9(1)"
+          }
+        },
+        {
+          "ruleId": "nyc-ll144.bias-audit",
+          "level": "error",
+          "message": {
+            "text": "Annual independent bias audit: This repository screens candidates or employees and no bias audit was found. Commission an independent bias audit before use. Each day of use without a current audit is a separate violation under § 20-872."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nyc-ll144.bias-audit"
+          },
+          "properties": {
+            "pack": "nyc-ll144",
+            "status": "missing",
+            "appliesFrom": "2023-07-05",
+            "inForce": true,
+            "citation": "NYC Local Law 144 § 5-301(a)"
+          }
+        },
+        {
+          "ruleId": "nyc-ll144.impact-ratio",
+          "level": "error",
+          "message": {
+            "text": "Selection rate and impact ratio by category: No selection-rate or impact-ratio calculation was found. Implement: impact ratio = selection rate for a category ÷ selection rate of the most selected category, computed for sex, race/ethnicity and intersectional categories, plus a count of individuals in an unknown category."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nyc-ll144.impact-ratio"
+          },
+          "properties": {
+            "pack": "nyc-ll144",
+            "status": "missing",
+            "appliesFrom": "2023-07-05",
+            "inForce": true,
+            "citation": "NYC Local Law 144 § 5-301(b)"
+          }
+        },
+        {
+          "ruleId": "nyc-ll144.publish-summary",
+          "level": "error",
+          "message": {
+            "text": "Publish the audit summary before use: No published bias audit summary was found. Publish the summary on the employment section of your website. An active hyperlink satisfies this if it is clearly identified as a link to bias audit results."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nyc-ll144.publish-summary"
+          },
+          "properties": {
+            "pack": "nyc-ll144",
+            "status": "missing",
+            "appliesFrom": "2023-07-05",
+            "inForce": true,
+            "citation": "NYC Local Law 144 § 5-303"
+          }
+        },
+        {
+          "ruleId": "nyc-ll144.candidate-notice",
+          "level": "error",
+          "message": {
+            "text": "Ten business days notice to candidates: No candidate notice was found for an automated employment decision tool. Notify NYC-resident candidates at least ten business days before the tool is used, via the employment section of the website, the job posting, or mail/email. Each missing notice is a separate violation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nyc-ll144.candidate-notice"
+          },
+          "properties": {
+            "pack": "nyc-ll144",
+            "status": "missing",
+            "appliesFrom": "2023-07-05",
+            "inForce": true,
+            "citation": "NYC Local Law 144 § 5-304"
+          }
+        },
+        {
+          "ruleId": "nyc-ll144.data-policy",
+          "level": "warning",
+          "message": {
+            "text": "Publish the data retention policy and data sources: Neither a data retention policy nor data source documentation was found. Publish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nyc-ll144.data-policy"
+          },
+          "properties": {
+            "pack": "nyc-ll144",
+            "status": "missing",
+            "appliesFrom": "2023-07-05",
+            "inForce": true,
+            "citation": "NYC Local Law 144 § 20-871(b)(3)"
+          }
+        }
+      ]
+    }
+  ]
+}

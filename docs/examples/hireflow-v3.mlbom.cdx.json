@@ -1,0 +1,144 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:ff7802f0-a0b1-4cd4-acd8-6b99951863b8",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-09-15T18:30:50.498Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "Annex",
+          "version": "0.1.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "component:hireflow-remediated",
+      "name": "hireflow-remediated",
+      "version": "3549765d90a3"
+    },
+    "properties": [
+      {
+        "name": "annex:riskTier",
+        "value": "high"
+      },
+      {
+        "name": "annex:role",
+        "value": "provider+deployer"
+      },
+      {
+        "name": "annex:conformityScore",
+        "value": "76"
+      },
+      {
+        "name": "annex:ledgerRoot",
+        "value": "478741223ffeb84fd40d3066cdbc2754566bdd096bdebd4915565b597a4f6503"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "machine-learning-model",
+      "bom-ref": "model:ai.provider.openai",
+      "name": "OpenAI hosted model",
+      "publisher": "OpenAI",
+      "description": "Calls an OpenAI-hosted model (GPT family, embeddings, moderation).",
+      "modelCard": {
+        "modelParameters": {
+          "task": "decision-support"
+        },
+        "considerations": {
+          "useCases": [
+            "Not stated by the operator."
+          ],
+          "ethicalConsiderations": [
+            {
+              "name": "Employment: recruitment and candidate selection",
+              "mitigationStrategy": "EU AI Act Annex III, point 4(a)"
+            },
+            {
+              "name": "Direct interaction with natural persons",
+              "mitigationStrategy": "EU AI Act Art. 50(1)"
+            },
+            {
+              "name": "Generation of synthetic text",
+              "mitigationStrategy": "EU AI Act Art. 50(2)"
+            }
+          ],
+          "technicalLimitations": []
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "src/lib/openai.ts:10"
+          },
+          {
+            "location": "src/lib/openai.ts:11"
+          },
+          {
+            "location": "src/app/api/chat/route.ts:9"
+          },
+          {
+            "location": "src/screening/rank.ts:25"
+          },
+          {
+            "location": "tests/rank.test.ts:7"
+          }
+        ]
+      }
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/@prisma/client",
+      "name": "@prisma/client",
+      "version": "^6.1.0",
+      "purl": "pkg:npm/@prisma/client@6.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/next",
+      "name": "next",
+      "version": "15.1.0",
+      "purl": "pkg:npm/next@15.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/openai",
+      "name": "openai",
+      "version": "^4.77.0",
+      "purl": "pkg:npm/openai@4.77.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/pino",
+      "name": "pino",
+      "version": "^9.5.0",
+      "purl": "pkg:npm/pino@9.5.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react",
+      "name": "react",
+      "version": "19.0.0",
+      "purl": "pkg:npm/react@19.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/react-dom",
+      "name": "react-dom",
+      "version": "19.0.0",
+      "purl": "pkg:npm/react-dom@19.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/zod",
+      "name": "zod",
+      "version": "^3.24.1",
+      "purl": "pkg:npm/zod@3.24.1"
+    }
+  ]
+}

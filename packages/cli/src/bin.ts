@@ -90,7 +90,7 @@ ${c.bold('COMMANDS')}
   ${c.cyan('scan')} [path|owner/repo]   Classify a codebase and evaluate every applicable obligation
   ${c.cyan('dossier')} [path]           Generate the Annex IV technical documentation
   ${c.cyan('fix')} [path]               Write the files that close the gaps, or emit a patch
-  ${c.cyan('diff')} --base --head       Detect a substantial modification between two commits
+  ${c.cyan('diff')} --base --head       Detect a substantial modification (git ref or directory)
   ${c.cyan('verify')} <report.json>     Re-verify an evidence ledger
   ${c.cyan('packs')}                    List the rule-pack corpus
   ${c.cyan('benchmark')}                Run the labelled corpus and report accuracy, honestly
@@ -417,21 +417,33 @@ async function runDiff(args: Args): Promise<number> {
   const root = resolve(target);
   const profile = profileFrom(args.flags);
 
-  // `git archive` gives us the base tree without touching the working copy —
-  // no stashing, no detached HEAD, nothing to clean up if the scan throws.
+  // --base may be a git ref or a directory. Comparing two directories is the
+  // form that works in a demo, in a tarball, and in a repo with no history.
+  const baseIsDir = await stat(resolve(base))
+    .then((s) => s.isDirectory())
+    .catch(() => false);
+
   let beforeSnapshot: RepoSnapshot;
-  try {
-    const tar = execFileSync('git', ['-C', root, 'archive', '--format=tar', base], {
-      maxBuffer: 256 * 1024 * 1024,
-    });
-    beforeSnapshot = buildSnapshot({
-      name: `${root.split('/').pop()}@${base}`,
-      files: readTar(Buffer.from(tar)).map((e) => ({ path: e.path, bytes: e.bytes })),
-    });
-  } catch (err) {
-    process.stderr.write(c.red(`Could not read ${base}: ${(err as Error).message}\n`));
-    process.stderr.write(c.grey('  The base ref must exist locally. Try `git fetch origin <branch>` first.\n'));
-    return 2;
+  if (baseIsDir) {
+    beforeSnapshot = await ingestDirectory(resolve(base), { name: `${base}` });
+  } else {
+    // `git archive` gives us the base tree without touching the working copy —
+    // no stashing, no detached HEAD, nothing to clean up if the scan throws.
+    try {
+      const tar = execFileSync('git', ['-C', root, 'archive', '--format=tar', base], {
+        maxBuffer: 256 * 1024 * 1024,
+      });
+      beforeSnapshot = buildSnapshot({
+        name: `${root.split('/').pop()}@${base}`,
+        files: readTar(Buffer.from(tar)).map((e) => ({ path: e.path, bytes: e.bytes })),
+      });
+    } catch (err) {
+      process.stderr.write(c.red(`Could not read ${base}: ${(err as Error).message}\n`));
+      process.stderr.write(
+        c.grey('  --base must be a git ref that exists locally, or a directory path.\n'),
+      );
+      return 2;
+    }
   }
 
   const afterSnapshot = await loadSnapshot(target, args.flags);

@@ -163,12 +163,24 @@ const STATUS_CLASS: Record<string, string> = {
   not_applicable: 'na',
 };
 
+function renderMethod(): string {
+  return METHOD_STATEMENT.split('\n\n')
+    .map((block) => {
+      const items = block.split('\n').filter((l) => /^\d+\.\s/.test(l));
+      if (items.length > 1) {
+        return `<ol class="method-list">${items.map((i) => `<li>${inline(i.replace(/^\d+\.\s*/, ''))}</li>`).join('')}</ol>`;
+      }
+      return `<p>${inline(block)}</p>`;
+    })
+    .join('');
+}
+
 export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
   const t = LABELS[dossier.locale];
   const applicable = report.controls.filter((c) => c.status !== 'not_applicable');
 
   const toc = dossier.sections
-    .map((s) => `<li><a href="#p${s.point}">${s.point}. ${esc(s.title)}</a></li>`)
+    .map((s) => `<li><a href="#p${s.point}">${esc(s.title)}</a></li>`)
     .join('');
 
   const body = dossier.sections
@@ -254,6 +266,8 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
   .toc a { color: var(--accent); text-decoration: none; }
 
   .method { background: #f7f9fb; border-left: 3px solid var(--accent); padding: 14px 18px; margin-bottom: 8px; font-size: 10pt; }
+  .method-list { margin: 0 0 11px; padding-left: 20px; }
+  .method-list li { margin-bottom: 7px; }
 
   .pt { break-inside: avoid-page; }
   .ev { background: #f7f9fb; border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 14px 0; }
@@ -299,7 +313,7 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
   <nav class="toc"><h3>${t.contents}</h3><ol>${toc}</ol></nav>
 
   <h2><span class="num">§</span>${t.method}</h2>
-  <div class="method">${METHOD_STATEMENT.split('\n\n').map((p) => `<p>${inline(p)}</p>`).join('')}</div>
+  <div class="method">${renderMethod()}</div>
 
   ${body}
 
