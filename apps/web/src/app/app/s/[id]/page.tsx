@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
 import { Citation, Empty, EvidenceLine, Panel, ScoreDial, StatusBadge, money, relativeDays } from '@/components/primitives';
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Overview({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) notFound();
   const latest = latestReport(system.id);
@@ -89,8 +89,8 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
             ) : null}
             {report.exposure.maxFine > 0 ? (
               <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '10px 0 0' }}>
-                A ceiling, not a forecast. Article 99(1) and 99(7) make administrative fines discretionary and
-                require them to be effective, proportionate and dissuasive in each case. Two systems in the same
+                A ceiling, not a forecast: every one of these regimes leaves the amount to the enforcing
+                authority, and the AI Act says so expressly in Article 99(1) and 99(7). Two systems in the same
                 penalty tier, owned by the same undertaking, share a ceiling — the figure describes the
                 undertaking&rsquo;s turnover, not the system&rsquo;s risk.
               </p>

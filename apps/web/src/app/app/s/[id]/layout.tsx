@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { currentUser } from '@/server/auth';
+import { currentUser, requireUser } from '@/server/auth';
 import { getSystem, latestReport, runScan } from '@/server/systems';
 import { TierBadge } from '@/components/primitives';
 import { Tabs } from '@/components/tabs';
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 async function rescan(formData: FormData) {
   'use server';
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(String(formData.get('id')), user.id);
   if (!system) return;
   await runScan(system, {
@@ -34,7 +34,7 @@ export default async function SystemLayout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) notFound();
   const latest = latestReport(system.id);

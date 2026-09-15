@@ -179,7 +179,7 @@ export interface ClassificationFinding {
   evidence: Evidence[];
 }
 
-export interface Article63Assessment {
+export interface Article6_3Assessment {
   /** The limb of Article 6(3) the operator relies on. */
   claimed: 'narrow-procedural' | 'improves-human-activity' | 'pattern-detection' | 'preparatory';
   /** False when the derogation is blocked or was not available to begin with. */
@@ -195,7 +195,7 @@ export interface Classification {
   tier: RiskTier;
   role: ActorRole;
   /** Present when the operator claimed the Article 6(3) derogation. */
-  article63?: Article63Assessment;
+  article6_3?: Article6_3Assessment;
   findings: ClassificationFinding[];
   /** Human-readable one-liner used in headlines and the dossier. */
   summary: string;
@@ -316,6 +316,39 @@ export interface Control {
   /** Which risk tiers / roles this control binds. */
   appliesWhen: (ctx: EvaluationContext) => boolean;
   evaluate: (ctx: EvaluationContext) => ControlEvaluation;
+  /**
+   * Does this duty turn on code *running*, rather than on an artefact existing?
+   *
+   * Article 14(4)(d)-(e) require that an overseer can override or stop the
+   * system **while it is in use**; Article 12(1) requires logs recorded
+   * **over the lifetime of the system**. For those, a module nothing calls
+   * discharges nothing, and the engine caps the verdict at `partial` — which
+   * is what stops merging Annex's own remediation pull request from turning
+   * the score green without a line of running code changing.
+   *
+   * Most obligations are not like that. Article 15(3) asks for a declared
+   * accuracy level, 6 RCNY § 5-303 asks for a published summary, Article 10
+   * asks for a bias examination: those are satisfied by an artefact, and an
+   * evaluation harness that CI runs is not dead code merely because no file
+   * imports it. Marking the distinction per obligation, rather than applying
+   * one rule to all forty-five, is the difference between a check and a
+   * source of false positives.
+   */
+  requiresWiring?: boolean;
+  /**
+   * Which penalty tier prices a breach of *this* obligation.
+   *
+   * Penalty provisions are closed lists, and the tier used to be chosen by
+   * position in an array: the first if any prohibition was failing, otherwise
+   * the second. That charged €15,000,000 under Article 99(4) for a missing AI
+   * literacy page — and Article 99 does not mention Article 4 at all — while
+   * pricing every GDPR breach at the Article 83(4) tier even when the failing
+   * obligations were Article 9 and Article 17, which are Article 83(5).
+   *
+   * Left unset, the obligation carries no Union-level administrative fine of
+   * its own, and the exposure model says so rather than inventing one.
+   */
+  penaltyTier?: string;
   remediation?: Remediation;
   /** Golden tests — the law gets a test suite. */
   tests?: ControlTest[];
@@ -345,7 +378,17 @@ export interface RulePack {
      * across regimes that is not a comparison at all.
      */
     currency: 'EUR' | 'USD';
+    /**
+     * Does this regime invert the higher-of rule for SMEs?
+     *
+     * Article 99(6) of the AI Act does. GDPR Article 83(4) and 83(5) both say
+     * "whichever is higher", full stop — applying the inversion to them
+     * reported a €20,000,000 ceiling as €196,000.
+     */
+    smeInversion?: boolean;
     tiers: {
+      /** Stable key a control names in `penaltyTier`. */
+      id: string;
       label: string;
       amount?: number;
       turnoverPct?: number;
@@ -415,7 +458,7 @@ export interface SystemProfile {
    * It is never available where the system performs profiling of natural
    * persons (Article 6(3), final subparagraph), which Annex checks in code.
    */
-  article63Derogation?: 'narrow-procedural' | 'improves-human-activity' | 'pattern-detection' | 'preparatory';
+  article6_3Derogation?: 'narrow-procedural' | 'improves-human-activity' | 'pattern-detection' | 'preparatory';
 }
 
 // ---------------------------------------------------------------------------

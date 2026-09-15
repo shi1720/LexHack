@@ -17,6 +17,8 @@ const touchesPeople = whenSignal('data.pii.handling');
 const controls: Control[] = [
   c({
     id: 'gdpr.art22.human-intervention',
+    penaltyTier: 'art83-5',
+    requiresWiring: true,
     title: 'Right to human intervention in an automated decision',
     obligation:
       'Article 22(1) gives a data subject the right not to be subject to a decision based solely on automated processing which produces legal effects or similarly significantly affects them. Where such processing is permitted, Article 22(3) requires safeguards including at least the right to obtain human intervention, to express a point of view, and to contest the decision.',
@@ -80,6 +82,8 @@ const controls: Control[] = [
             'export async function queueForHumanReview(decisionId) {\n  return db.reviews.create({ decisionId, status: "pending_review" });\n}\n',
           'src/appeal.ts':
             'export async function submitAppeal(decisionId, subjectId, grounds) {\n  await queueForHumanReview(decisionId);\n  return db.appeals.create({ decisionId, subjectId, grounds, contest: true });\n}\n',
+          'src/routes.ts':
+            'import { submitAppeal } from "./appeal";\nimport { queueForHumanReview } from "./review";\n\nexport async function POST(request) {\n  const body = await request.json();\n  await queueForHumanReview(body.decisionId);\n  return submitAppeal(body.decisionId, body.subjectId, body.grounds);\n}\n',
         },
         expect: 'satisfied',
       },
@@ -87,6 +91,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'gdpr.art13-15.meaningful-information',
+    penaltyTier: 'art83-5',
     title: 'Meaningful information about the logic involved',
     obligation:
       'Articles 13(2)(f), 14(2)(g) and 15(1)(h) require the controller, where automated decision-making under Article 22 takes place, to provide meaningful information about the logic involved and the significance and envisaged consequences of the processing for the data subject.',
@@ -122,6 +127,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'gdpr.art35.dpia',
+    penaltyTier: 'art83-4',
     title: 'Data protection impact assessment',
     obligation:
       'Article 35(1) requires a DPIA where processing is likely to result in a high risk to the rights and freedoms of natural persons. Article 35(3)(a) names systematic and extensive evaluation of personal aspects based on automated processing, including profiling, on which decisions producing legal or similarly significant effects are based.',
@@ -148,6 +154,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'gdpr.art17.erasure',
+    penaltyTier: 'art83-5',
     title: 'Erasure and rectification of personal data',
     obligation:
       'Articles 16 and 17 give data subjects the right to rectification of inaccurate personal data and to erasure. For an AI system this reaches the inputs, the stored decisions and any derived features.',
@@ -191,6 +198,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'gdpr.art9.special-category',
+    penaltyTier: 'art83-5',
     title: 'Lawful basis for special-category data',
     obligation:
       'Article 9(1) prohibits processing personal data revealing racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic or biometric data for unique identification, health data, or data concerning sex life or sexual orientation, unless one of the Article 9(2) conditions applies.',
@@ -257,12 +265,14 @@ export const GDPR_PACK: RulePack = {
     description: 'Administrative fines under Article 83.',
     tiers: [
       {
+        id: 'art83-5',
         label: 'Breach of data subject rights, including Article 22',
         amount: 20_000_000,
         turnoverPct: 4,
         citation: gdpr('Art. 83(5)', 'General conditions for imposing administrative fines'),
       },
       {
+        id: 'art83-4',
         label: 'Breach of controller obligations, including Article 35',
         amount: 10_000_000,
         turnoverPct: 2,

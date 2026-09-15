@@ -1,6 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { currentUser, deleteUser, destroySession, updateUser } from '@/server/auth';
+import { requireUser, deleteUser, destroySession, updateUser } from '@/server/auth';
 import { Panel } from '@/components/primitives';
 
 export const metadata = { title: 'Settings' };
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 async function save(formData: FormData) {
   'use server';
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const turnover = String(formData.get('turnover') ?? '').replace(/[^\d]/g, '');
   const employees = String(formData.get('employees') ?? '').replace(/[^\d]/g, '');
   const token = String(formData.get('github') ?? '').trim();
@@ -25,7 +25,7 @@ async function save(formData: FormData) {
 
 async function eraseAccount(formData: FormData) {
   'use server';
-  const user = (await currentUser())!;
+  const user = await requireUser();
   if (String(formData.get('confirm') ?? '').trim().toLowerCase() !== 'delete') {
     redirect('/app/settings?error=' + encodeURIComponent('Type "delete" to confirm.'));
   }
@@ -36,7 +36,7 @@ async function eraseAccount(formData: FormData) {
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const params = await searchParams;
-  const user = (await currentUser())!;
+  const user = await requireUser();
 
   return (
     <div className="space-y-5" style={{ maxWidth: 680 }}>

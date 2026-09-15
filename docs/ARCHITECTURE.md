@@ -24,7 +24,7 @@ sequenceDiagram
     U->>I: repository URL or path + intended purpose
     I->>I: download tar.gz · strip root · filter · hash
     I-->>S: RepoSnapshot (content-addressed)
-    S->>S: 73 detectors, keyword-prefiltered
+    S->>S: 75 detectors, keyword-prefiltered
     S-->>C: SignalIndex with line-anchored evidence
     C->>C: rule table → Annex III / Art. 5 / Art. 50
     C-->>E: Classification + confidence + citations
@@ -62,7 +62,7 @@ Caps are deliberate and reported rather than silent:
 
 ## 2. Signals — `packages/engine/src/signals/`
 
-73 detectors in eight families:
+75 detectors in eight families:
 
 - **`ai-usage`** — which models are called, where inference happens, whether the model can invoke tools.
 - **`domain`** — what the system is *for*. These drive classification, so they are the conservative ones.
@@ -82,7 +82,7 @@ definition line  >  usage  >  documentation  >  test file  >  manifest
 
 That is why the Annex III 4(a) citation lands on `rank.ts:28` — `const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject'` — rather than on `"openai"` in `package.json`, even though both are true.
 
-**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 168-file repository scans in ~220 ms; the 41-case benchmark runs in ~110 ms.
+**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 168-file repository scans in ~220 ms; the 42-case benchmark runs in ~120 ms.
 
 ## 3. Classification — `packages/engine/src/classify/`
 

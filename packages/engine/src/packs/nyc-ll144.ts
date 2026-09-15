@@ -19,6 +19,7 @@ const isAedt = whenSignal('domain.employment.screening', 'domain.employment.mana
 const controls: Control[] = [
   c({
     id: 'nyc-ll144.bias-audit',
+    penaltyTier: 'first',
     title: 'Annual independent bias audit',
     obligation:
       '6 RCNY § 5-301(a): an employer or employment agency must not use an automated employment decision tool if more than one year has passed since its most recent bias audit, which must be carried out by an independent auditor.',
@@ -33,10 +34,37 @@ const controls: Control[] = [
     ],
     appliesWhen: isAedt,
     evaluate: (ctx) => {
-      const audit = ctx.grepDocs(/\bbias\s+audit\b/i, 4, /(bias|audit|fairness|readme|compliance|ll144|aedt)/i);
+      const audit = ctx.grepDocs(/\bbias\s+audit\b/i, 4, /(bias|audit|fairness|ll144|aedt)/i);
       const testing = ctx.signals.get('data.bias.testing');
+
       if (audit.length > 0) {
-        return satisfied('Bias audit documentation was found.', audit);
+        // § 5-301(a) is a rule about *currency*: the audit must have been
+        // conducted no more than one year before the tool is used. Accepting
+        // any document containing the words "bias audit" meant a 2023 audit
+        // passed in 2026 — on the most arithmetically checkable duty in the
+        // corpus, in the pack the README singles out for that reason.
+        const dated = ctx.grepDocs(/\b(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\b|\b(19|20)\d{2}\b/, 6, /(bias|audit|fairness|ll144|aedt)/i);
+        const years = dated
+          .flatMap((e) => [...e.snippet.matchAll(/\b(20\d{2})\b/g)].map((m) => Number(m[1])))
+          .filter((y) => y >= 2020 && y <= new Date().getFullYear() + 1);
+        const mostRecent = years.length ? Math.max(...years) : undefined;
+        const thisYear = new Date().getFullYear();
+
+        if (mostRecent === undefined) {
+          return partial(
+            'Bias audit documentation was found, but it carries no date.',
+            '6 RCNY § 5-301(a) requires the audit to have been conducted no more than one year before the tool is used, and § 5-303 requires the date of the most recent audit to be published. An undated audit cannot be shown to be current.',
+            audit,
+          );
+        }
+        if (mostRecent < thisYear - 1) {
+          return partial(
+            `Bias audit documentation was found, but the most recent year it names is ${mostRecent}.`,
+            `6 RCNY § 5-301(a) requires an audit conducted no more than one year before use. On the dates in the document this audit is at least ${thisYear - mostRecent} years old, and each day of continued use is a separate violation under § 20-872.`,
+            audit,
+          );
+        }
+        return satisfied(`A bias audit dated ${mostRecent} was found.`, audit);
       }
       if (testing && testing.hits > 0) {
         return partial(
@@ -73,6 +101,17 @@ const controls: Control[] = [
         expect: 'partial',
       },
       {
+        // The rule the pack exists for is a rule about currency.
+        name: 'partial when the bias audit is more than a year old',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/bias-audit.md':
+            '# Bias audit\n\nIndependent bias audit conducted on 2023-03-01 by an auditor with no employment relationship to us and no material financial interest in the tool.\n',
+        },
+        expect: 'partial',
+      },
+      {
         name: 'satisfied when an independent bias audit is recorded in the repository',
         files: {
           'src/screen.ts':
@@ -86,6 +125,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nyc-ll144.impact-ratio',
+    penaltyTier: 'first',
     title: 'Selection rate and impact ratio by category',
     obligation:
       '6 RCNY § 5-301(b)-(c): the audit must calculate the selection rate (or scoring rate) and the impact ratio for each category, separately for sex categories, race/ethnicity categories, and intersectional sex × ethnicity × race categories, using EEO-1 Component 1 categories.',
@@ -153,6 +193,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nyc-ll144.publish-summary',
+    penaltyTier: 'first',
     title: 'Publish the audit summary before use',
     obligation:
       '6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit, a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Keep it posted for at least six months after the last use.',
@@ -176,6 +217,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nyc-ll144.candidate-notice',
+    penaltyTier: 'first',
     title: 'Ten business days notice to candidates',
     obligation:
       '6 RCNY § 5-304 and NYC Admin. Code § 20-871(b): notify New York City resident candidates at least ten business days before use of the tool, and include instructions for how to request an alternative selection process or a reasonable accommodation, if available.',
@@ -237,15 +279,19 @@ const controls: Control[] = [
   }),
   c({
     id: 'nyc-ll144.data-policy',
+    penaltyTier: 'first',
     title: 'Publish the data retention policy and data sources',
     obligation:
-      'NYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool\'s data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days.',
+      '6 RCNY § 5-304(d)(1)-(2) requires the employer or agency to post on the employment section of its website the automated employment decision tool\'s data retention policy, the type of data it collects and the source of that data, together with instructions for making a written request for that information. NYC Admin. Code § 20-871(b)(3) is the enabling provision and sets the thirty-day window for answering such a request.',
     family: 'transparency',
     severity: 'medium',
     weight: 4,
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
-    citations: [nycLL144('§ 20-871(b)(3)', 'Data retention policy disclosure')],
+    citations: [
+      nycLL144('6 RCNY § 5-304(d)', 'Published data retention policy, data types and sources'),
+      nycLL144('§ 20-871(b)(3)', 'Enabling provision and the thirty-day response window'),
+    ],
     appliesWhen: isAedt,
     evaluate: (ctx) => {
       const retention = ctx.signals.hasAny('control.logging.retention');
@@ -288,12 +334,14 @@ export const NYC_LL144_PACK: RulePack = {
       'Civil penalties under NYC Admin. Code § 20-872. Each day an AEDT is used in violation is a separate violation, and each missing notice is a separate violation.',
     tiers: [
       {
+        id: 'first',
         label: 'First violation, and each additional violation on the same day',
         amount: 500,
         multiplier: 'per day of use and per missing notice, each of which is a separate violation',
         citation: nycLL144('§ 20-872', 'Penalties'),
       },
       {
+        id: 'subsequent',
         label: 'Each subsequent violation',
         amount: 1_500,
         multiplier: 'per day of use and per missing notice, each of which is a separate violation',

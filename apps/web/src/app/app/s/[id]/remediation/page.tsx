@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ALL_PACKS } from '@annex/engine';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
 import { Citation, Empty, Panel, Stat } from '@/components/primitives';
 import { CopyButton } from '@/components/copy-button';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function RemediationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) notFound();
   const latest = latestReport(system.id);

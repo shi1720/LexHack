@@ -213,7 +213,8 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     id: 'domain.emotion.recognition',
     label: 'Emotion recognition',
     category: 'domain',
-    description: 'Infers emotional state from biometric data — Annex III, point 1(c); prohibited at work or school under Art. 5(1)(f).',
+    description:
+      'Infers emotional state from biometric data — Annex III, point 1(c); prohibited at work or school under Art. 5(1)(f). Article 3(39) requires the inference to be *from biometric data*, so sentiment analysis over text is deliberately not this signal.',
     keywords: ['emotion', 'affect', 'mood detect', 'sentiment of', 'facial expression', 'micro-expression', 'engagement score'],
     patterns: [
       /\b(emotion|affect|mood)[_\s]?(recognition|detect\w*|classif\w*|analysis|score|inference|state)\b/i,
@@ -221,6 +222,17 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(detect|infer|predict|analyz\w*|classif\w*)[_\s]?(emotion|mood|affect|stress|engagement|enthusiasm|confidence)[_\s]?(level|score|state)?\b/i,
       /\b(EMOTION_LABELS|emotion_labels|EMOTIONS)\b/,
     ],
+    // Article 3(39): an emotion recognition system infers emotions or
+    // intentions **on the basis of biometric data**. Annex III point 1(c) uses
+    // that defined term, so the modality is part of the definition and not a
+    // detail — and Recital 18 puts physical states such as fatigue outside it
+    // altogether, which is why a driver-drowsiness detector is not this signal.
+    // A journalling app that runs sentiment over what someone typed is outside
+    // it too, and the benchmark used to label one high-risk.
+    fileGuard: corroborate(
+      ['face', 'facial', 'video', 'frame', 'camera', 'webcam', 'voice', 'audio', 'speech', 'gaze', 'expression', 'biometric', 'heart', 'eeg', 'physiolog'],
+      1,
+    ),
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
@@ -390,11 +402,21 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     label: 'Automated decision affecting a person',
     category: 'domain',
     description: 'Produces an outcome that determines how a person is treated — GDPR Art. 22 and Colorado SB 26-189 trigger.',
-    keywords: ['approve', 'reject', 'decision', 'eligib', 'verdict', 'outcome', 'deny'],
+    keywords: ['approve', 'reject', 'decision', 'eligib', 'verdict', 'outcome', 'deny', 'advance', 'shortlist'],
+    // These patterns exist to catch the line that decides. They missed the one
+    // the README, the Devpost write-up and the video script all put on screen —
+    // `const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject'`
+    // — because the second pattern wanted a quote immediately after the `=` and
+    // the third wanted a numeric literal rather than a named constant. A tool
+    // that reports its own flagship fixture as outside GDPR Article 22 is
+    // making the argument against itself, so a ternary and a named threshold
+    // are both first-class now.
     patterns: [
       /\b(auto|automatic|automated|ai|model)[_\s]?(approve|reject|decision|deny|decline|accept)\w*\b/i,
-      /\b(decision|verdict|outcome)\s*[:=]\s*['"]?(approve|reject|deny|accept|decline)/i,
-      /\bif\s*\(?\s*score\s*[<>]=?\s*[\d.]+\s*\)?[\s\S]{0,40}\b(reject|approve|deny|decline|advance|shortlist)/i,
+      /\b(decision|verdict|outcome|result)\s*[:=][\s\S]{0,80}?['"](approve|reject|deny|accept|decline|advance|shortlist|pass|fail)['"]/i,
+      /\b(score|probability|confidence|rating)\w*\s*[<>]=?\s*[\w.]+[\s\S]{0,60}?['"]?(reject|approve|deny|decline|advance|shortlist)/i,
+      /\?[\s\S]{0,30}['"](approve|advance|accept|pass)['"][\s\S]{0,20}:[\s\S]{0,20}['"](reject|decline|deny|fail)['"]/i,
+      /\b(eligib\w+|approved|rejected|declined)\s*[:=]\s*(true|false|score|probability|\w+\s*[<>]=?)/i,
     ],
     fileGuard: corroborate(['score', 'decision', 'approve', 'reject', 'threshold', 'eligib'], 2),
     maxEvidence: 8,
@@ -460,6 +482,41 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['profile', 'score', 'user', 'customer', 'person', 'predict', 'segment'], 2),
     maxEvidence: 8,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
+  }),
+  defineSignal({
+    id: 'domain.sentiment.text',
+    label: 'Sentiment analysis over text',
+    category: 'domain',
+    description:
+      'Infers mood or sentiment from written text. Deliberately distinct from emotion recognition: Article 3(39) requires biometric data, so this is outside Annex III point 1(c) and outside the Article 5(1)(f) prohibition. Recorded because it is the thing most often mistaken for them.',
+    keywords: ['sentiment', 'mood', 'tone'],
+    patterns: [
+      /\b(sentiment|tone)[_\s]?(analysis|analyz\w*|score|classif\w*|detect\w*)\b/i,
+      /\b(analyz\w*|classif\w*|score)[_\s]?(sentiment|mood|tone)\b/i,
+      /\b(journal|note|entry|message|review|comment)[_\s]?(sentiment|mood|tone)\b/i,
+    ],
+    fileGuard: corroborate(['text', 'entry', 'journal', 'message', 'note', 'review', 'comment', 'transcript', 'prompt'], 1),
+    maxEvidence: 8,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
+  }),
+  defineSignal({
+    id: 'domain.physical-state',
+    label: 'Detection of a physical state',
+    category: 'domain',
+    description:
+      'Detects a physical state — fatigue, drowsiness, pain, alertness — rather than an emotion. Recital 18 puts these outside the Article 3(39) definition of emotion recognition entirely: it names fatigue detection in professional pilots and drivers for accident prevention as the example.',
+    keywords: ['drows', 'fatigue', 'alertness', 'eyelid', 'microsleep', 'pain score', 'vigilance'],
+    patterns: [
+      /\b(drows\w*|fatigue|microsleep|eyelid[_\s]?closure|vigilance|alertness)[_\s]?(detect\w*|score|level|state|monitor\w*)?\b/i,
+      /\b(detect|monitor|measure)[_\s]?(drows\w*|fatigue|alertness|pain)\b/i,
+      /\bpain[_\s]?(score|scale|level|assessment)\b/i,
+    ],
+    maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
     ignoreComments: true,

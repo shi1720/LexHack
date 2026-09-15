@@ -77,8 +77,10 @@ jobs:
           sarif_file: annex.sarif
           category: annex-selfscan
 
-      # A gate, not a report. If Annex's own conformity drops, this fails —
-      # which is the same promise the README makes to everybody else.
+      # A regression gate on Annex's own posture, and honest about its reach:
+      # Annex calls no model, so it is not an AI system and only the GDPR and
+      # NIST controls apply to it. The high-risk pipeline is exercised by the
+      # 42-case benchmark and the golden fixtures in the job above, not here.
       - name: Human-readable self-scan
         run: |
           node packages/cli/dist/bin.js scan . \

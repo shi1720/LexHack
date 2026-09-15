@@ -31,8 +31,20 @@ const controls: Control[] = [
     appliesWhen: whenAiPresent,
     evaluate: (ctx) => {
       const ev = evidenceFrom(ctx, 'governance.ai-act.reference', 'governance.qms');
-      return ev.length > 0
-        ? satisfied('The repository documents the regulatory regimes that apply to it.', ev)
+      // "Understood and documented" means a document. A statutory reference in
+      // a code comment is a useful signal and not a regulatory analysis — and
+      // since Annex writes those comments into the modules it generates,
+      // accepting them here would let its own remediation answer the control.
+      const documented = ev.filter((e) => e.kind === 'doc');
+      if (ev.length > 0 && documented.length === 0) {
+        return partial(
+          'Statutory references appear in the code, but no document records which regimes apply and why.',
+          'Write the analysis down: one page naming the instruments, your role under each, and which obligations bind today versus later. A citation in a comment shows someone knew; it does not show the organisation decided.',
+          ev,
+        );
+      }
+      return documented.length > 0
+        ? satisfied('The repository documents the regulatory regimes that apply to it.', documented)
         : missing(
             'No documented understanding of the regulatory requirements that apply to this system was found.',
             'Record which regimes apply and why — one page naming the instruments, your role under each, and the obligations that bind today versus later.',

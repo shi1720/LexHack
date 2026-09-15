@@ -58,107 +58,7 @@ export function evidenceFrom(ctx: EvaluationContext, ...signalIds: string[]): Ev
   return ctx.signals.evidenceFor(...signalIds).slice(0, 6);
 }
 
-/**
- * A file that nothing reaches is not a control.
- *
- * This is the guard against the most dangerous thing a remediation tool can
- * do: write a `human_oversight.py`, watch the next scan turn Article 14 green,
- * and let a team believe a duty is discharged because a file exists. Article 14
- * asks whether an overseer *can* intervene, not whether a function is defined.
- *
- * A file counts as reached when some other file imports it or calls a name it
- * exports, or when it is an entry point — which nothing imports by definition.
- * The check is syntactic, so it is generous on purpose: callers downgrade to
- * `partial` rather than `missing`, because "we could not see the wiring" is not
- * the same claim as "there is none".
- */
-const ENTRYPOINT = /(^|\/)(index|main|app|server|route|handler|__main__|cli|worker|api)\.[a-z]+$|(^|\/)(pages|app)\//i;
-const IMPORT_LINE = /^\s*(?:import\s|from\s|const\s+\w+\s*=\s*require\(|export\s+.*\sfrom\s)/m;
-const RELATIVE_IMPORT = /(?:from|import|require)\s*\(?\s*['"]\.{1,2}\//;
-
-/**
- * Does this file participate in the repository at all?
- *
- * A module is dead when nothing reaches it *and* it reaches nothing: no other
- * file imports it, and it imports no local module of its own. That is what a
- * generated `ai_act/human_oversight.py` looks like the moment after a
- * remediation pull request merges — it imports `os` and is imported by no one.
- * A hand-written decision module that pulls in its own helpers is a different
- * animal even when nothing imports it, because it is plainly part of the tree.
- */
-function participates(ctx: EvaluationContext, path: string): boolean {
-  const file = ctx.snapshot.files.find((f) => f.path === path);
-  if (!file) return true;
-  if (RELATIVE_IMPORT.test(file.text)) return true;
-  const stems = new Set(
-    ctx.snapshot.files
-      .filter((f) => f.path !== path && f.text && !f.skipped)
-      .map((f) => (f.path.split('/').pop() ?? '').replace(/\.[^.]+$/, ''))
-      .filter((stem) => stem.length > 3),
-  );
-  for (const line of file.text.split('\n')) {
-    if (!IMPORT_LINE.test(line)) continue;
-    for (const stem of stems) if (line.includes(stem)) return true;
-  }
-  return false;
-}
-
-export interface Wiring {
-  /** True when every file carrying the evidence is actually reached. */
-  wired: boolean;
-  /** Where it is called from. Cited alongside the definition. */
-  callSites: Evidence[];
-  /** Files that define the affordance but that nothing appears to reach. */
-  orphans: string[];
-  /** Files that are imported somewhere and never called. */
-  importedNotCalled: string[];
-}
-
-export function wiredIn(ctx: EvaluationContext, evidence: Evidence[]): Wiring {
-  const paths = [...new Set(evidence.filter((e) => e.kind === 'code').map((e) => e.path))];
-  if (paths.length === 0) return { wired: false, callSites: [], orphans: [], importedNotCalled: [] };
-
-  const callSites: Evidence[] = [];
-  const orphans: string[] = [];
-  const importedNotCalled: string[] = [];
-  for (const path of paths) {
-    if (ENTRYPOINT.test(path)) continue; // an entry point is reached by definition
-    const file = ctx.snapshot.files.find((f) => f.path === path);
-    if (!file) continue;
-    const { calls, imports } = ctx.isReferenced(file);
-    if (calls.length) {
-      callSites.push(...calls.slice(0, 2));
-      continue;
-    }
-    // An import with no call is one line of work and used to be enough. It is
-    // now its own finding: the module is on the page, nothing invokes it.
-    if (imports.length) {
-      importedNotCalled.push(path);
-      continue;
-    }
-    if (!participates(ctx, path)) orphans.push(path);
-  }
-  // Every file must be reached, not merely one of them. A control assembled
-  // from two real modules and one orphan is a control with a hole in it, and
-  // "one of the three affordances is dead code" is the finding that matters.
-  return {
-    wired: orphans.length === 0 && importedNotCalled.length === 0,
-    callSites: callSites.slice(0, 4),
-    orphans,
-    importedNotCalled,
-  };
-}
-
-/** One sentence naming what is not wired, for a control's `gap`. */
-export function wiringGap(w: Wiring): string {
-  const parts = [
-    w.orphans.length ? `nothing in the repository reaches ${w.orphans.slice(0, 3).join(', ')}` : '',
-    w.importedNotCalled.length
-      ? `${w.importedNotCalled.slice(0, 3).join(', ')} ${w.importedNotCalled.length === 1 ? 'is' : 'are'} imported but never called`
-      : '',
-  ].filter(Boolean);
-  return parts.join('; ');
-}
+export { wiredIn, wiringGap, type Wiring } from '../evaluate/wiring.js';
 
 // ---------------------------------------------------------------------------
 // Applicability predicates, composed by the packs
@@ -166,6 +66,18 @@ export function wiringGap(w: Wiring): string {
 
 export const whenHighRisk = (ctx: EvaluationContext): boolean =>
   ctx.classification.tier === 'high' || ctx.classification.tier === 'prohibited';
+
+/**
+ * High-risk, **or** an Annex III system whose provider has successfully claimed
+ * the Article 6(3) derogation.
+ *
+ * Article 49(2) is the obligation that survives a successful claim: a provider
+ * who concludes a system is not high-risk still has to register it. Hanging
+ * that control off `whenHighRisk` meant the derogation switched off the one
+ * duty it does not switch off — while the control's own gap text said so.
+ */
+export const whenHighRiskOrDerogated = (ctx: EvaluationContext): boolean =>
+  whenHighRisk(ctx) || ctx.classification.article6_3?.available === true;
 
 export const whenAiPresent = (ctx: EvaluationContext): boolean =>
   ctx.classification.tier !== 'unknown';

@@ -66,11 +66,72 @@ export interface CompiledSignal extends SignalSpec {
 const CONFIG_LANGS: ReadonlySet<Language> = new Set<Language>(['yaml', 'json', 'toml', 'text', 'shell']);
 
 /**
- * A line that is only a comment, in any of the languages Annex reads. This
- * is not a parser: a line carrying code *and* a trailing comment counts as
- * code, which is the right call, because the claim rests on the code half.
+ * Strip prose from source, so a domain claim never rests on a sentence.
+ *
+ * "Domain signals fire on code, never on prose" was implemented twice and was
+ * wrong both times. First it excluded documentation *files*, and a sentence in
+ * a `//` comment inside a TypeScript file is prose too — Annex found that by
+ * scanning itself and classifying itself as an emotion-recognition system.
+ * Then it skipped lines that *begin* with a comment marker, which leaves the
+ * interior of a `/* … *' + '/` block and of a Python docstring looking exactly
+ * like code. A repository containing nothing but a block comment saying
+ * "we deliberately do NOT do emotion detection on candidates" classified
+ * high-risk, and cited that sentence as the evidence.
+ *
+ * This is a scanner, not a parser, and the failure mode is chosen deliberately:
+ * a line carrying code *and* a trailing comment stays, because the claim rests
+ * on the code half.
  */
-const COMMENT_LINE = /^\s*(\/\/|\/\*|\*\/?|#|--|<!--|"""|''')/;
+const LINE_COMMENT = /^\s*(\/\/|#|--|;)/;
+const BLOCK_OPEN = /\/\*|<!--/;
+const BLOCK_CLOSE = /\*\/|-->/;
+const DOCSTRING = /"""|'''/;
+
+/** Indices (0-based) of lines that are prose rather than code. */
+function commentLines(text: string, lines: string[]): Set<number> {
+  const prose = new Set<number>();
+  let inBlock = false;
+  let inDocstring = false;
+  void text;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? '';
+
+    if (inBlock) {
+      prose.add(i);
+      if (BLOCK_CLOSE.test(line)) inBlock = false;
+      continue;
+    }
+    if (inDocstring) {
+      prose.add(i);
+      if (DOCSTRING.test(line)) inDocstring = false;
+      continue;
+    }
+
+    const trimmed = line.trim();
+    if (LINE_COMMENT.test(line)) {
+      prose.add(i);
+      continue;
+    }
+
+    // A docstring that opens and closes on one line is a one-line comment.
+    const docOpen = DOCSTRING.exec(line);
+    if (docOpen && trimmed.startsWith(docOpen[0])) {
+      prose.add(i);
+      const rest = line.slice((docOpen.index ?? 0) + 3);
+      if (!DOCSTRING.test(rest)) inDocstring = true;
+      continue;
+    }
+
+    const blockOpen = BLOCK_OPEN.exec(line);
+    if (blockOpen) {
+      // Only the whole-line form is prose; `foo(); /* why */` keeps its code.
+      if (trimmed.startsWith('/*') || trimmed.startsWith('<!--')) prose.add(i);
+      if (!BLOCK_CLOSE.test(line.slice((blockOpen.index ?? 0) + 2))) inBlock = true;
+    }
+  }
+  return prose;
+}
 
 function inScope(file: SourceFile, scope: SignalSpec['scope']): boolean {
   switch (scope) {
@@ -141,12 +202,13 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
         if (spec.fileGuard && !spec.fileGuard(file)) continue;
 
         const lines = file.text.split('\n');
+        const prose = spec.ignoreComments ? commentLines(file.text, lines) : undefined;
         const fileHits: Omit<Hit, 'density'>[] = [];
 
         for (let i = 0; i < lines.length && fileHits.length < perFileScan; i++) {
           const line = lines[i] ?? '';
           if (line.length > 2000) continue;
-          if (spec.ignoreComments && COMMENT_LINE.test(line)) continue;
+          if (prose?.has(i)) continue;
           for (let p = 0; p < spec.patterns.length; p++) {
             const pattern = spec.patterns[p]!;
             pattern.lastIndex = 0;

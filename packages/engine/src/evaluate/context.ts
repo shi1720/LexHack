@@ -13,21 +13,45 @@ import { DOC_LANGUAGES } from '../ingest/languages.js';
 import { trimSnippet } from '../signals/define.js';
 
 const DOC_FILE = /\.(md|mdx|rst|txt|adoc)$/i;
+const HEADING = /^\s{0,3}(#{1,6}\s+|={2,}\s*$|[A-Z][^\n]{0,80}\n\s*[-=]{3,}\s*$)/;
 
 /**
- * Turn a topic scope into a whole-path matcher that only consults the base
- * name, so `docs/ai-act/risk-management.md` matches a `risk` scope and
- * `docs/ai-act/incident-reporting.md` does not.
+ * Which document may answer which duty.
+ *
+ * Two versions of this were wrong in different directions. Matching the whole
+ * path let `docs/ai-act/incident-reporting.md` answer the risk-management duty
+ * because its *folder* was called "ai-act". Matching the base name, with
+ * "readme" as an always-eligible alternative, was worse: a twelve-line README
+ * of compliance phrases turned three obligations green, on a tool whose entire
+ * argument is that a document a company wrote about itself cannot answer the
+ * question.
+ *
+ * So the rule is: a document is eligible where its **name** is on topic, or
+ * where the match sits under a **heading** that is on topic. A README can
+ * still answer the Article 9 duty — from its "Risk management" section, which
+ * is what a reader would look for. A passing mention three paragraphs into the
+ * installation instructions cannot.
  */
-function namedDoc(topic: RegExp): RegExp {
-  return {
-    test: (path: string) => {
-      if (!DOC_FILE.test(path)) return false;
-      const base = path.split('/').pop() ?? path;
+function eligibleLines(text: string, topic: RegExp, wholeFile: boolean): (line: number) => boolean {
+  if (wholeFile) return () => true;
+  const lines = text.split('\n');
+  const onTopic = new Set<number>();
+  let active = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? '';
+    if (HEADING.test(line) || (lines[i + 1] && /^\s*[-=]{3,}\s*$/.test(lines[i + 1] ?? ''))) {
       topic.lastIndex = 0;
-      return topic.test(base);
-    },
-  } as RegExp;
+      active = topic.test(line);
+    }
+    if (active) onTopic.add(i + 1);
+  }
+  return (line: number) => onTopic.has(line);
+}
+
+function docNameMatches(path: string, topic: RegExp): boolean {
+  const base = path.split('/').pop() ?? path;
+  topic.lastIndex = 0;
+  return topic.test(base);
 }
 
 export function createContext(input: {
@@ -148,16 +172,34 @@ export function createContext(input: {
     findFile: (pattern) => findFiles(pattern)[0],
     findFiles,
     grep,
-    // `paths` is matched against the *file name*, never the directory. Every
-    // scaffold Annex writes lives under `docs/ai-act/`, so a scope tested
-    // against the whole path lets `docs/ai-act/incident-reporting.md` answer
-    // the risk-management duty purely because its folder is called "ai-act".
-    grepDocs: (pattern, limit = 6, paths) =>
-      grep(pattern, {
-        paths: paths ? namedDoc(paths) : DOC_FILE,
-        limit,
-        kind: 'doc',
-      }),
+    grepDocs: (pattern, limit = 6, topic) => {
+      if (!topic) return grep(pattern, { paths: DOC_FILE, limit, kind: 'doc' });
+      const out: Evidence[] = [];
+      for (const file of readable) {
+        if (out.length >= limit) break;
+        if (!DOC_FILE.test(file.path)) continue;
+        const wholeFile = docNameMatches(file.path, topic);
+        const eligible = eligibleLines(file.text, topic, wholeFile);
+        const lines = file.text.split('\n');
+        let fromFile = 0;
+        for (let i = 0; i < lines.length && out.length < limit && fromFile < 2; i++) {
+          const line = lines[i] ?? '';
+          if (line.length > 2000 || !eligible(i + 1)) continue;
+          pattern.lastIndex = 0;
+          if (!pattern.test(line)) continue;
+          out.push({
+            path: file.path,
+            line: i + 1,
+            snippet: trimSnippet(line),
+            fileSha256: file.sha256,
+            kind: 'doc',
+            ...(wholeFile ? {} : { note: 'Matched under an on-topic heading.' }),
+          });
+          fromFile++;
+        }
+      }
+      return out;
+    },
     hasDependency: (name: string | RegExp): Dependency | undefined =>
       snapshot.dependencies.find((d) => (typeof name === 'string' ? d.name === name : name.test(d.name))),
     isReferenced,

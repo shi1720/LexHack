@@ -24,6 +24,7 @@ import {
   packsForMarkets,
   renderPatch,
   scan,
+  scoreControls,
   toAttestation,
   toMlBom,
   toSarif,
@@ -105,7 +106,18 @@ ${c.bold('SCAN OPTIONS')}
   --purpose <text>     The system's intended purpose, in one sentence
   --name <text>        System name for the report
   --turnover <eur>     Worldwide annual turnover, for exposure modelling
-  --employees <n>      Headcount, to apply the Article 99(6) SME cap
+  --employees <n>      Headcount, for the Recommendation 2003/361/EC SME test
+  --balance-sheet <n>  Balance-sheet total; the SME test needs headcount and
+                       one financial figure, so unknown resolves to not-an-SME
+  --no-eu-nexus        Article 2(1): the system is not placed on the Union
+                       market, not put into service there, and its output is
+                       not used there. Suppresses the exposure figure.
+  --scope-exclusion    research · pre-market · foss   (Art. 2(6), 2(8), 2(12))
+  --article-6-3 <limb> Claim the Article 6(3) derogation from Annex III:
+                       narrow-procedural · improves-human-activity ·
+                       pattern-detection · preparatory. Annex checks the one
+                       limb it can — profiling closes it — and records the
+                       Article 6(4) and 49(2) duties that survive.
   --token <pat>        GitHub token, for private repositories and rate limits
   --all                Show satisfied and not-applicable controls too
   --quiet              Suppress the progress indicator
@@ -137,11 +149,16 @@ ${c.bold('EXAMPLES')}
  * compliance tool means `--fail-undr 70` is a green build. Annex names them.
  */
 const GLOBAL_FLAGS = ['help', 'h', 'version', 'v', 'quiet'];
+/** Everything `profileFrom` reads, so the registry cannot drift from it. */
+const PROFILE_FLAGS = [
+  'markets', 'purpose', 'name', 'turnover', 'employees', 'balance-sheet',
+  'no-eu-nexus', 'scope-exclusion', 'article-6-3',
+];
 const KNOWN_FLAGS: Record<string, string[]> = {
-  scan: ['format', 'out', 'fail-under', 'markets', 'purpose', 'name', 'turnover', 'employees', 'token', 'all', 'ref'],
-  dossier: ['locale', 'html', 'out', 'markets', 'purpose', 'name', 'token', 'simplified', 'ref'],
-  fix: ['patch', 'out', 'write', 'markets', 'purpose', 'name', 'token', 'ref'],
-  diff: ['base', 'head', 'markets', 'purpose', 'name', 'token'],
+  scan: [...PROFILE_FLAGS, 'format', 'out', 'fail-under', 'token', 'all', 'ref'],
+  dossier: [...PROFILE_FLAGS, 'locale', 'html', 'out', 'token', 'simplified', 'ref'],
+  fix: [...PROFILE_FLAGS, 'patch', 'out', 'write', 'token', 'ref'],
+  diff: [...PROFILE_FLAGS, 'base', 'head', 'token'],
   verify: ['against'],
   packs: [],
   explain: [],
@@ -197,6 +214,30 @@ function profileFrom(flags: Args['flags']): Partial<SystemProfile> {
   if (markets) profile.markets = markets;
   if (turnover) profile.turnoverEur = Number(turnover.replace(/[_,]/g, ''));
   if (employees) profile.employees = Number(employees);
+
+  const balance = str(flags['balance-sheet']);
+  if (balance) profile.balanceSheetEur = Number(balance.replace(/[_,]/g, ''));
+
+  // Article 2(1). The gate is opt-out rather than opt-in because most people
+  // scanning are asking "does this reach me", and answering "no" for them by
+  // default would be the more expensive mistake.
+  if (flags['no-eu-nexus']) profile.euNexus = false;
+
+  const exclusions = list(flags['scope-exclusion'])?.filter(
+    (v): v is NonNullable<SystemProfile['scopeExclusions']>[number] =>
+      v === 'research' || v === 'pre-market' || v === 'foss',
+  );
+  if (exclusions?.length) profile.scopeExclusions = exclusions;
+
+  const derogation = str(flags['article-6-3']);
+  if (derogation) {
+    const limbs = ['narrow-procedural', 'improves-human-activity', 'pattern-detection', 'preparatory'] as const;
+    const claimed = limbs.find((l) => l === derogation);
+    if (!claimed) {
+      throw new Error(`--article-6-3 expects one of: ${limbs.join(', ')} (got "${derogation}").`);
+    }
+    profile.article6_3Derogation = claimed;
+  }
   return profile;
 }
 
@@ -292,8 +333,11 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
   if (report.exposure.maxFine > 0) {
+    const euAiAct = report.exposure.byRegime[0]?.packId === 'eu-ai-act';
     out.write(
-      `  ${c.grey('exposure')}     ${c.red(c.bold(money(report.exposure.maxFine, report.exposure.currency)))} ${c.grey('statutory ceiling, not a forecast (Art. 99(1), 99(7))')}\n`,
+      `  ${c.grey('exposure')}     ${c.red(c.bold(money(report.exposure.maxFine, report.exposure.currency)))} ${c.grey(
+        euAiAct ? 'statutory ceiling, not a forecast (Art. 99(1), 99(7))' : 'statutory ceiling, not a forecast',
+      )}\n`,
     );
     for (const r of report.exposure.byRegime.slice(1)) {
       out.write(`               ${c.grey(`+ ${r.packName}: ${money(r.amount, r.currency)}${r.multiplier ? ` ${r.multiplier}` : ''}`)}\n`);
@@ -586,6 +630,43 @@ async function reHashCitedFiles(
   return { checked: expected.size, missing, changed };
 }
 
+/**
+ * Does the report's headline follow from the results the ledger covers?
+ *
+ * The score and the tier are *derived* values: recomputing them is cheap and
+ * closes the gap between "these results are authentic" and "this document is
+ * telling you the truth about them".
+ */
+function summaryMismatches(report: ScanReport): string[] {
+  const out: string[] = [];
+
+  const score = scoreControls(report.controls);
+  if (score !== report.score) {
+    out.push(`the report claims a conformity score of ${report.score}; its own controls produce ${score}`);
+  }
+
+  const live = scoreControls(report.controls.filter((r) => r.inForce));
+  if (live !== report.liveScore) {
+    out.push(`the report claims an in-force score of ${report.liveScore}; its own controls produce ${live}`);
+  }
+
+  const prohibited = report.controls.some(
+    (r) => r.family === 'prohibition' && r.status === 'missing' && r.inForce,
+  );
+  if (prohibited && report.classification.tier !== 'prohibited') {
+    out.push(
+      `the report is tiered "${report.classification.tier}" while a prohibition that is already in force is recorded as missing`,
+    );
+  }
+
+  const failing = report.controls.filter((r) => r.inForce && (r.status === 'missing' || r.status === 'partial'));
+  if (failing.length > 0 && report.exposure.maxFine === 0 && report.profile.euNexus !== false) {
+    out.push(`the report models no exposure while ${failing.length} in-force obligation(s) are failing`);
+  }
+
+  return out;
+}
+
 async function runVerify(args: Args): Promise<number> {
   const path = args.positional[0];
   if (!path) {
@@ -615,6 +696,22 @@ async function runVerify(args: Args): Promise<number> {
     process.stdout.write(`${c.bgRed(' LEDGER BROKEN ')}\n\n`);
     process.stdout.write(`  ${check.reason}\n`);
     process.stdout.write(`  ${c.grey(`recomputed ${check.root.slice(0, 24)}… vs recorded ${check.expectedRoot.slice(0, 24)}…`)}\n`);
+    return 1;
+  }
+
+  // The chain covers the control results. It does not cover the four numbers
+  // anyone actually reads — the score, the tier, the exposure — which sit
+  // beside it in the same JSON and are derived from those results. Leaving
+  // them unchecked meant a report could be edited to say 94/100, minimal risk,
+  // no exposure, over forty-five entries that all still said "missing", and
+  // verify would print LEDGER INTACT and exit 0.
+  const derived = summaryMismatches(report);
+  if (derived.length > 0) {
+    process.stdout.write(`${c.bgRed(' REPORT INCONSISTENT ')}\n\n`);
+    process.stdout.write(`  The ledger is intact, so the control results are the ones it was built over —\n`);
+    process.stdout.write(`  but the report's own summary does not follow from them:\n\n`);
+    for (const d of derived) process.stdout.write(`  ${c.red(SYMBOL.fail)} ${d}\n`);
+    process.stdout.write(`\n  ${c.grey('Re-run the scan rather than trusting the headline.')}\n`);
     return 1;
   }
 

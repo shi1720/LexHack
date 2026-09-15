@@ -190,7 +190,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
         modelSignals.length > 0
           ? `The system calls externally provided models: ${modelSignals.map((s) => s.label).join(', ')}. ${
               report.classification.tier === 'high' || report.classification.tier === 'prohibited'
-                ? 'Article 25(1)(c) should be considered: a deployer who modifies the intended purpose of a general-purpose AI system that has not been classified as high-risk and has already been placed on the market, such that it becomes high-risk under Article 6, becomes its provider. Whether those three conditions are met here is a determination for the operator; Annex records the model dependency, not the conclusion.'
+                ? 'Article 25(1)(c) should be considered: any distributor, importer, deployer or other third party who modifies the intended purpose of a general-purpose AI system that has not been classified as high-risk and has already been placed on the market, such that it becomes high-risk under Article 6, becomes its provider. Whether those three conditions are met here is a determination for the operator; Annex records the model dependency, not the conclusion.'
                 : 'The classification below does not place the system in Annex III, so the Article 25(1)(c) conversion is not engaged on the present facts.'
             }`
           : 'No external model provider was detected in the codebase.'
@@ -234,7 +234,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     body: [
       `**(a) Development methods and recourse to third-party systems.** ${
         modelSignals.length > 0
-          ? `The system is built on pre-trained models supplied by third parties (${modelSignals.map((s) => s.label).join(', ')}). Article 25(2) obliges the initial provider to make available the technical documentation needed to assess Article 16 compliance — unless it has specified that its system is not to be changed into a high-risk AI system, which switches that duty off. Confirm which applies before relying on it.`
+          ? `The system is built on pre-trained models supplied by third parties (${modelSignals.map((s) => s.label).join(', ')}). Article 25(2) obliges the initial provider to provide the information and the reasonably expected technical access and other assistance needed to assess Article 16 compliance — unless it has specified that its system is not to be changed into a high-risk AI system, which switches that duty off. Confirm which applies before relying on it.`
           : 'No third-party pre-trained model was detected.'
       }`,
       `**(b) Design specifications.** ${

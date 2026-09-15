@@ -14,10 +14,9 @@ import {
   whenAiPresent,
   whenFinding,
   whenHighRisk,
+  whenHighRiskOrDerogated,
   whenProvider,
   whenSignal,
-  wiredIn,
-  wiringGap,
 } from './define.js';
 import {
   auditLogModule,
@@ -58,11 +57,37 @@ export const DATES = {
   MARKING_GRACE: '2026-12-02',
   /** New Art. 5(1)(ba)/(bb) prohibitions inserted by the Omnibus. */
   NEW_PROHIBITIONS: '2026-12-02',
-  /** Chapter III as regards Annex III high-risk systems (Art. 6(2)). */
+  /**
+   * Chapter III **Sections 1, 2 and 3** as regards Annex III high-risk systems.
+   *
+   * Article 113 as amended defers exactly those sections — the classification
+   * rules, the requirements, and the obligations on providers and deployers —
+   * and nothing else. Read the constant's name literally when assigning it.
+   */
   HIGH_RISK_ANNEX_III: '2027-12-02',
-  /** Chapter III as regards Annex I high-risk systems (Art. 6(1)). */
+  /** The same sections, as regards Annex I high-risk systems (Art. 6(1)). */
   HIGH_RISK_ANNEX_I: '2028-08-02',
 } as const;
+
+/*
+ * A note on Articles 43, 47, 48, 49, 72 and 73, because this is the
+ * distinction the product exists to get right and we got it wrong once.
+ *
+ * Article 49 sits in Chapter III **Section 5**; Articles 72 and 73 sit in
+ * Chapter IX. The Digital Omnibus deferred Sections 1, 2 and 3 of Chapter III
+ * and left everything else where Article 113(2) put it: 2 August 2026. So
+ * these obligations are in force **today**, thirteen months before the
+ * high-risk requirements they relate to.
+ *
+ * That reads oddly, and the temptation is to "correct" it by dating them with
+ * the rest of the high-risk regime — which is exactly what this file did until
+ * a reviewer checked it against our own research note, where the right answer
+ * was already written down. A tool that sells itself on reading Article 113
+ * rather than repeating what the industry assumes does not then quietly
+ * substitute a practitioner's view of what is sensible for the date the
+ * Regulation gives. Each of these controls carries the statutory date, and
+ * says in its own finding why the duty may not bite in practice yet.
+ */
 
 const ANNEX_IV_DOC = 'docs/ai-act/annex-iv-technical-documentation.md';
 
@@ -71,12 +96,17 @@ const ANNEX_IV_DOC = 'docs/ai-act/annex-iv-technical-documentation.md';
  *
  * A repo-wide grep for "risk management" is happily answered by those two
  * words appearing inside an incident-response runbook, and Article 9 goes
- * green because a document about something else mentioned it. Every
- * documentation control names the files that are entitled to satisfy it —
- * generously (README and any `docs/ai-act/` file always qualify), but not
- * indiscriminately.
+ * green because a document about something else mentioned it.
+ *
+ * Every documentation control names the topic that entitles a document to
+ * satisfy it. A document qualifies either because its **name** is on topic —
+ * `risk-management.md` answers Article 9 — or because the match sits under an
+ * on-topic **heading**, which is how a README with a "Risk management" section
+ * qualifies while a README that merely says the words does not. An earlier
+ * version made `readme` an always-eligible alternative, and a twelve-line
+ * README of compliance phrases turned three obligations green.
  */
-const GENERAL_DOC = 'readme|ai[-_]?act|compliance|conformity|governance|annex[-_]?iv';
+const GENERAL_DOC = 'annex[-_]?iv|conformity';
 const docScope = (topic: string): RegExp => new RegExp(`(${topic}|${GENERAL_DOC})`, 'i');
 
 const DOC_SCOPES = {
@@ -99,6 +129,7 @@ const DOC_SCOPES = {
 const prohibitionControls: Control[] = [
   c({
     id: 'eu-ai-act.art5.emotion-workplace',
+    penaltyTier: 'art99-3',
     title: 'No emotion inference in the workplace or education',
     obligation:
       'Article 5(1)(f) prohibits placing on the market, putting into service or using AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except for medical or safety reasons.',
@@ -155,6 +186,7 @@ const prohibitionControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art5.social-scoring',
+    penaltyTier: 'art99-3',
     title: 'No social scoring of natural persons',
     obligation:
       'Article 5(1)(c) prohibits evaluating or classifying natural persons over time based on social behaviour or personal characteristics where the score leads to detrimental treatment in an unrelated context, or to treatment that is unjustified or disproportionate.',
@@ -174,6 +206,7 @@ const prohibitionControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art5.face-scraping',
+    penaltyTier: 'art99-3',
     title: 'No untargeted scraping of facial images',
     obligation:
       'Article 5(1)(e) prohibits creating or expanding facial recognition databases through untargeted scraping of facial images from the internet or CCTV footage.',
@@ -194,6 +227,7 @@ const prohibitionControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art5.ncii-csam-safeguards',
+    penaltyTier: 'art99-3',
     title: 'Safeguards against non-consensual intimate imagery and CSAM',
     obligation:
       'Article 5(1)(ba) and (bb), inserted by Regulation (EU) 2026/1744, prohibit AI systems that generate non-consensual intimate imagery or child sexual abuse material. Article 5(1a)(a)(ii) extends the prohibition to systems where such generation is a reasonably foreseeable and reproducible outcome without significant technical modification and there are no reasonable and adequate technical safeguards to reliably prevent it.',
@@ -258,6 +292,7 @@ const liveControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art50.1.interaction-disclosure',
+    penaltyTier: 'art99-4',
     title: 'Tell people they are talking to an AI',
     obligation:
       'Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction.',
@@ -336,6 +371,8 @@ const liveControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art50.2.content-marking',
+    penaltyTier: 'art99-4',
+    requiresWiring: true,
     title: 'Mark synthetic output in a machine-readable format',
     obligation:
       'Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4).',
@@ -417,6 +454,8 @@ const liveControls: Control[] = [
             'import OpenAI from "openai";\nconst client = new OpenAI();\nconst systemPrompt = "You write marketing copy.";\nexport async function generateCopy(brief) {\n  const completion = await client.chat.completions.create({ model: "gpt-4o", messages: [{ role: "system", content: systemPrompt }, { role: "user", content: brief }] });\n  return completion.choices[0].message.content;\n}\n',
           'src/provenance.ts':
             'export function attachContentCredentials(asset) {\n  return { ...asset, c2pa: { manifest: buildProvenanceManifest(asset), claim_generator: "acme/1.0" } };\n}\n',
+          'src/publish.ts':
+            'import { generateCopy } from "./generate";\nimport { attachContentCredentials } from "./provenance";\n\nexport async function publish(brief) {\n  const copy = await generateCopy(brief);\n  return attachContentCredentials({ body: copy });\n}\n',
         },
         expect: 'satisfied',
       },
@@ -424,6 +463,7 @@ const liveControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art50.3.biometric-notification',
+    penaltyTier: 'art99-4',
     title: 'Notify people exposed to emotion recognition or biometric categorisation',
     obligation:
       'Article 50(3) requires deployers of an emotion recognition system or a biometric categorisation system to inform the natural persons exposed to it of the operation of the system, and to process personal data in accordance with the GDPR.',
@@ -452,6 +492,7 @@ const liveControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art50.4.deepfake-labelling',
+    penaltyTier: 'art99-4',
     title: 'Disclose deep fakes and AI-written public-interest text',
     obligation:
       'Article 50(4) requires deployers of systems generating or manipulating image, audio or video constituting a deep fake to disclose that the content is artificially generated or manipulated, and deployers generating text published to inform the public on matters of public interest to disclose the same — unless the text underwent human review and a person holds editorial responsibility.',
@@ -529,6 +570,7 @@ const liveControls: Control[] = [
 const highRiskControls: Control[] = [
   c({
     id: 'eu-ai-act.art9.risk-management',
+    penaltyTier: 'art99-4',
     title: 'Risk management system across the lifecycle',
     obligation:
       'Article 9 requires a documented, continuous and iterative risk management system run throughout the lifecycle: identify and analyse risks under the intended purpose and reasonably foreseeable misuse, evaluate risks from post-market monitoring, adopt targeted measures, and judge residual risk acceptable.',
@@ -572,9 +614,58 @@ const highRiskControls: Control[] = [
         },
       ],
     },
+    tests: [
+      {
+        name: 'missing when nothing documents a risk management system',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'missing',
+      },
+      {
+        // The attack this fixture exists for: a README of compliance phrases,
+        // no code change, three obligations green. A document is entitled to
+        // answer a duty when its name is on topic or the match sits under an
+        // on-topic heading — not because it contains the words.
+        name: 'missing when a README merely mentions risk management in passing',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'README.md':
+            '# Screener\n\n## About\n\nWe take compliance seriously. Our risk management process is mature and the risk register is reviewed quarterly. Residual risk is judged acceptable by the VP Engineering.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'missing',
+      },
+      {
+        name: 'satisfied when a README carries a risk management section',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'README.md':
+            '# Screener\n\n## Risk management\n\nWe run a documented risk register across the lifecycle, reviewed quarterly. Residual risk is judged acceptable for each hazard and overall by the VP Engineering, who is the accountable person, most recently on 2026-08-14.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+      {
+        name: 'satisfied when the document is named for the duty it answers',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/risk-management.md':
+            '# Risk management system (Article 9)\n\nA documented, continuous risk register covering the lifecycle.\n\nResidual risk is judged acceptable for each hazard and overall by the VP Engineering, on 2026-08-14.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'eu-ai-act.art10.bias-examination',
+    penaltyTier: 'art99-4',
     title: 'Examine training and evaluation data for bias',
     obligation:
       'Article 10(2)(f) requires examination in view of possible biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law — especially where outputs influence inputs for future operations. Article 10(2)(g) requires measures to detect, prevent and mitigate them.',
@@ -626,6 +717,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art10.data-governance',
+    penaltyTier: 'art99-4',
     title: 'Document data provenance and preparation',
     obligation:
       'Article 10(2)(b)-(e) requires documented data collection processes and the origin of the data — including, for personal data, the original purpose of collection — data preparation operations, the assumptions the data encodes, and an assessment of availability, quantity and suitability.',
@@ -669,6 +761,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art11.technical-documentation',
+    penaltyTier: 'art99-4',
     title: 'Annex IV technical documentation exists and is current',
     obligation:
       'Article 11(1) requires technical documentation to be drawn up before the system is placed on the market and kept up to date, containing at least the elements set out in Annex IV. SMEs, start-ups and small mid-caps may provide it in simplified form.',
@@ -705,6 +798,8 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art12.record-keeping',
+    penaltyTier: 'art99-4',
+    requiresWiring: true,
     title: 'Automatic logging of events over the system lifetime',
     obligation:
       'Article 12(1) requires high-risk AI systems to technically allow the automatic recording of events over their lifetime. Article 12(2) requires logging that enables identification of situations that may result in an Article 79(1) risk or a substantial modification, and that facilitates post-market monitoring.',
@@ -735,21 +830,13 @@ const highRiskControls: Control[] = [
         );
       }
       if (versioned && traceable) {
-        const ev = [...inference.evidence.slice(0, 3), ...ctx.signals.evidenceFor('control.model.version').slice(0, 2)];
         // Article 12(1) requires logs to be recorded *while the system is in
-        // use*. A recorder that no inference path calls records nothing.
-        const wiring = wiredIn(ctx, inference.evidence.slice(0, 3));
-        if (!wiring.wired) {
-          return partial(
-            'An inference logger is defined, carrying a model version and a traceable identifier, but no code path appears to call it.',
-            `Article 12(1) requires logs to be recorded automatically over the lifetime of the system: ${wiringGap(wiring)}. Call the recorder on every model invocation that can affect a person.`,
-            ev,
-          );
-        }
-        return satisfied(
-          'Inference logging was found, carrying both a model version and a traceable identifier, and is called from elsewhere in the codebase.',
-          [...ev, ...wiring.callSites],
-        );
+        // use*, so a recorder nothing calls records nothing — which the engine
+        // invariant enforces for every control, this one included.
+        return satisfied('Inference logging was found, carrying both a model version and a traceable identifier.', [
+          ...inference.evidence.slice(0, 3),
+          ...ctx.signals.evidenceFor('control.model.version').slice(0, 2),
+        ]);
       }
       return partial(
         'Inference logging exists, but it does not consistently carry the model version and a per-decision identifier.',
@@ -788,6 +875,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art19.log-retention',
+    penaltyTier: 'art99-4',
     title: 'Retain automatically generated logs for at least six months',
     obligation:
       'Article 19(1) requires providers to keep the logs automatically generated by their high-risk AI systems, to the extent those logs are under their control, for a period appropriate to the intended purpose and of at least six months, unless Union or national law provides otherwise.',
@@ -835,6 +923,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art13.instructions-for-use',
+    penaltyTier: 'art99-4',
     title: 'Instructions for use for deployers',
     obligation:
       'Article 13(2)-(3) requires high-risk systems to be accompanied by concise, complete, correct and clear instructions for use covering provider identity, capabilities and limitations, declared accuracy metrics, foreseeable misuse, explanation capabilities, subgroup performance, input specifications, pre-determined changes, human oversight measures, resource needs and how the deployer reads the logs.',
@@ -883,6 +972,8 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art14.human-oversight',
+    penaltyTier: 'art99-4',
+    requiresWiring: true,
     title: 'Effective human oversight while the system is in use',
     obligation:
       'Article 14 requires high-risk systems to be designed so they can be effectively overseen by natural persons, who must be able to understand capacities and limitations, remain aware of automation bias, correctly interpret output, decide not to use the system or disregard, override or reverse its output, and intervene or interrupt it.',
@@ -914,22 +1005,11 @@ const highRiskControls: Control[] = [
       ].filter(Boolean) as string[];
 
       if (present.length === 3) {
-        // Existence is not oversight. If every affordance lives in a module
-        // that nothing in the tree reaches, the duty is not discharged — and
-        // this is exactly the state Annex's own remediation PR leaves behind
-        // until a human wires it in.
-        const wiring = wiredIn(ctx, ev);
-        if (!wiring.wired) {
-          return partial(
-            `All three oversight affordances are defined — ${present.join(', ')} — but no code path appears to call them.`,
-            `Route consequential outcomes through the oversight gate: ${wiringGap(wiring)}. Article 14(4)(d)-(e) require that a person *can* override or stop the system in use, and a module no code path reaches cannot do that.`,
-            ev,
-          );
-        }
-        return satisfied(
-          `All three oversight affordances were found — ${present.join(', ')} — and are reached from elsewhere in the codebase.`,
-          [...ev, ...wiring.callSites],
-        );
+        // Existence is not oversight — but that is the engine's invariant, not
+        // this control's business. `evaluateControl` caps a `satisfied` verdict
+        // at `partial` when the code behind it is unreached, and cites the call
+        // site when it is.
+        return satisfied(`All three oversight affordances were found: ${present.join(', ')}.`, ev);
       }
       if (present.length === 0) {
         return missing(
@@ -1016,6 +1096,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art15.accuracy',
+    penaltyTier: 'art99-4',
     title: 'Declared accuracy metrics measured against a fixed set',
     obligation:
       'Article 15(1) requires an appropriate level of accuracy, robustness and cybersecurity, consistent throughout the lifecycle. Article 15(3) requires the declared accuracy levels and the relevant accuracy metrics to be stated in the instructions for use.',
@@ -1091,6 +1172,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art15.cybersecurity',
+    penaltyTier: 'art99-4',
     title: 'AI-specific cybersecurity measures',
     obligation:
       'Article 15(5) requires high-risk systems to be resilient against attempts by unauthorised third parties to alter their use, outputs or performance, with measures where appropriate to prevent, detect, respond to, resolve and control data poisoning, model poisoning, adversarial examples, model evasion and confidentiality attacks.',
@@ -1124,6 +1206,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art17.quality-management',
+    penaltyTier: 'art99-4',
     title: 'Quality management system',
     obligation:
       'Article 17 requires a documented quality management system covering, among thirteen aspects, the regulatory compliance strategy, design and development controls, examination and validation procedures and their frequency, data management, the risk management system, post-market monitoring, incident reporting procedures, record-keeping and an accountability framework. Implementation must be proportionate to the size of the organisation.',
@@ -1178,6 +1261,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art72.post-market-monitoring',
+    penaltyTier: 'art99-4',
     title: 'Post-market monitoring plan',
     obligation:
       'Article 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.',
@@ -1185,7 +1269,7 @@ const highRiskControls: Control[] = [
     severity: 'high',
     weight: 6,
     method: 'documentation',
-    appliesFrom: DATES.HIGH_RISK_ANNEX_III,
+    appliesFrom: DATES.GENERAL,
     citations: [
       aiActArticle(72, '(1)', 'Post-market monitoring by providers'),
       aiActAnnex('IV', '9', 'Technical documentation — post-market monitoring plan'),
@@ -1225,6 +1309,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art73.incident-reporting',
+    penaltyTier: 'art99-4',
     title: 'Serious incident reporting procedure',
     obligation:
       'Article 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.',
@@ -1232,7 +1317,7 @@ const highRiskControls: Control[] = [
     severity: 'high',
     weight: 6,
     method: 'documentation',
-    appliesFrom: DATES.HIGH_RISK_ANNEX_III,
+    appliesFrom: DATES.GENERAL,
     citations: [
       aiActArticle(73, '(2)', 'Reporting of serious incidents — 15-day default'),
       aiActArticle(73, '(3)', 'Reporting of serious incidents — 2 days'),
@@ -1277,6 +1362,7 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art49.registration',
+    penaltyTier: 'art99-4',
     title: 'Registration in the EU database',
     obligation:
       'Article 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.',
@@ -1284,13 +1370,13 @@ const highRiskControls: Control[] = [
     severity: 'medium',
     weight: 4,
     method: 'documentation',
-    appliesFrom: DATES.HIGH_RISK_ANNEX_III,
+    appliesFrom: DATES.GENERAL,
     citations: [
       aiActArticle(49, '(1)', 'Registration of high-risk AI systems'),
       aiActArticle(49, '(2)', 'Registration where the provider claims the Article 6(3) derogation'),
       aiActArticle(6, '(4)', 'Documented assessment where a provider considers a system not high-risk'),
     ],
-    appliesWhen: whenHighRisk,
+    appliesWhen: whenHighRiskOrDerogated,
     evaluate: (ctx) => {
       const ev = evidenceFrom(ctx, 'governance.registration');
       return ev.length > 0
@@ -1331,22 +1417,26 @@ export const EU_AI_ACT_PACK: RulePack = {
   ],
   penalty: {
     currency: 'EUR',
+    smeInversion: true,
     description:
       'Administrative fines under Article 99. For SMEs and start-ups, Article 99(6) inverts the rule: the cap is the lower of the two figures, not the higher.',
     tiers: [
       {
+        id: 'art99-3',
         label: 'Prohibited practices (Article 5)',
         amount: 35_000_000,
         turnoverPct: 7,
         citation: aiActArticle(99, '(3)', 'Penalties — prohibited practices'),
       },
       {
+        id: 'art99-4',
         label: 'Provider, deployer and Article 50 transparency obligations',
         amount: 15_000_000,
         turnoverPct: 3,
         citation: aiActArticle(99, '(4)', 'Penalties — other obligations'),
       },
       {
+        id: 'art99-5',
         label: 'Incorrect, incomplete or misleading information to authorities',
         amount: 7_500_000,
         turnoverPct: 1,

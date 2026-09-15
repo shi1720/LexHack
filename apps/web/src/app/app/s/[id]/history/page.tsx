@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { diffReports } from '@annex/engine';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { getSystem, latestReport, listScans, previousReport } from '@/server/systems';
 import { Empty, Panel, Stat } from '@/components/primitives';
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function HistoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) notFound();
 

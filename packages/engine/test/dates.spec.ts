@@ -6,63 +6,89 @@ import { DATES } from '../src/packs/eu-ai-act.js';
  * The product's own thesis, applied to itself.
  *
  * Annex's central claim is that "every control carries its own application
- * date" — which is only worth saying if the dates are right. They were not:
- * Article 25 sits in Chapter III Section 3 and was dated as generally
- * applicable, because a human typed a constant and nothing checked it.
+ * date" — which is only worth saying if the dates are right. They were not,
+ * twice. Article 25 was marked generally applicable when it sits in Chapter III
+ * Section 3. Then Articles 49, 72 and 73 were dated with the high-risk regime
+ * because that is what a practitioner would *expect*, even though Article 113
+ * says otherwise and our own research note said so too.
  *
- * So the structure of the Regulation is written down once, here, and every
- * control is checked against it. The table below is derived from Article 113
- * as amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI):
+ * The second mistake is the instructive one: the first version of this file
+ * was an article→date map, and a map can be tuned until the controls pass. So
+ * the table below records where each article **sits in the Regulation**, and
+ * the date is derived from that. Getting a control's date wrong now requires
+ * misstating which chapter an article is in, which is a harder thing to do by
+ * accident and an obvious thing to review.
  *
- *   ¶1  2 February 2025 — Chapters I and II (definitions, AI literacy,
- *       prohibited practices).
- *   ¶2  2 August 2025 — Chapter V (GPAI models), Chapter XII, Article 78,
- *       and the governance and penalty provisions other than Article 101.
- *   ¶3  2 August 2026 — general application, which is where Chapter IV
- *       (Article 50) lives and where it stayed when the Omnibus moved
- *       everything around it.
- *   ¶4  2 December 2027 — Chapter III Sections 1, 2 and 3 (with the exception
- *       of Article 6(5)) as regards Annex III high-risk systems.
- *   ¶5  2 August 2028 — the same, as regards Annex I high-risk systems.
+ * Article 113 as amended by Regulation (EU) 2026/1744:
  *
- * A control whose article is not in the table fails loudly rather than being
- * quietly skipped: an obligation nobody has placed in the Regulation's
- * structure is an obligation whose date nobody has checked.
+ *   ¶1  2 February 2025 — Chapters I and II.
+ *   ¶2  2 August 2026   — general application: everything not otherwise named,
+ *                         which is where Chapter IV (Article 50), Chapter III
+ *                         Sections 4 and 5, and Chapter IX all sit.
+ *   ¶4  2 December 2027 — Chapter III **Sections 1, 2 and 3**, as regards
+ *                         Annex III high-risk systems.
+ *   ¶5  2 August 2028   — the same sections, as regards Annex I.
  */
 
-type Expected = keyof typeof DATES;
+type Placement =
+  | 'chapter-i'
+  | 'chapter-ii'
+  | 'chapter-iii-s1'
+  | 'chapter-iii-s2'
+  | 'chapter-iii-s3'
+  | 'chapter-iii-s5'
+  | 'chapter-iv'
+  | 'chapter-ix';
 
-/** EU AI Act article number -> the Article 113 paragraph that switches it on. */
-const ARTICLE_APPLICATION: Record<number, Expected> = {
-  3: 'GENERAL', // definitions apply from 2 Feb 2025, but a duty anchored to them
-  //              binds when the duty does; see the role-determination control.
-  4: 'PROHIBITIONS', // Chapter I — AI literacy
-  5: 'PROHIBITIONS', // Chapter II — prohibited practices
-  9: 'HIGH_RISK_ANNEX_III', // Chapter III Section 2
-  10: 'HIGH_RISK_ANNEX_III',
-  11: 'HIGH_RISK_ANNEX_III',
-  12: 'HIGH_RISK_ANNEX_III',
-  13: 'HIGH_RISK_ANNEX_III',
-  14: 'HIGH_RISK_ANNEX_III',
-  15: 'HIGH_RISK_ANNEX_III',
-  16: 'HIGH_RISK_ANNEX_III', // Chapter III Section 3
-  17: 'HIGH_RISK_ANNEX_III',
-  19: 'HIGH_RISK_ANNEX_III',
-  25: 'HIGH_RISK_ANNEX_III',
-  43: 'HIGH_RISK_ANNEX_III', // Chapter III Section 5
-  47: 'HIGH_RISK_ANNEX_III',
-  49: 'HIGH_RISK_ANNEX_III',
-  50: 'GENERAL', // Chapter IV — untouched by the Omnibus
-  72: 'HIGH_RISK_ANNEX_III', // Chapter IX, but the duty attaches to a regulated
-  73: 'HIGH_RISK_ANNEX_III', // high-risk system, which cannot exist before then
+/** Where each article sits. This is a fact about the Regulation's structure. */
+const PLACEMENT: Record<number, Placement> = {
+  3: 'chapter-i', // Definitions
+  4: 'chapter-i', // AI literacy
+  5: 'chapter-ii', // Prohibited practices
+  6: 'chapter-iii-s1', // Classification rules
+  9: 'chapter-iii-s2', // Requirements for high-risk systems
+  10: 'chapter-iii-s2',
+  11: 'chapter-iii-s2',
+  12: 'chapter-iii-s2',
+  13: 'chapter-iii-s2',
+  14: 'chapter-iii-s2',
+  15: 'chapter-iii-s2',
+  16: 'chapter-iii-s3', // Obligations of providers and deployers
+  17: 'chapter-iii-s3',
+  19: 'chapter-iii-s3',
+  25: 'chapter-iii-s3',
+  43: 'chapter-iii-s5', // Conformity assessment, certificates, registration
+  47: 'chapter-iii-s5',
+  48: 'chapter-iii-s5',
+  49: 'chapter-iii-s5',
+  50: 'chapter-iv', // Transparency obligations
+  72: 'chapter-ix', // Post-market monitoring, information sharing, surveillance
+  73: 'chapter-ix',
 };
 
-/** Controls whose date deliberately differs, each with the reason. */
+/** Article 113 maps a placement to a date. Nothing else does. */
+const APPLIES_FROM: Record<Placement, string> = {
+  'chapter-i': DATES.PROHIBITIONS,
+  'chapter-ii': DATES.PROHIBITIONS,
+  'chapter-iii-s1': DATES.HIGH_RISK_ANNEX_III,
+  'chapter-iii-s2': DATES.HIGH_RISK_ANNEX_III,
+  'chapter-iii-s3': DATES.HIGH_RISK_ANNEX_III,
+  'chapter-iii-s5': DATES.GENERAL,
+  'chapter-iv': DATES.GENERAL,
+  'chapter-ix': DATES.GENERAL,
+};
+
+/**
+ * Controls whose date deliberately differs from their article's placement,
+ * each because the Regulation says so somewhere else.
+ */
 const DELIBERATE_EXCEPTIONS: Record<string, string> = {
   'eu-ai-act.art5.ncii-csam-safeguards':
-    'New Article 5(1)(ba) and (bb), inserted by the Omnibus, apply from 2 December 2026 rather than with the rest of Article 5.',
+    'New Article 5(1)(ba) and (bb), inserted by Regulation (EU) 2026/1744, apply from 2 December 2026 rather than with the rest of Article 5.',
   'eu-ai-act.art50.2.content-marking':
     'Article 111(4) gives generative systems already on the market before 2 August 2026 until 2 December 2026 to comply with the marking duty.',
+  'eu-ai-act.art3.role-determination':
+    'Article 3 is a definitions provision and imposes no duty of its own. The control is anchored to the Article 50 consequence of the determination, which is what binds today.',
 };
 
 function articleOf(locator: string): number | undefined {
@@ -73,7 +99,7 @@ function articleOf(locator: string): number | undefined {
 describe('application dates are derived from Article 113, not typed by hand', () => {
   const euPack = ALL_PACKS.find((p) => p.id === 'eu-ai-act');
 
-  it('places every EU AI Act control on the date its article actually applies', () => {
+  it('dates every EU AI Act control from where its article sits in the Regulation', () => {
     expect(euPack).toBeDefined();
     const wrong: string[] = [];
 
@@ -84,19 +110,36 @@ describe('application dates are derived from Article 113, not typed by hand', ()
         wrong.push(`${control.id}: no EU AI Act article in its citations`);
         continue;
       }
-      const expected = ARTICLE_APPLICATION[article];
-      if (!expected) {
-        wrong.push(`${control.id}: Article ${article} is not in the Article 113 table — add it with its chapter and section`);
+      const placement = PLACEMENT[article];
+      if (!placement) {
+        wrong.push(
+          `${control.id}: Article ${article} is not placed in the table — record its chapter and section rather than guessing a date`,
+        );
         continue;
       }
-      if (control.appliesFrom !== DATES[expected]) {
+      const expected = APPLIES_FROM[placement];
+      if (control.appliesFrom !== expected) {
         wrong.push(
-          `${control.id}: Article ${article} applies from ${DATES[expected]} (${expected}), but the control says ${control.appliesFrom}`,
+          `${control.id}: Article ${article} is in ${placement}, which Article 113 switches on at ${expected}, but the control says ${control.appliesFrom}`,
         );
       }
     }
 
     expect(wrong, wrong.join('\n')).toEqual([]);
+  });
+
+  it('keeps Chapter III Sections 4 and 5 and Chapter IX in force while Sections 1-3 are deferred', () => {
+    // The oddity the Omnibus created, and the one this corpus got wrong once:
+    // registration, post-market monitoring and serious-incident reporting all
+    // apply thirteen months before the requirements they attach to.
+    expect(APPLIES_FROM['chapter-iii-s5']).toBe('2026-08-02');
+    expect(APPLIES_FROM['chapter-ix']).toBe('2026-08-02');
+    expect(APPLIES_FROM['chapter-iii-s2']).toBe('2027-12-02');
+
+    const byId = Object.fromEntries(euPack!.controls.map((c) => [c.id, c.appliesFrom]));
+    expect(byId['eu-ai-act.art49.registration']).toBe('2026-08-02');
+    expect(byId['eu-ai-act.art72.post-market-monitoring']).toBe('2026-08-02');
+    expect(byId['eu-ai-act.art73.incident-reporting']).toBe('2026-08-02');
   });
 
   it('keeps Article 50 in force while the high-risk regime is deferred', () => {

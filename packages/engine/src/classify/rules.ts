@@ -18,6 +18,17 @@ export interface ClassificationRule {
   suppressedBy?: string[];
   /** Signals that cancel a suppression — the carve-out's own carve-out. */
   suppressionLiftedBy?: string[];
+  /**
+   * Which instrument this rule classifies under.
+   *
+   * `RiskTier` is the AI Act's lattice — prohibited, high, transparency,
+   * minimal — and only AI Act rules may set it. A GDPR Article 22 finding
+   * tiered `high` made the summary read "High-risk under Annex III" for a
+   * system in no Annex III use case, and switched on the whole Chapter III
+   * stack behind it. Article 22 is a restriction on processing; it is not
+   * an Annex III classification and cannot produce one.
+   */
+  regime?: 'eu-ai-act' | 'gdpr';
   baseConfidence: number;
   /** Carve-out or nuance an operator must confirm. Shown as a review prompt. */
   caveat?: string;
@@ -47,6 +58,9 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       ),
       aiActArticle(99, '(3)', 'Penalties — up to EUR 35 000 000 or 7 % of worldwide annual turnover'),
     ],
+    // Recital 18 again: a physical state is not an emotion, so the
+    // prohibition is not engaged rather than exempted.
+    suppressedBy: ['domain.physical-state'],
     requires: ['domain.emotion.recognition'],
     requiresAny: ['domain.employment.screening', 'domain.employment.management', 'domain.education.assessment'],
     boosts: ['ai.inference.call', 'domain.biometric.identification'],
@@ -123,7 +137,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
   },
 
   // ---------------------------------------------------------------------
-  // Annex III — high-risk. General application from 2 August 2026.
+  // Annex III — high-risk. Chapter III Sections 1-3 apply from 2 December 2027
+  // for these systems; the classification itself is what these rules produce.
   // ---------------------------------------------------------------------
   {
     id: 'annex-iii.4a.recruitment',
@@ -248,6 +263,13 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     basis:
       'The system infers emotions from biometric data outside workplace and education settings — Annex III, point 1(c). Inside those settings it is prohibited under Article 5(1)(f).',
     citations: [aiActAnnex('III', '1(c)', 'High-risk AI systems — emotion recognition')],
+    // Recital 18: the notion of emotion recognition "does not include
+    // physical states, such as pain or fatigue, including, for example,
+    // systems used in detecting the state of fatigue of professional pilots or
+    // drivers for the purpose of preventing accidents". Fatigue never enters
+    // the Article 3(39) definition, so this is a definitional exclusion rather
+    // than an exemption — the provision is not engaged at all.
+    suppressedBy: ['domain.physical-state'],
     requires: ['domain.emotion.recognition'],
     baseConfidence: 0.65,
   },
@@ -372,8 +394,10 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
   // ---------------------------------------------------------------------
   {
     id: 'gdpr.art22.automated-decision',
-    // A restriction on processing plus a bundle of data-subject rights. It is
-    // not a transparency duty, and labelling it one propagated into the UI.
+    regime: 'gdpr',
+    // The tier here is a severity hint for the UI only: `regime: 'gdpr'` keeps
+    // this finding out of the AI Act lattice entirely, so it can neither set
+    // the reported risk tier nor switch on Chapter III.
     tier: 'high',
     title: 'Solely automated decision with legal or similarly significant effect',
     basis:

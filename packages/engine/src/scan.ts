@@ -46,6 +46,7 @@ export function defaultProfile(snapshot: RepoSnapshot, overrides: Partial<System
     ...(overrides.employees !== undefined ? { employees: overrides.employees } : {}),
     ...(overrides.attestations ? { attestations: overrides.attestations } : {}),
     ...(overrides.tierOverride ? { tierOverride: overrides.tierOverride } : {}),
+    ...(overrides.article6_3Derogation ? { article6_3Derogation: overrides.article6_3Derogation } : {}),
   };
 }
 

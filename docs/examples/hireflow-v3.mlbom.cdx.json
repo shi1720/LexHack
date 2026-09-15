@@ -4,7 +4,7 @@
   "serialNumber": "urn:uuid:ff7802f0-a0b1-4cd4-acd8-6b99951863b8",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-15T19:35:30.052Z",
+    "timestamp": "2026-09-15T20:15:55.457Z",
     "tools": {
       "components": [
         {
@@ -18,7 +18,7 @@
       "type": "application",
       "bom-ref": "component:hireflow-remediated",
       "name": "hireflow-remediated",
-      "version": "2ef661459b56"
+      "version": "8b0296080342"
     },
     "properties": [
       {
@@ -31,11 +31,11 @@
       },
       {
         "name": "annex:conformityScore",
-        "value": "74"
+        "value": "76"
       },
       {
         "name": "annex:ledgerRoot",
-        "value": "1d8654777d80f2d241343d2beb854f974c6c6f1a93f5e5056208d753740d1378"
+        "value": "3231910fdbe86573bad8047932f55c492454bc7459e8c5944ff4582e2ba7e0de"
       }
     ]
   },
@@ -58,6 +58,10 @@
             {
               "name": "Employment: recruitment and candidate selection",
               "mitigationStrategy": "EU AI Act Annex III, point 4(a)"
+            },
+            {
+              "name": "Solely automated decision with legal or similarly significant effect",
+              "mitigationStrategy": "GDPR Art. 22(1)"
             },
             {
               "name": "Direct interaction with natural persons",

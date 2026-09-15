@@ -71,7 +71,7 @@ const METHOD_STATEMENT = `This document was compiled by Annex directly from the 
 
 1. **Evidenced.** The statement is supported by one or more citations to a file and a line in the repository. Each citation carries the SHA-256 digest of the file it came from, recorded in Appendix B.
 2. **No evidence found.** The engine searched the whole snapshot and found nothing supporting the statement. The negative finding is recorded rather than omitted.
-3. **Open.** The determination requires a judgement that cannot be derived from source code — a residual-risk acceptance, a declared accuracy level, an accountable person. These are listed per section and summarised on the front page. They are left blank deliberately: a generated document that invents them would be a false statement to a competent authority, which Article 99(5) prices at EUR 7 500 000 or 1 % of worldwide annual turnover.
+3. **Open.** The determination requires a judgement that cannot be derived from source code — a residual-risk acceptance, a declared accuracy level, an accountable person. These are listed per section and summarised on the front page. They are left blank deliberately. A generated document that invents them would be a false statement about the system, and where such a statement is supplied to a notified body or a national competent authority in reply to a request, Article 99(5) prices it at EUR 7 500 000 or 1 % of worldwide annual turnover.
 
 No language model participated in any determination in this document. Classification and control evaluation are rule-based, deterministic and offline; the same commit always produces the same evidence ledger root. Where a language model contributed narrative prose, the section says so.
 

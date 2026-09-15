@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ALL_PACKS, ledgerFingerprint } from '@annex/engine';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
 import { EvidenceExplorer } from '@/components/evidence-explorer';
 import { Empty, Panel } from '@/components/primitives';
@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function EvidencePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) notFound();
   const latest = latestReport(system.id);

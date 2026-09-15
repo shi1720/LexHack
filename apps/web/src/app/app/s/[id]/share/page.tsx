@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { getSystem, latestReport, updateSystem } from '@/server/systems';
 import { Panel } from '@/components/primitives';
 import { CopyButton } from '@/components/copy-button';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 async function toggleTrust(formData: FormData) {
   'use server';
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const id = String(formData.get('id'));
   const system = getSystem(id, user.id);
   if (!system) return;
@@ -20,7 +20,7 @@ async function toggleTrust(formData: FormData) {
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) return notFound();
   const latest = latestReport(system.id);

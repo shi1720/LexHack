@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MARKET_PACKS, parseGitHubUrl } from '@annex/engine';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { SAMPLES, createSystem, runScan } from '@/server/systems';
 import { Panel } from '@/components/primitives';
 
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 async function addSample(formData: FormData) {
   'use server';
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const key = String(formData.get('sample'));
   const sample = SAMPLES.find((s) => s.key === key);
   if (!sample) redirect('/app/new?error=' + encodeURIComponent('Unknown sample.'));
@@ -32,7 +32,7 @@ async function addSample(formData: FormData) {
 
 async function addRepo(formData: FormData) {
   'use server';
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const source = String(formData.get('repo') ?? '').trim();
   const purpose = String(formData.get('purpose') ?? '').trim();
   const markets = formData.getAll('markets').map(String);

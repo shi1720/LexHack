@@ -68,6 +68,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'colorado-admt.adverse-explanation',
+    requiresWiring: true,
     title: 'Explain an adverse outcome within thirty days',
     obligation:
       'On an adverse outcome materially influenced by covered ADMT, the deployer must provide within thirty days a plain-language description of the decision and the technology\'s role in it, a simple process to request more information, and an explanation of the consumer\'s rights.',
@@ -128,6 +129,8 @@ const controls: Control[] = [
             'export function reasonCodes(features) {\n  return featureImportance(features).map((f) => ({ reason_code: f.name, rationale: f.why }));\n}\n',
           'src/adverse.ts':
             'export async function sendAdverseActionNotice(applicationId, features) {\n  const explanation = reasonCodes(features);\n  return notify({ applicationId, adverse_outcome: true, explanation, dueWithinDays: 30 });\n}\n',
+          'src/routes.ts':
+            'import { sendAdverseActionNotice } from "./adverse";\n\nexport async function POST(request) {\n  const body = await request.json();\n  return sendAdverseActionNotice(body.applicationId, body.features);\n}\n',
         },
         expect: 'satisfied',
       },
@@ -135,6 +138,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'colorado-admt.human-review-override',
+    requiresWiring: true,
     title: 'Designated reviewers authorised to override',
     obligation:
       'A deployer must designate trained individuals authorised to override the technology\'s outcome during human review, and consumers have a right to meaningful human review and reconsideration after an adverse outcome, to the extent commercially reasonable.',
@@ -194,6 +198,8 @@ const controls: Control[] = [
             'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  const loanDecision = creditScore > 640 ? "approve" : "decline";\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: loanDecision };\n}\n',
           'src/review.ts':
             'export async function queueForHumanReview(applicationId) {\n  return db.reviews.create({ applicationId, status: "pending_review" });\n}\n\nexport async function overrideDecision(applicationId, reviewerId, newOutcome) {\n  await queueForHumanReview(applicationId);\n  return db.decisions.update({ applicationId, manual_override: true, reviewerId, newOutcome });\n}\n',
+          'src/routes.ts':
+            'import { overrideDecision, queueForHumanReview } from "./review";\n\nexport async function POST(request) {\n  const body = await request.json();\n  await queueForHumanReview(body.applicationId);\n  return overrideDecision(body.applicationId, body.reviewerId, body.outcome);\n}\n',
         },
         expect: 'satisfied',
       },

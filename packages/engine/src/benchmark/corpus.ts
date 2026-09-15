@@ -54,6 +54,34 @@ def predict(features):
 
 export const BENCHMARK: BenchmarkCase[] = [
   {
+    id: 'carveout.prose-in-block-comments',
+    description: 'Service whose design note and docstring list the AI features it rejected',
+    tier: 'unknown',
+    forbidFindings: ['annex-iii.4a.recruitment', 'annex-iii.1c.emotion', 'art5.1f.emotion-workplace', 'art5.1g.biometric-categorisation'],
+    rationale:
+      'The first version of the comment fix only skipped lines that *begin* with a marker, which left the interior of a block comment and of a Python docstring looking exactly like code. A repository containing nothing but prose classified high-risk and cited the sentence saying the opposite as its evidence. This case is the one the earlier corpus case should have been. The expected tier is `unknown` because there is no AI code here at all — only prose about AI, which is exactly the point.',
+    files: {
+      'package.json': pkg('prose-only'),
+      'src/notes.ts': `/*
+ * Design note.
+ *
+ * We deliberately do NOT do emotion detection on candidates, and we do not
+ * score or rank applicants. Facial expression analysis and micro-expression
+ * recognition were both rejected during design review.
+ */
+export const REJECTED_FEATURES = 6;
+`,
+      'src/policy.py': `def policy():
+    """
+    Our policy: no emotion recognition, no affect detection, no candidate
+    scoring, no applicant ranking, no biometric categorisation by ethnicity.
+    """
+    return None
+`,
+    },
+  },
+
+  {
     id: 'carveout.prose-in-comments',
     description: 'Payments service whose comments explain the AI rules it deliberately avoids',
     tier: 'transparency',
@@ -119,10 +147,10 @@ export async function groupPortraits(faces: string[]) {
   {
     id: 'hard.driver-drowsiness',
     description: 'In-car camera detecting driver drowsiness',
-    tier: 'high',
-    forbidFindings: ['art5.1f.emotion-workplace'],
+    tier: 'minimal',
+    forbidFindings: ['art5.1f.emotion-workplace', 'annex-iii.1c.emotion'],
     rationale:
-      'Article 5(1)(f) carves out emotion inference put in place for medical or safety reasons, and a drowsiness detector is the paradigm safety case. It is still a safety component of a vehicle, so it does not fall out of the Act altogether.',
+      'Recital 18 is explicit that the notion of emotion recognition does not include physical states such as pain or fatigue, "including, for example, systems used in detecting the state of fatigue of professional pilots or drivers for the purpose of preventing accidents". Fatigue never enters the Article 3(39) definition, so this is not an Article 5(1)(f) exemption case — the provision is not engaged at all. As a safety component of a vehicle it is an Annex I product, and Article 2(2) limits the Act to Article 6(1), Articles 102-109 and Article 112 for those, so the Chapter III stack does not attach either.',
     files: {
       'package.json': pkg('drowsiness', { 'scikit-learn': '^1.4.0' }),
       'detect.py': `${SKLEARN_CALL}
@@ -190,19 +218,24 @@ export async function summarise(text: string) {
     id: 'derogation.narrow-procedural-claimed',
     description: 'Routes inbound CVs to the right requisition by job family, with no scoring',
     tier: 'minimal',
-    profile: { article63Derogation: 'narrow-procedural' },
+    profile: { article6_3Derogation: 'narrow-procedural' },
+    expectFindings: ['annex-iii.4a.recruitment'],
     rationale:
-      'Annex III point 4(a) is engaged on the face of it, but the operator has claimed the Article 6(3)(a) narrow-procedural-task derogation and no profiling of natural persons appears in the code. Annex applies the claim, and adds the Article 6(4) documentation duty and the Article 49(2) registration duty that survive it.',
+      'Annex III point 4(a) is engaged on the face of it — the finding fires and stays in the record — but the operator has claimed the Article 6(3)(a) narrow-procedural-task derogation and no profiling of natural persons appears in the code, so the tier drops. The Article 6(4) documentation duty and the Article 49(2) registration duty survive the claim. Without the finding firing, this case would pass for the wrong reason, which is what it did until a test went looking.',
     files: {
       'package.json': pkg('cv-router', { 'scikit-learn': '^1.4.0' }),
       'router.py': `${SKLEARN_CALL}
-FAMILIES = ["engineering", "sales", "finance"]
 
 
-def route_applicant(resume_text, candidate_id):
+def parse_resume(resume_text):
+    """Extract structured fields from an applicant CV."""
+    return {"skills": [], "years": 0}
+
+
+def route_applicant(resume_text, candidate_id, job_requisition):
     """Place an applicant CV on the right requisition queue. No ranking."""
-    family = FAMILIES[predict([resume_text]).argmax()]
-    return {"requisition_family": family, "candidate_id": candidate_id, "applicant": True}
+    parsed = parse_resume(resume_text)
+    return {"job_requisition": job_requisition, "candidate_id": candidate_id, "applicant": True, "parsed": parsed}
 `,
     },
   },
@@ -210,7 +243,7 @@ def route_applicant(resume_text, candidate_id):
     id: 'derogation.blocked-by-profiling',
     description: 'CV router that also builds a candidate profile and a propensity score',
     tier: 'high',
-    profile: { article63Derogation: 'narrow-procedural' },
+    profile: { article6_3Derogation: 'narrow-procedural' },
     expectFindings: ['annex-iii.4a.recruitment'],
     rationale:
       'The final subparagraph of Article 6(3) closes the derogation for any system performing profiling of natural persons, whichever limb is relied on. Claiming it here must not demote the system.',
@@ -224,10 +257,15 @@ def build_candidate_profile(resume_text):
     return {"segment_user": "senior", "predict_performance": 0.7, "user_profile": resume_text}
 
 
-def score_candidate(resume_text, applicant_id):
+def parse_resume(resume_text):
+    """Extract structured fields from an applicant CV."""
+    return {"skills": [], "years": 0}
+
+
+def score_candidate(resume_text, applicant_id, job_requisition):
     candidate_profile = build_candidate_profile(resume_text)
     propensity_score = predict([resume_text])[0]
-    return {"applicant_id": applicant_id, "shortlist": propensity_score > 0.7, "candidate_profile": candidate_profile}
+    return {"applicant_id": applicant_id, "shortlist": propensity_score > 0.7, "candidate_profile": candidate_profile, "job_requisition": job_requisition}
 `,
     },
   },
@@ -235,7 +273,7 @@ def score_candidate(resume_text, applicant_id):
     id: 'derogation.claimed-but-not-annex-iii',
     description: 'Internal document tagger that claims a derogation it does not need',
     tier: 'minimal',
-    profile: { article63Derogation: 'preparatory' },
+    profile: { article6_3Derogation: 'preparatory' },
     rationale:
       'A derogation from a classification the system never had is not a finding. Annex records that the claim had nothing to displace rather than reporting a successful derogation.',
     files: {
@@ -693,11 +731,10 @@ export async function extractReceipt(image: string) {
   {
     id: 'carveout.wellbeing-journal',
     description: 'Consumer mood journalling app',
-    tier: 'high',
-    expectFindings: ['annex-iii.1c.emotion'],
-    forbidFindings: ['art5.1f.emotion-workplace'],
+    tier: 'transparency',
+    forbidFindings: ['annex-iii.1c.emotion', 'art5.1f.emotion-workplace'],
     rationale:
-      'Emotion inference outside a workplace or education setting is Annex III, point 1(c) high-risk, not an Art. 5(1)(f) prohibition. Getting this boundary right is the difference between "fix this" and "this is illegal".',
+      'Article 3(39) defines an emotion recognition system as one inferring emotions or intentions **on the basis of biometric data**, and Annex III point 1(c) uses that defined term. Sentiment over text a person typed is not biometric data, so neither the high-risk classification nor the Article 5(1)(f) prohibition is engaged. This case was labelled high-risk in an earlier version of the corpus, which is how a benchmark can be at 100% and still be wrong.',
     files: {
       'package.json': pkg('moodlog'),
       'src/mood.ts': `${OPENAI_CALL}

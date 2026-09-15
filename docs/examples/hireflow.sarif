@@ -454,7 +454,7 @@
               },
               "help": {
                 "text": "Article 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.\n\nDefine the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one.\n\nEU AI Act Art. 72(1) — Post-market monitoring by providers: https://artificialintelligenceact.eu/article/72/\nEU AI Act Annex IV, point 9 — Technical documentation — post-market monitoring plan: https://artificialintelligenceact.eu/annex/iv/",
-                "markdown": "**Post-market monitoring plan**\nArticle 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.\n**How to close it:** Define the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one.\n**Citations**\n- [EU AI Act Art. 72(1) — Post-market monitoring by providers](https://artificialintelligenceact.eu/article/72/)\n- [EU AI Act Annex IV, point 9 — Technical documentation — post-market monitoring plan](https://artificialintelligenceact.eu/annex/iv/)\n_In force from 2027-12-02._"
+                "markdown": "**Post-market monitoring plan**\nArticle 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.\n**How to close it:** Define the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one.\n**Citations**\n- [EU AI Act Art. 72(1) — Post-market monitoring by providers](https://artificialintelligenceact.eu/article/72/)\n- [EU AI Act Annex IV, point 9 — Technical documentation — post-market monitoring plan](https://artificialintelligenceact.eu/annex/iv/)\n_In force from 2026-08-02._"
               },
               "defaultConfiguration": {
                 "level": "error"
@@ -464,7 +464,7 @@
                   "compliance",
                   "eu-ai-act",
                   "post-market",
-                  "upcoming"
+                  "in-force"
                 ],
                 "security-severity": "7.5",
                 "precision": "high"
@@ -481,7 +481,7 @@
               },
               "help": {
                 "text": "Article 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.\n\nWrite the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation.\n\nEU AI Act Art. 73(2) — Reporting of serious incidents — 15-day default: https://artificialintelligenceact.eu/article/73/\nEU AI Act Art. 73(3) — Reporting of serious incidents — 2 days: https://artificialintelligenceact.eu/article/73/\nEU AI Act Art. 73(4) — Reporting of serious incidents — 10 days where a person has died: https://artificialintelligenceact.eu/article/73/",
-                "markdown": "**Serious incident reporting procedure**\nArticle 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.\n**How to close it:** Write the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation.\n**Citations**\n- [EU AI Act Art. 73(2) — Reporting of serious incidents — 15-day default](https://artificialintelligenceact.eu/article/73/)\n- [EU AI Act Art. 73(3) — Reporting of serious incidents — 2 days](https://artificialintelligenceact.eu/article/73/)\n- [EU AI Act Art. 73(4) — Reporting of serious incidents — 10 days where a person has died](https://artificialintelligenceact.eu/article/73/)\n_In force from 2027-12-02._"
+                "markdown": "**Serious incident reporting procedure**\nArticle 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.\n**How to close it:** Write the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation.\n**Citations**\n- [EU AI Act Art. 73(2) — Reporting of serious incidents — 15-day default](https://artificialintelligenceact.eu/article/73/)\n- [EU AI Act Art. 73(3) — Reporting of serious incidents — 2 days](https://artificialintelligenceact.eu/article/73/)\n- [EU AI Act Art. 73(4) — Reporting of serious incidents — 10 days where a person has died](https://artificialintelligenceact.eu/article/73/)\n_In force from 2026-08-02._"
               },
               "defaultConfiguration": {
                 "level": "error"
@@ -491,7 +491,7 @@
                   "compliance",
                   "eu-ai-act",
                   "incident-response",
-                  "upcoming"
+                  "in-force"
                 ],
                 "security-severity": "7.5",
                 "precision": "high"
@@ -508,7 +508,7 @@
               },
               "help": {
                 "text": "Article 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.\n\nRegister the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4).\n\nEU AI Act Art. 49(1) — Registration of high-risk AI systems: https://artificialintelligenceact.eu/article/49/\nEU AI Act Art. 49(2) — Registration where the provider claims the Article 6(3) derogation: https://artificialintelligenceact.eu/article/49/\nEU AI Act Art. 6(4) — Documented assessment where a provider considers a system not high-risk: https://artificialintelligenceact.eu/article/6/",
-                "markdown": "**Registration in the EU database**\nArticle 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.\n**How to close it:** Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4).\n**Citations**\n- [EU AI Act Art. 49(1) — Registration of high-risk AI systems](https://artificialintelligenceact.eu/article/49/)\n- [EU AI Act Art. 49(2) — Registration where the provider claims the Article 6(3) derogation](https://artificialintelligenceact.eu/article/49/)\n- [EU AI Act Art. 6(4) — Documented assessment where a provider considers a system not high-risk](https://artificialintelligenceact.eu/article/6/)\n_In force from 2027-12-02._"
+                "markdown": "**Registration in the EU database**\nArticle 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.\n**How to close it:** Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4).\n**Citations**\n- [EU AI Act Art. 49(1) — Registration of high-risk AI systems](https://artificialintelligenceact.eu/article/49/)\n- [EU AI Act Art. 49(2) — Registration where the provider claims the Article 6(3) derogation](https://artificialintelligenceact.eu/article/49/)\n- [EU AI Act Art. 6(4) — Documented assessment where a provider considers a system not high-risk](https://artificialintelligenceact.eu/article/6/)\n_In force from 2026-08-02._"
               },
               "defaultConfiguration": {
                 "level": "warning"
@@ -518,9 +518,63 @@
                   "compliance",
                   "eu-ai-act",
                   "registration",
-                  "upcoming"
+                  "in-force"
                 ],
                 "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "gdpr.art22.human-intervention",
+              "name": "GdprArt22HumanIntervention",
+              "shortDescription": {
+                "text": "Right to human intervention in an automated decision"
+              },
+              "fullDescription": {
+                "text": "Article 22(1) gives a data subject the right not to be subject to a decision based solely on automated processing which produces legal effects or similarly significantly affects them. Where such processing is permitted, Article 22(3) requires safeguards including at least the right to obtain human intervention, to express a point of view, and to contest the decision."
+              },
+              "help": {
+                "text": "Article 22(1) gives a data subject the right not to be subject to a decision based solely on automated processing which produces legal effects or similarly significantly affects them. Where such processing is permitted, Article 22(3) requires safeguards including at least the right to obtain human intervention, to express a point of view, and to contest the decision.\n\nAdd a route for the affected person to reach a human who can review and reverse the decision, and record that the human actually considered it.\n\nGDPR Art. 22(1) — Automated individual decision-making, including profiling: https://gdpr-info.eu/\nGDPR Art. 22(3) — Safeguards — human intervention, point of view, contest: https://gdpr-info.eu/",
+                "markdown": "**Right to human intervention in an automated decision**\nArticle 22(1) gives a data subject the right not to be subject to a decision based solely on automated processing which produces legal effects or similarly significantly affects them. Where such processing is permitted, Article 22(3) requires safeguards including at least the right to obtain human intervention, to express a point of view, and to contest the decision.\n**How to close it:** Add a route for the affected person to reach a human who can review and reverse the decision, and record that the human actually considered it.\n**Citations**\n- [GDPR Art. 22(1) — Automated individual decision-making, including profiling](https://gdpr-info.eu/)\n- [GDPR Art. 22(3) — Safeguards — human intervention, point of view, contest](https://gdpr-info.eu/)\n_In force from 2018-05-25._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "gdpr",
+                  "rights",
+                  "in-force"
+                ],
+                "security-severity": "9.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "gdpr.art13-15.meaningful-information",
+              "name": "GdprArt1315MeaningfulInformation",
+              "shortDescription": {
+                "text": "Meaningful information about the logic involved"
+              },
+              "fullDescription": {
+                "text": "Articles 13(2)(f), 14(2)(g) and 15(1)(h) require the controller, where automated decision-making under Article 22 takes place, to provide meaningful information about the logic involved and the significance and envisaged consequences of the processing for the data subject."
+              },
+              "help": {
+                "text": "Articles 13(2)(f), 14(2)(g) and 15(1)(h) require the controller, where automated decision-making under Article 22 takes place, to provide meaningful information about the logic involved and the significance and envisaged consequences of the processing for the data subject.\n\nProduce reason codes or a short rationale alongside each decision, and store it with the decision so it can be surfaced on a subject access request.\n\nGDPR Art. 13(2)(f) — Information to be provided — logic involved: https://gdpr-info.eu/\nGDPR Art. 15(1)(h) — Right of access — logic involved: https://gdpr-info.eu/",
+                "markdown": "**Meaningful information about the logic involved**\nArticles 13(2)(f), 14(2)(g) and 15(1)(h) require the controller, where automated decision-making under Article 22 takes place, to provide meaningful information about the logic involved and the significance and envisaged consequences of the processing for the data subject.\n**How to close it:** Produce reason codes or a short rationale alongside each decision, and store it with the decision so it can be surfaced on a subject access request.\n**Citations**\n- [GDPR Art. 13(2)(f) — Information to be provided — logic involved](https://gdpr-info.eu/)\n- [GDPR Art. 15(1)(h) — Right of access — logic involved](https://gdpr-info.eu/)\n_In force from 2018-05-25._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "gdpr",
+                  "transparency",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
                 "precision": "high"
               }
             },
@@ -720,11 +774,11 @@
                 "text": "Publish the data retention policy and data sources"
               },
               "fullDescription": {
-                "text": "NYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool's data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days."
+                "text": "6 RCNY § 5-304(d)(1)-(2) requires the employer or agency to post on the employment section of its website the automated employment decision tool's data retention policy, the type of data it collects and the source of that data, together with instructions for making a written request for that information. NYC Admin. Code § 20-871(b)(3) is the enabling provision and sets the thirty-day window for answering such a request."
               },
               "help": {
-                "text": "NYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool's data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days.\n\nPublish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days.\n\nNYC Local Law 144 § 20-871(b)(3) — Data retention policy disclosure: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
-                "markdown": "**Publish the data retention policy and data sources**\nNYC Admin. Code § 20-871(b)(3): publish on the employment section of the website the tool's data retention policy, the type of data collected and the source of the data, with instructions for making a written request for that information, and respond within thirty days.\n**How to close it:** Publish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days.\n**Citations**\n- [NYC Local Law 144 § 20-871(b)(3) — Data retention policy disclosure](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
+                "text": "6 RCNY § 5-304(d)(1)-(2) requires the employer or agency to post on the employment section of its website the automated employment decision tool's data retention policy, the type of data it collects and the source of that data, together with instructions for making a written request for that information. NYC Admin. Code § 20-871(b)(3) is the enabling provision and sets the thirty-day window for answering such a request.\n\nPublish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days.\n\nNYC Local Law 144 6 RCNY § 5-304(d) — Published data retention policy, data types and sources: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page\nNYC Local Law 144 § 20-871(b)(3) — Enabling provision and the thirty-day response window: https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page",
+                "markdown": "**Publish the data retention policy and data sources**\n6 RCNY § 5-304(d)(1)-(2) requires the employer or agency to post on the employment section of its website the automated employment decision tool's data retention policy, the type of data it collects and the source of that data, together with instructions for making a written request for that information. NYC Admin. Code § 20-871(b)(3) is the enabling provision and sets the thirty-day window for answering such a request.\n**How to close it:** Publish the retention policy, data types and data sources, plus instructions for a written request, and answer such requests within thirty days.\n**Citations**\n- [NYC Local Law 144 6 RCNY § 5-304(d) — Published data retention policy, data types and sources](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n- [NYC Local Law 144 § 20-871(b)(3) — Enabling provision and the thirty-day response window](https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page)\n_In force from 2023-07-05._"
               },
               "defaultConfiguration": {
                 "level": "warning"
@@ -752,12 +806,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-15T19:35:29.642Z",
+          "endTimeUtc": "2026-09-15T20:15:55.020Z",
           "properties": {
-            "conformityScore": 3,
-            "liveScore": 2,
+            "conformityScore": 2,
+            "liveScore": 1,
             "riskTier": "prohibited",
-            "ledgerRoot": "160ce181595b69680af20124ac272ab95b8a7a8773974e82e88c37c5d5e74cd3"
+            "ledgerRoot": "c89d4db6fb4209892d7b836ce5160c2acf43304adedc6067c107ec33674444bd"
           }
         }
       ],
@@ -1185,7 +1239,7 @@
           "ruleId": "eu-ai-act.art14.human-oversight",
           "level": "error",
           "message": {
-            "text": "Effective human oversight while the system is in use: No human oversight affordances were found. Implement a human review step (Art. 14(4)(d)), an override path (Art. 14(4)(d)), a stop control (Art. 14(4)(e)). Article 14 is the requirement auditors probe first, because it is the one that decides whether a wrong output becomes a wrong decision."
+            "text": "Effective human oversight while the system is in use: This system applies automated outcomes to people with no human review, no override path and no stop control. Implement a human review step (Art. 14(4)(d)), an override path (Art. 14(4)(d)), a stop control (Art. 14(4)(e)). Article 14 is the requirement auditors probe first, because it is the one that decides whether a wrong output becomes a wrong decision."
           },
           "locations": [
             {
@@ -1350,8 +1404,8 @@
           "properties": {
             "pack": "eu-ai-act",
             "status": "missing",
-            "appliesFrom": "2027-12-02",
-            "inForce": false,
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
             "citation": "EU AI Act Art. 72(1)"
           }
         },
@@ -1379,8 +1433,8 @@
           "properties": {
             "pack": "eu-ai-act",
             "status": "missing",
-            "appliesFrom": "2027-12-02",
-            "inForce": false,
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
             "citation": "EU AI Act Art. 73(2)"
           }
         },
@@ -1408,9 +1462,67 @@
           "properties": {
             "pack": "eu-ai-act",
             "status": "missing",
-            "appliesFrom": "2027-12-02",
-            "inForce": false,
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
             "citation": "EU AI Act Art. 49(1)"
+          }
+        },
+        {
+          "ruleId": "gdpr.art22.human-intervention",
+          "level": "error",
+          "message": {
+            "text": "Right to human intervention in an automated decision: An automated decision is taken about people with no human intervention path and no way to contest it. Add a route for the affected person to reach a human who can review and reverse the decision, and record that the human actually considered it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "gdpr.art22.human-intervention"
+          },
+          "properties": {
+            "pack": "gdpr",
+            "status": "missing",
+            "appliesFrom": "2018-05-25",
+            "inForce": true,
+            "citation": "GDPR Art. 22(1)"
+          }
+        },
+        {
+          "ruleId": "gdpr.art13-15.meaningful-information",
+          "level": "error",
+          "message": {
+            "text": "Meaningful information about the logic involved: No explanation capability and no privacy notice were found. Produce reason codes or a short rationale alongside each decision, and store it with the decision so it can be surfaced on a subject access request."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "gdpr.art13-15.meaningful-information"
+          },
+          "properties": {
+            "pack": "gdpr",
+            "status": "missing",
+            "appliesFrom": "2018-05-25",
+            "inForce": true,
+            "citation": "GDPR Art. 13(2)(f)"
           }
         },
         {
@@ -1642,7 +1754,7 @@
             "status": "missing",
             "appliesFrom": "2023-07-05",
             "inForce": true,
-            "citation": "NYC Local Law 144 § 20-871(b)(3)"
+            "citation": "NYC Local Law 144 6 RCNY § 5-304(d)"
           }
         }
       ]

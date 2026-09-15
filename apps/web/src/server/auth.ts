@@ -1,5 +1,6 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { SignJWT, jwtVerify } from 'jose';
 import { db, installationSecret, newId, nowIso } from './db';
 
@@ -115,6 +116,26 @@ export async function destroySession(): Promise<void> {
   jar.delete(COOKIE);
 }
 
+/**
+ * The signed-in user, or a redirect to the login page.
+ *
+ * Pages used to assert `(await currentUser())!`, which is true right up until
+ * it is not: a session cookie that outlives the row it points at — a reset
+ * database, a deleted account — made every page throw
+ * `Cannot read properties of undefined (reading 'id')` and render a 500. The
+ * layout's own `if (!user) redirect()` did not save them, because in the App
+ * Router a layout and its page render in parallel. Asking for the user and
+ * being sent to sign in are the same operation, so they are one function.
+ */
+export async function requireUser(): Promise<User> {
+  const user = await currentUser();
+  if (!user) {
+    await destroySession();
+    redirect('/login');
+  }
+  return user;
+}
+
 export async function currentUser(): Promise<User | undefined> {
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value;
@@ -157,7 +178,7 @@ export function createUser(input: {
       orgName: input.orgName?.trim() ?? '',
       createdAt: nowIso(),
     });
-  return db().prepare('SELECT * FROM users WHERE id = ?').get(id) as unknown as User;
+  return toUser(db().prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRow);
 }
 
 export function updateUser(id: string, patch: Partial<Pick<User, 'name' | 'orgName' | 'turnoverEur' | 'employees' | 'githubToken'>>): void {

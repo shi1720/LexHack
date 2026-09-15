@@ -15,10 +15,10 @@ it, plus a documentation site that merely *writes about* prohibited practices.
 
 | Metric | Result | What it measures |
 |---|---|---|
-| Risk-tier accuracy | **100.0%** (41/41) | The tier Annex assigns matches the label |
+| Risk-tier accuracy | **100.0%** (42/42) | The tier Annex assigns matches the label |
 | Finding recall | **100.0%** (22/22) | Classification findings a competent reader would make, that Annex makes |
-| Carve-out precision | **100.0%** (29/29) | Findings the statute expressly excludes, that Annex correctly does not make |
-| Runtime | 110 ms | The whole corpus, single-threaded, no network |
+| Carve-out precision | **100.0%** (35/35) | Findings the statute expressly excludes, that Annex correctly does not make |
+| Runtime | 133 ms | The whole corpus, single-threaded, no network |
 
 ## Cases Annex gets wrong
 
@@ -37,10 +37,11 @@ and any obligation whose answer is a judgement rather than a fact about code.
 
 | Case | Expected | Produced | |
 |---|---|---|---|
+| `carveout.prose-in-block-comments` — Service whose design note and docstring list the AI features it rejected | unknown | unknown | ✓ |
 | `carveout.prose-in-comments` — Payments service whose comments explain the AI rules it deliberately avoids | transparency | transparency | ✓ |
 | `hard.obvious-ai-chatbot` — Chat widget branded "AI Assistant" throughout the interface | transparency | transparency | ✓ |
 | `hard.biometric-hair-colour` — Photo app that groups portraits by hair colour | transparency | transparency | ✓ |
-| `hard.driver-drowsiness` — In-car camera detecting driver drowsiness | high | high | ✓ |
+| `hard.driver-drowsiness` — In-car camera detecting driver drowsiness | minimal | minimal | ✓ |
 | `hard.regulated-use-in-sql-only` — Lending model called from Python, with the use case visible only in SQL | high | high | ✓ |
 | `hard.vendored-copy` — Unrelated product that vendors a third-party hiring SDK it never calls | transparency | transparency | ✓ |
 | `derogation.narrow-procedural-claimed` — Routes inbound CVs to the right requisition by job family, with no scoring | minimal | minimal | ✓ |
@@ -70,7 +71,7 @@ and any obligation whose answer is a judgement rather than a fact about code.
 | `carveout.identity-verification` — One-to-one face match against the user's own passport photo | minimal | minimal | ✓ |
 | `carveout.product-ranking` — E-commerce product recommendation ranking | transparency | transparency | ✓ |
 | `carveout.expense-ocr` — Expense receipt OCR for finance teams | minimal | minimal | ✓ |
-| `carveout.wellbeing-journal` — Consumer mood journalling app | high | high | ✓ |
+| `carveout.wellbeing-journal` — Consumer mood journalling app | transparency | transparency | ✓ |
 | `carveout.spam-filter` — Email spam classifier | minimal | minimal | ✓ |
 | `carveout.code-assistant` — IDE code completion assistant | transparency | transparency | ✓ |
 | `carveout.translation` — Document translation service | transparency | transparency | ✓ |

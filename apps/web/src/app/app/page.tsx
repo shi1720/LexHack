@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ALL_PACKS, CORPUS_SIZE } from '@annex/engine';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { listSystems, latestReport } from '@/server/systems';
 import { seedDemoScans } from '@/server/seed-demo';
 import { Empty, Panel, ScoreDial, StatusBadge, TierBadge, money, relativeDays } from '@/components/primitives';
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 const DAY = 86_400_000;
 
 export default async function Dashboard() {
-  const user = (await currentUser())!;
+  const user = await requireUser();
 
   // A first visit lands on populated data, not four spinners.
   await seedDemoScans(user.id, {

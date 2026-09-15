@@ -1,6 +1,6 @@
 import type {
   ActorRole,
-  Article63Assessment,
+  Article6_3Assessment,
   Classification,
   ClassificationFinding,
   RiskTier,
@@ -11,6 +11,11 @@ import { aiActArticle } from '../packs/citations.js';
 import { CLASSIFICATION_RULES, ruleMatches, type ClassificationRule } from './rules.js';
 
 export { CLASSIFICATION_RULES, ruleMatches } from './rules.js';
+
+/** Which instrument each rule classifies under, by rule id. */
+const RULE_REGIME: Record<string, 'eu-ai-act' | 'gdpr'> = Object.fromEntries(
+  CLASSIFICATION_RULES.map((r) => [r.id, r.regime ?? 'eu-ai-act']),
+);
 export type { ClassificationRule } from './rules.js';
 
 const TIER_RANK: Record<RiskTier, number> = {
@@ -85,7 +90,7 @@ export function inferRole(signals: SignalIndex, profile: SystemProfile): ActorRo
   return 'unknown';
 }
 
-const ARTICLE_63_LIMBS: Record<NonNullable<SystemProfile['article63Derogation']>, string> = {
+const ARTICLE_6_3_LIMBS: Record<NonNullable<SystemProfile['article6_3Derogation']>, string> = {
   'narrow-procedural': 'the system performs a narrow procedural task (Article 6(3)(a))',
   'improves-human-activity':
     'the system is intended to improve the result of a previously completed human activity (Article 6(3)(b))',
@@ -101,11 +106,11 @@ const ARTICLE_63_LIMBS: Record<NonNullable<SystemProfile['article63Derogation']>
  * final subparagraph closes the derogation whenever the system performs
  * profiling of natural persons, no matter which limb is relied on.
  */
-function assessArticle63(
-  claimed: NonNullable<SystemProfile['article63Derogation']>,
+function assessArticle6_3(
+  claimed: NonNullable<SystemProfile['article6_3Derogation']>,
   signals: SignalIndex,
   annexIiiFindings: ClassificationFinding[],
-): Article63Assessment {
+): Article6_3Assessment {
   const profiling = signals.get('domain.profiling');
   const citations = [
     aiActArticle(6, '(3)', 'Classification rules for high-risk AI systems — derogation'),
@@ -137,7 +142,7 @@ function assessArticle63(
   return {
     claimed,
     available: true,
-    rationale: `The operator has assessed that ${ARTICLE_63_LIMBS[claimed]}, and no profiling of natural persons was found in the code. On that assessment the system is not high-risk. Article 6(4) requires the assessment to be documented before the system is placed on the market or put into service, and Article 49(2) still requires registration in the EU database. Annex records the claim and checks the profiling limb; it does not make the assessment.`,
+    rationale: `The operator has assessed that the system does not pose a significant risk of harm to the health, safety or fundamental rights of natural persons, including by not materially influencing the outcome of decision making, and that ${ARTICLE_6_3_LIMBS[claimed]}. Both limbs of Article 6(3) are required, and the first is a judgement about consequences that no scanner can make. No profiling of natural persons was found in the code, which is the one limb that is checkable and which would otherwise close the derogation outright. On that assessment the system is not high-risk — but Article 6(4) requires the assessment to be documented before the system is placed on the market or put into service, and Article 49(2) still requires registration in the EU database.`,
     evidence: [],
     citations,
   };
@@ -175,21 +180,24 @@ export function classify(
   findings.sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier] || b.confidence - a.confidence);
 
   const usesAi = signals.hasAny('ai.provider.*', 'ai.inference.call', 'ai.ml.classical', 'ai.framework.agent');
-  const detectedTier: RiskTier = findings[0]?.tier ?? (usesAi ? 'minimal' : 'unknown');
+  // Only AI Act findings set the AI Act tier. A GDPR Article 22 finding is
+  // reported alongside them and never promotes a system into Annex III.
+  const aiActFindings = findings.filter((f) => RULE_REGIME[f.id] !== 'gdpr');
+  const detectedTier: RiskTier = aiActFindings[0]?.tier ?? (usesAi ? 'minimal' : 'unknown');
 
   // Article 6(3), where the operator has claimed it. An Annex III finding that
   // survives the claim is kept in the record with its rationale rewritten, so
   // the dossier shows the derogation being applied rather than the finding
   // quietly disappearing.
   let effectiveTier = detectedTier;
-  let article63: Article63Assessment | undefined;
-  if (profile.article63Derogation) {
+  let article6_3: Article6_3Assessment | undefined;
+  if (profile.article6_3Derogation) {
     const annexIii = findings.filter((f) => f.id.startsWith('annex-iii.'));
-    article63 = assessArticle63(profile.article63Derogation, signals, annexIii);
-    if (article63.available) {
+    article6_3 = assessArticle6_3(profile.article6_3Derogation, signals, annexIii);
+    if (article6_3.available) {
       for (const f of annexIii) {
         f.tier = 'minimal';
-        f.rationale = `${f.rationale}\n\nArticle 6(3) derogation claimed: ${article63.rationale}`;
+        f.rationale = `${f.rationale}\n\nArticle 6(3) derogation claimed: ${article6_3.rationale}`;
       }
       findings.sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier] || b.confidence - a.confidence);
       effectiveTier = findings[0]?.tier ?? (usesAi ? 'minimal' : 'unknown');
@@ -203,10 +211,10 @@ export function classify(
     tier,
     role,
     findings,
-    summary: summarise(tier, findings, usesAi),
-    confidence: findings[0]?.confidence ?? (usesAi ? 0.6 : 0.3),
+    summary: summarise(tier, aiActFindings, usesAi),
+    confidence: aiActFindings[0]?.confidence ?? findings[0]?.confidence ?? (usesAi ? 0.6 : 0.3),
   };
-  if (article63) classification.article63 = article63;
+  if (article6_3) classification.article6_3 = article6_3;
   if (tier !== effectiveTier) classification.overridden = true;
   return classification;
 }
@@ -219,9 +227,10 @@ function summarise(tier: RiskTier, findings: ClassificationFinding[], usesAi: bo
         ? `Contains a practice prohibited by Article 5: ${top.title.toLowerCase()}.`
         : 'Contains a practice prohibited by Article 5.';
     case 'high':
-      return top
+      if (!top) return 'High-risk under the AI Act.';
+      return top.id.startsWith('annex-iii.')
         ? `High-risk under Annex III — ${top.title.toLowerCase()}.`
-        : 'High-risk under Annex III.';
+        : `High-risk under the AI Act — ${top.title.toLowerCase()}.`;
     case 'transparency':
       return top
         ? `Subject to Article 50 transparency duties — ${top.title.toLowerCase()}.`

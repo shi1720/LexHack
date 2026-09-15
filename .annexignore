@@ -28,12 +28,15 @@ packages/engine/test/
 # A landing page that prints `candidateScore >= ADVANCE_THRESHOLD` as an
 # illustration is not a recruitment system, and the sample catalogue that
 # describes a credit-scoring fixture is not a credit-scoring system.
+#
+# Three files that used to be here are not any more. `classify/index.ts`,
+# `cli/src/bin.ts` and `dossier/` were excluded for convenience rather than for
+# a reason — they hold prose about regulated practices in comments and strings,
+# and domain detectors now skip comments, so the exclusion has stopped being
+# necessary. Leaving them out hollowed out the self-scan the CI gate depends on.
 apps/web/src/app/page.tsx
 apps/web/src/server/systems.ts
 apps/web/src/server/narrative.ts
-packages/engine/src/classify/index.ts
-packages/engine/src/dossier/
-packages/cli/src/bin.ts
 
 # Generated remediation templates, which are the compliant implementations
 # Annex writes into other people's repositories.

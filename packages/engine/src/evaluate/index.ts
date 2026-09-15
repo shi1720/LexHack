@@ -14,6 +14,9 @@ import type {
 } from '../types.js';
 
 export { createContext } from './context.js';
+export { wiredIn, wiringGap, type Wiring } from './wiring.js';
+
+import { wiredIn, wiringGap } from './wiring.js';
 
 const STATUS_SCORE: Record<ControlStatus, number> = {
   satisfied: 1,
@@ -83,23 +86,36 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
     };
   }
 
-  // A scaffold is not a control.
+  // --------------------------------------------------------------------
+  // The invariant: a `satisfied` verdict must rest on something live.
   //
-  // Annex writes documentation templates with `_TODO_` where a human has to
-  // supply a judgement it cannot make — the residual-risk acceptance, the
-  // monitoring thresholds, the accountable person. If every piece of evidence
-  // behind a `satisfied` verdict comes from a file still carrying those
-  // markers, then merging Annex's own remediation pull request would raise the
-  // score without anyone deciding anything. That is the exact failure this
-  // product exists to argue against, so it is caught here rather than in each
-  // control: the status drops to `partial` and the finding says why.
+  // Annex's whole argument is that a document a company wrote about itself
+  // cannot answer the question. Two ways of writing exactly such a document
+  // had to be closed, and they were closed the wrong way the first time —
+  // hand-patched into the two controls a reviewer happened to name, while the
+  // other forty-three stayed open. A guard that holds for two controls is not
+  // a property of the engine; it is a patch. So it lives here, where every
+  // result passes through, and the packs carry no special cases at all.
+  //
+  //  - **A scaffold is not a control.** Annex writes documentation templates
+  //    with `_TODO_` where a human has to supply a judgement — the residual
+  //    risk acceptance, the declared accuracy level, the accountable person.
+  //    A finding backed only by unfilled placeholders is a finding backed by
+  //    Annex's own output.
+  //  - **Dead code is not a control.** A generated `human_oversight.py` that
+  //    nothing calls discharges nobody's Article 14 duty.
+  //
+  // Both cap at `partial` rather than dropping to `missing`, because "we
+  // could not see it working" is a weaker claim than "it is not there".
+  // --------------------------------------------------------------------
   if (evaluation.status === 'satisfied') {
     const cited = (evaluation.evidence ?? []).filter((e) => e.kind !== 'absence');
-    const unfilled = [...new Set(cited.map((e) => e.path))].filter((path) => {
-      const file = ctx.snapshot.files.find((f) => f.path === path);
-      return Boolean(file?.text.includes('_TODO_'));
-    });
-    if (cited.length > 0 && unfilled.length === new Set(cited.map((e) => e.path)).size) {
+    const paths = [...new Set(cited.map((e) => e.path))];
+
+    const unfilled = paths.filter((path) =>
+      Boolean(ctx.snapshot.files.find((f) => f.path === path)?.text.includes('_TODO_')),
+    );
+    if (paths.length > 0 && unfilled.length === paths.length) {
       return {
         ...base,
         status: 'partial',
@@ -108,6 +124,21 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
         gap: `Fill in the placeholders in ${unfilled.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
         evidence: evaluation.evidence ?? [],
       };
+    }
+
+    const wiring = control.requiresWiring ? wiredIn(ctx, cited) : undefined;
+    if (wiring && !wiring.wired) {
+      return {
+        ...base,
+        status: 'partial',
+        score: STATUS_SCORE.partial,
+        finding: `${evaluation.finding} The code behind this finding is not reached from anywhere else in the repository, so it cannot be doing the work at the moment the obligation bites.`,
+        gap: `Wire it into the path that makes the decision: ${wiringGap(wiring)}.`,
+        evidence: evaluation.evidence ?? [],
+      };
+    }
+    if (wiring && wiring.callSites.length > 0) {
+      evaluation = { ...evaluation, evidence: [...(evaluation.evidence ?? []), ...wiring.callSites] };
     }
   }
 
@@ -292,24 +323,32 @@ export function estimateExposure(
     byRegime: [],
   });
 
-  if (!profile.euNexus) {
-    return none(
-      'No exposure is modelled: the operator has recorded that the system is not placed on the Union market, is not put into service in the Union, and its output is not used in the Union. On Article 2(1) the Regulation does not reach it. Remove that declaration to see the figure.',
-    );
-  }
-
+  // Article 2 is a scope provision of the AI Act, and only of the AI Act. An
+  // argument that the Regulation does not reach a system says nothing about a
+  // New York City civil penalty or a GDPR fine, so the gate suppresses the EU
+  // regimes it governs and leaves the others standing.
   const excluded = profile.scopeExclusions ?? [];
-  if (excluded.includes('research')) {
-    return none(
-      'No exposure is modelled: the operator has claimed the Article 2(6) exclusion for AI systems developed and put into service for the sole purpose of scientific research and development. The exclusion is lost the moment the system is placed on the market or put into service for any other purpose.',
-    );
-  }
-  if (excluded.includes('pre-market')) {
-    return none(
-      'No exposure is modelled: the operator has claimed the Article 2(8) exclusion for research, testing and development activity prior to placing on the market. It does not cover testing in real-world conditions.',
-    );
+  const outOfAiActScope = !profile.euNexus
+    ? 'the operator has recorded that the system is not placed on the Union market, is not put into service in the Union, and its output is not used in the Union, so on Article 2(1) the Regulation does not reach it'
+    : excluded.includes('research')
+      ? 'the operator has claimed the Article 2(6) exclusion for AI systems developed and put into service for the sole purpose of scientific research and development — an exclusion lost the moment the system is placed on the market or put into service for any other purpose'
+      : excluded.includes('pre-market')
+        ? 'the operator has claimed the Article 2(8) exclusion for research, testing and development prior to placing on the market, which does not cover testing in real-world conditions'
+        : undefined;
+
+  const inScope = outOfAiActScope
+    ? packs.filter((p) => p.id !== 'eu-ai-act' && (p.id !== 'gdpr' || profile.euNexus))
+    : packs;
+
+  if (outOfAiActScope && inScope.length === 0) {
+    return none(`No AI Act exposure is modelled: ${outOfAiActScope}.`);
   }
 
+  // A `partial` on a prohibition control means the prohibition was examined and
+  // found *not* to bite — `eu-ai-act.art5.emotion-workplace` returns partial
+  // with the finding "Article 5(1)(f) is not engaged". Pricing that at the
+  // Article 99(3) tier charged 35m/7% for a system the control had just
+  // cleared, so only a `missing` prohibition selects the prohibition tier.
   const failing = results.filter((r) => (r.status === 'missing' || r.status === 'partial') && r.inForce);
 
   // Each regime is modelled on its own terms. Reducing them to a single
@@ -317,22 +356,40 @@ export function estimateExposure(
   // reported whichever integer happened to be larger.
   const byRegime: ExposureEstimate['byRegime'] = [];
 
-  for (const p of packs) {
+  for (const p of inScope) {
     if (!p.penalty) continue;
     const packFailures = failing.filter((r) => r.pack === p.id);
     if (packFailures.length === 0) continue;
 
-    const prohibition = packFailures.some((r) => r.family === 'prohibition');
-    const tier = prohibition ? p.penalty.tiers[0] : p.penalty.tiers[1] ?? p.penalty.tiers[0];
+    // The penalty provision is a closed list, so the failing obligations pick
+    // the tier — not their position in an array. An obligation the statute
+    // does not price carries no Union-level ceiling, and is skipped.
+    const controls = new Map(p.controls.map((c) => [c.id, c]));
+    const tiers = new Map(p.penalty.tiers.map((t) => [t.id, t]));
+    let tier: (typeof p.penalty.tiers)[number] | undefined;
+    let highest = -1;
+    for (const failure of packFailures) {
+      const control = controls.get(failure.controlId);
+      if (!control?.penaltyTier) continue;
+      const candidate = tiers.get(control.penaltyTier);
+      if (!candidate) continue;
+      const ceiling = candidate.amount ?? 0;
+      if (ceiling > highest) {
+        highest = ceiling;
+        tier = candidate;
+      }
+    }
     if (!tier) continue;
 
     const flat = tier.amount ?? 0;
     const eurDenominated = p.penalty.currency === 'EUR';
     const pct = tier.turnoverPct && turnoverEur && eurDenominated ? (turnoverEur * tier.turnoverPct) / 100 : 0;
-    // Art. 99(3)-(5): the higher of the two. Art. 99(6): for SMEs, the lower.
-    // A tier with no turnover percentage has only the flat cap to offer.
     const comparable = turnoverEur !== undefined && pct > 0;
-    const amount = comparable ? (isSme ? Math.min(flat, pct) : Math.max(flat, pct)) : flat;
+    // Article 99(6) inverts the higher-of rule for SMEs. GDPR Article 83 does
+    // not, and applying it there understated a €20m ceiling by two orders of
+    // magnitude.
+    const inverts = isSme && p.penalty.smeInversion === true;
+    const amount = comparable ? (inverts ? Math.min(flat, pct) : Math.max(flat, pct)) : flat;
     if (amount <= 0) continue;
 
     const entry: ExposureEstimate['byRegime'][number] = {
@@ -357,6 +414,10 @@ export function estimateExposure(
   let maxFine = 0;
   let currency: 'EUR' | 'USD' = 'EUR';
 
+  if (outOfAiActScope && byRegime.length === 0) {
+    return none(`No AI Act exposure is modelled: ${outOfAiActScope}. No other regime in this scan is failing.`);
+  }
+
   if (headline) {
     maxFine = headline.amount;
     currency = headline.currency;
@@ -364,17 +425,18 @@ export function estimateExposure(
     const pack = packs.find((p) => p.id === headline.packId);
     const tier = pack?.penalty?.tiers.find((t) => t.label === headline.label);
     const flat = tier?.amount ?? 0;
-    const pct = tier?.turnoverPct && turnoverEur ? (turnoverEur * tier.turnoverPct) / 100 : 0;
-    const comparable = turnoverEur !== undefined && pct > 0 && headline.currency === 'EUR';
+    const pct = tier?.turnoverPct && turnoverEur && headline.currency === 'EUR' ? (turnoverEur * tier.turnoverPct) / 100 : 0;
+    const comparable = turnoverEur !== undefined && pct > 0;
+    const inverts = isSme && pack?.penalty?.smeInversion === true;
     const figure =
       headline.amount === Math.round(pct)
         ? `the ${tier?.turnoverPct}% turnover figure`
         : `the ${headline.currency} ${flat.toLocaleString('en-GB')} cap`;
     basis = `${headline.packName}: ${headline.label}. ${
       comparable
-        ? isSme
+        ? inverts
           ? `Article 99(6) caps fines on SMEs and start-ups at the lower of the two figures, so ${figure} applies.`
-          : `The higher of EUR ${flat.toLocaleString('en-GB')} and ${tier?.turnoverPct}% of turnover applies, so ${figure} is used.`
+          : `The higher of ${headline.currency} ${flat.toLocaleString('en-GB')} and ${tier?.turnoverPct}% of turnover applies, so ${figure} is used.`
         : turnoverEur === undefined
           ? 'Worldwide annual turnover was not supplied, so only the flat cap is shown.'
           : 'This regime sets a flat civil penalty rather than a turnover-linked one.'
@@ -386,6 +448,9 @@ export function estimateExposure(
         .join(' ')}`;
     }
     if (headline.multiplier) basis += ` This amount applies ${headline.multiplier}.`;
+    if (outOfAiActScope) {
+      basis += ` The AI Act is excluded from this figure because ${outOfAiActScope}; the regimes above are unaffected by that.`;
+    }
   }
 
   return {
@@ -394,7 +459,10 @@ export function estimateExposure(
     basis,
     citations,
     byRegime,
+    // Only obligations that carry a fine drive a fine. A voluntary framework
+    // with no penalty provision used to top the list under a €15m headline.
     drivers: failing
+      .filter((r) => packs.some((p) => p.penalty && p.controls.some((c) => c.id === r.controlId && c.penaltyTier)))
       .sort((a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity] || b.weight - a.weight)
       .slice(0, 5)
       .map((r) => ({ controlId: r.controlId, title: r.title, severity: r.severity })),

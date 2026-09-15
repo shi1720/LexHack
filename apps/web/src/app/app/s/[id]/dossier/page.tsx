@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { buildDossier, ledgerFingerprint } from '@annex/engine';
-import { currentUser } from '@/server/auth';
+import { requireUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
 import { Empty, Panel, Stat } from '@/components/primitives';
 
@@ -21,7 +21,7 @@ export default async function DossierPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const user = (await currentUser())!;
+  const user = await requireUser();
   const system = getSystem(id, user.id);
   if (!system) notFound();
   const latest = latestReport(system.id);
