@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Annex — Proof, not paperwork</title>
+<style>
+  @page { size: 297mm 167mm; margin: 0; }
+
+  :root {
+    --paper: #fcfcfa; --surface: #fff; --sunken: #f4f6f8;
+    --line: #e3e4e0; --line-strong: #cbccc7;
+    --ink: #14181f; --soft: #4b5361; --faint: #78808d;
+    --navy: #17356b; --navy-soft: #e8edf6;
+    --crimson: #a11526; --crimson-soft: #fbe8ea;
+    --amber: #8a5a00; --amber-soft: #fbf1dc;
+    --moss: #0f6b45; --moss-soft: #e2f2ea;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9ebee; font-family: var(--sans); color: var(--ink); }
+
+  .slide {
+    position: relative;
+    width: 297mm; height: 167mm;
+    padding: 16mm 18mm 13mm;
+    background: var(--paper);
+    margin: 0 auto 8mm;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    break-after: page; page-break-after: always;
+  }
+  @media print { body { background: #fff; } .slide { margin: 0; box-shadow: none; } }
+  @media screen { .slide { box-shadow: 0 2px 20px rgba(20,24,31,.13); } }
+
+  .num { position: absolute; right: 12mm; bottom: 7mm; font-size: 9.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .brand { position: absolute; left: 18mm; bottom: 7mm; font-size: 9.5px; color: var(--faint); letter-spacing: .05em; }
+
+  .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin: 0 0 9px; }
+  h1 { font-size: 54px; line-height: 1.02; letter-spacing: -.035em; font-weight: 660; margin: 0; }
+  h2 { font-size: 31px; line-height: 1.12; letter-spacing: -.028em; font-weight: 650; margin: 0 0 14px; max-width: 24ch; }
+  .lead { font-family: var(--serif); font-size: 17px; line-height: 1.55; color: var(--soft); max-width: 70ch; margin: 0; }
+  .lead + .lead { margin-top: 11px; }
+  p { margin: 0; }
+  strong { font-weight: 640; color: var(--ink); }
+  .mono { font-family: var(--mono); }
+  em.q { font-family: var(--serif); font-style: italic; }
+
+  .grid { display: grid; gap: 11px; margin-top: auto; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px; }
+  .card h3 { font-size: 14.5px; font-weight: 640; margin: 0 0 6px; letter-spacing: -.012em; }
+  .card p { font-size: 12.5px; line-height: 1.5; color: var(--soft); }
+  .card.navy { background: var(--navy-soft); border-color: rgba(23,53,107,.28); }
+  .card.moss { background: var(--moss-soft); border-color: rgba(15,107,69,.28); }
+  .card.crim { background: var(--crimson-soft); border-color: rgba(161,21,38,.28); }
+  .card.amber { background: var(--amber-soft); border-color: rgba(138,90,0,.3); }
+
+  .stat { font-size: 40px; font-weight: 670; letter-spacing: -.035em; line-height: 1; margin-bottom: 4px; }
+  .stat.s { font-size: 30px; }
+  .cap { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { text-align: left; padding: 7px 10px; background: var(--sunken); font-weight: 640; border-bottom: 1px solid var(--line-strong); }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--soft); }
+  td.k { color: var(--ink); font-weight: 560; }
+  tr.hi td { background: var(--navy-soft); color: var(--ink); }
+
+  pre { font-family: var(--mono); font-size: 11.5px; line-height: 1.62; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px; overflow: hidden; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 650; }
+  .tag.bad { background: var(--crimson); color: #fff; }
+  .tag.ok { background: var(--moss); color: #fff; }
+  .tag.warn { background: var(--amber); color: #fff; }
+  .red { color: var(--crimson); } .green { color: var(--moss); } .blue { color: var(--navy); } .grey { color: var(--faint); } .amberc { color: var(--amber); }
+
+  ul.tick { list-style: none; margin: 0; padding: 0; }
+  ul.tick li { font-size: 13px; line-height: 1.55; color: var(--soft); padding-left: 19px; position: relative; margin-bottom: 7px; }
+  ul.tick li::before { content: '→'; position: absolute; left: 0; color: var(--navy); font-weight: 700; }
+
+  .cover { justify-content: center; }
+  .rule { height: 1px; background: var(--line); margin: 16px 0; }
+  .spacer { flex: 1; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- 1 ───────────────────────────────────────────────── -->
+<section class="slide cover">
+  <p class="eyebrow">LexHack 2026 · AI Safety, Ethics &amp; Governance</p>
+  <h1>Annex</h1>
+  <h1 style="color:var(--navy); margin-top:4px">Proof, not paperwork.</h1>
+  <p class="lead" style="margin-top:26px; font-size:19px">
+    Annex reads your codebase, decides where it falls under the EU AI Act, and proves every
+    obligation with a file, a line and a hash.
+  </p>
+  <div class="rule"></div>
+  <p style="font-size:12.5px; color:var(--faint)">
+    Shivam Gupta · <span class="mono">github.com/shi1720/LexHack</span>
+  </p>
+  <span class="brand">ANNEX</span><span class="num">1</span>
+</section>
+
+<!-- 2 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">The problem</p>
+  <h2>Every AI Act dossier is a document a company wrote about itself.</h2>
+  <p class="lead">
+    Nobody has ever checked one against the system it describes. That is not a snipe at compliance
+    teams — it is structural. The Act asks whether your system logs inference, whether a human can
+    override it, whether you examined your data for bias. <strong>Those answers are in the
+    repository.</strong> The people who write the dossier cannot read it, and the people who can
+    were never asked.
+  </p>
+  <div class="grid g3">
+    <div class="card">
+      <div class="stat">~90</div>
+      <div class="cap">AI governance vendors</div>
+      <p style="margin-top:6px">In the IAPP's 2026 category census.</p>
+    </div>
+    <div class="card crim">
+      <div class="stat red">2</div>
+      <div class="cap">mention source code</div>
+      <p style="margin-top:6px">One is a GDPR privacy scanner. The other is the phrase "a U.S. codebase".</p>
+    </div>
+    <div class="card">
+      <div class="stat">40%</div>
+      <div class="cap">can't be classified</div>
+      <p style="margin-top:6px">Of 106 enterprise AI systems studied by appliedAI, the risk tier was unclear.</p>
+    </div>
+  </div>
+  <span class="brand">ANNEX</span><span class="num">2</span>
+</section>
+
+<!-- 3 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">Why now — and why the obvious answer is wrong</p>
+  <h2>The deadline moved. The obligations did not.</h2>
+  <p class="lead">
+    On 27 July 2026 the Digital Omnibus pushed the Annex III high-risk deadline from August 2026 out
+    to <strong>2 December 2027</strong>, and the compliance industry exhaled.
+    <strong>It left Article 50 exactly where it was.</strong>
+  </p>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card crim">
+      <h3 class="red">In force today</h3>
+      <table style="margin-top:6px">
+        <tr><td class="k mono">2025-02-02</td><td>Article 5 prohibited practices · €35M / 7%</td></tr>
+        <tr><td class="k mono">2025-08-02</td><td>GPAI model obligations</td></tr>
+        <tr><td class="k mono">2026-08-02</td><td><strong>Article 50 transparency · €15M / 3%</strong></td></tr>
+        <tr><td class="k mono">2023-07-05</td><td>NYC Local Law 144 bias audits</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="grey">What everyone is waiting for</h3>
+      <table style="margin-top:6px">
+        <tr><td class="k mono">2026-12-02</td><td>Art. 50(2) marking, grandfathered systems</td></tr>
+        <tr><td class="k mono">2026-12-02</td><td>New Art. 5 prohibitions (NCII, CSAM)</td></tr>
+        <tr><td class="k mono">2027-12-02</td><td>Annex III high-risk — moved from Aug 2026</td></tr>
+        <tr><td class="k mono">2028-08-02</td><td>Annex I embedded high-risk</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:16px; font-size:16px">
+    If your product talks to a person or generates content, <strong>you have been in scope since
+    August.</strong> The deadline nobody is talking about is the one that already passed.
+  </p>
+  <span class="brand">ANNEX</span><span class="num">3</span>
+</section>
+
+<!-- 4 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">What it does</p>
+  <h2>One scan. Four artefacts. 220&nbsp;milliseconds.</h2>
+  <pre>  <span class="tag bad">&nbsp;PROHIBITED&nbsp;</span>   Article 5(1)(f) — emotion inference in the workplace
+
+  classification   Annex III, point 4(a) · recruitment and candidate selection    97% confidence
+  <span class="blue">src/screening/rank.ts:28</span>
+    <span class="grey">const decision = candidateScore &gt;= ADVANCE_THRESHOLD ? 'advance' : 'reject';</span>
+
+  <span class="red">✖ missing</span>   Art. 14        Human oversight — no review step, no override, no stop control
+  <span class="red">✖ missing</span>   Art. 12        Record-keeping — nothing records which model made which decision
+  <span class="red">✖ missing</span>   Art. 50(1)     <span class="amberc">IN FORCE</span>   the chat UI never says it is an AI
+  <span class="red">✖ missing</span>   LL 144 §5-301  no independent bias audit in the last twelve months
+
+  conformity   <span class="red">█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   2/100
+  exposure     €294,000   ledger  <span class="green">B43A-D619-8282-7F4D</span>   14 files · 35 ms · no model called</pre>
+  <div class="grid g4">
+    <div class="card"><h3>Evidence explorer</h3><p>Statute on the left, the lines that answer it on the right.</p></div>
+    <div class="card"><h3>Annex IV dossier</h3><p>EN · DE · FR, with every unanswerable point left open.</p></div>
+    <div class="card"><h3>A pull request</h3><p>Additive files that close what code can close.</p></div>
+    <div class="card"><h3>Standards exports</h3><p>SARIF, CycloneDX attestation, ML-BOM.</p></div>
+  </div>
+  <span class="brand">ANNEX</span><span class="num">4</span>
+</section>
+
+<!-- 5 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">The reframe</p>
+  <h2>Not a paperwork problem. A verification problem.</h2>
+  <p class="lead">
+    A frontier model can draft a plausible Annex IV document this afternoon. What it cannot do is tell
+    you whether the document is <em class="q">true</em>. So we built for verification, and two things
+    follow from that.
+  </p>
+  <div class="grid g2" style="margin-top:20px">
+    <div class="card navy">
+      <h3>The law gets a test suite</h3>
+      <p>A control is a function, so it can be tested. Every high-severity obligation ships golden
+      fixtures — a minimal repository and the status the control must return. If a regex gets greedier,
+      the obligation fails the build rather than silently mis-reporting somebody's conformity.</p>
+    </div>
+    <div class="card moss">
+      <h3>The evidence ledger</h3>
+      <p>Every result is hashed into a chain: the control, its status, the rule-pack version, the
+      SHA-256 of every file it cites. The root goes on the dossier's front page. Re-run on the same
+      commit and you get the same root; change one character of one cited file and
+      <span class="mono">annex&nbsp;verify</span> names the entry that broke.</p>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:18px">
+    That is the whole difference between a document and a proof.
+  </p>
+  <span class="brand">ANNEX</span><span class="num">5</span>
+</section>
+
+<!-- 6 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">The thing only a code-grounded tool can do</p>
+  <h2>Substantial modification, caught in the pull request.</h2>
+  <p class="lead">
+    Article 3(49): a change that affects compliance with Chapter III is a <strong>substantial
+    modification</strong>. Article 43(4): that re-opens the entire conformity assessment. It is
+    triggered by a code change — so only the tool that watches code changes can see it.
+  </p>
+  <pre style="margin-top:18px">$ annex diff --base origin/main --head HEAD
+
+  <span class="tag bad">&nbsp;SUBSTANTIAL MODIFICATION&nbsp;</span>  origin/main → HEAD
+
+  The risk classification moved from high to prohibited. Under Article 25(1)(c) and
+  Article 43(4) this is a substantial modification: the conformity assessment has to
+  be re-opened and the technical documentation updated.
+
+  conformity  81 → 2 <span class="red">(-79)</span>
+  <span class="red">✖</span> Effective human oversight while the system is in use   <span class="grey">satisfied → missing</span></pre>
+  <p class="lead" style="margin-top:16px">
+    A questionnaire structurally cannot do this. It is also, not coincidentally, the event that makes
+    the revenue recurring.
+  </p>
+  <span class="brand">ANNEX</span><span class="num">6</span>
+</section>
+
+<!-- 7 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">How it works</p>
+  <h2>A regulation is a function over a repository.</h2>
+  <div style="flex:1; overflow:hidden; margin-top:2px; display:flex; align-items:center;">
+    <img src="../diagram-architecture.svg" alt="Annex architecture: ingest, deterministic core, artefacts, with the evidence ledger between them"
+         style="width:104%; margin-left:-2%; margin-top:-58px; margin-bottom:-12px;">
+  </div>
+  <span class="brand">ANNEX</span><span class="num">7</span>
+</section>
+
+<!-- 8 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">Accuracy</p>
+  <h2>It is a classifier, so it owes you its error rate.</h2>
+  <p class="lead">
+    29 hand-labelled cases. Roughly half exist to catch <strong>false positives</strong>: card-fraud
+    detection (excluded from Annex III 5(b)), one-to-one identity verification (excluded from 1(a)),
+    a mood-journal app that is 1(c) high-risk and <em class="q">not</em> the Art. 5(1)(f) prohibition,
+    and a blog post about prohibited practices.
+  </p>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="card"><div class="stat">96.6%</div><div class="cap">risk-tier accuracy</div></div>
+    <div class="card moss"><div class="stat green">100%</div><div class="cap">finding recall</div></div>
+    <div class="card moss"><div class="stat green">100%</div><div class="cap">carve-out precision</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card amber">
+      <h3 class="amberc">The one it gets wrong is in the report</h3>
+      <p>Receipt OCR is flagged under Art. 50(2) because Annex cannot yet tell the assistive-editing
+      carve-out from substantive generation. Published, with the reasoning, unedited.</p>
+    </div>
+    <div class="card">
+      <h3>Building it found three real bugs</h3>
+      <p>Domain signals firing on prose; a missing Art. 50(2) rule; broken <span class="mono">go.mod</span>
+      parsing. Then the self-scan found a GDPR Article 17 gap <em class="q">in us</em> — which we fixed.</p>
+    </div>
+  </div>
+  <span class="brand">ANNEX</span><span class="num">8</span>
+</section>
+
+<!-- 9 ───────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">Who buys it</p>
+  <h2>Three people, one artefact each.</h2>
+  <table style="margin-top:6px">
+    <tr><th style="width:24%">Who</th><th style="width:38%">What they feel</th><th>What Annex gives them</th></tr>
+    <tr><td class="k">Engineering lead</td><td>"Legal keeps asking me questions about our own code."</td><td>A CI check and a pull request. Zero procurement.</td></tr>
+    <tr><td class="k">Founder / CTO</td><td>"An enterprise deal is blocked on an AI governance questionnaire."</td><td>A trust page to send back today.</td></tr>
+    <tr class="hi"><td class="k">Legal / compliance</td><td>"I am signing a document I cannot verify."</td><td>Evidence with a citation and a hash.</td></tr>
+  </table>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>Pricing follows the statute's unit of account</h3>
+      <p><strong>Free</strong> — CLI, GitHub Action, SARIF, classification.<br>
+      <strong>$35/contributor/mo</strong> — blocking PR check, remediation, drift.<br>
+      <strong>$12–25k per governed AI system/yr</strong> — dossier, attestation, freshness.<br>
+      <strong>$75–250k</strong> — enterprise, self-hosted, custom detectors.</p>
+    </div>
+    <div class="card navy">
+      <h3>The anchors it prices against</h3>
+      <p>€9,900 boutique readiness sprint · $15–50k consultancy · €75k+ Big-4 programme ·
+      €10–40k third-party conformity assessment per system · €193–330k to stand up a QMS,
+      plus €71k/year (EC impact assessment).</p>
+    </div>
+  </div>
+  <span class="brand">ANNEX</span><span class="num">9</span>
+</section>
+
+<!-- 10 ──────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">Moat — and the honest weaknesses</p>
+  <h2>The mapping is a commodity. Four other things are not.</h2>
+  <div class="grid g2">
+    <div class="card moss">
+      <h3 class="green">Defensible</h3>
+      <ul class="tick" style="margin-top:8px">
+        <li><strong>False-positive economics.</strong> Telling a real Art. 14 control from an <span class="mono">if approved:</span> branch, across every framework. Endor Labs raised $93M on exactly this problem in security.</li>
+        <li><strong>Acceptance history.</strong> Which code patterns an assessor actually accepts can only be learned from dossiers accepted and rejected.</li>
+        <li><strong>Workflow position.</strong> A required check on the default branch, plus code Annex wrote that now lives in the customer's repo.</li>
+        <li><strong>Drift detection.</strong> Triggered by a code change; only we see code changes.</li>
+      </ul>
+    </div>
+    <div class="card crim">
+      <h3 class="red">What would make me wrong</h3>
+      <ul class="tick" style="margin-top:8px">
+        <li>The Commission must publish a <strong>free simplified Annex IV form</strong> for SMEs. That is why we sell verification, not generation.</li>
+        <li>Code presence is not conformity, and assessors know it. If they treat it as supporting material, the price ceiling drops.</li>
+        <li>The category is <strong>$492M in 2026</strong> (Gartner). This is a wedge into GRC and AppSec, not a standalone category play.</li>
+        <li>Budgets follow deadlines. Expect an air pocket until H2 2027.</li>
+      </ul>
+    </div>
+  </div>
+  <span class="brand">ANNEX</span><span class="num">10</span>
+</section>
+
+<!-- 11 ──────────────────────────────────────────────── -->
+<section class="slide">
+  <p class="eyebrow">Built for this hackathon</p>
+  <h2>45 obligations. 5 jurisdictions. 0 model calls in the core.</h2>
+  <div class="grid g4">
+    <div class="card"><div class="stat s">45</div><div class="cap">executable obligations</div></div>
+    <div class="card"><div class="stat s">48</div><div class="cap">signal detectors</div></div>
+    <div class="card"><div class="stat s">73</div><div class="cap">tests, incl. golden fixtures</div></div>
+    <div class="card"><div class="stat s">220<span style="font-size:18px">ms</span></div><div class="cap">to scan 168 files</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3>Rule packs, each reconciled against primary sources</h3>
+      <table style="margin-top:6px">
+        <tr><td class="k">EU AI Act</td><td>24 obligations · post-Omnibus dates</td></tr>
+        <tr><td class="k">GDPR</td><td>5 · Arts. 9, 13–17, 22, 35</td></tr>
+        <tr><td class="k">NYC Local Law 144</td><td>5 · the arithmetic is in the rule</td></tr>
+        <tr><td class="k">Colorado ADMT Act</td><td>5 · SB 26-189, from Jan 2027</td></tr>
+        <tr><td class="k">NIST AI RMF 1.0</td><td>6 · version-pinned subcategories</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Where the language model is — and is not</h3>
+      <p>The engine never calls one. Classification and control evaluation are rule-based and offline,
+      because an auditor cannot accept <em class="q">"the model thought so"</em> as evidence.</p>
+      <p style="margin-top:8px">There is exactly one model call, labelled <span class="mono">model-written</span>
+      in the UI: rewriting an <strong>already settled</strong> finding for an engineer, a founder or
+      an assessor. It receives the decision as fact and cannot change it.</p>
+    </div>
+  </div>
+  <span class="brand">ANNEX</span><span class="num">11</span>
+</section>
+
+<!-- 12 ──────────────────────────────────────────────── -->
+<section class="slide cover">
+  <p class="eyebrow">What's next</p>
+  <h2 style="font-size:40px; max-width:26ch">A GitHub App, and a dossier in front of a notified body.</h2>
+  <p class="lead" style="font-size:17px">
+    The CLI and SARIF output already work in CI. The App turns a scan anyone can ignore into a gate
+    nobody can. After that, the question that decides whether this is a product or a demo is whether
+    an assessor — TÜViT, Nemko, Bureau Veritas — will accept code-grounded evidence as a starting
+    artefact. That is a question about institutions, not code, and it is answered by knocking on doors.
+  </p>
+  <div class="rule" style="margin:22px 0"></div>
+  <h1 style="font-size:40px">Proof, not paperwork.</h1>
+  <p style="margin-top:14px; font-size:13.5px; color:var(--faint)">
+    Shivam Gupta · LexHack 2026 · <span class="mono">github.com/shi1720/LexHack</span>
+  </p>
+  <span class="brand">ANNEX</span><span class="num">12</span>
+</section>
+
+</body>
+</html>
