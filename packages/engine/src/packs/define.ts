@@ -104,36 +104,60 @@ function participates(ctx: EvaluationContext, path: string): boolean {
 }
 
 export interface Wiring {
-  /** True when at least one file carrying the evidence is reachable. */
+  /** True when every file carrying the evidence is actually reached. */
   wired: boolean;
   /** Where it is called from. Cited alongside the definition. */
   callSites: Evidence[];
   /** Files that define the affordance but that nothing appears to reach. */
   orphans: string[];
+  /** Files that are imported somewhere and never called. */
+  importedNotCalled: string[];
 }
 
 export function wiredIn(ctx: EvaluationContext, evidence: Evidence[]): Wiring {
   const paths = [...new Set(evidence.filter((e) => e.kind === 'code').map((e) => e.path))];
-  if (paths.length === 0) return { wired: false, callSites: [], orphans: [] };
+  if (paths.length === 0) return { wired: false, callSites: [], orphans: [], importedNotCalled: [] };
 
   const callSites: Evidence[] = [];
   const orphans: string[] = [];
+  const importedNotCalled: string[] = [];
   for (const path of paths) {
     if (ENTRYPOINT.test(path)) continue; // an entry point is reached by definition
     const file = ctx.snapshot.files.find((f) => f.path === path);
     if (!file) continue;
-    const sites = ctx.isReferenced(file);
-    if (sites.length) {
-      callSites.push(...sites.slice(0, 2));
+    const { calls, imports } = ctx.isReferenced(file);
+    if (calls.length) {
+      callSites.push(...calls.slice(0, 2));
+      continue;
+    }
+    // An import with no call is one line of work and used to be enough. It is
+    // now its own finding: the module is on the page, nothing invokes it.
+    if (imports.length) {
+      importedNotCalled.push(path);
       continue;
     }
     if (!participates(ctx, path)) orphans.push(path);
   }
-  // Every file is required to be reachable, not merely one of them. A control
-  // assembled from two real modules and one orphan is a control with a hole in
-  // it, and "one of the three affordances is dead code" is the finding that
-  // matters.
-  return { wired: orphans.length === 0, callSites: callSites.slice(0, 4), orphans };
+  // Every file must be reached, not merely one of them. A control assembled
+  // from two real modules and one orphan is a control with a hole in it, and
+  // "one of the three affordances is dead code" is the finding that matters.
+  return {
+    wired: orphans.length === 0 && importedNotCalled.length === 0,
+    callSites: callSites.slice(0, 4),
+    orphans,
+    importedNotCalled,
+  };
+}
+
+/** One sentence naming what is not wired, for a control's `gap`. */
+export function wiringGap(w: Wiring): string {
+  const parts = [
+    w.orphans.length ? `nothing in the repository reaches ${w.orphans.slice(0, 3).join(', ')}` : '',
+    w.importedNotCalled.length
+      ? `${w.importedNotCalled.slice(0, 3).join(', ')} ${w.importedNotCalled.length === 1 ? 'is' : 'are'} imported but never called`
+      : '',
+  ].filter(Boolean);
+  return parts.join('; ');
 }
 
 // ---------------------------------------------------------------------------

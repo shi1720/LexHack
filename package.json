@@ -24,7 +24,8 @@
     "benchmark": "node packages/cli/dist/bin.js benchmark",
     "benchmark:report": "node packages/cli/dist/bin.js benchmark --format markdown --out docs/BENCHMARK.md",
     "screenshots": "node scripts/screenshots.mjs",
-    "start": "npm run start -w @annex/web"
+    "start": "npm run start -w @annex/web",
+    "audit": "node scripts/audit.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

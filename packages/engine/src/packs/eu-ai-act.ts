@@ -17,6 +17,7 @@ import {
   whenProvider,
   whenSignal,
   wiredIn,
+  wiringGap,
 } from './define.js';
 import {
   auditLogModule,
@@ -740,8 +741,8 @@ const highRiskControls: Control[] = [
         const wiring = wiredIn(ctx, inference.evidence.slice(0, 3));
         if (!wiring.wired) {
           return partial(
-            'An inference logger is defined, carrying a model version and a traceable identifier, but nothing in the repository appears to call it.',
-            `Article 12(1) requires logs to be recorded automatically over the lifetime of the system. Call the recorder on every model invocation that can affect a person. Orphaned: ${wiring.orphans.slice(0, 3).join(', ')}.`,
+            'An inference logger is defined, carrying a model version and a traceable identifier, but no code path appears to call it.',
+            `Article 12(1) requires logs to be recorded automatically over the lifetime of the system: ${wiringGap(wiring)}. Call the recorder on every model invocation that can affect a person.`,
             ev,
           );
         }
@@ -920,8 +921,8 @@ const highRiskControls: Control[] = [
         const wiring = wiredIn(ctx, ev);
         if (!wiring.wired) {
           return partial(
-            `All three oversight affordances are defined — ${present.join(', ')} — but nothing in the repository appears to call them.`,
-            `Route consequential outcomes through the oversight gate. Article 14(4)(d)-(e) require that a person *can* override or stop the system in use; a module no code path reaches cannot do that. Orphaned: ${wiring.orphans.slice(0, 3).join(', ')}.`,
+            `All three oversight affordances are defined — ${present.join(', ')} — but no code path appears to call them.`,
+            `Route consequential outcomes through the oversight gate: ${wiringGap(wiring)}. Article 14(4)(d)-(e) require that a person *can* override or stop the system in use, and a module no code path reaches cannot do that.`,
             ev,
           );
         }
@@ -991,6 +992,20 @@ const highRiskControls: Control[] = [
         files: {
           'src/decide.py':
             'def decide(applicant):\n    score = model.predict(applicant)\n    if score < 0.4:\n        return "reject"\n    return "advance"\n',
+          'ai_act/human_oversight.py':
+            'import os\n\nAI_ENABLED = os.getenv("AI_ENABLED") != "false"\n\ndef gate(outcome):\n    """Human review gate: adverse outcomes never auto-apply."""\n    if not AI_ENABLED:\n        return "halted"\n    return {"status": "pending_review", "human_review": True}\n\ndef override_decision(decision_id, reviewer_id, reason):\n    """A reviewer can override or reverse the model output."""\n    return record_override(decision_id, reviewer_id, reason)\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
+      },
+      {
+        // One line of work — `import gate  # noqa: F401` — used to be enough
+        // to turn this control green. An import is a declaration of intent;
+        // Article 14 is about what happens at the decision.
+        name: 'partial when the oversight module is imported but never called',
+        files: {
+          'src/decide.py':
+            'from ai_act.human_oversight import gate  # noqa: F401\n\n\ndef decide(applicant):\n    score = model.predict(applicant)\n    if score < 0.4:\n        return "reject"\n    return "advance"\n',
           'ai_act/human_oversight.py':
             'import os\n\nAI_ENABLED = os.getenv("AI_ENABLED") != "false"\n\ndef gate(outcome):\n    """Human review gate: adverse outcomes never auto-apply."""\n    if not AI_ENABLED:\n        return "halted"\n    return {"status": "pending_review", "human_review": True}\n\ndef override_decision(decision_id, reviewer_id, reason):\n    """A reviewer can override or reverse the model output."""\n    return record_override(decision_id, reviewer_id, reason)\n',
         },

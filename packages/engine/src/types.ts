@@ -443,15 +443,21 @@ export interface EvaluationContext {
   grepDocs: (pattern: RegExp, limit?: number, paths?: RegExp) => Evidence[];
   hasDependency: (name: string | RegExp) => Dependency | undefined;
   /**
-   * Does any *other* file in the tree import or call into this one?
+   * Where does the rest of the tree reach into this file?
    *
    * The difference between a control that exists and a control that runs. A
    * generated `human_oversight.py` that nothing imports satisfies nobody's
    * Article 14 duty, and a scanner that says otherwise is a laundering
    * machine: it would let a team merge Annex's own remediation PR and watch
    * the score rise without a line of running code changing.
+   *
+   * Imports and calls are reported separately because they are different
+   * facts. An import is a declaration of intent; a call is the thing the
+   * obligation is actually about. `import gate  # noqa: F401` is one line of
+   * work and would otherwise turn the highest-weight control in the corpus
+   * green.
    */
-  isReferenced: (file: SourceFile) => Evidence[];
+  isReferenced: (file: SourceFile) => { calls: Evidence[]; imports: Evidence[] };
 }
 
 // ---------------------------------------------------------------------------

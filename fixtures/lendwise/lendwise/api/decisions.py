@@ -21,6 +21,16 @@ def override_decision(application_id: str, outcome: str, reason: str, user=Depen
     }
 
 
+@router.post("/{application_id}/score")
+def score_decision(application_id: str, application: dict, user=Depends(current_underwriter)):
+    decision = score_application(application)
+    return {
+        "application_id": application_id,
+        "outcome": decision.decision,
+        "probability_of_default": decision.probability_of_default,
+    }
+
+
 @router.get("/{application_id}")
 def get_decision(application_id: str, user=Depends(current_underwriter)):
     return {"application_id": application_id}

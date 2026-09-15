@@ -36,8 +36,16 @@ jobs:
       - name: Benchmark
         run: npm run benchmark
 
-      - name: Build the web app
-        run: npm run build -w @annex/web
+      # The accessibility and responsive audit runs against a live instance,
+      # because the things it checks — a stack whose spacing collapsed, a
+      # scroll region nobody can focus, a control border under 3:1 — are not
+      # visible in the source.
+      - name: Accessibility and responsive audit
+        run: |
+          npx playwright install --with-deps chromium
+          npm run start &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/ >/dev/null && break; sleep 2; done
+          npm run audit
         env:
           ANNEX_FIXTURES: ${{ github.workspace }}
 
@@ -69,5 +77,11 @@ jobs:
           sarif_file: annex.sarif
           category: annex-selfscan
 
+      # A gate, not a report. If Annex's own conformity drops, this fails —
+      # which is the same promise the README makes to everybody else.
       - name: Human-readable self-scan
-        run: npm run selfscan
+        run: |
+          node packages/cli/dist/bin.js scan . \
+            --purpose "Compiles AI regulation into executable, evidence-producing controls over a source repository." \
+            --markets eu,us-federal \
+            --fail-under 100

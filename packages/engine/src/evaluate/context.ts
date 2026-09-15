@@ -93,9 +93,9 @@ export function createContext(input: {
    * the callers below degrade to `partial` rather than `missing` when this
    * comes back empty.
    */
-  const isReferenced = (file: SourceFile): Evidence[] => {
+  const isReferenced = (file: SourceFile): { calls: Evidence[]; imports: Evidence[] } => {
     const stem = (file.path.split('/').pop() ?? '').replace(/\.[^.]+$/, '');
-    if (!stem) return [];
+    if (!stem) return { calls: [], imports: [] };
 
     // Exported names: `export function gate(`, `def gate(`, `class Gate`, …
     const exported = new Set<string>();
@@ -108,28 +108,36 @@ export function createContext(input: {
       `(?:import|require|from)\\s*\\(?['"\`][^'"\`]*${escaped(stem)}['"\`]|\\b(?:import|from)\\s+[\\w.]*${escaped(stem)}\\b`,
     );
     const callPattern = names.length ? new RegExp(`\\b(?:${names.join('|')})\\s*\\(`) : null;
+    const IMPORT_STATEMENT = /^\s*(?:import\s|from\s|export\s+.*\sfrom\s|const\s+[\w{},\s]+=\s*require\()/;
 
-    const out: Evidence[] = [];
+    const calls: Evidence[] = [];
+    const imports: Evidence[] = [];
     for (const other of readable) {
-      if (out.length >= 3) break;
+      if (calls.length >= 3 && imports.length >= 3) break;
       if (other.path === file.path) continue;
       const lines = other.text.split('\n');
-      for (let i = 0; i < lines.length && out.length < 3; i++) {
+      for (let i = 0; i < lines.length; i++) {
         const line = lines[i] ?? '';
         if (line.length > 2000) continue;
-        if (!importPattern.test(line) && !(callPattern && callPattern.test(line))) continue;
-        out.push({
+        // A call inside an import statement is the import, not a call site.
+        const isImportLine = IMPORT_STATEMENT.test(line);
+        const called = !isImportLine && callPattern !== null && callPattern.test(line);
+        const imported = importPattern.test(line);
+        if (!called && !imported) continue;
+        const evidence: Evidence = {
           path: other.path,
           line: i + 1,
           snippet: trimSnippet(line),
           fileSha256: other.sha256,
           kind: 'code',
-          note: `Call site for ${file.path}.`,
-        });
-        break;
+          note: called ? `Calls into ${file.path}.` : `Imports ${file.path}.`,
+        };
+        if (called && calls.length < 3) calls.push(evidence);
+        else if (!called && imports.length < 3) imports.push(evidence);
+        if (called) break;
       }
     }
-    return out;
+    return { calls, imports };
   };
 
   return {

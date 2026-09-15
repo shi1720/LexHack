@@ -349,6 +349,8 @@ survive checking, and a section titled "What would make me wrong", is in
 | [docs/BUSINESS.md](docs/BUSINESS.md) | Market, competition and the honest weaknesses |
 | [docs/VIDEO.md](docs/VIDEO.md) | Demo script and shot list |
 | [docs/research/](docs/research/) | Primary-source legal reconciliation |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to add a control or a benchmark case |
+| [SECURITY.md](SECURITY.md) | Threat model, and what is not hardened yet |
 
 ## Credits
 
