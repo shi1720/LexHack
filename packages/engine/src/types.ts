@@ -66,6 +66,8 @@ export interface RepoSnapshot {
   totalBytes: number;
   /** True when the ingest hit a cap and did not read the whole tree. */
   truncated: boolean;
+  /** Files excluded by `.annexignore`. Counted, so the report stays honest. */
+  ignoredCount: number;
   capturedAt: string;
 }
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { ControlResult } from '@annex/engine';
 import { Citation, EvidenceLine, StatusBadge } from './primitives';
+import { ExplainPanel } from './explain-panel';
 
 type Filter = 'gaps' | 'live' | 'all' | 'evidenced';
 
@@ -23,10 +24,12 @@ const FILTERS: { key: Filter; label: string; hint: string }[] = [
 export function EvidenceExplorer({
   controls,
   packNames,
+  systemId,
   initialSelected,
 }: {
   controls: ControlResult[];
   packNames: Record<string, string>;
+  systemId: string;
   initialSelected?: string;
 }) {
   const [filter, setFilter] = useState<Filter>('gaps');
@@ -180,13 +183,15 @@ export function EvidenceExplorer({
           </ul>
         </div>
 
-        {selected ? <ControlDetail control={selected} packName={packNames[selected.pack] ?? selected.pack} /> : null}
+        {selected ? (
+          <ControlDetail control={selected} packName={packNames[selected.pack] ?? selected.pack} systemId={systemId} />
+        ) : null}
       </div>
     </div>
   );
 }
 
-function ControlDetail({ control, packName }: { control: ControlResult; packName: string }) {
+function ControlDetail({ control, packName, systemId }: { control: ControlResult; packName: string; systemId: string }) {
   const codeEvidence = control.evidence.filter((e) => e.kind !== 'absence');
   const absence = control.evidence.filter((e) => e.kind === 'absence');
 
@@ -284,6 +289,8 @@ function ControlDetail({ control, packName }: { control: ControlResult; packName
             ) : null}
           </section>
         ) : null}
+
+        <ExplainPanel systemId={systemId} controlId={control.controlId} />
       </div>
     </article>
   );

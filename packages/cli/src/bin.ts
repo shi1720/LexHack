@@ -5,6 +5,8 @@ import { execFileSync } from 'node:child_process';
 import {
   ALL_PACKS,
   CORPUS_SIZE,
+  benchmarkMarkdown,
+  runBenchmark,
   buildSnapshot,
   readTar,
   ENGINE_VERSION,
@@ -91,6 +93,7 @@ ${c.bold('COMMANDS')}
   ${c.cyan('diff')} --base --head       Detect a substantial modification between two commits
   ${c.cyan('verify')} <report.json>     Re-verify an evidence ledger
   ${c.cyan('packs')}                    List the rule-pack corpus
+  ${c.cyan('benchmark')}                Run the labelled corpus and report accuracy, honestly
   ${c.cyan('explain')} <control-id>     Show an obligation, its citation and how it is detected
 
 ${c.bold('SCAN OPTIONS')}
@@ -483,6 +486,37 @@ async function runVerify(args: Args): Promise<number> {
   return 1;
 }
 
+async function runBenchmarkCommand(args: Args): Promise<number> {
+  const summary = runBenchmark();
+
+  if (str(args.flags.format) === 'markdown') {
+    await emit(benchmarkMarkdown(summary), str(args.flags.out));
+    return 0;
+  }
+
+  const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
+  const wrong = summary.outcomes.filter((o) => !o.tierCorrect || o.missedFindings.length || o.falseFindings.length);
+
+  process.stdout.write(`\n${c.bold('Benchmark')} ${c.grey(`— ${summary.total} hand-labelled cases, ${summary.durationMs} ms`)}\n${rule()}\n`);
+  process.stdout.write(`  ${c.grey('risk-tier accuracy  ')} ${c.bold(pct(summary.tierAccuracy))} ${c.grey(`(${summary.tierCorrect}/${summary.total})`)}\n`);
+  process.stdout.write(`  ${c.grey('finding recall      ')} ${c.bold(pct(summary.recall))} ${c.grey(`(${summary.recalledFindings}/${summary.expectedFindings})`)}\n`);
+  process.stdout.write(`  ${c.grey('carve-out precision ')} ${c.bold(pct(summary.carveOutPrecision))} ${c.grey(`(${summary.forbiddenChecks - summary.forbiddenViolations}/${summary.forbiddenChecks})`)}\n`);
+
+  if (wrong.length === 0) {
+    process.stdout.write(`\n  ${c.green(SYMBOL.pass)} no failures in the current corpus.\n`);
+  } else {
+    process.stdout.write(`\n  ${c.bold('Cases Annex gets wrong')}\n`);
+    for (const o of wrong) {
+      process.stdout.write(`    ${c.red(SYMBOL.fail)} ${c.bold(o.id)} ${c.grey(`expected ${o.expectedTier}, produced ${o.actualTier}`)}\n`);
+      if (o.missedFindings.length) process.stdout.write(`       ${c.grey(`missed ${o.missedFindings.join(', ')}`)}\n`);
+      if (o.falseFindings.length) process.stdout.write(`       ${c.grey(`false  ${o.falseFindings.join(', ')}`)}\n`);
+      process.stdout.write(c.grey(wrap(o.rationale, 70, '       ')) + '\n');
+    }
+  }
+  process.stdout.write(`\n${c.grey('Half the corpus is carve-outs: cases that look like a violation to a keyword matcher and are not.')}\n`);
+  return 0;
+}
+
 function runPacks(): number {
   process.stdout.write(`\n${c.bold('Rule-pack corpus')} ${c.grey(`— ${CORPUS_SIZE} executable obligations`)}\n`);
   for (const pack of ALL_PACKS) {
@@ -557,6 +591,7 @@ async function main(): Promise<void> {
       case 'diff': code = await runDiff(args); break;
       case 'verify': code = await runVerify(args); break;
       case 'packs': code = runPacks(); break;
+      case 'benchmark': code = await runBenchmarkCommand(args); break;
       case 'explain': code = runExplain(args); break;
       case 'help':
       case '--help':

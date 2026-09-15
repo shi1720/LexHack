@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
-import { currentUser, updateUser } from '@/server/auth';
+import { redirect } from 'next/navigation';
+import { currentUser, deleteUser, destroySession, updateUser } from '@/server/auth';
 import { Panel } from '@/components/primitives';
 
 export const metadata = { title: 'Settings' };
@@ -22,7 +23,19 @@ async function save(formData: FormData) {
   revalidatePath('/app/settings');
 }
 
-export default async function SettingsPage() {
+async function eraseAccount(formData: FormData) {
+  'use server';
+  const user = (await currentUser())!;
+  if (String(formData.get('confirm') ?? '').trim().toLowerCase() !== 'delete') {
+    redirect('/app/settings?error=' + encodeURIComponent('Type "delete" to confirm.'));
+  }
+  deleteUser(user.id);
+  await destroySession();
+  redirect('/?erased=1');
+}
+
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const params = await searchParams;
   const user = (await currentUser())!;
 
   return (
@@ -89,6 +102,48 @@ export default async function SettingsPage() {
           Save settings
         </button>
       </form>
+
+      <Panel title="Your data">
+        <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 16px', maxWidth: '68ch' }}>
+          GDPR Articles 15 and 17. Annex reported this gap against its own web app on a self-scan —{' '}
+          <code className="code">gdpr.art17.erasure</code> came back missing — so it was fixed rather than
+          excluded. Scan reports are derived entirely from public source code and hold no personal data of
+          their own, so erasure here is a real deletion with nothing left to pseudonymise.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <a className="btn btn-sm" href="/api/account/export">
+            Export everything as JSON
+          </a>
+        </div>
+
+        {params.error ? (
+          <p role="alert" style={{ color: 'var(--crimson)', fontSize: 13, margin: '16px 0 0' }}>
+            {params.error}
+          </p>
+        ) : null}
+
+        <form action={eraseAccount} className="mt-5 flex flex-wrap items-end gap-3" style={{ marginTop: 20 }}>
+          <div>
+            <label htmlFor="confirm" className="eyebrow" style={{ display: 'block', marginBottom: 5 }}>
+              Delete this account and every scan
+            </label>
+            <input
+              id="confirm"
+              name="confirm"
+              className="input"
+              placeholder='Type "delete"'
+              style={{ width: 200 }}
+              aria-describedby="confirm-hint"
+            />
+          </div>
+          <button type="submit" className="btn" style={{ borderColor: 'var(--crimson)', color: 'var(--crimson)' }}>
+            Erase permanently
+          </button>
+        </form>
+        <p id="confirm-hint" style={{ fontSize: 12, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
+          Cascades to every system and scan. There is no undo.
+        </p>
+      </Panel>
     </div>
   );
 }

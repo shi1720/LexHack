@@ -8,6 +8,18 @@ import type { SourceFile } from '../types.js';
  * a passing mention in a README.
  */
 
+/**
+ * Code that *describes* a practice is not code that performs it.
+ *
+ * Test fixtures, benchmark corpora and example directories are full of strings
+ * that look exactly like the thing they test for — Annex found this by scanning
+ * itself and reporting its own benchmark corpus as a prohibited practice. Every
+ * domain signal is therefore blind to them, the same way a SAST tool does not
+ * report the exploit in its own regression suite.
+ */
+const NOT_TEST_DATA =
+  /(^|\/)(tests?|__tests__|__mocks__|spec|e2e|fixtures?|testdata|benchmark|benchmarks|examples?|samples?|mocks?)\//i;
+
 /** Require N distinct corroborating terms in a file before believing a domain claim. */
 function corroborate(terms: string[], min = 2) {
   return (file: SourceFile): boolean => {
@@ -38,6 +50,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['candidate', 'applicant', 'resume', 'job', 'hiring', 'recruit', 'interview'], 2),
     maxEvidence: 16,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.employment.management',
@@ -53,6 +66,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['employee', 'worker', 'staff', 'performance', 'shift', 'productivity'], 2),
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 
   // --- Annex III(5): essential services ------------------------------------
@@ -70,6 +84,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['credit', 'loan', 'borrower', 'underwrit', 'risk', 'mortgage'], 2),
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.insurance.pricing',
@@ -84,6 +99,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['insurance', 'premium', 'policyholder', 'actuarial'], 2),
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.public-benefits',
@@ -98,6 +114,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['benefit', 'welfare', 'eligibility', 'assistance', 'claimant'], 2),
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.emergency.triage',
@@ -113,6 +130,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['patient', 'triage', 'symptom', 'clinical', 'diagnosis', 'emergency'], 2),
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 
   // --- Annex III(3): education ---------------------------------------------
@@ -130,6 +148,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['student', 'admission', 'exam', 'grade', 'course', 'learner'], 2),
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 
   // --- Annex III(1): biometrics --------------------------------------------
@@ -147,6 +166,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.biometric.verification-only',
@@ -163,6 +183,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.biometric.categorisation',
@@ -176,6 +197,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.emotion.recognition',
@@ -191,6 +213,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.biometric.scraping',
@@ -204,6 +227,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 
   // --- Art. 5 prohibitions --------------------------------------------------
@@ -219,6 +243,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.predictive-policing',
@@ -232,6 +257,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.vulnerability.exploitation',
@@ -245,6 +271,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 
   // --- Annex III(6)-(8): law enforcement, migration, justice ---------------
@@ -259,6 +286,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.justice.administration',
@@ -272,6 +300,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.democratic.process',
@@ -285,6 +314,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.critical-infrastructure',
@@ -299,6 +329,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 6,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 
   // --- Art. 50 transparency triggers ---------------------------------------
@@ -316,6 +347,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['chat', 'message', 'assistant', 'conversation', 'user'], 2),
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.synthetic.content',
@@ -330,6 +362,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
   defineSignal({
     id: 'domain.automated.decision',
@@ -345,5 +378,6 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     fileGuard: corroborate(['score', 'decision', 'approve', 'reject', 'threshold', 'eligib'], 2),
     maxEvidence: 8,
     scope: 'code',
+    excludePaths: NOT_TEST_DATA,
   }),
 ];

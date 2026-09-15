@@ -2,6 +2,7 @@ import type { Dependency, RepoSnapshot, SourceFile } from '../types.js';
 import { sha256 } from '../util/hash.js';
 import { detectLanguage } from './languages.js';
 import { INGEST_LIMITS, isBinaryPath, isIgnoredPath, isLockfile } from './ignore.js';
+import { isIgnored, parseAnnexIgnore, type IgnoreRule } from './annexignore.js';
 
 export interface RawFile {
   path: string;
@@ -39,6 +40,12 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
 
   const sorted = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
 
+  // `.annexignore` is read before anything else, so an excluded file is still
+  // counted and still hashed into the tree — it simply produces no signals.
+  const ignoreFile = sorted.find((f) => f.path.replace(/^\.\//, '') === '.annexignore');
+  const rules: IgnoreRule[] = ignoreFile ? parseAnnexIgnore(toText(ignoreFile.bytes)) : [];
+  let ignoredCount = 0;
+
   for (const raw of sorted) {
     const path = raw.path.replace(/^\.\//, '').replace(/\\/g, '/');
     if (!path || path.endsWith('/')) continue;
@@ -56,9 +63,11 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
       if (!isLockfile(path)) continue;
     }
 
-    const shouldRead = !isBinaryPath(path) && size <= INGEST_LIMITS.maxFileBytes;
+    const excluded = rules.length > 0 && isIgnored(path, rules);
+    const shouldRead = !excluded && !isBinaryPath(path) && size <= INGEST_LIMITS.maxFileBytes;
     const text = shouldRead ? toText(raw.bytes) : '';
     const digest = sha256(typeof raw.bytes === 'string' ? raw.bytes : raw.bytes);
+    if (excluded) ignoredCount++;
 
     if (shouldRead && looksBinary(text)) {
       files.push({ path, lang, bytes: size, loc: 0, text: '', sha256: digest, skipped: 'binary' });
@@ -73,7 +82,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
       text,
       sha256: digest,
     };
-    if (!shouldRead) record.skipped = isBinaryPath(path) ? 'binary' : 'too-large';
+    if (!shouldRead) record.skipped = excluded ? 'ignored' : isBinaryPath(path) ? 'binary' : 'too-large';
     files.push(record);
     totalBytes += size;
   }
@@ -87,6 +96,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
     fileCount: files.length,
     totalBytes,
     truncated,
+    ignoredCount,
     capturedAt: new Date().toISOString(),
   };
   if (input.origin) snapshot.origin = input.origin;

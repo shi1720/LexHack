@@ -33,7 +33,7 @@ export default async function EvidencePage({ params }: { params: Promise<{ id: s
           re-run the scan on the same commit and you get the same root.
         </p>
       </div>
-      <EvidenceExplorer controls={latest.report.controls} packNames={packNames} />
+      <EvidenceExplorer controls={latest.report.controls} packNames={packNames} systemId={system.id} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { RiskTier } from '../../src/types.js';
+import type { RiskTier } from '../types.js';
 
 /**
  * The benchmark corpus.

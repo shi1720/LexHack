@@ -2,7 +2,7 @@
   "name": "annex-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Annex — the compliance compiler for AI systems.",
+  "description": "Annex \u2014 the compliance compiler for AI systems.",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/*",
@@ -19,8 +19,12 @@
     "typecheck": "npm run typecheck -w @annex/engine && npm run typecheck -w @annex/cli && npm run typecheck -w @annex/web",
     "lint": "npm run typecheck",
     "packs:verify": "npm run packs:verify -w @annex/engine",
-    "selfscan": "node packages/cli/dist/bin.js scan . --format markdown",
-    "seed": "npm run seed -w @annex/web"
+    "selfscan": "node packages/cli/dist/bin.js scan . --purpose \"Compiles AI regulation into executable, evidence-producing controls over a source repository.\" --markets eu,us-federal",
+    "seed": "npm run seed -w @annex/web",
+    "benchmark": "node packages/cli/dist/bin.js benchmark",
+    "benchmark:report": "node packages/cli/dist/bin.js benchmark --format markdown --out docs/BENCHMARK.md",
+    "screenshots": "node scripts/screenshots.mjs",
+    "start": "npm run start -w @annex/web"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

@@ -4,6 +4,7 @@ import { currentUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
 import { Citation, Empty, Panel, Stat } from '@/components/primitives';
 import { CopyButton } from '@/components/copy-button';
+import { OpenPullRequest } from '@/components/open-pr';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,11 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
 
         <Panel title="Apply it">
           <div className="space-y-2">
-            <a className="btn btn-sm btn-primary w-full" href={`/api/systems/${system.id}/patch`}>
+            <OpenPullRequest
+              systemId={system.id}
+              canOpen={system.sourceKind === 'github' && Boolean(user.githubToken)}
+            />
+            <a className="btn btn-sm w-full" href={`/api/systems/${system.id}/patch`}>
               Download .patch
             </a>
             <CopyButton

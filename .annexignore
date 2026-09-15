@@ -1,0 +1,41 @@
+# Annex scanning Annex.
+#
+# A rule pack is source code that quotes the thing it detects: the Article
+# 5(1)(f) control contains a golden fixture of emotion-inference code so that
+# the detector can be tested. Scanning this repository without these exclusions
+# reports Annex itself as containing a prohibited practice — which it found,
+# and which is why this file exists.
+#
+# Excluded files are still ingested, still hashed into the tree and still
+# counted in the report's warnings. They simply produce no signals.
+
+# The corpus: controls, classification rules and their golden fixtures.
+packages/engine/src/packs/
+packages/engine/src/classify/rules.ts
+packages/engine/src/signals/catalogue.*.ts
+packages/engine/src/benchmark/
+
+# Deliberately non-conformant sample repositories used by the demo and tests.
+fixtures/
+
+# Primary-source legal research, which quotes the statute at length.
+docs/research/
+
+# Tests.
+packages/engine/test/
+
+# The product's own copy, which quotes the statute and shows example findings.
+# A landing page that prints `candidateScore >= ADVANCE_THRESHOLD` as an
+# illustration is not a recruitment system, and the sample catalogue that
+# describes a credit-scoring fixture is not a credit-scoring system.
+apps/web/src/app/page.tsx
+apps/web/src/server/systems.ts
+apps/web/src/server/narrative.ts
+packages/engine/src/classify/index.ts
+packages/engine/src/dossier/
+packages/cli/src/bin.ts
+
+# Generated remediation templates, which are the compliant implementations
+# Annex writes into other people's repositories.
+packages/engine/src/packs/remediation-templates.ts
+packages/engine/src/packs/doc-templates.ts

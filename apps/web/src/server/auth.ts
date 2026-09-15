@@ -171,6 +171,32 @@ export function updateUser(id: string, patch: Partial<Pick<User, 'name' | 'orgNa
     });
 }
 
+/**
+ * Erasure and export.
+ *
+ * GDPR Articles 15 and 17. Annex reported this gap against its own web app on
+ * a self-scan — `annex scan .` flagged `gdpr.art17.erasure` as missing — which
+ * is the most direct argument for the tool there is, so it was fixed rather
+ * than excluded.
+ *
+ * Deletion cascades to systems and scans through the foreign keys. Scan
+ * reports are derived entirely from public source code and carry no personal
+ * data of their own, so there is nothing here to pseudonymise and retain.
+ */
+export function exportUserData(id: string): Record<string, unknown> {
+  const handle = db();
+  const user = handle.prepare('SELECT id, email, name, org_name, turnover_eur, employees, created_at FROM users WHERE id = ?').get(id);
+  const systems = handle.prepare('SELECT * FROM systems WHERE user_id = ?').all(id);
+  const scans = handle
+    .prepare('SELECT id, system_id, status, score, live_score, tier, ledger_root, created_at FROM scans WHERE system_id IN (SELECT id FROM systems WHERE user_id = ?)')
+    .all(id);
+  return { exportedAt: nowIso(), user, systems, scans };
+}
+
+export function deleteUser(id: string): void {
+  db().prepare('DELETE FROM users WHERE id = ?').run(id);
+}
+
 // ---------------------------------------------------------------------------
 // The demo account — a judge should never meet a signup wall
 // ---------------------------------------------------------------------------

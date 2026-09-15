@@ -66,6 +66,11 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
       `The repository exceeded the ingest limit, so only the first ${snapshot.fileCount} files were analysed. Findings are sound but coverage is partial.`,
     );
   }
+  if (snapshot.ignoredCount > 0) {
+    warnings.push(
+      `${snapshot.ignoredCount} file${snapshot.ignoredCount === 1 ? '' : 's'} excluded by .annexignore and not analysed. They are still counted in the tree hash, so the ledger root reflects what was there.`,
+    );
+  }
   if (snapshot.fileCount === 0) {
     warnings.push('No readable source files were found in this repository.');
   }

@@ -17,6 +17,8 @@ export { readTar, readTarGz, stripRootDir } from './ingest/tar.js';
 export type { TarEntry } from './ingest/tar.js';
 export { detectLanguage } from './ingest/languages.js';
 export { INGEST_LIMITS } from './ingest/ignore.js';
+export { parseAnnexIgnore, isIgnored } from './ingest/annexignore.js';
+export type { IgnoreRule } from './ingest/annexignore.js';
 
 export {
   SIGNAL_CATALOGUE,
@@ -63,3 +65,6 @@ export { dossierToMarkdown, dossierToHtml } from './dossier/render.js';
 
 export { toSarif } from './export/sarif.js';
 export { toAttestation, toMlBom } from './export/cyclonedx.js';
+
+export { runBenchmark, benchmarkMarkdown, BENCHMARK } from './benchmark/index.js';
+export type { BenchmarkSummary, CaseOutcome, BenchmarkCase } from './benchmark/index.js';

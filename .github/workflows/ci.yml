@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  verify:
+    name: Typecheck, test, benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Typecheck every workspace
+        run: npm run typecheck
+
+      - name: Unit tests and golden fixtures
+        run: npm run test:run
+
+      # The corpus reports its own accuracy on every commit. If a detector
+      # regresses, the benchmark thresholds in test/benchmark.spec.ts fail the
+      # build — the numbers in the README cannot drift away from reality.
+      - name: Benchmark
+        run: npm run benchmark
+
+      - name: Build the web app
+        run: npm run build -w @annex/web
+        env:
+          ANNEX_FIXTURES: ${{ github.workspace }}
+
+  dogfood:
+    name: Annex scans Annex
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # If a tool that checks other people's AI Act posture cannot survive its
+      # own check, it has no business shipping.
+      - name: Scan this repository
+        run: |
+          node packages/cli/dist/bin.js scan . \
+            --purpose "Compiles AI regulation into executable, evidence-producing controls over a source repository." \
+            --markets eu,us-federal \
+            --format sarif --out annex.sarif
+
+      - name: Upload findings to code scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: annex.sarif
+          category: annex-selfscan
+
+      - name: Human-readable self-scan
+        run: npm run selfscan
