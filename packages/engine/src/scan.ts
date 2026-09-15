@@ -199,7 +199,7 @@ export function diffReports(before: ScanReport, after: ScanReport): DriftReport 
 
   const summary = substantial
     ? classificationChanged
-      ? `The risk classification moved from ${before.classification.tier} to ${after.classification.tier}. Under Article 25(1)(c) and Article 43(4) this is a substantial modification: the conformity assessment has to be re-opened and the technical documentation updated.`
+      ? `The risk classification moved from ${before.classification.tier} to ${after.classification.tier}. A change in the intended purpose is a substantial modification on the face of Article 3(23), and Article 43(4) then requires the conformity assessment to be re-opened and the technical documentation updated.`
       : `${regressed.length} control${regressed.length === 1 ? '' : 's'} regressed, including at least one that affects compliance with Chapter III, Section 2. On the Article 3(23) definition this is a substantial modification.`
     : regressed.length > 0
       ? `${regressed.length} low-severity control${regressed.length === 1 ? '' : 's'} regressed. Not substantial on its own, but the dossier is now out of date.`

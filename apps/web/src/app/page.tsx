@@ -74,29 +74,45 @@ export default function Landing() {
             One click into a seeded demo. No signup, no credit card, no API key.
           </p>
 
-          {/* Terminal proof */}
-          <div className="card mt-12 overflow-hidden" style={{ background: 'var(--surface)' }}>
-            <div className="flex items-center gap-2 border-b px-4 py-2.5" style={{ borderColor: 'var(--line)', background: 'var(--sunken)' }}>
+          {/*
+            Verbatim output of the command in the title bar, captured from the
+            bundled fixture. Nothing here is typeset for effect: a product whose
+            argument is "documents people write about themselves are worthless"
+            cannot open with a mock-up of its own output. Run the command and
+            you get these numbers, including the ledger fingerprint.
+          */}
+          <div className="card mt-10 overflow-hidden" style={{ background: 'var(--surface)' }}>
+            <div className="flex flex-wrap items-center gap-2 border-b px-4 py-2.5" style={{ borderColor: 'var(--line)', background: 'var(--sunken)' }}>
               <span className="code" style={{ color: 'var(--ink-faint)' }}>~/hireflow</span>
               <span className="code" style={{ color: 'var(--ink-faint)' }}>·</span>
-              <span className="code" style={{ color: 'var(--ink-faint)' }}>annex scan .</span>
+              <span className="code" style={{ color: 'var(--ink)' }}>
+                annex scan . --markets eu,us-nyc --turnover 9800000 --employees 40
+              </span>
             </div>
             <pre className="code scroll-x m-0 p-4" style={{ lineHeight: 1.75, fontSize: 12.5 }}>
-{`  `}<span style={{ background: 'var(--crimson)', color: 'var(--paper)', fontWeight: 700, padding: '1px 7px', borderRadius: 3 }}>{' PROHIBITED '}</span>{`  Article 5(1)(f) — emotion inference in the workplace
+{`  `}<span style={{ background: 'var(--crimson)', color: 'var(--paper)', fontWeight: 700, padding: '1px 7px', borderRadius: 3 }}>{' PROHIBITED '}</span>{`  Contains a practice prohibited by Article 5: emotion inference in the workplace.
 
-  classification   Annex III, point 4(a) · recruitment and candidate selection    97% confidence
+  repository     hireflow · 14 files · 47 ms
+  your role      provider and deployer (Arts. 3(3), 3(4))
+  classification Annex III, point 4(a) — recruitment and candidate selection   97% confidence
   `}<span style={{ color: 'var(--navy)' }}>src/screening/rank.ts:28</span>{`
     `}<span style={{ color: 'var(--ink-soft)' }}>const decision = candidateScore &gt;= ADVANCE_THRESHOLD ? 'advance' : 'reject';</span>{`
 
-  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   Art. 14      Human oversight — no review step, no override, no stop control
-  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   Art. 12      Record-keeping — nothing records which model made which decision
-  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   Art. 50(1)   `}<span style={{ color: 'var(--amber)' }}>IN FORCE</span>{`  the chat UI never says it is an AI
-  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   LL 144 §5-301  no independent bias audit in the last twelve months
+  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   Art. 5(1)(f)  `}<span style={{ color: 'var(--amber)' }}>IN FORCE</span>{`  emotion inference from video interviews
+  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   Art. 50(1)    `}<span style={{ color: 'var(--amber)' }}>IN FORCE</span>{`  the chat UI never says it is an AI
+  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   Art. 14       human oversight — no review step, no override, no stop control
+  `}<span style={{ color: 'var(--crimson)' }}>✖ missing</span>{`   LL 144 §5-301           no independent bias audit in the last twelve months
 
-  conformity   `}<span style={{ color: 'var(--crimson)' }}>█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>{`   2/100
-  exposure     €294,000   ledger  B43A-D619-8282-7F4D   14 files · 35 ms · no model called`}
+  conformity     `}<span style={{ color: 'var(--crimson)' }}>█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>{`   3/100     in force today  2/100
+  exposure       €686,000 statutory ceiling   ledger  160C-E181-595B-6968   no model called`}
             </pre>
           </div>
+
+          <p className="mt-3" style={{ fontSize: 12.5, color: 'var(--ink-faint)' }}>
+            Verbatim output over the bundled HireFlow fixture. The exposure figure applies the Article 99(6)
+            SME inversion to a €9.8m turnover; the ledger fingerprint reproduces on any machine, at any time,
+            from the same commit.
+          </p>
         </section>
 
         {/* ---------------------------------------------------------------- */}

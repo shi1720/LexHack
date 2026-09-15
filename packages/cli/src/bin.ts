@@ -287,7 +287,7 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   out.write('\n' + tierBanner(report.classification.tier, report.classification.summary) + '\n\n');
 
   out.write(`  ${c.grey('repository')}   ${c.bold(report.snapshot.name)} ${c.grey(`· ${report.snapshot.fileCount} files · ${report.durationMs} ms`)}\n`);
-  out.write(`  ${c.grey('your role')}    ${report.classification.role.replace('+', ' and ')} ${c.grey('(Art. 3(3))')}\n`);
+  out.write(`  ${c.grey('your role')}    ${report.classification.role.replace('+', ' and ')} ${c.grey('(Arts. 3(3), 3(4))')}\n`);
   out.write(`  ${c.grey('conformity')}   ${scoreBar(report.score)}\n`);
   out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);

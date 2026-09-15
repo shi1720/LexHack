@@ -46,7 +46,7 @@ export default async function DossierPage({
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
         <Panel title="Annex IV technical documentation">
           <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '76ch' }}>
             Article 11(1) requires this document before a high-risk system is placed on the market, and Annex IV

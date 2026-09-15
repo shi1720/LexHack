@@ -47,9 +47,13 @@ export function OpenPullRequest({ systemId, canOpen }: { systemId: string; canOp
 
   return (
     <div>
+      {/* Only the primary action when it can actually be taken. A filled
+          button that cannot be pressed is the brightest thing on a dark page
+          and it leads nowhere; for a bundled sample the patch download is the
+          real action, so this one steps back to a secondary. */}
       <button
         type="button"
-        className="btn btn-sm btn-primary w-full"
+        className={`btn btn-sm w-full${canOpen ? ' btn-primary' : ''}`}
         onClick={open}
         disabled={!canOpen || state === 'working'}
         aria-busy={state === 'working'}

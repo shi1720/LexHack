@@ -41,7 +41,7 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
         <Panel title="The pull request Annex would open">
           <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '76ch' }}>
             Every file here is additive and written only when absent, so applying this can never overwrite
@@ -66,7 +66,10 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
               systemId={system.id}
               canOpen={system.sourceKind === 'github' && Boolean(user.githubToken)}
             />
-            <a className="btn btn-sm w-full" href={`/api/systems/${system.id}/patch`}>
+            <a
+              className={`btn btn-sm w-full${system.sourceKind === 'github' && user.githubToken ? '' : ' btn-primary'}`}
+              href={`/api/systems/${system.id}/patch`}
+            >
               Download .patch
             </a>
             <CopyButton
@@ -82,6 +85,11 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
           </div>
           <p style={{ fontSize: 11.5, color: 'var(--ink-faint)', margin: '12px 0 0' }}>
             Branch <span className="code">{plan.branchName}</span>
+          </p>
+          <p className="legal" style={{ fontSize: 12, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
+            Merging this does not close the gaps. The next scan reads these files the way an auditor would:
+            a document with unfilled placeholders counts as partial, and a module no code path reaches counts
+            as partial. The projected score above already assumes that.
           </p>
           <p style={{ fontSize: 11.5, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
             Or run <code className="code">annex fix .</code> in the repository — the CLI writes the same files.

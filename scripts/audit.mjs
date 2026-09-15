@@ -25,10 +25,16 @@ function contrast(a, b) {
   return (l1 + 0.05) / (l2 + 0.05);
 }
 
+// The 4.5:1 rows are body text (WCAG 1.4.3). The 3:1 rows are the visual
+// boundary of a user-interface component (WCAG 1.4.11), which is a different
+// threshold and the one this design failed until the borders were darkened.
 const PAIRS = [
   ['ink on paper', '#14181f', '#fcfcfa', 4.5],
   ['ink-soft on paper', '#444b57', '#fcfcfa', 4.5],
   ['ink-faint on paper', '#667080', '#fcfcfa', 4.5],
+  ['control border on surface', '#8e9089', '#ffffff', 3],
+  ['dark: control border on surface', '#6b7480', '#14181f', 3],
+  ['dark: ink-faint on sunken', '#8791a0', '#1a1f28', 4.5],
   ['navy on paper', '#17356b', '#fcfcfa', 4.5],
   ['navy on navy-soft', '#17356b', '#e8edf6', 4.5],
   ['crimson on crimson-soft', '#a11526', '#fbe8ea', 4.5],
@@ -37,7 +43,7 @@ const PAIRS = [
   ['paper on ink (primary button)', '#fcfcfa', '#14181f', 4.5],
   ['dark: ink on paper', '#eef1f5', '#0d1015', 4.5],
   ['dark: ink-soft on surface', '#b3bac6', '#14181f', 4.5],
-  ['dark: ink-faint on surface', '#7d8694', '#14181f', 4.5],
+  ['dark: ink-faint on surface', '#8791a0', '#14181f', 4.5],
   ['dark: navy on surface', '#8fb3f0', '#14181f', 4.5],
   ['dark: crimson on crimson-soft', '#ff8f9c', '#351319', 4.5],
   ['dark: amber on amber-soft', '#f0c060', '#302510', 4.5],
@@ -82,6 +88,7 @@ const PAGES = [
   ['evidence', `${first}/evidence`],
   ['dossier', `${first}/dossier`],
   ['remediation', `${first}/remediation`],
+  ['history', `${first}/history`],
   ['new', '/app/new'],
   ['settings', '/app/settings'],
 ];
@@ -141,6 +148,32 @@ for (const [name, path] of PAGES) {
   if (!ok) failures.push(`a11y ${name}: ${audit.join('; ')}`);
   process.stdout.write(`  ${ok ? '✔' : '✖'} ${name.padEnd(14)} ${ok ? 'clean' : audit.join('; ')}\n`);
 }
+
+// --------------------------------------------------------------------------
+// Invalid ARIA is worse than none: a role promises interactions to a screen
+// reader that the markup then has to honour.
+// --------------------------------------------------------------------------
+
+await dp.goto(`${BASE}${first}/evidence`, { waitUntil: 'networkidle' });
+const aria = await dp.evaluate(() => {
+  const problems = [];
+  for (const tab of document.querySelectorAll('[role="tab"]')) {
+    if (!tab.getAttribute('aria-controls')) problems.push('role=tab without aria-controls');
+    if (!tab.closest('[role="tablist"]')) problems.push('role=tab outside a tablist');
+  }
+  for (const list of document.querySelectorAll('[role="tablist"]')) {
+    if (!document.querySelector('[role="tabpanel"]')) problems.push('tablist with no tabpanel');
+  }
+  const scrollers = [...document.querySelectorAll('.evidence-snippet')].filter(
+    (el) => el.scrollWidth > el.clientWidth + 2,
+  );
+  for (const el of scrollers) {
+    if (el.tabIndex < 0) problems.push('scrollable code region is not focusable');
+  }
+  return [...new Set(problems)];
+});
+if (aria.length) failures.push(`aria evidence: ${aria.join('; ')}`);
+process.stdout.write(`  ${aria.length ? '✖' : '✔'} aria patterns  ${aria.length ? aria.join('; ') : 'clean'}\n`);
 
 // Tab from the top of the dashboard and confirm focus is visible and ordered.
 await dp.goto(`${BASE}/app`, { waitUntil: 'networkidle' });

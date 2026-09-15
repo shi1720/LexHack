@@ -20,6 +20,8 @@ const LABELS = {
     citation: 'Citation',
     finding: 'Finding',
     contents: 'Contents',
+    openCount: 'Open items',
+    evidenceCount: 'Evidence citations',
   },
   de: {
     issued: 'Ausgestellt',
@@ -27,7 +29,7 @@ const LABELS = {
     provider: 'Anbieter',
     version: 'Bewertete Version',
     classification: 'Einstufung',
-    role: 'Rolle nach Artikel 3',
+    role: 'Rolle nach Artikel 3 Nummern 3 und 4',
     fingerprint: 'Nachweisregister',
     method: 'Methodenerklärung',
     evidence: 'Nachweise',
@@ -39,6 +41,8 @@ const LABELS = {
     citation: 'Fundstelle',
     finding: 'Feststellung',
     contents: 'Inhalt',
+    openCount: 'Offene Punkte',
+    evidenceCount: 'Nachweiszitate',
   },
   fr: {
     issued: 'Délivré',
@@ -46,7 +50,7 @@ const LABELS = {
     provider: 'Fournisseur',
     version: 'Version évaluée',
     classification: 'Classification',
-    role: "Rôle au titre de l'article 3",
+    role: "Rôle au titre de l'article 3, points 3 et 4",
     fingerprint: 'Registre de preuves',
     method: 'Déclaration de méthode',
     evidence: 'Preuves',
@@ -58,6 +62,8 @@ const LABELS = {
     citation: 'Référence',
     finding: 'Constat',
     contents: 'Sommaire',
+    openCount: 'Points ouverts',
+    evidenceCount: 'Citations de preuves',
   },
 } as const;
 
@@ -80,7 +86,7 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
   const lines: string[] = [];
 
   lines.push(`# ${dossier.title}`, '');
-  lines.push(`> Regulation (EU) 2024/1689, Annex IV${dossier.simplified ? ' — simplified form (Article 11(1), third subparagraph)' : ''}`, '');
+  lines.push(`> Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744, Annex IV${dossier.simplified ? ' — simplified form (Article 11(1), third subparagraph)' : ''}`, '');
   lines.push(
     '| | |',
     '|---|---|',
@@ -91,8 +97,8 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
     `| **${t.classification}** | ${dossier.classification} |`,
     `| **${t.role}** | ${dossier.role.replace('+', ' and ')} |`,
     `| **${t.fingerprint}** | \`${dossier.ledgerFingerprint}\` |`,
-    `| **Open items** | ${dossier.openCount} |`,
-    `| **Evidence citations** | ${dossier.evidenceCount} |`,
+    `| **${t.openCount}** | ${dossier.openCount} |`,
+    `| **${t.evidenceCount}** | ${dossier.evidenceCount} |`,
     '',
   );
 
@@ -304,7 +310,7 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
 <body>
 <div class="sheet">
   <h1>${esc(dossier.title)}</h1>
-  <p class="sub">Regulation (EU) 2024/1689, Annex IV${dossier.simplified ? ' — simplified form under Article 11(1)' : ''} · compiled from source by Annex</p>
+  <p class="sub">Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744, Annex IV${dossier.simplified ? ' — simplified form under Article 11(1)' : ''} · compiled from source by Annex</p>
 
   <table class="meta">
     <tr><th>${t.system}</th><td>${esc(dossier.systemName)}</td></tr>
@@ -314,8 +320,8 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
     <tr><th>${t.classification}</th><td>${esc(dossier.classification)}</td></tr>
     <tr><th>${t.role}</th><td>${esc(dossier.role.replace('+', ' and '))}</td></tr>
     <tr><th>${t.fingerprint}</th><td class="fingerprint">${esc(dossier.ledgerFingerprint)}</td></tr>
-    <tr><th>Evidence citations</th><td>${dossier.evidenceCount}</td></tr>
-    <tr><th>Open items</th><td>${dossier.openCount}</td></tr>
+    <tr><th>${t.evidenceCount}</th><td>${dossier.evidenceCount}</td></tr>
+    <tr><th>${t.openCount}</th><td>${dossier.openCount}</td></tr>
   </table>
 
   <nav class="toc"><h3>${t.contents}</h3><ol>${toc}</ol></nav>

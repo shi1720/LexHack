@@ -340,7 +340,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     point: '7',
     title: h.point['7'] ?? 'Harmonised standards or solutions adopted',
     body: [
-      'No harmonised standards for the AI Act have yet been cited in the Official Journal of the European Union. CEN-CENELEC JTC 21 has prEN 18286 (quality management system for AI Act regulatory purposes) at formal vote. Until a reference is published, Annex IV point 7 takes its second branch: a detailed description of the solutions adopted to meet the Chapter III Section 2 requirements, and a list of other relevant standards applied.',
+      'No harmonised standards for the AI Act have yet been cited in the Official Journal of the European Union. CEN-CENELEC announced EN 18286 — a quality management system supporting AI Act regulatory purposes — as the first European standard in this family on 30 July 2026, but a standard is only harmonised once its reference is published in the OJEU, and until then Article 40 gives no presumption of conformity. So Annex IV point 7 takes its second branch: a detailed description of the solutions adopted to meet the Chapter III Section 2 requirements, and a list of other relevant standards applied.',
       report.signals.some((s) => s.id === 'governance.qms')
         ? 'Other standards referenced in this repository appear in the evidence below.'
         : 'No other standards or technical specifications were referenced in this repository.',

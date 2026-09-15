@@ -67,9 +67,40 @@ function migrate(handle: Database.Database): void {
       created_at  TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS settings (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_systems_user ON systems(user_id);
     CREATE INDEX IF NOT EXISTS idx_scans_system ON scans(system_id, created_at DESC);
   `);
+}
+
+/**
+ * A per-installation secret, generated once and kept in the database file.
+ *
+ * The alternative shapes are both worse. A hardcoded fallback in a public
+ * repository is a published signing key: anyone could mint a session for
+ * anyone. Requiring an environment variable before the app will start turns
+ * "clone it and run it" into a configuration exercise for a reviewer who just
+ * wants to look at the thing. Generating one on first boot has neither
+ * problem, and an operator who wants to manage the secret themselves still
+ * can — `ANNEX_SECRET` takes precedence and is what a multi-instance
+ * deployment should set, since a value in one container's SQLite file does not
+ * reach another's.
+ */
+export function installationSecret(): string {
+  const row = db().prepare('SELECT value FROM settings WHERE key = ?').get('session_secret') as
+    | { value: string }
+    | undefined;
+  if (row) return row.value;
+
+  const bytes = new Uint8Array(48);
+  crypto.getRandomValues(bytes);
+  const value = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  db().prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('session_secret', value);
+  return value;
 }
 
 export function nowIso(): string {

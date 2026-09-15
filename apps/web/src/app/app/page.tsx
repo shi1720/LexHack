@@ -50,7 +50,7 @@ export default async function Dashboard() {
           </p>
         </div>
         <Link className="btn btn-primary" href="/app/new">
-          Add a system
+          Add system
         </Link>
       </div>
 
@@ -61,7 +61,7 @@ export default async function Dashboard() {
             label="In force and failing"
             value={String(liveGaps.length)}
             tone={liveGaps.length > 0 ? 'bad' : 'ok'}
-            hint="obligations that bind you today"
+            hint="obligations binding today"
           />
           <Tile
             label="Prohibited practices"
@@ -73,7 +73,7 @@ export default async function Dashboard() {
             label="Statutory maximum"
             value={money(totalExposure)}
             tone={totalExposure > 0 ? 'warn' : 'ok'}
-            hint="administrative ceiling, in force today"
+            hint="ceiling, in force today"
           />
           <Tile
             label="Next deadline"
@@ -147,7 +147,7 @@ export default async function Dashboard() {
                   <div className="flex items-center gap-6">
                     <ScoreDial score={data.report.score} label="Conformity" size={92} />
                     <div className="hidden sm:block">
-                      <ScoreDial score={data.report.liveScore} label="In force now" size={92} />
+                      <ScoreDial score={data.report.liveScore} label="In force today" size={92} />
                     </div>
                   </div>
                 ) : null}

@@ -39,3 +39,10 @@ packages/cli/src/bin.ts
 # Annex writes into other people's repositories.
 packages/engine/src/packs/remediation-templates.ts
 packages/engine/src/packs/doc-templates.ts
+
+# Annex's own output, checked in as worked examples. A CycloneDX attestation
+# describing a prohibited practice is a description of one, and on the next
+# scan it would be read back as evidence about this repository — the same loop
+# the remediation guard exists to break.
+docs/examples/
+docs/BENCHMARK.md

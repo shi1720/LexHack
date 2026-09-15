@@ -1309,7 +1309,7 @@ export const EU_AI_ACT_PACK: RulePack = {
     { date: DATES.PROHIBITIONS, label: 'Prohibited practices and AI literacy', note: 'Chapters I and II applied from 2 February 2025.' },
     { date: DATES.GPAI, label: 'General-purpose AI model obligations', note: 'Chapter V applied from 2 August 2025.' },
     { date: DATES.GENERAL, label: 'Article 50 transparency', note: 'General application. Not moved by the Digital Omnibus — this is the obligation that binds AI products today.' },
-    { date: DATES.MARKING_GRACE, label: 'Synthetic content marking deadline', note: 'Article 111(4): systems on the market before 2 August 2026 must comply with Article 50(2) by 2 December 2026.' },
+    { date: DATES.MARKING_GRACE, label: 'Synthetic content marking', note: 'Article 111(4): systems on the market before 2 August 2026 must comply with Article 50(2) by 2 December 2026.' },
     { date: DATES.NEW_PROHIBITIONS, label: 'New Article 5 prohibitions', note: 'Article 5(1)(ba) and (bb) — non-consensual intimate imagery and CSAM — apply from 2 December 2026.' },
     { date: DATES.HIGH_RISK_ANNEX_III, label: 'Annex III high-risk obligations', note: 'Moved from 2 August 2026 by Regulation (EU) 2026/1744.' },
     { date: DATES.HIGH_RISK_ANNEX_I, label: 'Annex I embedded high-risk obligations', note: 'Moved from 2 August 2027 by Regulation (EU) 2026/1744.' },

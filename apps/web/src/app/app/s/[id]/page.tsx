@@ -29,7 +29,7 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
   return (
     <div className="space-y-6">
       {/* Headline ------------------------------------------------------- */}
-      <div className="grid gap-4 lg:grid-cols-[auto_1fr]">
+      <div className="grid items-start gap-4 lg:grid-cols-[auto_1fr]">
         <div className="card flex items-center justify-center gap-8 p-6">
           <ScoreDial score={report.score} label="Conformity" sublabel={`${applicable.length} obligations`} />
           <ScoreDial
@@ -41,17 +41,30 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Panel title="Your role">
-            <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>
+            <p style={{ fontSize: 22, fontWeight: 650, letterSpacing: '-0.02em', margin: 0, lineHeight: 1.25 }}>
               {report.classification.role.replace('+', ' and ')}
             </p>
-            <p className="legal mt-2" style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
-              Article 3(3) makes whoever develops an AI system and places it on the market under their own name
-              the <strong>provider</strong>. Calling someone else&rsquo;s model does not make you only a deployer
-              — and Article 25(1)(c) can convert a deployer into the provider where they repoint a
-              general-purpose AI system, already on the market and not classified high-risk, at an Annex III
-              use case. Whether that applies here is a determination for you; Annex records the dependency,
-              not the conclusion.
+            <p style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '4px 0 0' }}>
+              Articles 3(3) and 3(4) · decides which Article 50 duty binds you today
             </p>
+            {/* The reasoning is identical on every system, so it is furniture
+                until someone wants it. Behind a disclosure it stays available
+                and stops being skipped. */}
+            <details className="mt-3">
+              <summary style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer' }}>
+                Why this determination?
+              </summary>
+              <p className="legal" style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
+                Article 3(3) makes whoever develops an AI system and places it on the market or puts it into
+                service under their own name the <strong>provider</strong>; Article 3(4) makes whoever uses one
+                under their own authority the <strong>deployer</strong>. Calling someone else&rsquo;s model does
+                not by itself make you only a deployer. Article 25(1)(c) can convert a deployer into the
+                provider where they repoint a general-purpose AI system — already on the market and not
+                classified high-risk — at an Annex III use case. Whether either applies here turns on facts
+                Annex cannot read out of a repository: who supplies the system, under whose name, and to whom.
+                Annex records the model dependency; the determination is yours.
+              </p>
+            </details>
           </Panel>
 
           <Panel title="Statutory maximum">
@@ -61,10 +74,25 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
             <p className="legal mt-2" style={{ fontSize: 13, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
               {report.exposure.basis}
             </p>
+            {report.exposure.byRegime.length > 0 ? (
+              <ul className="mt-3" style={{ listStyle: 'none', margin: '12px 0 0', padding: 0 }}>
+                {report.exposure.byRegime.map((r) => (
+                  <li key={r.packId} style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 4 }}>
+                    <span style={{ fontWeight: 600 }}>{money(r.amount, r.currency)}</span>{' '}
+                    <span style={{ color: 'var(--ink-faint)' }}>
+                      {r.packName}
+                      {r.multiplier ? `, ${r.multiplier}` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {report.exposure.maxFine > 0 ? (
-              <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
+              <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '10px 0 0' }}>
                 A ceiling, not a forecast. Article 99(1) and 99(7) make administrative fines discretionary and
-                require them to be effective, proportionate and dissuasive in each case.
+                require them to be effective, proportionate and dissuasive in each case. Two systems in the same
+                penalty tier, owned by the same undertaking, share a ceiling — the figure describes the
+                undertaking&rsquo;s turnover, not the system&rsquo;s risk.
               </p>
             ) : null}
             {report.exposure.citations[0] ? (

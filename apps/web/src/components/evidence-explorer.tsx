@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type KeyboardEvent } from 'react';
 import type { ControlResult } from '@annex/engine';
 import { Citation, EvidenceLine, StatusBadge } from './primitives';
 import { ExplainPanel } from './explain-panel';
@@ -67,11 +67,43 @@ export function EvidenceExplorer({
 
   const packs = useMemo(() => [...new Set(applicable.map((c) => c.pack))], [applicable]);
 
+  /**
+   * Up and down walk the obligation list, Home and End jump to its ends.
+   *
+   * An auditor working through thirty controls should not have to press Tab
+   * thirty times, and the list is long enough that they will.
+   */
+  const onListKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const step = event.key === 'ArrowDown' ? 1 : event.key === 'ArrowUp' ? -1 : 0;
+    if (step === 0 && event.key !== 'Home' && event.key !== 'End') return;
+    const buttons = Array.from(
+      event.currentTarget.closest('ul')?.querySelectorAll<HTMLButtonElement>('button[data-obligation]') ?? [],
+    );
+    const here = buttons.indexOf(event.currentTarget);
+    const next =
+      event.key === 'Home'
+        ? buttons[0]
+        : event.key === 'End'
+          ? buttons[buttons.length - 1]
+          : buttons[here + step];
+    if (!next) return;
+    event.preventDefault();
+    next.focus();
+    next.click();
+  };
+
   return (
     <div className="space-y-4">
       {/* Controls ------------------------------------------------------- */}
       <div className="flex flex-wrap items-center gap-3">
-        <div role="tablist" aria-label="Filter obligations" className="flex flex-wrap gap-1.5">
+        {/*
+          A filter group, not a tab list. The ARIA tab pattern promises a screen
+          reader that Left and Right move between the tabs and that each one
+          controls a panel; neither was true here, and these are not tabs
+          anyway — they narrow one list rather than swapping between several.
+          `aria-pressed` describes what they actually are: toggles.
+        */}
+        <div role="group" aria-label="Filter obligations" className="flex flex-wrap gap-1.5">
           {FILTERS.map((f) => {
             const count =
               f.key === 'all'
@@ -85,8 +117,8 @@ export function EvidenceExplorer({
             return (
               <button
                 key={f.key}
-                role="tab"
-                aria-selected={active}
+                type="button"
+                aria-pressed={active}
                 title={f.hint}
                 className="btn btn-sm"
                 onClick={() => setFilter(f.key)}
@@ -136,7 +168,7 @@ export function EvidenceExplorer({
       </div>
 
       {/* Split view ----------------------------------------------------- */}
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
         <div className="card overflow-hidden">
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: 640, overflowY: 'auto' }}>
             {visible.length === 0 ? (
@@ -149,7 +181,9 @@ export function EvidenceExplorer({
               return (
                 <li key={c.controlId} style={{ borderBottom: '1px solid var(--line)' }}>
                   <button
+                    data-obligation
                     onClick={() => setSelectedId(c.controlId)}
+                    onKeyDown={onListKeyDown}
                     aria-current={active ? 'true' : undefined}
                     style={{
                       display: 'block',
@@ -168,7 +202,11 @@ export function EvidenceExplorer({
                       <span className="cite" style={{ fontSize: 12 }}>
                         {c.citations[0] ? `${c.citations[0].short} ${c.citations[0].locator}` : c.controlId}
                       </span>
-                      {c.inForce ? <span className="badge badge-bad" style={{ fontSize: 10 }}>live</span> : null}
+                      {/* A neutral fact — this obligation is enforceable today —
+                          not an alarm. Crimson here sat next to a crimson
+                          severity badge and a crimson status badge, three
+                          different meanings in one card. */}
+                      {c.inForce ? <span className="badge badge-neutral">In force today</span> : null}
                     </div>
                     <div style={{ fontSize: 13.5, fontWeight: active ? 600 : 480, marginTop: 2, lineHeight: 1.35 }}>
                       {c.title}

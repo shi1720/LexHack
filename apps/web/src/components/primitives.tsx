@@ -78,31 +78,37 @@ export function ScoreDial({
   const stroke = size > 110 ? 9 : 7;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const dash = (score / 100) * circumference;
+  // A score of zero used to draw no arc at all, which reads as "failed to
+  // load" rather than "measured, and it is nothing". A short stub in the
+  // failing colour says the difference.
+  const dash = Math.max((score / 100) * circumference, circumference * 0.012);
   const colour = score >= 80 ? 'var(--moss)' : score >= 50 ? 'var(--amber)' : 'var(--crimson)';
 
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} role="img" aria-label={`${label}: ${score} out of 100`}>
+        {/* The number and its label sit in the sibling text below, so the
+            graphic is decoration as far as a screen reader is concerned. */}
+        <svg width={size} height={size} aria-hidden="true">
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--line)" strokeWidth={stroke} />
-          {score > 0 ? (
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke={colour}
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={`${dash} ${circumference}`}
-              transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            />
-          ) : null}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={colour}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={`${dash} ${circumference}`}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span style={{ fontSize: size * 0.3, fontWeight: 650, letterSpacing: '-0.03em', lineHeight: 1 }}>{score}</span>
-          <span className="eyebrow" style={{ fontSize: 9.5 }}>
+          <span style={{ fontSize: size * 0.3, fontWeight: 650, letterSpacing: '-0.03em', lineHeight: 1 }}>
+            {score}
+            <span className="sr-only"> out of 100 — {label}</span>
+          </span>
+          <span className="eyebrow" aria-hidden="true" style={{ fontSize: 9.5 }}>
             / 100
           </span>
         </div>
@@ -164,7 +170,16 @@ export function EvidenceLine({ path, line, snippet, kind }: { path: string; line
       <span className="evidence-loc">
         {path}:{line}
       </span>
-      <code className="evidence-snippet">{snippet}</code>
+      {/* Focusable, because a region that scrolls and cannot be focused cannot
+          be scrolled without a mouse (WCAG 2.1.1). */}
+      <code
+        className="evidence-snippet"
+        tabIndex={0}
+        role="region"
+        aria-label={`Source line: ${path} line ${line}`}
+      >
+        {snippet}
+      </code>
     </div>
   );
 }
@@ -189,7 +204,7 @@ export function Panel({ title, action, children, tight }: { title?: ReactNode; a
 export function Empty({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-      <div style={{ fontSize: 15, fontWeight: 600 }}>{title}</div>
+      <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{title}</h3>
       <p style={{ maxWidth: 430, color: 'var(--ink-faint)', fontSize: 13.5, margin: 0 }}>{body}</p>
       {action}
     </div>

@@ -259,9 +259,28 @@ export interface RunScanOptions {
   githubToken?: string;
   turnoverEur?: number;
   employees?: number;
+  /**
+   * Scan a different tree than the system currently points at, and record the
+   * result at a given time.
+   *
+   * Only the demo seeder uses this, and only to do something honest: give
+   * HireFlow a real history. Its first scan is the remediated tree as it stood
+   * in August; its second is the tree as it stands now, with affect inference
+   * reintroduced. The drift between them is a genuine engine output over two
+   * genuine snapshots, not a fixture of a screenshot. The alternative was a
+   * History page that shows "not enough history yet" under a heading the pitch
+   * calls the thing nobody else can build.
+   */
+  asSample?: string;
+  recordedAt?: string;
 }
 
 export async function loadSnapshotForSystem(system: System, opts: RunScanOptions = {}): Promise<RepoSnapshot> {
+  if (opts.asSample) {
+    const sample = sampleByKey(opts.asSample);
+    if (!sample) throw new Error(`Unknown sample "${opts.asSample}".`);
+    return ingestDirectory(sampleDir(sample), { name: system.name, origin: `sample:${sample.key}` });
+  }
   if (system.sourceKind === 'sample') {
     const sample = sampleByKey(system.source);
     if (!sample) throw new Error(`Unknown sample "${system.source}".`);
@@ -275,7 +294,7 @@ export async function runScan(system: System, opts: RunScanOptions = {}): Promis
   const id = newId('scn');
   db()
     .prepare("INSERT INTO scans (id, system_id, status, created_at) VALUES (?, ?, 'running', ?)")
-    .run(id, system.id, nowIso());
+    .run(id, system.id, opts.recordedAt ?? nowIso());
 
   try {
     const snapshot = await loadSnapshotForSystem(system, opts);

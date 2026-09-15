@@ -31,7 +31,7 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
           <div className="mt-5">
             <Empty
               title="Not enough history yet"
-              body="Annex compares consecutive scans. Re-scan after a change — or scan HireFlow and HireFlow v3 and compare them — to see drift detection work."
+              body="Annex compares consecutive scans of the same system. Re-scan after a change to see whether it was a substantial modification."
             />
           </div>
         ) : (

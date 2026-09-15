@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
-import { db, newId, nowIso } from './db';
+import { db, installationSecret, newId, nowIso } from './db';
 
 /**
  * Authentication with no third party.
@@ -15,11 +15,18 @@ import { db, newId, nowIso } from './db';
 const COOKIE = 'annex_session';
 const MAX_AGE = 60 * 60 * 24 * 14;
 
+/**
+ * The session signing key. `ANNEX_SECRET` when set, otherwise a random secret
+ * generated on first boot and kept in the database file — never a constant
+ * published in this repository, which is what a hardcoded fallback would be.
+ */
 function secret(): Uint8Array {
-  const value = process.env.ANNEX_SECRET;
-  if (value && value.length >= 32) return new TextEncoder().encode(value);
-  // Dev fallback: stable per database file so sessions survive a restart.
-  return new TextEncoder().encode('annex-dev-secret-please-set-ANNEX_SECRET-in-production!!');
+  const configured = process.env.ANNEX_SECRET;
+  if (configured && configured.length >= 32) return new TextEncoder().encode(configured);
+  if (configured) {
+    throw new Error('ANNEX_SECRET is set but shorter than 32 characters. Use a random 32+ character string.');
+  }
+  return new TextEncoder().encode(installationSecret());
 }
 
 export interface User {

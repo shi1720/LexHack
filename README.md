@@ -31,30 +31,39 @@ If your product talks to a person, or generates text, images, audio or video, yo
 ## What Annex does
 
 ```
-$ annex scan .
+$ annex scan . --markets eu,us-nyc --turnover 9800000 --employees 40
 
- PROHIBITED   Article 5(1)(f) — emotion inference in the workplace
+ PROHIBITED   Contains a practice prohibited by Article 5: emotion inference in the workplace.
 
- classification   Annex III, point 4(a) · recruitment and candidate selection    97% confidence
- src/screening/rank.ts:28
-   const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject';
+  repository     hireflow · 14 files · 47 ms
+  your role      provider and deployer (Arts. 3(3), 3(4))
+  classification Annex III, point 4(a) — recruitment and candidate selection   97% confidence
+  src/screening/rank.ts:28
+    const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject';
 
- ✖ missing   Art. 14        Human oversight — no review step, no override, no stop control
- ✖ missing   Art. 12        Record-keeping — nothing records which model made which decision
- ✖ missing   Art. 50(1)     IN FORCE   the chat UI never says it is an AI
- ✖ missing   LL 144 §5-301  no independent bias audit in the last twelve months
+  ✖ missing   Art. 5(1)(f)   IN FORCE   emotion inference from video interviews
+  ✖ missing   Art. 50(1)     IN FORCE   the chat UI never says it is an AI
+  ✖ missing   Art. 14        human oversight — no review step, no override, no stop control
+  ✖ missing   LL 144 §5-301            no independent bias audit in the last twelve months
 
- conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100
- exposure     €294,000   ledger  B43A-D619-8282-7F4D   14 files · 35 ms · no model called
+  conformity     █░░░░░░░░░░░░░░░░░░░░░░░░░░░   3/100     in force today  2/100
+  exposure       €686,000 statutory ceiling   ledger  160C-E181-595B-6968   no model called
 ```
+
+That block is a capture, not a mock-up: run the command against the bundled
+`fixtures/hireflow` and you get those numbers, ledger fingerprint included. The
+exposure figure applies the Article 99(6) SME inversion to a €9.8m turnover;
+without `--turnover` it shows the flat €35m cap instead, and Article 99(1) and
+99(7) make it a statutory ceiling rather than a prediction.
+
 
 Four artefacts come out of one scan:
 
 | Artefact | What it is for |
 |---|---|
 | **Evidence explorer** | Every obligation, the text of the law that imposes it, and the lines of your code that answer it |
-| **Annex IV dossier** | The Article 11 technical documentation, in EN/DE/FR, with every unanswerable point left explicitly open |
-| **A pull request** | The files that close what code can close — additive only, `TODO` at every human judgement |
+| **Annex IV dossier** | The Article 11 technical documentation, with headings and front matter in EN/DE/FR, and every unanswerable point left explicitly open |
+| **A pull request** | The files that close what code can close — additive only, and deliberately not enough to turn a control green on its own |
 | **Standards exports** | SARIF for GitHub code scanning, a CycloneDX attestation (ECMA-424), an ML-BOM inventory |
 
 ## Try it in two minutes
@@ -86,13 +95,13 @@ flowchart LR
     A[GitHub tarball<br/>or local path] --> B[Content-addressed<br/>snapshot]
   end
   subgraph Deterministic core
-    B --> C[48 signal detectors<br/>code · docs · manifests]
+    B --> C[73 signal detectors<br/>code · docs · manifests]
     C --> D[Classifier<br/>Annex III / Art. 5 / Art. 50]
     D --> E[45 controls<br/>5 rule packs]
     E --> F[Hash-chained<br/>evidence ledger]
   end
   subgraph Artefacts
-    F --> G[Annex IV dossier<br/>EN · DE · FR]
+    F --> G[Annex IV dossier<br/>EN · DE · FR headings]
     F --> H[Remediation PR]
     F --> I[SARIF · CycloneDX · ML-BOM]
     F --> J[Public trust page]
@@ -103,7 +112,7 @@ flowchart LR
   style F fill:#e2f2ea,stroke:#0f6b45
 ```
 
-Three things make this different from grep with legal citations.
+Four things make this different from grep with legal citations.
 
 ### 1. Domain signals fire on code, never on prose
 
@@ -128,7 +137,7 @@ tests: [
 ]
 ```
 
-`npm test` runs every golden fixture in the corpus. If a regex gets greedier or a keyword gets dropped, the corresponding obligation fails here rather than silently mis-reporting somebody's conformity.
+`npm test` runs every golden fixture in the corpus — 43 cases over 18 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
 
 ### 3. The evidence ledger
 
@@ -141,11 +150,11 @@ $ annex verify report.json
  45 entries verified against root 0760abe282cff156…
 ```
 
-`annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value, and `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree says so. That is the whole difference between a document and a proof.
+`annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value. `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree it claims to describe says so. That is the whole difference between a document and a proof.
 
 Being precise about what this is: a checksum chain, not a signature. There is no key and no external anchor, so anyone holding the report can recompute a self-consistent chain over different numbers. It makes a silent edit detectable by anyone who has the source. Notarisation is on the roadmap for exactly that reason.
 
-### And one more thing only a code-grounded tool can do
+### 4. Only a tool that reads code can detect a substantial modification
 
 Article 3(23) defines a **substantial modification** as a change, not foreseen in the initial conformity assessment, that affects compliance with Chapter III Section 2 — and Article 43(4) then requires a *new* conformity assessment. Only something that reads the code can tell you a modification was substantial:
 
@@ -161,7 +170,7 @@ $ annex diff --base origin/main --head HEAD
  ✖ Effective human oversight while the system is in use   satisfied → missing
 ```
 
-A questionnaire can never do this. It is also, not coincidentally, the feature with the best recurring-revenue shape: it is triggered by a code change, and only your scanner sees code changes.
+A questionnaire cannot do this at all: it is answered once, by a person, about a system that then changes underneath it.
 
 ## What is in the corpus
 
@@ -181,24 +190,45 @@ Run `annex packs` to print the whole corpus, or `annex explain <control-id>` for
 
 ## Accuracy
 
-Annex is a classifier, so it owes you its error rate. The full report is in **[docs/BENCHMARK.md](docs/BENCHMARK.md)**, generated by `npm run benchmark` and never edited by hand.
+Annex is a classifier, so it owes you its error rate. The full report is in
+**[docs/BENCHMARK.md](docs/BENCHMARK.md)**, generated by `npm run benchmark:report`
+and never edited by hand.
 
 | Metric | Result |
 |---|---|
-| Risk-tier accuracy | **96.6 %** (28/29) |
-| Finding recall | **100 %** (18/18) |
-| Carve-out precision | **100 %** (21/21) |
+| Risk-tier accuracy | **100 %** (40/40) |
+| Finding recall | **100 %** (22/22) |
+| Carve-out precision | **100 %** (26/26) |
 
-Roughly half the 29-case corpus exists to catch **false positives**: card-fraud detection (expressly excluded from Annex III 5(b)), one-to-one identity verification (expressly excluded from 1(a)), a consumer mood-journal app (Annex III 1(c) high-risk, *not* the Article 5(1)(f) prohibition), a product recommender, and a documentation site about the AI Act.
+Roughly half the 40-case corpus exists to catch **false positives**: card-fraud
+detection (expressly excluded from Annex III 5(b)), one-to-one identity
+verification (excluded from 1(a)), a consumer mood-journal app (Annex III 1(c)
+high-risk, *not* the Article 5(1)(f) prohibition), campaign logistics tooling
+(excluded by point 8(b) because nobody is exposed to its output), invoice OCR
+(Article 50(2) does not reach a system that re-expresses its input without
+altering the semantics), a product recommender, and a documentation site about
+the AI Act.
 
-The one case Annex gets wrong is in the report, with the reasoning, unedited. Building the benchmark found three real bugs: domain signals firing on prose, a missing Article 50(2) rule for generated text, and broken `go.mod` dependency parsing.
+**A clean sheet is a statement about the corpus, not about the world.** These
+labels were written by the same people who wrote the detectors, which is the
+standing weakness of any self-authored benchmark. Building it is still what
+found the bugs: domain signals firing on prose, a missing Article 50(2) rule for
+generated text, broken `go.mod` parsing, and — in the round that produced this
+version — an Article 50(2) carve-out that was stated in the caveat text and
+never implemented. Five cases in the corpus exist specifically to find the edge
+of what static analysis can decide, including a lending decision expressed only
+in SQL and a chat widget whose AI-ness may or may not be "obvious to a
+reasonably well-informed" person, which is a judgement about a reader rather
+than a fact about a file.
 
 ## Architecture
 
 ```
-packages/engine/     Deterministic core. No network, no model, no framework.
+packages/engine/     No model, no framework, zero runtime dependencies.
   ingest/            Dependency-free tar reader, content-addressed snapshot
-  signals/           48 detectors over code, docs and manifests
+                     (the only part that touches the network, and only to
+                      fetch a GitHub tarball; a local path fetches nothing)
+  signals/           73 detectors over code, docs and manifests
   classify/          Rule table mapping signals → Annex III / Art. 5 / Art. 50
   packs/             The corpus: 45 controls with citations, dates, fixtures
   evaluate/          Control execution, weighted scoring, exposure modelling
@@ -212,7 +242,7 @@ apps/web/            Next.js 16 app: dashboard, evidence explorer, dossier, trus
 fixtures/            Four realistic sample repositories used by the demo and the tests
 ```
 
-**The engine never calls a model and never touches the network.** The same commit always produces the same ledger root. That is not a performance optimisation — it is the reason the output is usable as evidence, and it is why a scan runs in tens of milliseconds and a conference wifi network cannot break the demo.
+**The analysis never calls a model and never touches the network.** Fetching a GitHub tarball is the one network call in the engine, and it happens before any analysis begins; scanning a local path makes none at all. The same commit always produces the same ledger root. That is not a performance optimisation — it is the reason the output is usable as evidence, and it is why a scan runs in tens of milliseconds and a conference wifi network cannot break the demo.
 
 A language model is used in exactly one place, and the UI labels it: rewriting an *already settled* finding for a different reader — an engineer, a founder, an assessor. It receives the decision as fact and cannot change a status, a score or a citation. With no `ANTHROPIC_API_KEY` set, that one panel explains itself and everything else is unaffected.
 
@@ -235,33 +265,51 @@ Annex runs this on itself — see [`.github/workflows/ci.yml`](.github/workflows
 
 ## What we built and what we used
 
-**Built for this hackathon:** the whole rule-pack corpus and its citations; the signal catalogue and detectors; the classifier and its carve-out logic; the scoring and exposure model including the Article 99(6) SME inversion; the evidence ledger; the Annex IV builder and its three locales; the remediation planner and templates; the SARIF and CycloneDX emitters; the drift detector; the CLI; the web application; the four fixture repositories; and the benchmark corpus and its labels.
+Built here: the rule-pack corpus and its citations, the detector catalogue, the
+classifier and its carve-outs, the scoring and exposure model, the evidence
+ledger, the Annex IV builder, the remediation planner, the SARIF and CycloneDX
+emitters, the drift detector, the CLI, the web application, the four fixture
+repositories, and the benchmark corpus and its labels.
 
-**Used off the shelf:** Node 22, TypeScript, Next.js 16, React 19, Tailwind 4, `better-sqlite3`, `jose` for session tokens, Vitest, Playwright for screenshots. The engine itself has **zero runtime dependencies** — the tar reader, the scoring and the hash chain are all first-party, because a compliance tool that pulls in forty transitive packages to read a `.tar.gz` is making an argument against itself.
+Off the shelf: Node 22, TypeScript, Next.js 16, React 19, Tailwind 4,
+`better-sqlite3`, `jose`, Vitest, Playwright. The engine has **zero runtime
+dependencies** — the tar reader, the scoring and the hash chain are all
+first-party, because a compliance tool that pulls in forty transitive packages
+to read a `.tar.gz` is making an argument against itself.
 
-**The research is documented too.** [`docs/research/`](docs/research/) contains the primary-source reconciliation behind every citation, including the discovery that the timeline this project was originally scoped against had been amended six weeks earlier.
+[`docs/research/`](docs/research/) carries the primary-source reconciliation
+behind every citation, including the discovery that the timeline this project
+was originally scoped against had been amended six weeks earlier.
 
 ## Limitations and known issues
 
-Stated plainly, because a compliance tool that overstates itself is worse than none.
-
-- **Annex is not a conformity assessment.** It is the evidence a competent person needs in order to carry one out. It is also not legal advice.
+- **Annex is not a conformity assessment.** It is the evidence a competent person needs in order to carry one out. It is also not legal advice, and no notified body has yet said on the record that code-grounded evidence is acceptable supporting material — which is the assumption the Conformity tier rests on, and the one thing that would most change this product's prospects if it turned out to be wrong.
+- **The Article 6(3) derogation is yours to claim, not ours.** Annex evaluates the consequences of the claim and checks the one limb that is visible in code — the final subparagraph closes the derogation where the system profiles natural persons — but it will not decide for you whether a task is "narrow" in the sense the Regulation means.
 - **Code presence is not conformity.** Finding `recordInference()` proves a logging call exists; it does not prove the logs are retained, queryable, or complete over the system's lifetime. Annex reports what is observable and says so. Several obligations — the Article 9(5) residual-risk acceptance, the declared accuracy level, EU database registration — are marked *open* because they are judgements or filings, not code.
-- **It cannot yet distinguish Article 50(2)'s assistive-editing carve-out** from substantive generation, so it flags receipt OCR alongside a marketing image generator and states the carve-out in the finding. This is the one benchmark case it fails, and it is in the report.
+- **`satisfied` means the evidence is there, not that the duty is discharged.** Annex now refuses two specific ways of faking it — a module nothing in the tree reaches, and a generated document whose `_TODO_` placeholders are unfilled, both of which cap at *partial* — but it still cannot tell you that an override is reachable by a trained, authorised person, or that a log sink is durable. On an Article 14 finding, that is exactly what an assessor will ask. Reachability analysis is the fix and it is not built.
 - **Coverage is TypeScript, JavaScript and Python first.** Go, Java, Ruby, Rust, C# and PHP are detected and scanned, but the detector corpus is thinner for them.
-- **Ingest caps at 4,000 files and 32 MB.** Larger repositories are scanned partially and the report carries a warning rather than pretending to completeness.
-- **The benchmark is 29 cases.** That is enough to catch a keyword matcher; it is not enough to characterise behaviour on a large production monorepo, which is the next thing to do.
+- **Ingest caps at 4,000 files and 32 MB,** in path order. Larger repositories are scanned partially and the report carries a warning rather than pretending to completeness — but the cut is alphabetical, so on a very large monorepo the sample is arbitrary rather than representative. Prioritising by likely relevance is a known gap.
+- **The benchmark is 40 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
+- **One AI system rarely maps to one repository.** Under the Act the unit is the system — a service, a model, a prompt store, a feature pipeline and a UI, often across four repositories and two teams. Annex scans one tree at a time and has no way to compose a system from several. That is the next structural thing to build.
+- **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.
 
 ## Commercial model
 
-The regulation's unit of account is the AI system, not the developer, so that is the unit Annex prices on.
+The regulation's unit of account is the AI system, not the developer, so that is
+the unit Annex prices on: a free open-source tier (CLI, Action, detectors,
+SARIF, classification), a team tier for the blocking PR check and drift
+detection, and a per-system Conformity tier for the dossier, the attestation
+bundle and evidence-freshness monitoring — anchored against a €9,900 boutique
+readiness sprint and Big-4 programmes that rarely start under €75,000.
 
-- **Free, open source** — CLI, GitHub Action, detectors, SARIF, risk-tier classification. This is how the tool gets adopted, and it is how the detector corpus improves.
-- **Team** — the blocking pull-request check, remediation PRs, drift detection.
-- **Conformity** — per governed AI system: the Annex IV dossier, the CycloneDX attestation bundle, evidence-freshness monitoring, and substantial-modification detection. Anchored against a €9,900 boutique readiness sprint and Big-4 programmes that rarely start under €75,000.
+The wedge is not the compliance budget. It is the **trust page**: the artefact an
+AI vendor hands a customer's security reviewer, with a ledger root the reviewer
+can check. That gets Annex pulled in by sales rather than filed by legal.
 
-The wedge is not the compliance budget. It is the **trust page**: the artefact an AI vendor hands a customer's security reviewer, with a ledger root the reviewer can check. That gets Annex pulled in by sales, not filed by legal — and it is the one thing nobody in the category currently offers.
+The full argument, including the competitive analysis, the numbers that do not
+survive checking, and a section titled "What would make me wrong", is in
+[docs/BUSINESS.md](docs/BUSINESS.md).
 
 ## Documentation
 

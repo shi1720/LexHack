@@ -24,7 +24,7 @@ sequenceDiagram
     U->>I: repository URL or path + intended purpose
     I->>I: download tar.gz · strip root · filter · hash
     I-->>S: RepoSnapshot (content-addressed)
-    S->>S: 48 detectors, keyword-prefiltered
+    S->>S: 73 detectors, keyword-prefiltered
     S-->>C: SignalIndex with line-anchored evidence
     C->>C: rule table → Annex III / Art. 5 / Art. 50
     C-->>E: Classification + confidence + citations
@@ -62,7 +62,7 @@ Caps are deliberate and reported rather than silent:
 
 ## 2. Signals — `packages/engine/src/signals/`
 
-48 detectors in three families:
+73 detectors in eight families:
 
 - **`ai-usage`** — which models are called, where inference happens, whether the model can invoke tools.
 - **`domain`** — what the system is *for*. These drive classification, so they are the conservative ones.

@@ -114,7 +114,7 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
                   <tr style={{ background: 'var(--sunken)' }}>
                     <th scope="col" style={{ textAlign: 'left', padding: '9px 14px', fontWeight: 600 }}>Obligation</th>
                     <th scope="col" style={{ textAlign: 'left', padding: '9px 14px', fontWeight: 600 }}>Citation</th>
-                    <th scope="col" style={{ textAlign: 'left', padding: '9px 14px', fontWeight: 600 }}>Applies</th>
+                    <th scope="col" style={{ textAlign: 'left', padding: '9px 14px', fontWeight: 600 }}>In force from</th>
                     <th scope="col" style={{ textAlign: 'left', padding: '9px 14px', fontWeight: 600 }}>Status</th>
                   </tr>
                 </thead>
