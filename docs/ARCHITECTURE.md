@@ -28,7 +28,7 @@ sequenceDiagram
     S-->>C: SignalIndex with line-anchored evidence
     C->>C: rule table → Annex III / Art. 5 / Art. 50
     C-->>E: Classification + confidence + citations
-    E->>E: 45 controls, each with its own application date
+    E->>E: 47 controls, each with its own application date
     E-->>L: ControlResult[] with evidence or absence
     L->>L: SHA-256 chain over canonical lines
     L-->>A: root
@@ -82,7 +82,7 @@ definition line  >  usage  >  documentation  >  test file  >  manifest
 
 That is why the Annex III 4(a) citation lands on `rank.ts:28` — `const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject'` — rather than on `"openai"` in `package.json`, even though both are true.
 
-**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 168-file repository scans in ~220 ms; the 42-case benchmark runs in ~120 ms.
+**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 188-file repository — this one — scans in ~430 ms; the 42-case benchmark runs in ~120 ms.
 
 ## 3. Classification — `packages/engine/src/classify/`
 
@@ -109,7 +109,7 @@ Confidence is derived, not asserted: base confidence, plus corroborating signals
 
 ## 4. Controls — `packages/engine/src/packs/`
 
-45 obligations across five instruments. A control is:
+47 obligations across five instruments. A control is:
 
 ```ts
 {

@@ -525,6 +525,33 @@
               }
             },
             {
+              "id": "eu-ai-act.art26.deployer-obligations",
+              "name": "EuAiActArt26DeployerObligations",
+              "shortDescription": {
+                "text": "Deployer duties: assigned overseers, input data, and telling the workforce"
+              },
+              "fullDescription": {
+                "text": "Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and inform the provider and the market surveillance authority where a risk under Article 79(1) arises (26(5)), keep the automatically generated logs for at least six months (26(6)), and — before putting a high-risk system into service at the workplace — inform workers' representatives and the affected workers that they will be subject to it (26(7))."
+              },
+              "help": {
+                "text": "Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and inform the provider and the market surveillance authority where a risk under Article 79(1) arises (26(5)), keep the automatically generated logs for at least six months (26(6)), and — before putting a high-risk system into service at the workplace — inform workers' representatives and the affected workers that they will be subject to it (26(7)).\n\nArticle 26(7) is a duty on the employer and it is easy to miss because it sits outside the technical requirements: before a high-risk system is used at the workplace, the affected workers and their representatives have to be told. Record when, and to whom.\n\nEU AI Act Art. 26(2) — Obligations of deployers — assigned human oversight: https://artificialintelligenceact.eu/article/26/\nEU AI Act Art. 26(4) — Obligations of deployers — input data: https://artificialintelligenceact.eu/article/26/\nEU AI Act Art. 26(7) — Obligations of deployers — informing workers: https://artificialintelligenceact.eu/article/26/",
+                "markdown": "**Deployer duties: assigned overseers, input data, and telling the workforce**\nArticle 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and inform the provider and the market surveillance authority where a risk under Article 79(1) arises (26(5)), keep the automatically generated logs for at least six months (26(6)), and — before putting a high-risk system into service at the workplace — inform workers' representatives and the affected workers that they will be subject to it (26(7)).\n**How to close it:** Article 26(7) is a duty on the employer and it is easy to miss because it sits outside the technical requirements: before a high-risk system is used at the workplace, the affected workers and their representatives have to be told. Record when, and to whom.\n**Citations**\n- [EU AI Act Art. 26(2) — Obligations of deployers — assigned human oversight](https://artificialintelligenceact.eu/article/26/)\n- [EU AI Act Art. 26(4) — Obligations of deployers — input data](https://artificialintelligenceact.eu/article/26/)\n- [EU AI Act Art. 26(7) — Obligations of deployers — informing workers](https://artificialintelligenceact.eu/article/26/)\n_In force from 2027-12-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "human-oversight",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
               "id": "gdpr.art22.human-intervention",
               "name": "GdprArt22HumanIntervention",
               "shortDescription": {
@@ -793,12 +820,309 @@
                 "security-severity": "5.0",
                 "precision": "high"
               }
+            },
+            {
+              "id": "colorado-admt.pre-use-notice",
+              "name": "ColoradoAdmtPreUseNotice",
+              "shortDescription": {
+                "text": "Clear pre-use notice before a consequential decision"
+              },
+              "fullDescription": {
+                "text": "A deployer must give clear and conspicuous notice, before the consequential decision, that covered automated decision-making technology is or will be used — accessible to consumers with disabilities and with limited English proficiency."
+              },
+              "help": {
+                "text": "A deployer must give clear and conspicuous notice, before the consequential decision, that covered automated decision-making technology is or will be used — accessible to consumers with disabilities and with limited English proficiency.\n\nShow the notice before the decision is made, not in a policy page the consumer never opens, and provide it in an accessible form.\n\nColorado ADMT Act § 6-1-1703 — Deployer duties — pre-use notice: https://leg.colorado.gov/bills/sb26-189",
+                "markdown": "**Clear pre-use notice before a consequential decision**\nA deployer must give clear and conspicuous notice, before the consequential decision, that covered automated decision-making technology is or will be used — accessible to consumers with disabilities and with limited English proficiency.\n**How to close it:** Show the notice before the decision is made, not in a policy page the consumer never opens, and provide it in an accessible form.\n**Citations**\n- [Colorado ADMT Act § 6-1-1703 — Deployer duties — pre-use notice](https://leg.colorado.gov/bills/sb26-189)\n_In force from 2027-01-01._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "colorado-admt",
+                  "transparency",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "colorado-admt.adverse-explanation",
+              "name": "ColoradoAdmtAdverseExplanation",
+              "shortDescription": {
+                "text": "Explain an adverse outcome within thirty days"
+              },
+              "fullDescription": {
+                "text": "On an adverse outcome materially influenced by covered ADMT, the deployer must provide within thirty days a plain-language description of the decision and the technology's role in it, a simple process to request more information, and an explanation of the consumer's rights."
+              },
+              "help": {
+                "text": "On an adverse outcome materially influenced by covered ADMT, the deployer must provide within thirty days a plain-language description of the decision and the technology's role in it, a simple process to request more information, and an explanation of the consumer's rights.\n\nTrigger an explanation whenever the outcome is adverse, carry the reason codes from the decision log, and start a thirty-day clock.\n\nColorado ADMT Act § 6-1-1703 — Deployer duties — adverse outcome explanation: https://leg.colorado.gov/bills/sb26-189",
+                "markdown": "**Explain an adverse outcome within thirty days**\nOn an adverse outcome materially influenced by covered ADMT, the deployer must provide within thirty days a plain-language description of the decision and the technology's role in it, a simple process to request more information, and an explanation of the consumer's rights.\n**How to close it:** Trigger an explanation whenever the outcome is adverse, carry the reason codes from the decision log, and start a thirty-day clock.\n**Citations**\n- [Colorado ADMT Act § 6-1-1703 — Deployer duties — adverse outcome explanation](https://leg.colorado.gov/bills/sb26-189)\n_In force from 2027-01-01._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "colorado-admt",
+                  "rights",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "colorado-admt.human-review-override",
+              "name": "ColoradoAdmtHumanReviewOverride",
+              "shortDescription": {
+                "text": "Designated reviewers authorised to override"
+              },
+              "fullDescription": {
+                "text": "A deployer must designate trained individuals authorised to override the technology's outcome during human review, and consumers have a right to meaningful human review and reconsideration after an adverse outcome, to the extent commercially reasonable."
+              },
+              "help": {
+                "text": "A deployer must designate trained individuals authorised to override the technology's outcome during human review, and consumers have a right to meaningful human review and reconsideration after an adverse outcome, to the extent commercially reasonable.\n\nDesignate reviewers, record who they are, and give them an override that is written back to the decision record.\n\nColorado ADMT Act § 6-1-1704 — Deployer duties — designated reviewers: https://leg.colorado.gov/bills/sb26-189\nColorado ADMT Act § 6-1-1705 — Consumer rights — meaningful human review: https://leg.colorado.gov/bills/sb26-189",
+                "markdown": "**Designated reviewers authorised to override**\nA deployer must designate trained individuals authorised to override the technology's outcome during human review, and consumers have a right to meaningful human review and reconsideration after an adverse outcome, to the extent commercially reasonable.\n**How to close it:** Designate reviewers, record who they are, and give them an override that is written back to the decision record.\n**Citations**\n- [Colorado ADMT Act § 6-1-1704 — Deployer duties — designated reviewers](https://leg.colorado.gov/bills/sb26-189)\n- [Colorado ADMT Act § 6-1-1705 — Consumer rights — meaningful human review](https://leg.colorado.gov/bills/sb26-189)\n_In force from 2027-01-01._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "colorado-admt",
+                  "human-oversight",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "colorado-admt.data-correction",
+              "name": "ColoradoAdmtDataCorrection",
+              "shortDescription": {
+                "text": "Right to see and correct the data used"
+              },
+              "fullDescription": {
+                "text": "A consumer has the right to request the personal data used in the decision and to correct factually incorrect or materially inaccurate data."
+              },
+              "help": {
+                "text": "A consumer has the right to request the personal data used in the decision and to correct factually incorrect or materially inaccurate data.\n\nExpose the inputs that drove the decision and accept corrections. This is also the cheapest accuracy improvement available: the affected person is usually the only party who knows the data is wrong.\n\nColorado ADMT Act § 6-1-1705 — Consumer rights — access and correction: https://leg.colorado.gov/bills/sb26-189",
+                "markdown": "**Right to see and correct the data used**\nA consumer has the right to request the personal data used in the decision and to correct factually incorrect or materially inaccurate data.\n**How to close it:** Expose the inputs that drove the decision and accept corrections. This is also the cheapest accuracy improvement available: the affected person is usually the only party who knows the data is wrong.\n**Citations**\n- [Colorado ADMT Act § 6-1-1705 — Consumer rights — access and correction](https://leg.colorado.gov/bills/sb26-189)\n_In force from 2027-01-01._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "colorado-admt",
+                  "rights",
+                  "upcoming"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "colorado-admt.developer-documentation",
+              "name": "ColoradoAdmtDeveloperDocumentation",
+              "shortDescription": {
+                "text": "Documentation handed to deployers"
+              },
+              "fullDescription": {
+                "text": "A developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures. Records must be retained for at least three years."
+              },
+              "help": {
+                "text": "A developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures. Records must be retained for at least three years.\n\nWrite it once against the Colorado list; it also answers AI Act Article 13(3), so the work is shared across both regimes.\n\nColorado ADMT Act § 6-1-1702 — Developer duties — documentation to deployers: https://leg.colorado.gov/bills/sb26-189",
+                "markdown": "**Documentation handed to deployers**\nA developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures. Records must be retained for at least three years.\n**How to close it:** Write it once against the Colorado list; it also answers AI Act Article 13(3), so the work is shared across both regimes.\n**Citations**\n- [Colorado ADMT Act § 6-1-1702 — Developer duties — documentation to deployers](https://leg.colorado.gov/bills/sb26-189)\n_In force from 2027-01-01._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "colorado-admt",
+                  "documentation",
+                  "upcoming"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nist-ai-rmf.govern-1-1",
+              "name": "NistAiRmfGovern11",
+              "shortDescription": {
+                "text": "GOVERN 1.1 — legal and regulatory requirements are understood and documented"
+              },
+              "fullDescription": {
+                "text": "Legal and regulatory requirements involving AI are understood, managed, and documented."
+              },
+              "help": {
+                "text": "Legal and regulatory requirements involving AI are understood, managed, and documented.\n\nRecord which regimes apply and why — one page naming the instruments, your role under each, and the obligations that bind today versus later.\n\nNIST AI RMF GOVERN 1.1 — Legal and regulatory requirements involving AI are understood, managed, and documented.: https://www.nist.gov/itl/ai-risk-management-framework",
+                "markdown": "**GOVERN 1.1 — legal and regulatory requirements are understood and documented**\nLegal and regulatory requirements involving AI are understood, managed, and documented.\n**How to close it:** Record which regimes apply and why — one page naming the instruments, your role under each, and the obligations that bind today versus later.\n**Citations**\n- [NIST AI RMF GOVERN 1.1 — Legal and regulatory requirements involving AI are understood, managed, and documented.](https://www.nist.gov/itl/ai-risk-management-framework)\n_In force from 2023-01-26._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist-ai-rmf",
+                  "quality-management",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nist-ai-rmf.govern-1-6",
+              "name": "NistAiRmfGovern16",
+              "shortDescription": {
+                "text": "GOVERN 1.6 — an inventory of AI systems is maintained"
+              },
+              "fullDescription": {
+                "text": "Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. An inventory nobody maintains by hand is an inventory that is wrong by the second sprint, so it should be generated from the codebase rather than typed into a spreadsheet."
+              },
+              "help": {
+                "text": "Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. An inventory nobody maintains by hand is an inventory that is wrong by the second sprint, so it should be generated from the codebase rather than typed into a spreadsheet.\n\nProduce an inventory. Annex emits a CycloneDX ML-BOM from the scan, which satisfies this without hand-maintenance.\n\nNIST AI RMF GOVERN 1.6 — Mechanisms are in place to inventory AI systems.: https://www.nist.gov/itl/ai-risk-management-framework",
+                "markdown": "**GOVERN 1.6 — an inventory of AI systems is maintained**\nMechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. An inventory nobody maintains by hand is an inventory that is wrong by the second sprint, so it should be generated from the codebase rather than typed into a spreadsheet.\n**How to close it:** Produce an inventory. Annex emits a CycloneDX ML-BOM from the scan, which satisfies this without hand-maintenance.\n**Citations**\n- [NIST AI RMF GOVERN 1.6 — Mechanisms are in place to inventory AI systems.](https://www.nist.gov/itl/ai-risk-management-framework)\n_In force from 2023-01-26._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist-ai-rmf",
+                  "documentation",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nist-ai-rmf.map-1-1",
+              "name": "NistAiRmfMap11",
+              "shortDescription": {
+                "text": "MAP 1.1 — intended purpose and deployment context are documented"
+              },
+              "fullDescription": {
+                "text": "Intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented."
+              },
+              "help": {
+                "text": "Intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented.\n\nState the intended purpose in one paragraph. Under the AI Act it is also the sentence that decides the risk classification, so it is worth writing carefully.\n\nNIST AI RMF MAP 1.1 — Intended purposes and prospective settings are understood and documented.: https://www.nist.gov/itl/ai-risk-management-framework",
+                "markdown": "**MAP 1.1 — intended purpose and deployment context are documented**\nIntended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented.\n**How to close it:** State the intended purpose in one paragraph. Under the AI Act it is also the sentence that decides the risk classification, so it is worth writing carefully.\n**Citations**\n- [NIST AI RMF MAP 1.1 — Intended purposes and prospective settings are understood and documented.](https://www.nist.gov/itl/ai-risk-management-framework)\n_In force from 2023-01-26._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist-ai-rmf",
+                  "documentation",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nist-ai-rmf.measure-2-11",
+              "name": "NistAiRmfMeasure211",
+              "shortDescription": {
+                "text": "MEASURE 2.11 — fairness and bias are evaluated and documented"
+              },
+              "fullDescription": {
+                "text": "Fairness and bias, as identified in the MAP function, are evaluated and results are documented."
+              },
+              "help": {
+                "text": "Fairness and bias, as identified in the MAP function, are evaluated and results are documented.\n\nMeasure outcome rates across the groups the system is used on, and write down the result even when it is uncomfortable.\n\nNIST AI RMF MEASURE 2.11 — Fairness and bias are evaluated and results are documented.: https://www.nist.gov/itl/ai-risk-management-framework",
+                "markdown": "**MEASURE 2.11 — fairness and bias are evaluated and documented**\nFairness and bias, as identified in the MAP function, are evaluated and results are documented.\n**How to close it:** Measure outcome rates across the groups the system is used on, and write down the result even when it is uncomfortable.\n**Citations**\n- [NIST AI RMF MEASURE 2.11 — Fairness and bias are evaluated and results are documented.](https://www.nist.gov/itl/ai-risk-management-framework)\n_In force from 2023-01-26._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist-ai-rmf",
+                  "data-governance",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nist-ai-rmf.measure-2-7",
+              "name": "NistAiRmfMeasure27",
+              "shortDescription": {
+                "text": "MEASURE 2.7 — security and resilience are evaluated"
+              },
+              "fullDescription": {
+                "text": "AI system security and resilience are evaluated and documented. For a system built on a language model this means the AI-specific attack surface: prompt injection, jailbreaks, model evasion and data exfiltration through the model, not only the surrounding web application."
+              },
+              "help": {
+                "text": "AI system security and resilience are evaluated and documented. For a system built on a language model this means the AI-specific attack surface: prompt injection, jailbreaks, model evasion and data exfiltration through the model, not only the surrounding web application.\n\nAdd input and output moderation on the model path and an adversarial test suite.\n\nNIST AI RMF MEASURE 2.7 — AI system security and resilience are evaluated and documented.: https://www.nist.gov/itl/ai-risk-management-framework",
+                "markdown": "**MEASURE 2.7 — security and resilience are evaluated**\nAI system security and resilience are evaluated and documented. For a system built on a language model this means the AI-specific attack surface: prompt injection, jailbreaks, model evasion and data exfiltration through the model, not only the surrounding web application.\n**How to close it:** Add input and output moderation on the model path and an adversarial test suite.\n**Citations**\n- [NIST AI RMF MEASURE 2.7 — AI system security and resilience are evaluated and documented.](https://www.nist.gov/itl/ai-risk-management-framework)\n_In force from 2023-01-26._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist-ai-rmf",
+                  "accuracy-robustness",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "nist-ai-rmf.manage-4-1",
+              "name": "NistAiRmfManage41",
+              "shortDescription": {
+                "text": "MANAGE 4.1 — post-deployment monitoring plans are implemented"
+              },
+              "fullDescription": {
+                "text": "Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management."
+              },
+              "help": {
+                "text": "Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.\n\nMANAGE 4.1 expects monitoring, appeal and override, incident response and change management together.\n\nNIST AI RMF MANAGE 4.1 — Post-deployment AI system monitoring plans are implemented.: https://www.nist.gov/itl/ai-risk-management-framework",
+                "markdown": "**MANAGE 4.1 — post-deployment monitoring plans are implemented**\nPost-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.\n**How to close it:** MANAGE 4.1 expects monitoring, appeal and override, incident response and change management together.\n**Citations**\n- [NIST AI RMF MANAGE 4.1 — Post-deployment AI system monitoring plans are implemented.](https://www.nist.gov/itl/ai-risk-management-framework)\n_In force from 2023-01-26._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "nist-ai-rmf",
+                  "post-market",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
             }
           ]
         }
       },
       "automationDetails": {
-        "id": "annex/6ae38e31d3b286677f670d2ed7a7125a",
+        "id": "annex/024797f327fbab5e8ac96632700d487d",
         "description": {
           "text": "Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting."
         }
@@ -806,12 +1130,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-15T20:15:55.020Z",
+          "endTimeUtc": "2026-09-15T20:44:20.065Z",
           "properties": {
-            "conformityScore": 2,
-            "liveScore": 1,
+            "conformityScore": 3,
+            "liveScore": 3,
             "riskTier": "prohibited",
-            "ledgerRoot": "c89d4db6fb4209892d7b836ce5160c2acf43304adedc6067c107ec33674444bd"
+            "ledgerRoot": "032aefc98a849185e42a9dc8f78fec1d112b2f87d266878c55fbf9f47b066b71"
           }
         }
       ],
@@ -1468,6 +1792,35 @@
           }
         },
         {
+          "ruleId": "eu-ai-act.art26.deployer-obligations",
+          "level": "error",
+          "message": {
+            "text": "Deployer duties: assigned overseers, input data, and telling the workforce: This system makes decisions about people at work, and nothing records that workers or their representatives were informed before it was put into service. Article 26(7) is a duty on the employer and it is easy to miss because it sits outside the technical requirements: before a high-risk system is used at the workplace, the affected workers and their representatives have to be told. Record when, and to whom."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art26.deployer-obligations"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2027-12-02",
+            "inForce": false,
+            "citation": "EU AI Act Art. 26(2)"
+          }
+        },
+        {
           "ruleId": "gdpr.art22.human-intervention",
           "level": "error",
           "message": {
@@ -1755,6 +2108,328 @@
             "appliesFrom": "2023-07-05",
             "inForce": true,
             "citation": "NYC Local Law 144 6 RCNY § 5-304(d)"
+          }
+        },
+        {
+          "ruleId": "colorado-admt.pre-use-notice",
+          "level": "error",
+          "message": {
+            "text": "Clear pre-use notice before a consequential decision: No pre-use notice was found ahead of a consequential decision. Show the notice before the decision is made, not in a policy page the consumer never opens, and provide it in an accessible form."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "colorado-admt.pre-use-notice"
+          },
+          "properties": {
+            "pack": "colorado-admt",
+            "status": "missing",
+            "appliesFrom": "2027-01-01",
+            "inForce": false,
+            "citation": "Colorado ADMT Act § 6-1-1703"
+          }
+        },
+        {
+          "ruleId": "colorado-admt.adverse-explanation",
+          "level": "error",
+          "message": {
+            "text": "Explain an adverse outcome within thirty days: No adverse-outcome explanation path was found. Trigger an explanation whenever the outcome is adverse, carry the reason codes from the decision log, and start a thirty-day clock."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "colorado-admt.adverse-explanation"
+          },
+          "properties": {
+            "pack": "colorado-admt",
+            "status": "missing",
+            "appliesFrom": "2027-01-01",
+            "inForce": false,
+            "citation": "Colorado ADMT Act § 6-1-1703"
+          }
+        },
+        {
+          "ruleId": "colorado-admt.human-review-override",
+          "level": "error",
+          "message": {
+            "text": "Designated reviewers authorised to override: No human review or override capability was found for a consequential decision. Designate reviewers, record who they are, and give them an override that is written back to the decision record."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "colorado-admt.human-review-override"
+          },
+          "properties": {
+            "pack": "colorado-admt",
+            "status": "missing",
+            "appliesFrom": "2027-01-01",
+            "inForce": false,
+            "citation": "Colorado ADMT Act § 6-1-1704"
+          }
+        },
+        {
+          "ruleId": "colorado-admt.data-correction",
+          "level": "warning",
+          "message": {
+            "text": "Right to see and correct the data used: No way for a consumer to see or correct the data used in the decision was found. Expose the inputs that drove the decision and accept corrections. This is also the cheapest accuracy improvement available: the affected person is usually the only party who knows the data is wrong."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "colorado-admt.data-correction"
+          },
+          "properties": {
+            "pack": "colorado-admt",
+            "status": "missing",
+            "appliesFrom": "2027-01-01",
+            "inForce": false,
+            "citation": "Colorado ADMT Act § 6-1-1705"
+          }
+        },
+        {
+          "ruleId": "colorado-admt.developer-documentation",
+          "level": "error",
+          "message": {
+            "text": "Documentation handed to deployers: No documentation aimed at a downstream deployer was found. Write it once against the Colorado list; it also answers AI Act Article 13(3), so the work is shared across both regimes."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "colorado-admt.developer-documentation"
+          },
+          "properties": {
+            "pack": "colorado-admt",
+            "status": "missing",
+            "appliesFrom": "2027-01-01",
+            "inForce": false,
+            "citation": "Colorado ADMT Act § 6-1-1702"
+          }
+        },
+        {
+          "ruleId": "nist-ai-rmf.govern-1-1",
+          "level": "warning",
+          "message": {
+            "text": "GOVERN 1.1 — legal and regulatory requirements are understood and documented: No documented understanding of the regulatory requirements that apply to this system was found. Record which regimes apply and why — one page naming the instruments, your role under each, and the obligations that bind today versus later."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nist-ai-rmf.govern-1-1"
+          },
+          "properties": {
+            "pack": "nist-ai-rmf",
+            "status": "missing",
+            "appliesFrom": "2023-01-26",
+            "inForce": true,
+            "citation": "NIST AI RMF GOVERN 1.1"
+          }
+        },
+        {
+          "ruleId": "nist-ai-rmf.govern-1-6",
+          "level": "warning",
+          "message": {
+            "text": "GOVERN 1.6 — an inventory of AI systems is maintained: No AI system or model inventory was found. Produce an inventory. Annex emits a CycloneDX ML-BOM from the scan, which satisfies this without hand-maintenance."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nist-ai-rmf.govern-1-6"
+          },
+          "properties": {
+            "pack": "nist-ai-rmf",
+            "status": "missing",
+            "appliesFrom": "2023-01-26",
+            "inForce": true,
+            "citation": "NIST AI RMF GOVERN 1.6"
+          }
+        },
+        {
+          "ruleId": "nist-ai-rmf.map-1-1",
+          "level": "warning",
+          "message": {
+            "text": "MAP 1.1 — intended purpose and deployment context are documented: The intended purpose of the system is not documented anywhere in the repository. State the intended purpose in one paragraph. Under the AI Act it is also the sentence that decides the risk classification, so it is worth writing carefully."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nist-ai-rmf.map-1-1"
+          },
+          "properties": {
+            "pack": "nist-ai-rmf",
+            "status": "missing",
+            "appliesFrom": "2023-01-26",
+            "inForce": true,
+            "citation": "NIST AI RMF MAP 1.1"
+          }
+        },
+        {
+          "ruleId": "nist-ai-rmf.measure-2-11",
+          "level": "error",
+          "message": {
+            "text": "MEASURE 2.11 — fairness and bias are evaluated and documented: No fairness or bias evaluation was found. Measure outcome rates across the groups the system is used on, and write down the result even when it is uncomfortable."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nist-ai-rmf.measure-2-11"
+          },
+          "properties": {
+            "pack": "nist-ai-rmf",
+            "status": "missing",
+            "appliesFrom": "2023-01-26",
+            "inForce": true,
+            "citation": "NIST AI RMF MEASURE 2.11"
+          }
+        },
+        {
+          "ruleId": "nist-ai-rmf.measure-2-7",
+          "level": "warning",
+          "message": {
+            "text": "MEASURE 2.7 — security and resilience are evaluated: No AI-specific security evaluation was found. Add input and output moderation on the model path and an adversarial test suite."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nist-ai-rmf.measure-2-7"
+          },
+          "properties": {
+            "pack": "nist-ai-rmf",
+            "status": "missing",
+            "appliesFrom": "2023-01-26",
+            "inForce": true,
+            "citation": "NIST AI RMF MEASURE 2.7"
+          }
+        },
+        {
+          "ruleId": "nist-ai-rmf.manage-4-1",
+          "level": "error",
+          "message": {
+            "text": "MANAGE 4.1 — post-deployment monitoring plans are implemented: Found change management. MANAGE 4.1 expects monitoring, appeal and override, incident response and change management together."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".github/workflows/test.yml"
+                },
+                "region": {
+                  "startLine": 5,
+                  "snippet": {
+                    "text": "    runs-on: ubuntu-latest"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "nist-ai-rmf.manage-4-1"
+          },
+          "properties": {
+            "pack": "nist-ai-rmf",
+            "status": "partial",
+            "appliesFrom": "2023-01-26",
+            "inForce": true,
+            "citation": "NIST AI RMF MANAGE 4.1"
           }
         }
       ]

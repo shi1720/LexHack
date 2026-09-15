@@ -220,7 +220,7 @@
   <div class="grid g2" style="margin-top:20px">
     <div class="card navy">
       <h3>The law gets a test suite</h3>
-      <p>A control is a function, so it can be tested. 49 golden fixtures across all five packs — each a
+      <p>A control is a function, so it can be tested. 53 golden fixtures across all five packs — each a
       minimal repository and the status the control must return — plus a suite that checks every control
       against a written-down Article 113 table. If a regex gets greedier, the obligation fails the build
       rather than silently mis-reporting somebody's conformity.</p>
@@ -246,23 +246,27 @@
   <p class="eyebrow">The thing only a code-grounded tool can do</p>
   <h2>Substantial modification, caught in the pull request.</h2>
   <p class="lead">
-    Article 3(49): a change that affects compliance with Chapter III is a <strong>substantial
-    modification</strong>. Article 43(4): that re-opens the entire conformity assessment. It is
-    triggered by a code change — so only the tool that watches code changes can see it.
+    Article 3(23): a change affecting compliance with Chapter III Section 2 is a
+    <strong>substantial modification</strong>; Article 43(4) re-opens the conformity assessment.
   </p>
-  <pre style="margin-top:18px">$ annex diff --base origin/main --head HEAD
+  <pre style="margin-top:14px; font-size:10.5px">$ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
 
-  <span class="tag bad">&nbsp;SUBSTANTIAL MODIFICATION&nbsp;</span>  origin/main → HEAD
+  <span class="tag bad">&nbsp;SUBSTANTIAL MODIFICATION&nbsp;</span>  fixtures/hireflow-remediated → fixtures/hireflow
 
-  The risk classification moved from high to prohibited. Under Article 25(1)(c) and
-  Article 43(4) this is a substantial modification: the conformity assessment has to
-  be re-opened and the technical documentation updated.
+  The risk classification moved from high to prohibited. A change in the intended
+  purpose is a substantial modification on the face of Article 3(23), and Article
+  43(4) then requires the conformity assessment to be re-opened and the technical
+  documentation updated.
 
-  conformity  81 → 2 <span class="red">(-79)</span>
-  <span class="red">✖</span> Effective human oversight while the system is in use   <span class="grey">satisfied → missing</span></pre>
-  <p class="lead" style="margin-top:16px">
-    A questionnaire structurally cannot do this. It is also, not coincidentally, the event that makes
-    the revenue recurring.
+  conformity  80 → 3 <span class="red">(-77)</span>
+  tier        high → prohibited
+
+  <span class="red">✖</span> No emotion inference in the workplace or education <span class="grey">not_applicable → missing</span>
+    <span class="grey">eu-ai-act.art5.emotion-workplace</span>
+  <span class="grey">… 35 more regressions; pass --all to list them</span></pre>
+  <p class="lead" style="margin-top:14px">
+    In CI: <span class="mono">--base origin/main --head HEAD</span>, exit 1. A questionnaire cannot do this
+    — and it is the event that makes the revenue recurring.
   </p>
   <span class="brand">ANNEX</span><span class="num">6</span>
 </section>
@@ -369,18 +373,18 @@
 <!-- 11 ──────────────────────────────────────────────── -->
 <section class="slide">
   <p class="eyebrow">Built for this hackathon</p>
-  <h2>45 obligations. 5 jurisdictions. 0 model calls in the core.</h2>
+  <h2>47 obligations. 5 jurisdictions. 0 model calls in the core.</h2>
   <div class="grid g4">
-    <div class="card"><div class="stat s">45</div><div class="cap">executable obligations</div></div>
+    <div class="card"><div class="stat s">47</div><div class="cap">executable obligations</div></div>
     <div class="card"><div class="stat s">75</div><div class="cap">signal detectors</div></div>
-    <div class="card"><div class="stat s">75</div><div class="cap">tests, incl. golden fixtures</div></div>
-    <div class="card"><div class="stat s">220<span style="font-size:18px">ms</span></div><div class="cap">to scan 168 files</div></div>
+    <div class="card"><div class="stat s">132</div><div class="cap">tests, incl. golden fixtures</div></div>
+    <div class="card"><div class="stat s">430<span style="font-size:18px">ms</span></div><div class="cap">to scan its own 188 files</div></div>
   </div>
   <div class="grid g2" style="margin-top:14px">
     <div class="card">
       <h3>Rule packs, each reconciled against primary sources</h3>
       <table style="margin-top:6px">
-        <tr><td class="k">EU AI Act</td><td>24 obligations · post-Omnibus dates</td></tr>
+        <tr><td class="k">EU AI Act</td><td>26 obligations · post-Omnibus dates</td></tr>
         <tr><td class="k">GDPR</td><td>5 · Arts. 9, 13–17, 22, 35</td></tr>
         <tr><td class="k">NYC Local Law 144</td><td>5 · the arithmetic is in the rule</td></tr>
         <tr><td class="k">Colorado ADMT Act</td><td>5 · SB 26-189, from Jan 2027</td></tr>

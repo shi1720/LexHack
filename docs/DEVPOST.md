@@ -15,7 +15,7 @@ Proof, not paperwork — Annex reads your codebase, decides where it falls under
 
 ## Elevator pitch (Devpost's short description, ~200 characters)
 
-Every AI Act conformity dossier is a document a company wrote about itself. Annex reads the code instead: 45 obligations, cited to the line, hash-chained so anyone can re-verify.
+Every AI Act conformity dossier is a document a company wrote about itself. Annex reads the code instead: 47 obligations, cited to the line, hash-chained so anyone can re-verify.
 
 ---
 
@@ -63,13 +63,13 @@ And one thing only a code-grounded tool *can* do. Article 3(23) defines a **subs
 
 ## How we built it
 
-**A deterministic engine with zero runtime dependencies.** `packages/engine` is pure TypeScript: a first-party tar reader (a compliance tool that pulls in forty packages to read a `.tar.gz` is making an argument against itself), 75 signal detectors, a readable classification rule table, 45 controls, the hash chain, the dossier builder and the exporters. The analysis never touches the network and never calls a model; fetching a GitHub tarball is the one network call, and it happens before any analysis begins. The same commit always produces the same ledger root — not a performance optimisation, but the reason the output is usable as evidence.
+**A deterministic engine with zero runtime dependencies.** `packages/engine` is pure TypeScript: a first-party tar reader (a compliance tool that pulls in forty packages to read a `.tar.gz` is making an argument against itself), 75 signal detectors, a readable classification rule table, 47 controls, the hash chain, the dossier builder and the exporters. The analysis never touches the network and never calls a model; fetching a GitHub tarball is the one network call, and it happens before any analysis begins. The same commit always produces the same ledger root — not a performance optimisation, but the reason the output is usable as evidence.
 
 **Three pieces of engineering we are glad we did:**
 
 *Evidence ranking.* Collecting citations is easy; putting the right one first is not. Within a file Annex keeps the **best** matching lines rather than the first — a definition beats a usage, and imports come first in a file. Across files it prefers definitions, then files the signal is dense in, then the most specific pattern. That is why the citation lands on the line that rejects the candidate and not on `"openai"` in `package.json`.
 
-*Keyword prefilters.* Each detector carries a lowercase substring check against the whole file before any line is scanned, so most files never reach the line loop. A 168-file repository scans in 220 ms.
+*Keyword prefilters.* Each detector carries a lowercase substring check against the whole file before any line is scanned, so most files never reach the line loop. A 188-file repository — this one — scans in ~430 ms.
 
 *The Article 99(6) inversion.* Fines are normally the *higher* of a flat cap and a percentage of turnover — except for SMEs and start-ups, where Article 99(6) caps them at the **lower** of the two. Almost every summary of the Act gets this backwards. Annex implements the actual arithmetic, which is why the EU AI Act line for a 38-person company with €4.2m turnover reads €294,000 rather than a meaningless €35 million. (The headline on that scan is €20,000,000 — the GDPR Article 83(5) ceiling for the same failures, because Article 83 has no inversion. Getting *that* right meant modelling each regime on its own terms instead of picking whichever tier sat second in an array.) It also implements the definition the Article borrows: Recommendation 2003/361/EC needs headcount *and* a financial test, so unknown financials resolve to *not* an SME. The inversion lowers the cap, and guessing in the generous direction hands an operator a ceiling an order of magnitude too low.
 
@@ -91,7 +91,7 @@ And one thing only a code-grounded tool *can* do. Article 3(23) defines a **subs
 
 ## Accomplishments we're proud of
 
-Taking a repository from `git clone` to a cited classification, a nine-section Annex IV dossier, a CycloneDX attestation and a ten-file remediation pull request **in 220 milliseconds, offline, with no model call** — and being able to prove the answer is the same one anybody else would get from the same commit.
+Taking a repository from `git clone` to a cited classification, a nine-section Annex IV dossier, a CycloneDX attestation and a ten-file remediation pull request **in about a tenth of a second, offline, with no model call** — and being able to prove the answer is the same one anybody else would get from the same commit.
 
 And publishing our error rate. Risk-tier accuracy **100 %**, finding recall **100 %**, carve-out precision **100 %** on a 42-case hand-labelled corpus of which roughly half exists to catch false positives: card-fraud detection (expressly excluded from Annex III 5(b)), one-to-one identity verification (expressly excluded from 1(a)), campaign logistics tooling (excluded by Annex III 8(b) because nobody is exposed to its output), invoice OCR (Article 50(2) does not reach a system that re-expresses its input), a consumer mood-journal app that is Annex III 1(c) high-risk and *not* the Article 5(1)(f) prohibition, and that documentation site.
 

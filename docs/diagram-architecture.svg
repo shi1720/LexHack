@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" width="1160" height="560" role="img" aria-labelledby="t d">
   <title id="t">Annex architecture: ingest, deterministic core, artefacts</title>
-  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 75 signal detectors, a rule-based classifier and 45 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
+  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 75 signal detectors, a rule-based classifier and 47 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
 
   <defs>
     <style>
@@ -31,7 +31,7 @@
 
   <!-- title -->
   <text x="40" y="44" class="h" style="font-size:19px">Annex — one scan, end to end</text>
-  <text x="40" y="66" class="s">A regulation is a function over a repository. 220 ms on a 168-file tree, offline, no model call.</text>
+  <text x="40" y="66" class="s">A regulation is a function over a repository. 430 ms on a 188-file tree, offline, no model call.</text>
 
   <!-- ================= INGEST ================= -->
   <rect class="zone" x="36" y="96" width="228" height="330" rx="14"/>
@@ -75,7 +75,7 @@
   <path class="arrowStrong" d="M471 306 L471 332"/>
 
   <rect class="core" x="312" y="336" width="318" height="74" rx="9"/>
-  <text x="330" y="360" class="h">45 controls · 5 rule packs</text>
+  <text x="330" y="360" class="h">47 controls · 5 rule packs</text>
   <text x="330" y="380" class="s">Each with a citation, its own start date,</text>
   <text x="330" y="396" class="s">a detector, and golden fixtures</text>
 
@@ -123,7 +123,7 @@
   <text x="56" y="478" class="eyebrow">THE TWO THINGS THAT MAKE IT EVIDENCE</text>
 
   <circle cx="64" cy="500" r="3.5" class="navy"/>
-  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 49 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
+  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 53 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
 
   <circle cx="64" cy="518" r="3.5" class="moss"/>
   <text x="78" y="522" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The ledger is checkable.</tspan> annex verify re-derives every entry from the results; --against re-hashes each cited file off disk.</text>

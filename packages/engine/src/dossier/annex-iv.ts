@@ -313,7 +313,9 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     body: [
       ...statusLine(p5),
       n?.riskNarrative ?? '',
-      'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. That judgement, and the person who made it, cannot be derived from code.',
+      p5.some((c) => c.status === 'satisfied')
+        ? 'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. The citations above locate that judgement and the person who made it; an assessor should confirm the date and the authority of that person, which the document records and the code cannot.'
+        : 'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. That judgement, and the person who made it, cannot be derived from code.',
     ].filter(Boolean),
     evidence: evidenceOf(p5, 6),
     open: openItem(report, 'Residual risk acceptance and the accountable person (Article 9(5))', 'eu-ai-act.art9.risk-management'),

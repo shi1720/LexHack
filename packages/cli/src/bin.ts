@@ -122,6 +122,10 @@ ${c.bold('SCAN OPTIONS')}
   --all                Show satisfied and not-applicable controls too
   --quiet              Suppress the progress indicator
 
+${c.bold('DIFF OPTIONS')}
+  --base <ref|dir>     The tree to compare against; --head defaults to HEAD
+  --all                List every regressed control, not the first eight
+
 ${c.bold('VERIFY OPTIONS')}
   --against <dir>      Re-hash every cited file off disk, so a report that no
                        longer describes the tree it claims to describe says so
@@ -158,7 +162,7 @@ const KNOWN_FLAGS: Record<string, string[]> = {
   scan: [...PROFILE_FLAGS, 'format', 'out', 'fail-under', 'token', 'all', 'ref'],
   dossier: [...PROFILE_FLAGS, 'locale', 'html', 'out', 'token', 'simplified', 'ref'],
   fix: [...PROFILE_FLAGS, 'patch', 'out', 'write', 'token', 'ref'],
-  diff: [...PROFILE_FLAGS, 'base', 'head', 'token'],
+  diff: [...PROFILE_FLAGS, 'base', 'head', 'token', 'all'],
   verify: ['against'],
   packs: [],
   explain: [],
@@ -333,10 +337,13 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
   if (report.exposure.maxFine > 0) {
-    const euAiAct = report.exposure.byRegime[0]?.packId === 'eu-ai-act';
+    // Cite whichever regime actually sets the headline ceiling — it is not
+    // always the AI Act; for a system that fails GDPR too, Article 83(5) is
+    // the higher number and the reader is owed the article it comes from.
+    const headline = report.exposure.byRegime[0]?.citation;
     out.write(
       `  ${c.grey('exposure')}     ${c.red(c.bold(money(report.exposure.maxFine, report.exposure.currency)))} ${c.grey(
-        euAiAct ? 'statutory ceiling, not a forecast (Art. 99(1), 99(7))' : 'statutory ceiling, not a forecast',
+        headline ? `statutory ceiling, not a forecast (${headline.short} ${headline.locator})` : 'statutory ceiling, not a forecast',
       )}\n`,
     );
     for (const r of report.exposure.byRegime.slice(1)) {
@@ -559,8 +566,20 @@ async function runDiff(args: Args): Promise<number> {
   process.stdout.write(`  ${c.grey('conformity')}  ${before.score} → ${after.score} ${drift.scoreDelta >= 0 ? c.green(`(+${drift.scoreDelta})`) : c.red(`(${drift.scoreDelta})`)}\n`);
   process.stdout.write(`  ${c.grey('tier')}        ${drift.previousTier} → ${drift.classificationChanged ? c.red(drift.currentTier) : drift.currentTier}\n\n`);
 
-  for (const r of drift.regressed) {
+  /**
+   * A tier change can regress thirty controls at once, and a pull-request
+   * comment that lists all of them is read by nobody. Show the head of the
+   * list and say how many are behind it; --all prints the whole thing, and
+   * `--format json` on `annex scan` is there when a machine needs every row.
+   */
+  const showAll = Boolean(args.flags.all);
+  const shown = showAll ? drift.regressed : drift.regressed.slice(0, 8);
+  for (const r of shown) {
     process.stdout.write(`  ${c.red(SYMBOL.fail)} ${c.bold(r.title)} ${c.grey(`${r.from} → ${r.to}`)}\n    ${c.grey(r.controlId)}\n`);
+  }
+  const hidden = drift.regressed.length - shown.length;
+  if (hidden > 0) {
+    process.stdout.write(c.grey(`  … ${hidden} more regression${hidden === 1 ? '' : 's'}; pass --all to list them\n`));
   }
   for (const r of drift.improved) {
     process.stdout.write(`  ${c.green(SYMBOL.pass)} ${r.title} ${c.grey(`${r.from} → ${r.to}`)}\n`);
@@ -694,7 +713,7 @@ async function runVerify(args: Args): Promise<number> {
   process.stdout.write('\n');
   if (!check.valid) {
     process.stdout.write(`${c.bgRed(' LEDGER BROKEN ')}\n\n`);
-    process.stdout.write(`  ${check.reason}\n`);
+    process.stdout.write(`${wrap(check.reason ?? 'the ledger does not match the results it describes.', 74, '  ')}\n`);
     process.stdout.write(`  ${c.grey(`recomputed ${check.root.slice(0, 24)}… vs recorded ${check.expectedRoot.slice(0, 24)}…`)}\n`);
     return 1;
   }

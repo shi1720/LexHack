@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:ff7802f0-a0b1-4cd4-acd8-6b99951863b8",
+  "serialNumber": "urn:uuid:1c80279e-81f4-4c88-a80f-fb6b3936a91b",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-15T20:15:55.457Z",
+    "timestamp": "2026-09-15T20:44:20.606Z",
     "tools": {
       "components": [
         {
@@ -18,7 +18,7 @@
       "type": "application",
       "bom-ref": "component:hireflow-remediated",
       "name": "hireflow-remediated",
-      "version": "8b0296080342"
+      "version": "aae9c3ec7204"
     },
     "properties": [
       {
@@ -31,11 +31,11 @@
       },
       {
         "name": "annex:conformityScore",
-        "value": "76"
+        "value": "80"
       },
       {
         "name": "annex:ledgerRoot",
-        "value": "3231910fdbe86573bad8047932f55c492454bc7459e8c5944ff4582e2ba7e0de"
+        "value": "a34a0fb3d5b187a5d49b68116f8f18dd71d406b2dc97b2e05c0d725a9d439289"
       }
     ]
   },

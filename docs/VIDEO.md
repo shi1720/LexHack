@@ -119,7 +119,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **Forty-five obligations across five jurisdictions, each compiled into a function with its own citation and its own start date. The engine is deterministic and offline — it never calls a model, because an auditor can't accept "the model thought so" as evidence.**
+> **Forty-seven obligations across five jurisdictions, each compiled into a function with its own citation and its own start date. The engine is deterministic and offline — it never calls a model, because an auditor can't accept "the model thought so" as evidence.**
 
 **Screen:** Cut to the terminal, run `annex verify report.json`. The green `LEDGER INTACT` banner.
 
@@ -181,7 +181,7 @@ Add these as simple captions. No animation, no transitions beyond hard cuts.
 | 0:40 | `Evidence explorer` |
 | 1:10 | `Annex IV technical documentation — Article 11` |
 | 1:35 | `Substantial modification — Article 3(23), Article 43(4)` |
-| 1:58 | `45 obligations · 5 jurisdictions · 0 model calls` |
+| 1:58 | `47 obligations · 5 jurisdictions · 0 model calls` |
 | 2:12 | `42 cases · 100% tier accuracy · 100% carve-out precision` |
 | 2:44 | `github.com/shi1720/LexHack` |
 

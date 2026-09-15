@@ -1392,6 +1392,157 @@ const highRiskControls: Control[] = [
           );
     },
   }),
+  c({
+    id: 'eu-ai-act.art26.deployer-obligations',
+    penaltyTier: 'art99-4',
+    title: 'Deployer duties: assigned overseers, input data, and telling the workforce',
+    obligation:
+      'Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and inform the provider and the market surveillance authority where a risk under Article 79(1) arises (26(5)), keep the automatically generated logs for at least six months (26(6)), and — before putting a high-risk system into service at the workplace — inform workers\' representatives and the affected workers that they will be subject to it (26(7)).',
+    family: 'human-oversight',
+    severity: 'high',
+    weight: 7,
+    method: 'static-analysis',
+    appliesFrom: DATES.HIGH_RISK_ANNEX_III,
+    citations: [
+      aiActArticle(26, '(2)', 'Obligations of deployers — assigned human oversight'),
+      aiActArticle(26, '(4)', 'Obligations of deployers — input data'),
+      aiActArticle(
+        26,
+        '(7)',
+        'Obligations of deployers — informing workers',
+        'Before putting into service or using a high-risk AI system at the workplace, deployers who are employers shall inform workers\' representatives and the affected workers that they will be subject to the use of the high-risk AI system',
+      ),
+    ],
+    appliesWhen: whenHighRisk,
+    evaluate: (ctx) => {
+      const assigned = ctx.grep(/\b(assigned|designated|named)[_\s-]?(reviewer|overseer|approver|operator)\b|\breviewer[_\s-]?(role|id|assignment)\b/i, { limit: 3 });
+      const workplace = ctx.signals.hasAny('domain.employment.screening', 'domain.employment.management');
+      const informed = ctx.grepDocs(
+        /\b(works[_\s]?council|workers['\u2019]? representatives?|employee[_\s]?representatives?|staff[_\s]?consultation|collective[_\s]?agreement)\b/i,
+        3,
+        /(worker|employee|staff|hr|works[-_]?council|deployer|instruction|readme)/i,
+      );
+      const ev = [...assigned, ...informed];
+
+      if (workplace && informed.length === 0) {
+        return missing(
+          'This system makes decisions about people at work, and nothing records that workers or their representatives were informed before it was put into service.',
+          'Article 26(7) is a duty on the employer and it is easy to miss because it sits outside the technical requirements: before a high-risk system is used at the workplace, the affected workers and their representatives have to be told. Record when, and to whom.',
+          ['works council', "workers' representatives", 'staff consultation'],
+        );
+      }
+      if (assigned.length > 0) {
+        return partial(
+          'An assigned reviewer role was found in the code.',
+          'Article 26(2) asks for more than a role: the person must have the competence, the training, the authority and the organisational support to exercise oversight. That is a personnel record, not a database column, and Annex cannot see it.',
+          ev,
+        );
+      }
+      return needsReview(
+        'Article 26 binds whoever deploys this system, which may not be whoever wrote this repository.',
+        'If you deploy it: assign oversight to named people with the authority to act on it, keep the logs for six months under Article 26(6), check that the input data you control is representative, and — at the workplace — inform the affected workers first. If you only supply it, record that Article 26 falls on your customers and give them what Article 13 requires to discharge it.',
+        ev,
+      );
+    },
+    tests: [
+      {
+        // Article 26(7) is the duty deployers miss, because it has no
+        // engineering task attached to it: you tell the workforce first.
+        name: 'missing when a workplace system has no record of informing workers',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, job_requisition: applicant.req, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'missing',
+      },
+      {
+        name: 'partial once the consultation is recorded and a reviewer is assigned',
+        files: {
+          'src/screen.ts':
+            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, job_requisition: applicant.req, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/review.ts':
+            'export async function assignReviewer(decisionId, reviewerId) {\n  return db.reviews.create({ decisionId, assigned_reviewer: reviewerId });\n}\n',
+          'docs/deployer-obligations.md':
+            '# Deployer obligations\n\n## Article 26(7) — informing workers\n\nThe staff consultation was completed on 2026-06-12 with the works council, and the affected workers were informed before the system was put into service.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
+      },
+    ],
+  }),
+  c({
+    id: 'eu-ai-act.art27.fria',
+    penaltyTier: 'art99-4',
+    title: 'Fundamental rights impact assessment before first use',
+    obligation:
+      'Article 27(1) requires deployers that are bodies governed by public law, private entities providing public services, or deployers of the creditworthiness and life-and-health-insurance systems in Annex III points 5(b) and 5(c), to perform an assessment of the impact on fundamental rights before first use: the deployment processes, the period and frequency of use, the categories of natural persons likely to be affected, the specific risks of harm to them, the human oversight measures, and the measures to take if those risks materialise. Article 27(4) allows an existing GDPR data protection impact assessment to be complemented rather than duplicated.',
+    family: 'risk-management',
+    severity: 'high',
+    weight: 6,
+    method: 'documentation',
+    appliesFrom: DATES.HIGH_RISK_ANNEX_III,
+    citations: [
+      aiActArticle(27, '(1)', 'Fundamental rights impact assessment for high-risk AI systems'),
+      aiActArticle(27, '(4)', 'Complementing an existing data protection impact assessment'),
+    ],
+    // Article 27 does not bind every high-risk deployer: it reaches public
+    // bodies, private providers of public services, and the two Annex III
+    // point 5 use cases named in 27(1). Credit scoring is one of them, which
+    // is why it applies to the LendWise fixture and not to HireFlow.
+    appliesWhen: allOf(
+      whenHighRisk,
+      whenFinding('annex-iii.5b.credit', 'annex-iii.5c.insurance', 'annex-iii.5a.public-benefits'),
+    ),
+    evaluate: (ctx) => {
+      const fria = ctx.grepDocs(
+        /\b(fundamental[_\s-]?rights[_\s-]?impact|fria)\b/i,
+        3,
+        /(fundamental|fria|impact|rights|risk|dpia|readme)/i,
+      );
+      if (fria.length > 0) return satisfied('A fundamental rights impact assessment was found.', fria);
+
+      const dpia = ctx.signals.get('governance.dpia');
+      if (dpia && dpia.hits > 0) {
+        return partial(
+          'A data protection impact assessment was found, but nothing addresses fundamental rights beyond data protection.',
+          'Article 27(4) lets you complement the DPIA rather than start again — but the additional elements are specific: the period and frequency of use, the categories of persons likely to be affected, the specific risks of harm to them, and what you will do if those risks materialise. Add them to the existing assessment and say that is what you have done.',
+          dpia.evidence.slice(0, 3),
+        );
+      }
+      return missing(
+        'No fundamental rights impact assessment was found for a use case Article 27(1) names.',
+        'Perform it before first use. Article 27(4) means the work is smaller than it looks if a GDPR DPIA already exists: complement it rather than duplicating it, and notify the market surveillance authority of the result under Article 27(3).',
+        ['fundamental rights impact assessment', 'FRIA', 'Article 27'],
+      );
+    },
+    tests: [
+      {
+        // Article 27(4) means the work is smaller where a DPIA exists, but the
+        // additional elements are specific and a DPIA does not contain them.
+        name: 'partial when a DPIA exists but nothing addresses fundamental rights',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: creditScore > 640 ? "approve" : "decline" };\n}\n',
+          'docs/dpia.md':
+            '# Data protection impact assessment\n\nA DPIA under GDPR Article 35 was completed on 2026-04-02 for the underwriting pipeline.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when a fundamental rights impact assessment is recorded',
+        files: {
+          'src/underwrite.ts':
+            'export function underwrite(borrower) {\n  const creditScore = model.predict(borrower);\n  return { borrower: borrower.id, credit_score: creditScore, loan_decision: creditScore > 640 ? "approve" : "decline" };\n}\n',
+          'docs/fundamental-rights-impact.md':
+            '# Fundamental rights impact assessment (Article 27)\n\nCompleted 2026-05-20, before first use. Covers the deployment processes, the period and frequency of use, the categories of natural persons likely to be affected, the specific risks of harm to them, the human oversight measures, and what we do if those risks materialise. It complements the GDPR DPIA of 2026-04-02 rather than duplicating it.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+    ],
+  }),
 ];
 
 // ===========================================================================

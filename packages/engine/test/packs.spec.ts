@@ -3,7 +3,8 @@ import { ALL_PACKS, CORPUS_SIZE } from '../src/packs/index.js';
 import { buildSnapshot } from '../src/ingest/snapshot.js';
 import { createSignalIndex, extractSignals } from '../src/signals/index.js';
 import { classify } from '../src/classify/index.js';
-import { createContext, evaluateControl } from '../src/evaluate/index.js';
+import { createContext, evaluateControl, evaluatePacks, scoreControls } from '../src/evaluate/index.js';
+import { planRemediation } from '../src/remediate/index.js';
 import { defaultProfile } from '../src/scan.js';
 import type { Control, SystemProfile } from '../src/types.js';
 
@@ -153,5 +154,74 @@ describe('control evaluation is defensive', () => {
         expect(() => runControl(control, junk), control.id).not.toThrow();
       }
     }
+  });
+});
+
+describe('the projected score is a measurement, not a guess', () => {
+  /**
+   * The number the pull request puts in front of a reviewer has to be the one
+   * the next scan produces. It used to mark every closed control `partial` and
+   * add it up, predicting 3 → 17 where the real answer was 25 — which makes it
+   * decorative, on the one artefact whose whole argument is that it does not
+   * overstate itself.
+   */
+  const REPO: Record<string, string> = {
+    'package.json': JSON.stringify({ name: 'lender', dependencies: { openai: '^4.0.0' } }),
+    'src/decide.ts':
+      'export function decide(applicant: { id: string; income: number }) {\n' +
+      '  const creditScore = model.predict(applicant);\n' +
+      '  return { borrower: applicant.id, loan_decision: creditScore > 640 ? "approve" : "decline" };\n' +
+      '}\n',
+  };
+
+  it('predicts exactly the score the next scan produces', () => {
+    const snapshot = buildSnapshot({
+      name: 'projection',
+      files: Object.entries(REPO).map(([path, bytes]) => ({ path, bytes })),
+    });
+    const signals = createSignalIndex(extractSignals(snapshot));
+    const profile = defaultProfile(snapshot, { markets: ['eu'], tierOverride: 'high' });
+    const ctx = createContext({ snapshot, signals, classification: classify(signals, profile), profile });
+    const packs = ALL_PACKS.filter((p) => p.id === 'eu-ai-act');
+
+    const plan = planRemediation(packs, evaluatePacks(packs, ctx, {}), ctx);
+    expect(plan, 'the fixture should have gaps with an available remediation').toBeDefined();
+
+    // Build the tree the pull request would leave behind, and score it.
+    const merged = buildSnapshot({
+      name: 'projection',
+      files: [
+        ...Object.entries(REPO).map(([path, bytes]) => ({ path, bytes })),
+        ...plan!.files.map((f) => ({ path: f.path, bytes: f.contents })),
+      ],
+    });
+    const mergedSignals = createSignalIndex(extractSignals(merged));
+    const mergedProfile = defaultProfile(merged, { markets: ['eu'], tierOverride: 'high' });
+    const mergedCtx = createContext({
+      snapshot: merged,
+      signals: mergedSignals,
+      classification: classify(mergedSignals, mergedProfile),
+      profile: mergedProfile,
+    });
+
+    expect(plan!.scoreAfter).toBe(scoreControls(evaluatePacks(packs, mergedCtx, {})));
+  });
+
+  it('does not project its way to a clean sheet', () => {
+    // Merging a remediation is the start of the work, not the end of it. If a
+    // generated scaffold could project to 100 the PR body would be lying in
+    // the same paragraph where it says it is not.
+    const snapshot = buildSnapshot({
+      name: 'projection',
+      files: Object.entries(REPO).map(([path, bytes]) => ({ path, bytes })),
+    });
+    const signals = createSignalIndex(extractSignals(snapshot));
+    const profile = defaultProfile(snapshot, { markets: ['eu'], tierOverride: 'high' });
+    const ctx = createContext({ snapshot, signals, classification: classify(signals, profile), profile });
+    const packs = ALL_PACKS.filter((p) => p.id === 'eu-ai-act');
+    const plan = planRemediation(packs, evaluatePacks(packs, ctx, {}), ctx);
+
+    expect(plan!.scoreAfter).toBeGreaterThan(plan!.scoreBefore);
+    expect(plan!.scoreAfter).toBeLessThan(100);
   });
 });

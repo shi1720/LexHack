@@ -31,41 +31,61 @@ If your product talks to a person, or generates text, images, audio or video, yo
 ## What Annex does
 
 ```
-$ annex scan . --markets eu,us-nyc --turnover 9800000 --employees 40
+$ annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employees 40
 
- PROHIBITED  Contains a practice prohibited by Article 5: emotion inference in the workplace.
+ PROHIBITED  Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting.
 
-  repository   hireflow · 14 files · 49 ms
+  repository   hireflow · 14 files · 103 ms
   your role    provider and deployer (Arts. 3(3), 3(4))
   conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100
   in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  19 of 19 live obligations failing
-  ledger       C89D-4DB6-FB42-0989
-  exposure     €20,000,000 statutory ceiling, not a forecast (Art. 99(1), 99(7))
+  ledger       9477-8E29-F283-404A
+  exposure     €20,000,000 statutory ceiling, not a forecast (GDPR Art. 83(5))
                + EU AI Act: €686,000
-               + NYC Local Law 144: $500 per day of use and per missing notice
+               + NYC Local Law 144: $500 per day of use and per missing notice, each of which is a separate violation
 
 Classification
 ────────────────────────
-  ✖ Emotion inference in the workplace or an education setting      89% confidence
-    EU AI Act Art. 5(1)(f)
-    src/interview/signal.ts:17  export async function detectEmotion(frames, transcript)
+  ✖ Emotion inference in the workplace or an education setting 89% confidence
+    EU AI Act Art. 5(1)(f) Prohibited AI practices — emotion inference at work or school
+    src/interview/signal.ts:17  export async function detectEmotion(frames: string[], transcript: string): Pro
 
-  ▲ Employment: recruitment and candidate selection                 97% confidence
-    EU AI Act Annex III, point 4(a)
-    src/screening/rank.ts:28  const decision = candidateScore >= ADVANCE_THRESHOLD ? …
+  ▲ Employment: recruitment and candidate selection 97% confidence
+    EU AI Act Annex III, point 4(a) High-risk AI systems — employment and worker management
+    src/screening/rank.ts:28  const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject';
 
 Gaps
 ────────────────────────
-  ✖ missing   No emotion inference in the workplace or education    IN FORCE
-  ✖ missing   Tell people they are talking to an AI                 IN FORCE
-  ✖ missing   Mark synthetic output in a machine-readable format    IN FORCE
-  ✖ missing   Effective human oversight while the system is in use  from 2027-12-02
+
+  EU AI Act 2026.09.1 · European Union
+    ✖ missing   No emotion inference in the workplace or education  IN FORCE
+      EU AI Act Art. 5(1)(f)
+      This repository infers emotional or affective state from people in a
+      recruitment, employment or education context. Article 5(1)(f) prohibits
+      that outright.
+      → Remove the emotion inference feature, or establish and document that the
+      system is placed on the market for medical or safety reasons — the only
+      carve-out in Article 5(1)(f). No amount of consent, disclosure or human
+      review cures a prohibited practice.
+      src/interview/signal.ts:17  export async function detectEmotion(frames: string[], transcript: stri
+
+    ✖ missing   Tell people they are talking to an AI  IN FORCE
+      EU AI Act Art. 50(1)
+      This system talks directly to people and no AI disclosure was found
+      anywhere in the codebase.
+      → Show a persistent, clearly distinguishable notice at the start of every
+      conversation stating that the user is interacting with an AI system. In
+      force since 2 August 2026; exposure is EUR 15 000 000 or 3 % of worldwide
+      annual turnover.
+
+    ✖ missing   Effective human oversight while the system is in use  from 2027-12-02
 ```
 
-Abridged for length — the real run prints every gap, every citation and the
-remediation for each. Everything shown is verbatim: run the command against the
-bundled `fixtures/hireflow` and you get those numbers, ledger fingerprint
-included, with only the timing moving.
+Abridged for length — whole findings and whole gaps have been cut, but every
+line shown is verbatim. The real run prints 30 gaps, each with its citation, its
+evidence and its remediation. Run the command against the bundled
+`fixtures/hireflow` and you get those numbers, ledger fingerprint included, with
+only the timing moving.
 
 Three things in that output are the whole product. **`src/screening/rank.ts:28`**
 is a citation, not a category — you can disagree with it by opening the file.
@@ -125,7 +145,7 @@ flowchart LR
   subgraph Deterministic core
     B --> C[75 signal detectors<br/>code · docs · manifests]
     C --> D[Classifier<br/>Annex III / Art. 5 / Art. 50]
-    D --> E[45 controls<br/>5 rule packs]
+    D --> E[47 controls<br/>5 rule packs]
     E --> F[Hash-chained<br/>evidence ledger]
   end
   subgraph Artefacts
@@ -165,7 +185,7 @@ tests: [
 ]
 ```
 
-`npm test` runs every golden fixture in the corpus — 49 cases over 19 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
+`npm test` runs every golden fixture in the corpus — 53 cases over 21 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
 
 ### 3. Nothing goes green because a file exists
 
@@ -190,19 +210,28 @@ inside a few of them:
   that happens to contain them.
 
 The test of all three is Annex's own remediation pull request. Applying it to
-the LendWise fixture moves the score 39 → 53, not 39 → 80, and every control it
-touches says why:
+the LendWise fixture moves the score 42 → 53 — six obligations closed, and not
+one of them all the way — and every control it touches says why:
 
 ```
-$ annex fix . --write && annex scan .
+$ annex fix . --write && annex scan . --all
 
-  partial   Effective human oversight while the system is in use
-            All three oversight affordances are defined, but no code path calls them.
-            → nothing in the repository reaches ai_act/human_oversight.py
+  ▲ partial   Effective human oversight while the system is in use  from 2027-12-02
+      EU AI Act Art. 14(1)
+      All three oversight affordances were found: a human review step, an
+      override path, a stop control. The code behind this finding is not reached
+      from anywhere else in the repository, so it cannot be doing the work at
+      the moment the obligation bites.
+      → Wire it into the path that makes the decision: nothing in the repository
+      reaches ai_act/human_oversight.py.
 
-  partial   Risk management system across the lifecycle
-            Every document behind this finding still carries unfilled `_TODO_`
-            placeholders, so the scaffold exists but the judgements have not been made.
+  ▲ partial   Risk management system across the lifecycle  from 2027-12-02
+      EU AI Act Art. 9
+      A risk register with an explicit residual-risk judgement was found. Every
+      document behind this finding still carries unfilled `_TODO_` placeholders,
+      so the scaffold exists but the judgements it asks for have not been made.
+      → Fill in the placeholders in docs/ai-act/risk-management.md. A generated
+      template is a starting point; on its own it evidences nothing.
 ```
 
 Adding `from ai_act.human_oversight import gate` does not move it either. A
@@ -215,13 +244,14 @@ Every control result is reduced to a canonical line — the control, its status 
 ```
 $ annex verify report.json --against fixtures/hireflow
 
- LEDGER INTACT   7B44-7DC8-8661-9673
- 29 entries re-derived from the results they describe
- root 7b447dc886619673bd4f7d98…
+ LEDGER INTACT   032A-EFC9-8A84-9185
 
- Cited files, re-hashed from fixtures/hireflow
- 6 file(s) checked
- ✔ every cited file still hashes to the digest in the report
+  47 entries re-derived from the results they describe
+  root 032aefc98a849185e42a9dc8…
+
+  Cited files, re-hashed from fixtures/hireflow
+  6 file(s) checked
+  ✔ every cited file still hashes to the digest in the report
 ```
 
 Flip one status in that report from `missing` to `satisfied` and nothing else,
@@ -230,9 +260,10 @@ and it says so — naming the entry, and exiting 1:
 ```
  LEDGER BROKEN
 
- Entry 13 ("eu-ai-act.art5.emotion-workplace") does not hash to its recorded
- value: the status, score, rule version or cited evidence in this report is not
- what the ledger was built over.
+  Entry 20 ("eu-ai-act.art5.emotion-workplace") does not hash to its
+  recorded value: the status, score, rule version or cited evidence in this
+  report is not what the ledger was built over.
+  recomputed 5f5c74b0b4a602fec086762d… vs recorded 032aefc98a849185e42a9dc8…
 ```
 
 `annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value. `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree it claims to describe says so. That is the whole difference between a document and a proof.
@@ -253,13 +284,31 @@ $ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
   and Article 43(4) then requires the conformity assessment to be re-opened
   and the technical documentation updated.
 
-  conformity  81 → 3 (-78)
+  conformity  80 → 3 (-77)
   tier        high → prohibited
 
-  ✖ No emotion inference in the workplace or education   not_applicable → missing
-  ✖ Measures to support AI literacy                          satisfied → missing
-  ✖ Tell people they are talking to an AI                    satisfied → missing
-  … 28 more
+  ✖ No emotion inference in the workplace or education not_applicable → missing
+    eu-ai-act.art5.emotion-workplace
+  ✖ Measures to support AI literacy satisfied → missing
+    eu-ai-act.art4.ai-literacy
+  ✖ Tell people they are talking to an AI satisfied → missing
+    eu-ai-act.art50.1.interaction-disclosure
+  ✖ Notify people exposed to emotion recognition or biometric categorisation not_applicable → missing
+    eu-ai-act.art50.3.biometric-notification
+  ✖ Determine and record whether you are the provider or the deployer satisfied → needs_review
+    eu-ai-act.art3.role-determination
+  ✖ Risk management system across the lifecycle satisfied → missing
+    eu-ai-act.art9.risk-management
+  ✖ Examine training and evaluation data for bias satisfied → missing
+    eu-ai-act.art10.bias-examination
+  ✖ Document data provenance and preparation satisfied → missing
+    eu-ai-act.art10.data-governance
+  … 28 more regressions; pass --all to list them
+  ✔ Retain automatically generated logs for at least six months satisfied → not_applicable
+
+  Article 43(4): where a high-risk AI system is substantially modified, it
+  must undergo a new conformity assessment. The technical documentation is
+  now out of date.
 ```
 
 Both sides take a git ref or a directory, so this works in CI against
@@ -271,11 +320,11 @@ A questionnaire cannot do this at all: it is answered once, by a person, about a
 
 ## What is in the corpus
 
-45 executable obligations across five jurisdictions, each reconciled against primary sources on 2026-09-15.
+47 executable obligations across five jurisdictions, each reconciled against primary sources on 2026-09-15.
 
 | Pack | Version | Obligations | Status |
 |---|---|---|---|
-| **EU AI Act** — Regulation (EU) 2024/1689 as amended by (EU) 2026/1744 | 2026.09.1 | 24 | Art. 5 in force since 2025-02-02, Art. 50 since 2026-08-02, Chapter III from 2027-12-02 |
+| **EU AI Act** — Regulation (EU) 2024/1689 as amended by (EU) 2026/1744 | 2026.09.1 | 26 | Art. 5 in force since 2025-02-02, Art. 50 since 2026-08-02, Chapter III from 2027-12-02 |
 | **GDPR** — automated decisions (Arts. 9, 13–17, 22, 35) | 2026.09.1 | 5 | In force since 2018 |
 | **NYC Local Law 144** — AEDT bias audits, 6 RCNY §§ 5-300 to 5-304 | 2026.09.1 | 5 | Enforced since 2023-07-05 |
 | **Colorado ADMT Act** — SB 26-189 | 2026.09.1 | 5 | From 2027-01-01 |
@@ -329,7 +378,7 @@ packages/engine/     No model, no framework, zero runtime dependencies.
                       fetch a GitHub tarball; a local path fetches nothing)
   signals/           75 detectors over code, docs and manifests
   classify/          Rule table mapping signals → Annex III / Art. 5 / Art. 50
-  packs/             The corpus: 45 controls with citations, dates, fixtures
+  packs/             The corpus: 47 controls with citations, dates, fixtures
   evaluate/          Control execution, weighted scoring, exposure modelling
   ledger/            SHA-256 hash chain + verification
   dossier/           Annex IV builder and renderers

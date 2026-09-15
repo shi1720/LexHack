@@ -57,6 +57,8 @@ const PLACEMENT: Record<number, Placement> = {
   17: 'chapter-iii-s3',
   19: 'chapter-iii-s3',
   25: 'chapter-iii-s3',
+  26: 'chapter-iii-s3', // Obligations of deployers
+  27: 'chapter-iii-s3', // Fundamental rights impact assessment
   43: 'chapter-iii-s5', // Conformity assessment, certificates, registration
   47: 'chapter-iii-s5',
   48: 'chapter-iii-s5',
