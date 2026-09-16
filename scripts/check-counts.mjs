@@ -63,9 +63,12 @@ const FACTS = {
  *
  * The tolerances are set to catch the thing this was added for — four
  * documents claiming 191 files and 450 ms against 206 and 690 — and to ignore
- * the noise either side of it.
+ * the noise either side of it. The file band was 8 % for one commit, which let
+ * 191 back through at 7.9 %: a tolerance loose enough to admit the original
+ * defect is not a gate. 4 % rejects it at 7.3 % and accepts the two-file
+ * difference between a clean clone and a development tree.
  */
-const APPROXIMATE = { selfScanFiles: 0.08, selfScanMs: 0.3 };
+const APPROXIMATE = { selfScanFiles: 0.04, selfScanMs: 0.3 };
 
 /**
  * Each claim is a file, a regular expression with one capturing group holding
