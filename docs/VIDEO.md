@@ -15,8 +15,14 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 - [ ] A second tab open at the `HireFlow` **Evidence** page, pre-loaded
 - [ ] A third tab open at the `HireFlow v3` **Evidence** page, pre-loaded — the `Evidenced` beat needs it
 - [ ] A terminal window, font size ~16pt, dark background, sitting in the repo root
-- [ ] Pre-type this in the terminal so you only press Enter:
+- [ ] Pre-type these in the terminal so you only press Enter (two tabs, one command each):
       `node packages/cli/dist/bin.js diff --base fixtures/hireflow-remediated --head fixtures/hireflow --markets eu,us-nyc`
+      `node packages/cli/dist/bin.js verify report.json --pubkey annex-signing.pub`
+- [ ] Generate the signing key and a signed report **before** you record, so the verify shot is instant:
+      ```
+      node packages/cli/dist/bin.js keygen
+      node packages/cli/dist/bin.js scan fixtures/hireflow --format json --out report.json --sign annex-signing.key --quiet
+      ```
 - [ ] Phone on silent, notifications off, Do Not Disturb on
 - [ ] A real microphone if you have one. Bad audio is a top-six reason judges disengage
 - [ ] Record at 1080p or better, then upload to YouTube as **Unlisted**, marked **"Not made for kids"**, with captions cleaned up
@@ -121,11 +127,11 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 > **Fifty-two obligations across five instruments, each compiled into a function with its own citation and its own start date. The engine is deterministic and offline — it never calls a model, because an auditor can't accept "the model thought so" as evidence.**
 
-**Screen:** Cut to the terminal, run `annex verify report.json`. The green `LEDGER INTACT` banner.
+**Screen:** Cut to the terminal, run `annex verify report.json --pubkey annex-signing.pub`. The green `LEDGER INTACT` banner with the `✔ signed by` line under it.
 
 **Say:**
 
-> **Every result is hashed into a chain. Re-run it on the same commit and you get the same root. Edit one status in the report and verify names the entry that stopped matching. That's the difference between a document and a proof.**
+> **Every result is hashed into a chain, and the root is signed. Re-run it on the same commit and you get the same root. Edit one status and verify names the entry that stopped matching — and if someone rebuilds the whole chain around the edit, the signature catches that too. That's the difference between a document and a proof.**
 
 **Screen:** Cut to the terminal, run `npm run benchmark`.
 
@@ -182,6 +188,7 @@ Add these as simple captions. No animation, no transitions beyond hard cuts.
 | 1:10 | `Annex IV technical documentation — Article 11` |
 | 1:35 | `Substantial modification — Article 3(23), Article 43(4)` |
 | 1:58 | `52 obligations · 5 instruments · 0 model calls` |
+| 2:04 | `Ed25519-signed ledger root — Article 11 technical documentation` |
 | 2:12 | `48 cases · 100% tier accuracy · 100% carve-out precision` |
 | 2:44 | `github.com/shi1720/LexHack` |
 

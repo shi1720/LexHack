@@ -215,25 +215,23 @@
   <h2>Not a paperwork problem. A verification problem.</h2>
   <p class="lead">
     A frontier model can draft a plausible Annex IV document this afternoon. What it cannot do is tell
-    you whether the document is <em class="q">true</em>. So we built for verification, and two things
-    follow from that.
+    you whether the document is <em class="q">true</em>. Two things follow.
   </p>
   <div class="grid g2" style="margin-top:20px">
     <div class="card navy">
       <h3>The law gets a test suite</h3>
-      <p>A control is a function, so it can be tested. 75 golden fixtures across all five packs — each a
-      minimal repository and the status the control must return — plus a suite that checks every control
-      against a written-down Article 113 table. If a regex gets greedier, the obligation fails the build
-      rather than silently mis-reporting somebody's conformity.</p>
+      <p>A control is a function, so it can be tested. <strong>75 golden fixtures</strong> — each a minimal
+      repository and the status the control must return — plus a suite checking every control against a
+      written-down Article 113 table.</p>
+      <p style="margin-top:8px">A regex that gets greedier fails the build instead of quietly
+      mis-reporting somebody's conformity.</p>
     </div>
     <div class="card moss">
-      <h3>The evidence ledger</h3>
-      <p>Every result is hashed into a chain: the control, its status, the rule-pack version, the
-      SHA-256 of every file it cites. The root goes on the dossier's front page. Re-run on the same
-      commit and you get the same root. <span class="mono">annex&nbsp;verify</span> re-derives every
-      entry from the results the report describes, so an edited status stops matching, and
-      <span class="mono">--against</span> re-hashes each cited file off disk. A checksum chain, not a
-      signature — it makes a silent edit detectable, not impossible.</p>
+      <h3>The evidence ledger, signed</h3>
+      <p>Every result is hashed into a chain — control, status, rule-pack version, the SHA-256 of each
+      file cited — and the root is <strong>signed with Ed25519</strong>.</p>
+      <p style="margin-top:8px">A chain alone only catches an edit for a reader who has your source.
+      A signature they can check against your key catches it for the reader who does not.</p>
     </div>
   </div>
   <p class="lead" style="margin-top:18px">

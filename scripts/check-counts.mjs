@@ -55,7 +55,7 @@ const CLAIMS = [
   ['docs/deck/index.html', /<div class="stat s">(\d+)<\/div><div class="cap">signal detectors/, 'detectors'],
   ['docs/deck/index.html', /<td>(\d+) obligations · post-Omnibus dates<\/td>/, 'euObligations'],
   ['docs/deck/index.html', /(\d+) hand-labelled cases\. Roughly half/, 'benchmarkCases'],
-  ['docs/deck/index.html', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
+  ['docs/deck/index.html', /<strong>(\d+) golden fixtures<\/strong>/, 'fixtureCases'],
   ['docs/diagram-architecture.svg', /a rule-based classifier and (\d+) controls/, 'obligations'],
   ['docs/diagram-architecture.svg', /(\d+) signal detectors/, 'detectors'],
   ['docs/diagram-architecture.svg', />(\d+) controls · 5 rule packs</, 'obligations'],
