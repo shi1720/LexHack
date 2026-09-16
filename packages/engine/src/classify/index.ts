@@ -18,6 +18,23 @@ const RULE_REGIME: Record<string, 'eu-ai-act' | 'gdpr'> = Object.fromEntries(
 );
 export type { ClassificationRule } from './rules.js';
 
+/**
+ * A test describes a system; it is not the system.
+ *
+ * `lobehub/lobe-chat` came back high-risk under Annex III point 5(d) —
+ * emergency triage and dispatch — on two lines of `domain.test.ts` reading
+ * `description: 'Detect and triage.'`. A test fixture is prose with a `.ts`
+ * extension: it names behaviour in order to assert something about it, and it
+ * is written to cover edge cases the product does not ship.
+ *
+ * So a test may *corroborate* a classification and may not carry one alone —
+ * the same rule the engine already applies to comments, for the same reason.
+ * The remediated HireFlow fixture depends on this being a cap and not an
+ * exclusion: its Article 14 evidence includes `tests/rank.test.ts` alongside
+ * the module the test exercises, and that is a fair citation.
+ */
+const TEST_FILE = /(^|\/)(tests?|__tests__|spec|e2e|cypress|fixtures?|mocks?|__mocks__)\/|[._-](test|spec)\.[a-z]+$|(^|\/)test_[^/]+$/i;
+
 const TIER_RANK: Record<RiskTier, number> = {
   prohibited: 5,
   high: 4,
@@ -160,6 +177,7 @@ function assessArticle6_3(
   };
 }
 
+
 export interface ClassifyOptions {
   /** Operator override; recorded in the report and the dossier. */
   tierOverride?: RiskTier;
@@ -177,6 +195,8 @@ export function classify(
 
     const evidence = signals.evidenceFor(...rule.requires).slice(0, 6);
     if (evidence.length === 0) continue;
+    // Everything this rule found is in a test. See `TEST_FILE`.
+    if (evidence.every((e) => TEST_FILE.test(e.path))) continue;
 
     findings.push({
       id: rule.id,

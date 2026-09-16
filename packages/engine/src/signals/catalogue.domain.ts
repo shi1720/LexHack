@@ -258,7 +258,16 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     keywords: ['face_recognition', 'facerecognition', 'face_embedding', 'faceid', 'fingerprint', 'iris', 'voiceprint', 'biometric'],
     patterns: [
       /\bface[_\s]?(recognition|match|embedding|encoding|verify|identify|detect)\b/i,
-      /\b(fingerprint|iris[_\s]?scan|voiceprint|retina|gait[_\s]?analysis)\b/i,
+      // `fingerprint` on its own is almost never biometric in a web codebase.
+      // Browser and device fingerprinting, asset fingerprinting, TLS and
+      // package fingerprints all use the word, and `open-webui` was classified
+      // high-risk under Annex III point 1(a) on the string
+      // `'generateInitialsImage: failed pixel test, fingerprint evasion'` —
+      // anti-tracking code, which is the opposite of biometric identification.
+      // The biometric sense needs a finger.
+      /\b(finger[_\s-]?print[_\s-]?(scan\w*|reader|sensor|match\w*|auth\w*|template|enroll\w*|minutiae)|(touch|finger)[_\s-]?id)\b/i,
+      /\b(fingerprint|thumbprint)\b[^\n]{0,40}\b(biometric|authentication|identif\w+|enrol\w+)\b/i,
+      /\b(iris[_\s]?scan|voiceprint|retina[_\s]?scan|gait[_\s]?analysis)\b/i,
       /\bbiometric[_\s]?(template|identifier|match|auth)/i,
       /\b(deepface|face_recognition|insightface|facenet|dlib\.face)/i,
     ],
@@ -386,9 +395,18 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       'Segments people on the grounds Article 5(1)(b) names — age, disability, or a specific social or economic situation — in a context where behaviour is being influenced.',
     keywords: ['minor', 'under_18', 'under18', 'child', 'elderly', 'senior', 'disability', 'disabled', 'low_income', 'lowincome', 'debt', 'financial_distress', 'vulnerable'],
     patterns: [
-      /\b(vulnerab\w*|at[_\s-]?risk)[_\s]?(user|customer|segment|cohort|audience|group|score)\b/i,
-      /\b(minor|under[_\s-]?(18|13)|child|elderly|senior|disabled|disability)[_\s]?(segment|target\w*|audience|cohort|list)\b/i,
-      /\b(low[_\s-]?income|financial[_\s-]?(distress|hardship)|in[_\s-]?debt|payday|subprime)[_\s]?(segment|target\w*|audience|cohort|score)\b/i,
+      /\b(vulnerab\w*|at[_\s-]?risk)[_\s-](user|customer|segment|cohort|audience|group|score)\b/i,
+      /\b(?:Vulnerable|AtRisk)(?:Users?|Customers?|Segments?|Cohorts?|Audiences?|Groups?)\b/,
+      // `child` and `list` were both in this pattern with an *optional*
+      // separator, so `childList` matched — the second argument to every
+      // `MutationObserver.observe` call on the web. On `huggingface/chat-ui`
+      // that one token produced an Article 5(1)(b) finding and a PROHIBITED
+      // headline over a deploy badge. The separator is now required, `list`
+      // is gone (too generic: `blocklist`, `childList`, `senior list`), and
+      // the camelCase forms are spelled out rather than fallen into.
+      /\b(minor|under[_\s-]?(?:18|13)|children|elderly|senior|disabled|disability)[_\s-](segment\w*|target\w*|audience|cohort)\b/i,
+      /\b(?:Minor|Child|Children|Elderly|Senior|Disabled)(?:Segments?|Targeting|Targeted|Audiences?|Cohorts?)\b/,
+      /\b(low[_\s-]?income|financial[_\s-]?(distress|hardship)|in[_\s-]?debt|payday|subprime)[_\s-]?(segment|target\w*|audience|cohort|score)\b/i,
     ],
     maxEvidence: 6,
     scope: 'code',

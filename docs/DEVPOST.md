@@ -93,6 +93,16 @@ And one thing only a code-grounded tool *can* do. Article 3(23) defines a **subs
 
 **Getting a "missing" verdict to be auditable.** Early versions returned `missing` with no evidence, which is an assertion, not a finding. Every negative verdict now records what was searched for, so a reader can disagree with the search rather than having to trust the verdict.
 
+## What it found in the wild
+
+The 50-case benchmark is written by the people who wrote the detectors, and it says so. So we pointed Annex at five open-source AI products nobody chose for being easy — `chatbot-ui`, `huggingface/chat-ui`, `dify`, `lobe-chat` and `open-webui` — at their default branches, with the command a user would run.
+
+**All five fail Article 50.** Disclosure, machine-readable marking of generated content, or both. Article 4 AI literacy is absent from all five. Those are the obligations in force *today*, with €15 million or 3 % of worldwide turnover attached under Article 99(4)(g) — not the ones the Digital Omnibus pushed to December 2027.
+
+It also got four things wrong, and [`docs/WILD.md`](docs/WILD.md) publishes all of them with their causes: a `MutationObserver` argument that matched a pattern for "child" + "list" and put a €35m **PROHIBITED** headline over a deploy badge; a high-risk classification resting on two lines of a test file; browser fingerprinting read as biometric identification; and a prompt template asking a model to pick an emoji, read as emotion recognition. Three are fixed and covered by tests. The fourth is open, and the document says exactly why the obvious fix breaks a real case.
+
+None of those four could have been found by a benchmark written in our own repository, which is the argument for having done it. `node scripts/wild.mjs` regenerates the whole table.
+
 ## Accomplishments we're proud of
 
 Taking a repository from `git clone` to a cited classification, a nine-section Annex IV dossier, a CycloneDX attestation and a ten-file remediation pull request **in about a tenth of a second, offline, with no model call** — and being able to prove the answer is the same one anybody else would get from the same commit.

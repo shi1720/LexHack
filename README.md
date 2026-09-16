@@ -27,7 +27,7 @@ $ annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employee
 
  PROHIBITED  Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting.
 
-  repository   hireflow · 14 files · 140 ms
+  repository   hireflow · 14 files · 145 ms
   your role    provider and deployer (Arts. 3(3), 3(4))
   conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100  over 35 applicable obligations
   in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  24 of 24 live obligations failing
@@ -386,7 +386,7 @@ $ annex verify report.json --pubkey annex-signing.pub
 
   52 entries re-derived from the results they describe
   root bb84d9868248452a4a835bb4…
-  ✔ signed by 79A5-CBB8-FBA3-A85E (ed25519)
+  ✔ signed by 2656-DFC8-034B-2C5E (ed25519)
   checked against the key you supplied, so this report carries that holder's results.
 ```
 <!-- /capture:sign -->
@@ -611,6 +611,35 @@ was originally scoped against had been amended six weeks earlier.
 - **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.
 
+## What it found in the wild
+
+The benchmark is written by the people who wrote the detectors. So Annex was
+also pointed at five open-source AI products nobody here chose for being easy —
+`chatbot-ui`, `huggingface/chat-ui`, `dify`, `lobe-chat` and `open-webui` — at
+their default branches, with the command a user would run.
+
+**All five fail Article 50.** Disclosure, machine-readable marking of generated
+content, or both: missing in some, partial in others. Article 4 AI literacy is
+absent from all five. Those are the obligations in force *today*, not the ones
+deferred to December 2027.
+
+It also got four things wrong, and [`docs/WILD.md`](docs/WILD.md) is where all
+of it lives — the table, the commits it was run against, every classification
+with its confidence and its first citation, and the false positives with their
+causes. Three of the four are fixed (a `MutationObserver` argument that matched
+a pattern for "child" + "list" and produced a €35m **PROHIBITED** headline over
+a deploy badge; a classification resting on two lines of a test file; browser
+fingerprinting read as biometric identification). The fourth is open and the
+document says why. `node scripts/wild.mjs` regenerates the whole thing.
+
+Being careful about what that supports: it is what Annex could see in the
+source, not a legal conclusion about anyone's project — several of these are
+upstream libraries rather than systems placed on the Union market, and a
+disclosure rendered by a component Annex did not recognise is a false negative
+here and a discharged duty in reality. The narrower claim is the one worth
+making: the evidence a conformity dossier would have to point at is, in five
+well-run open-source AI products, not in the code.
+
 ## Why nobody has done this
 
 The IAPP's 2026 vendor census lists roughly ninety AI-governance vendors. Searching that document for `source code`, `static analysis`, `SAST`, `codebase` or `git repo` returns two hits, one of which is a GDPR privacy scanner and the other of which is the phrase "a U.S. codebase". No funded vendor in that census is reading the code.
@@ -640,7 +669,8 @@ survive checking, and a section titled "What would make me wrong", is in
 
 | | |
 |---|---|
-| [docs/BENCHMARK.md](docs/BENCHMARK.md) | Accuracy, generated, including failures |
+| [docs/BENCHMARK.md](docs/BENCHMARK.md) | Accuracy on the hand-labelled corpus, generated, including failures |
+| [docs/WILD.md](docs/WILD.md) | The same tool on five real repositories, generated, including the false positives |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How a scan runs, end to end |
 | [docs/DEVPOST.md](docs/DEVPOST.md) | The submission write-up |
 | [docs/BUSINESS.md](docs/BUSINESS.md) | Market, competition and the honest weaknesses |

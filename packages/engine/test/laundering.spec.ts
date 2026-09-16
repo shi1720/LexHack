@@ -296,3 +296,87 @@ describe('the excluded set travels with the report', () => {
     expect(snapshot.ignoredPaths).toEqual(['generated/thing.ts']);
   });
 });
+
+describe('what five real repositories found', () => {
+  /**
+   * Three false positives from scanning `chatbot-ui`, `huggingface/chat-ui`,
+   * `dify`, `lobe-chat` and `open-webui` — none of which a benchmark written
+   * in this repository could have produced, which is the argument for running
+   * it in the wild at all. `docs/WILD.md` has the full account, including the
+   * one that is still open.
+   */
+  it('does not read a MutationObserver as targeting vulnerable people', () => {
+    const report = scanFiles({
+      ...BASE_APP,
+      'src/badge.ts': [
+        'export function attachBadge(root: HTMLElement) {',
+        '  const attach = () => root.append(document.createElement("span"));',
+        '  new MutationObserver(attach).observe(document.body, { childList: true, subtree: true });',
+        '}',
+        'attachBadge(document.body);',
+      ].join('\n'),
+    });
+    expect(report.classification.tier).not.toBe('prohibited');
+    expect(report.classification.findings.map((f) => f.id)).not.toContain('art5.1b.vulnerability-exploitation');
+  });
+
+  it('still catches deliberate targeting of a vulnerable cohort', () => {
+    const report = scanFiles({
+      ...BASE_APP,
+      'src/campaign.ts': [
+        "import { complete } from './model';",
+        'export async function pushOffer(user: { age: number }) {',
+        '  const elderly_segment = user.age > 75;',
+        '  const vulnerable_cohort = elderly_segment;',
+        '  const dark_pattern = await complete("how urgent should this countdown look");',
+        '  return { vulnerable_cohort, dark_pattern, countdown_timer: 90 };',
+        '}',
+      ].join('\n'),
+    });
+    expect(report.classification.findings.map((f) => f.id)).toContain('art5.1b.vulnerability-exploitation');
+  });
+
+  it('does not read browser fingerprinting as biometric identification', () => {
+    const report = scanFiles({
+      ...BASE_APP,
+      'src/privacy.ts': [
+        'export function generateInitialsImage(name: string) {',
+        '  // Randomised so the canvas cannot be used for tracking.',
+        '  const note = "generateInitialsImage: failed pixel test, fingerprint evasion";',
+        '  return { name, note };',
+        '}',
+      ].join('\n'),
+    });
+    expect(report.classification.findings.map((f) => f.id)).not.toContain('annex-iii.1a.biometric-id');
+  });
+
+  it('still catches a fingerprint reader', () => {
+    const report = scanFiles({
+      ...BASE_APP,
+      'src/auth.ts': [
+        'export async function enrol(userId: string) {',
+        '  const fingerprint_template = await readFingerprintSensor();',
+        '  return { userId, fingerprint_template };',
+        '}',
+        'async function readFingerprintSensor() { return new Uint8Array(); }',
+      ].join('\n'),
+    });
+    expect(report.classification.findings.map((f) => f.id)).toContain('annex-iii.1a.biometric-id');
+  });
+
+  it('does not classify a system on the strength of a test file alone', () => {
+    const report = scanFiles({
+      ...BASE_APP,
+      'src/tasks/domain.test.ts': [
+        "import { describe, it } from 'vitest';",
+        "describe('domain', () => {",
+        "  it('lists steps', () => {",
+        "    const steps = [{ description: 'Detect and triage.', key: 'detect' }];",
+        '    return steps;',
+        '  });',
+        '});',
+      ].join('\n'),
+    });
+    expect(report.classification.findings.map((f) => f.id)).not.toContain('annex-iii.5d.emergency-triage');
+  });
+});

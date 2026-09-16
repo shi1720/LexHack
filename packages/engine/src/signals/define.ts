@@ -331,6 +331,7 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
         }
 
         if (fileHits.length === 0) continue;
+
         totalMatches += fileHits.length;
         matchedFiles.add(file.path);
 

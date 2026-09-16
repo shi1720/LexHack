@@ -27,6 +27,7 @@
     "audit": "node scripts/audit.mjs",
     "smoke": "node scripts/smoke.mjs",
     "attack": "node scripts/attack.mjs",
+    "wild": "node scripts/wild.mjs",
     "artefacts": "node scripts/artefacts.mjs",
     "check:counts": "node scripts/check-counts.mjs"
   },

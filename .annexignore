@@ -64,10 +64,19 @@ docs/BENCHMARK.md
 # tree they arrived as an oversize skip warning about a file that is not source.
 apps/web/data/
 
-# `npm run attack`, which builds a hiring product in a temporary directory in
-# order to try five ways of faking a discharged Article 14 duty against it. The
-# screening code is written out as string literals, so a scan of this
-# repository reads them and classifies Annex as an Annex III point 4(a)
-# recruitment system — the same read-back loop as `hero-capture.ts` above. A
-# script that writes a fixture is not the fixture.
+# The two scripts that write about regulated practices in order to look for
+# them, in string literals a scan reads as code.
+#
+# `attack.mjs` builds a hiring product in a temporary directory so it can try
+# five ways of faking a discharged Article 14 duty against it; a scan of this
+# repository read the fixture it writes and classified Annex as an Annex III
+# point 4(a) recruitment system. `wild.mjs` narrates the false positives it
+# found in five open-source products — including, in a sentence explaining why
+# that case is hard, the words `def mood_detection(audio)` — and that one line
+# classified Annex as containing a practice prohibited by Article 5(1)(f).
+#
+# Same read-back loop as `hero-capture.ts` above, and the same answer: a script
+# that writes a fixture is not the fixture, and a script that quotes a finding
+# is not the system the finding was about.
 scripts/attack.mjs
+scripts/wild.mjs
