@@ -18,7 +18,7 @@ it, plus a documentation site that merely *writes about* prohibited practices.
 | Risk-tier accuracy | **100.0%** (50/50) | The tier Annex assigns matches the label |
 | Finding recall | **100.0%** (26/26) | Classification findings a competent reader would make, that Annex makes |
 | Carve-out precision | **100.0%** (43/43) | Findings the statute expressly excludes, that Annex correctly does not make |
-| Runtime | 148 ms | The whole corpus, single-threaded, no network |
+| Runtime | 147 ms | The whole corpus, single-threaded, no network |
 
 ## What this corpus has already caught
 

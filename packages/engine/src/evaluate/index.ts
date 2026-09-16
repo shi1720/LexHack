@@ -129,98 +129,70 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
     const paths = [...new Set(cited.map((e) => e.path))];
 
     /**
-     * A placeholder has a shape, not a spelling.
+     * Collect every reason, not the first one.
      *
-     * This tested `text.includes('_TODO_')` literally, so
-     * `sed -i 's/_TODO_/TODO/g'` over the generated documents flipped five
-     * controls from `partial` to `satisfied` without anybody supplying a
-     * single judgement — and a markdown formatter that strips `_emphasis_`
-     * gets there by accident.
-     *
-     * And the guard only fired when *every* cited document was unfilled, so
-     * adding four lines of unrelated prose in a second file was enough to
-     * make the untouched scaffold read as discharged. One document with a
-     * hole in it is a finding with a hole in it, which is the same argument
-     * `wiredIn` makes about orphans.
+     * These used to return on the earliest match, so a control resting on an
+     * unfilled scaffold *and* on code nothing calls reported only the
+     * scaffold — and the sharper fact, that the module is never reached,
+     * never reached the reader. A reader fixing one and re-running to find
+     * the next is a reader we wasted a cycle of.
      */
+    const caps: { finding: string; gap: string }[] = [];
+
     const unfilled = paths.filter((path) =>
       PLACEHOLDER.test(ctx.snapshot.files.find((f) => f.path === path)?.text ?? ''),
     );
     if (unfilled.length > 0) {
-      return {
-        ...base,
-        status: 'partial',
-        score: STATUS_SCORE.partial,
-        finding: `${evaluation.finding} ${unfilled.length === paths.length ? 'Every document' : `${unfilled.length} of the ${paths.length} documents`} behind this finding still carries unfilled placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
+      caps.push({
+        finding: `${unfilled.length === paths.length ? 'Every document' : `${unfilled.length} of the ${paths.length} documents`} behind this finding still carries unfilled placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
         gap: `Fill in the placeholders in ${unfilled.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
-        evidence: evaluation.evidence ?? [],
-      };
+      });
     }
 
-    /**
-     * Prose is not an implementation, wherever it lives.
-     *
-     * Control and transparency detectors read comments on purpose: a docstring
-     * saying "a reviewer can override the model output" is often exactly where
-     * the affordance is described. The hole that leaves is that it is *only*
-     * a description. A file containing four `//` lines and no code at all —
-     *
-     *     // human_review: every adverse decision enters the reviewer_queue.
-     *     // override_decision lets a reviewer reverse_decision.
-     *     // kill_switch: AI_ENABLED=false halts the system.
-     *
-     * — satisfied Article 14, the heaviest control in the corpus, which is
-     * this project's own thesis defeated in its own terms with the document
-     * sitting inside a `.ts` file.
-     *
-     * So a comment can corroborate a `satisfied` verdict and cannot carry one.
-     * One citation on a line that is actually code, and the verdict stands.
-     */
     const codeCitations = cited.filter((e) => e.kind === 'code');
     if (codeCitations.length > 0) {
       const executable = codeCitations.filter((e) => {
         const file = ctx.snapshot.files.find((f) => f.path === e.path);
         if (!file) return true;
-        const lines = file.text.split('\n');
-        return !commentLines(file.text, lines).has(e.line - 1);
+        return !commentLines(file.text, file.text.split('\n')).has(e.line - 1);
       });
       if (executable.length === 0) {
         const first = codeCitations[0]!;
-        return {
-          ...base,
-          status: 'partial',
-          score: STATUS_SCORE.partial,
-          finding: `${evaluation.finding} But every line behind this finding is a comment: ${first.path}:${first.line} reads "${first.snippet.trim().slice(0, 100)}". A description of a control is not the control.`,
-          gap: `Either the measure exists and the detector found only the prose describing it — in which case cite the code — or the prose is all there is. Annex will corroborate a verdict with a comment and will not rest one on comments alone.`,
-          evidence: evaluation.evidence ?? [],
-        };
+        caps.push({
+          finding: `Every line behind this finding is a comment: ${first.path}:${first.line} reads "${first.snippet.trim().slice(0, 100)}". A description of a control is not the control.`,
+          gap: 'Either the measure exists and the detector found only the prose describing it — in which case cite the code — or the prose is all there is. Annex will corroborate a verdict with a comment and will not rest one on comments alone.',
+        });
       }
     }
 
     const denied = deniedByItsOwnEvidence(cited, (path) => ctx.snapshot.files.find((f) => f.path === path)?.text);
     if (denied.length > 0) {
       const first = denied[0]!;
-      return {
-        ...base,
-        status: 'partial',
-        score: STATUS_SCORE.partial,
-        finding: `${evaluation.finding} But the documentation this rests on denies or defers the thing it is being read as evidence of: ${first.path}:${first.line} reads "${first.snippet.slice(0, 140)}".`,
-        gap: `Either the measure exists and that sentence is out of date, or the sentence is right and the measure does not exist. Annex cannot tell which from prose, and will not read a denial as a discharge.`,
-        evidence: evaluation.evidence ?? [],
-      };
+      caps.push({
+        finding: `The documentation this rests on denies or defers the thing it is being read as evidence of: ${first.path}:${first.line} reads "${first.snippet.slice(0, 140)}".`,
+        gap: 'Either the measure exists and that sentence is out of date, or the sentence is right and the measure does not exist. Annex cannot tell which from prose, and will not read a denial as a discharge.',
+      });
     }
 
     const wiring = control.requiresWiring ? wiredIn(ctx, cited) : undefined;
     if (wiring && !wiring.wired) {
+      caps.push({
+        finding: 'The code behind this finding is not reached from anywhere else in the repository, so it cannot be doing the work at the moment the obligation bites.',
+        gap: `Wire it into the path that makes the decision: ${wiringGap(wiring)}.`,
+      });
+    }
+
+    if (caps.length > 0) {
       return {
         ...base,
         status: 'partial',
         score: STATUS_SCORE.partial,
-        finding: `${evaluation.finding} The code behind this finding is not reached from anywhere else in the repository, so it cannot be doing the work at the moment the obligation bites.`,
-        gap: `Wire it into the path that makes the decision: ${wiringGap(wiring)}.`,
+        finding: `${evaluation.finding} ${caps.map((c) => c.finding).join(' ')}`,
+        gap: caps.map((c) => c.gap).join(' '),
         evidence: evaluation.evidence ?? [],
       };
     }
+
     if (wiring && wiring.callSites.length > 0) {
       evaluation = { ...evaluation, evidence: [...(evaluation.evidence ?? []), ...wiring.callSites] };
     }

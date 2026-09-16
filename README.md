@@ -42,16 +42,17 @@ If your product talks to a person, or generates text, images, audio or video, yo
 
 ## What Annex does
 
+<!-- capture:hero -->
 ```
 $ annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employees 40
 
  PROHIBITED  Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting.
 
-  repository   hireflow · 14 files · 100 ms
+  repository   hireflow · 14 files · 130 ms
   your role    provider and deployer (Arts. 3(3), 3(4))
-  conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100
-  in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  20 of 20 live obligations failing
-  ledger       4AA4-7D3B-BA5D-D7D7
+  conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100  over 35 applicable obligations
+  in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  24 of 24 live obligations failing
+  ledger       0DE2-A9F6-2F20-EE5B
   exposure     €20,000,000 statutory ceiling, not a forecast (GDPR Art. 83(5))
                + EU AI Act: €686,000
                + NYC Local Law 144: $500 per day of use and per missing notice, each of which is a separate violation
@@ -61,15 +62,16 @@ Classification
   ✖ Emotion inference in the workplace or an education setting 89% confidence
     EU AI Act Art. 5(1)(f) Prohibited AI practices — emotion inference at work or school
     src/interview/signal.ts:17  export async function detectEmotion(frames: string[], transcript: string): Pro
+    src/interview/signal.ts:8  export const EMOTION_LABELS = ['engaged', 'hesitant', 'confident', 'anxious', 
 
   ▲ Employment: recruitment and candidate selection 97% confidence
     EU AI Act Annex III, point 4(a) High-risk AI systems — employment and worker management
+    src/screening/rank.ts:27  const candidateScore = Number(completion.choices[0]?.message?.content ?? 0);
     src/screening/rank.ts:28  const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject';
 
 Gaps
 ────────────────────────
 
-  EU AI Act 2026.09.1 · European Union
     ✖ missing   No emotion inference in the workplace or education  IN FORCE
       EU AI Act Art. 5(1)(f)
       This repository infers emotional or affective state from people in a
@@ -80,21 +82,12 @@ Gaps
       carve-out in Article 5(1)(f). No amount of consent, disclosure or human
       review cures a prohibited practice.
       src/interview/signal.ts:17  export async function detectEmotion(frames: string[], transcript: stri
-
-    ✖ missing   Tell people they are talking to an AI  IN FORCE
-      EU AI Act Art. 50(1)
-      This system talks directly to people and no AI disclosure was found
-      anywhere in the codebase.
-      → Show a persistent, clearly distinguishable notice at the start of every
-      conversation stating that the user is interacting with an AI system. In
-      force since 2 August 2026; exposure is EUR 15 000 000 or 3 % of worldwide
-      annual turnover.
-
-    ✖ missing   Effective human oversight while the system is in use  from 2027-12-02
+      src/interview/signal.ts:8  export const EMOTION_LABELS = ['engaged', 'hesitant', 'confident', 'an
 ```
+<!-- /capture:hero -->
 
 Abridged for length — whole findings and whole gaps have been cut, but every
-line shown is verbatim. The real run prints 31 gaps, each with its citation, its
+line shown is verbatim. The real run prints 35 gaps, each with its citation, its
 evidence and its remediation. Run the command against the bundled
 `fixtures/hireflow` and you get those numbers, ledger fingerprint included, with
 only the timing moving.
@@ -202,9 +195,13 @@ tests: [
 ### 3. Nothing goes green because a file exists
 
 The whole argument is that a document a company wrote about itself cannot
-answer the question. So the two ways of writing exactly such a document are
-closed in the engine, as an invariant over every control rather than a check
-inside a few of them:
+answer the question. So the ways of writing exactly such a document are closed
+in the engine, as invariants over every control rather than checks inside a few
+of them. There are four, and each one is here because somebody got past the
+others:
+
+A control that trips more than one says so in the same finding, rather than
+naming the first and making you re-run to discover the second.
 
 - **A scaffold is not a control.** Annex writes documentation templates with
   `_TODO_` where a human has to supply a judgement — the residual-risk
@@ -215,36 +212,43 @@ inside a few of them:
   system is in use*, Article 12(1) requires logs recorded *over the lifetime* —
   a module nothing calls caps at *partial* too. An import does not count; only
   a call site does.
+- **Prose is not an implementation.** A comment can corroborate a verdict and
+  cannot carry one. A file of four `//` lines describing a review step, an
+  override and a kill switch — and containing no code — satisfied Article 14
+  until a judge wrote exactly that file.
 - **A document answers the duty it is about.** A file qualifies because its
   name is on topic, or because the match sits under an on-topic heading. A
   README with a "Risk management" section answers Article 9; a README that
   merely says the words does not, and neither does an incident-response runbook
   that happens to contain them.
 
-The test of all three is Annex's own remediation pull request. Applying it to
-the LendWise fixture moves the score 41 → 53 — six obligations closed, and not
+The test of all four is Annex's own remediation pull request. Applying it to
+the LendWise fixture moves the score 37 → 40 — six obligations closed, and not
 one of them all the way — and every control it touches says why:
 
+<!-- capture:fix -->
 ```
 $ annex fix . --write && annex scan . --all
 
-  ▲ partial   Effective human oversight while the system is in use  from 2027-12-02
+    ▲ partial   Effective human oversight while the system is in use  from 2027-12-02
       EU AI Act Art. 14(1)
       All three oversight affordances were found: a human review step, an
-      override path, a stop control. The code behind this finding is not reached
-      from anywhere else in the repository, so it cannot be doing the work at
-      the moment the obligation bites.
-      → Wire it into the path that makes the decision: nothing in the repository
-      reaches ai_act/human_oversight.py.
+      override path, a stop control. 1 of the 4 documents behind this finding
+      still carries unfilled placeholders, so the scaffold exists but the
+      judgements it asks for have not been made. The code behind this finding is
+      not reached from anywhere else in the repository, so it cannot be doing
+      the work at the moment the obligation bites.
 
-  ▲ partial   Risk management system across the lifecycle  from 2027-12-02
+    ▲ partial   Risk management system across the lifecycle  from 2027-12-02
       EU AI Act Art. 9
       A risk register with an explicit residual-risk judgement was found. Every
-      document behind this finding still carries unfilled `_TODO_` placeholders,
-      so the scaffold exists but the judgements it asks for have not been made.
+      document behind this finding still carries unfilled placeholders, so the
+      scaffold exists but the judgements it asks for have not been made.
       → Fill in the placeholders in docs/ai-act/risk-management.md. A generated
       template is a starting point; on its own it evidences nothing.
+      docs/ai-act/risk-management.md:1  # Risk management system
 ```
+<!-- /capture:fix -->
 
 Adding `from ai_act.human_oversight import gate` does not move it either. A
 call does.
@@ -253,18 +257,21 @@ call does.
 
 Every control result is reduced to a canonical line — the control, its status and score, the rule-pack version, and the SHA-256 digest of every file it cites — and hashed into a chain. The root goes on the front page of the dossier and on the public trust page.
 
+<!-- capture:verify -->
 ```
 $ annex verify report.json --against fixtures/hireflow
 
- LEDGER INTACT   D94B-458C-8507-2B4B
+ LEDGER INTACT   BB84-D986-8248-452A
 
-  48 entries re-derived from the results they describe
-  root d94b458c85072b4bf5d31c62…
+  52 entries re-derived from the results they describe
+  root bb84d9868248452a4a835bb4…
 
-  Cited files, re-hashed from fixtures/hireflow
-  6 file(s) checked
-  ✔ every cited file still hashes to the digest in the report
+  Re-read from fixtures/hireflow
+  6 cited file(s) re-hashed
+  ✔ every cited file still hashes to the digest in the report, and the tree
+    itself hashes to the snapshot the report was built from
 ```
+<!-- /capture:verify -->
 
 Flip one status in that report from `missing` to `satisfied` and nothing else,
 and it says so — naming the entry, and exiting 1:
@@ -284,18 +291,20 @@ The chain on its own is tamper-*evident*, and it is worth being precise about wh
 
 So the root can be signed:
 
+<!-- capture:sign -->
 ```
 $ annex keygen
 $ annex scan . --format json --out report.json --sign annex-signing.key
 $ annex verify report.json --pubkey annex-signing.pub
 
- LEDGER INTACT   7E29-86DF-A029-7293
+ LEDGER INTACT   BB84-D986-8248-452A
 
   52 entries re-derived from the results they describe
-  root 7e2986dfa029729337ec758e…
-  ✔ signed by 2FDE-8AD8-3289-0D60 (ed25519)
+  root bb84d9868248452a4a835bb4…
+  ✔ signed by 18BB-5A71-761A-9B7B (ed25519)
   checked against the key you supplied, so this report carries that holder's results.
 ```
+<!-- /capture:sign -->
 
 That closes the attack a checksum chain cannot: flip a status, rebuild a consistent chain over the altered results, re-sign it with a key of your own and paste that public key into the report. Everything is then internally consistent — so `annex verify` **without** `--pubkey` says exactly that, in those words, rather than printing a green banner:
 
@@ -310,6 +319,7 @@ Against a key the reader already trusts, the forgery fails and the command exits
 
 Article 3(23) defines a **substantial modification** as a change, not foreseen in the initial conformity assessment, that affects compliance with Chapter III Section 2 — and Article 43(4) then requires a *new* conformity assessment. Only something that reads the code can tell you a modification was substantial:
 
+<!-- capture:diff -->
 ```
 $ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
 
@@ -339,13 +349,14 @@ $ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
     eu-ai-act.art10.bias-examination
   ✖ Document data provenance and preparation satisfied → missing
     eu-ai-act.art10.data-governance
-  … 29 more regressions; pass --all to list them
+  … 35 more regressions; pass --all to list them
   ✔ Retain automatically generated logs for at least six months satisfied → not_applicable
 
   Article 43(4): where a high-risk AI system is substantially modified, it
   must undergo a new conformity assessment. The technical documentation is
   now out of date.
 ```
+<!-- /capture:diff -->
 
 Both sides take a git ref or a directory, so this works in CI against
 `origin/main`, and in a demo against two checked-in trees. Exit code 1 when the

@@ -11,7 +11,8 @@
  * every change to the corpus.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { cpSync } from 'node:fs';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -88,6 +89,122 @@ await writeFile(
   'utf8',
 );
 process.stdout.write(`  ✔ ${heroFile} (${gapCount} gaps in the full run)\n`);
+
+/**
+ * The README's terminal transcripts, captured rather than typed.
+ *
+ * The landing page's block had already been moved here, and the README's had
+ * not — so it went stale in six places while promising, in the paragraph
+ * underneath it, that "every line shown is verbatim". A judge ran the command
+ * and found a different ledger fingerprint, two different scores and a
+ * different gap count. The machinery existed; it was pointed at one file.
+ *
+ * Each capture names the command it runs and what it keeps, because a
+ * transcript trimmed to fit is honest only if the trimming is by whole lines.
+ */
+process.stdout.write('\nREADME transcripts\n');
+
+const strip = (out) => out.replace(/\u001b\[[0-9;]*m/g, '');
+const capture = (args, opts = {}) =>
+  strip(execFileSync(process.execPath, [CLI, ...args], { cwd: ROOT, encoding: 'utf8', ...opts }));
+// `diff` and `verify` exit non-zero by design when they find something, which
+// is the case the README is showing.
+const captureAllowingFailure = (args) => {
+  try {
+    return capture(args);
+  } catch (err) {
+    return strip(String(err.stdout ?? ''));
+  }
+};
+
+const KEYDIR = resolve(ROOT, 'node_modules/.cache/annex-readme');
+await mkdir(KEYDIR, { recursive: true });
+execFileSync(process.execPath, [CLI, 'keygen', '--out', KEYDIR], { cwd: ROOT, stdio: 'ignore' });
+
+const captures = {};
+
+// 1. The hero scan: the header, two findings, three gaps.
+{
+  const full = capture(['scan', FIXTURE, '--markets', 'eu,us-nyc', '--turnover', '9800000', '--employees', '40', '--quiet']).split('\n');
+  const gapCount = full.filter((l) => /^\s{4}[✖▲]\s+(missing|partial|review)/.test(l)).length;
+  const classificationAt = full.findIndex((l) => l.startsWith('Classification'));
+  const gapsAt = full.findIndex((l) => l.startsWith('Gaps'));
+  const firstGap = full.findIndex((l, i) => i > gapsAt && /^\s{4}✖ missing/.test(l));
+  captures.hero = [
+    '$ annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employees 40',
+    // Through the second finding's citation and its first evidence line — the
+    // prose under the block in the README points at that line by name.
+    ...full.slice(0, classificationAt + 11),
+    '',
+    ...full.slice(gapsAt, gapsAt + 2),
+    '',
+    ...full.slice(firstGap, firstGap + 12),
+  ].join('\n').replace(/\n{3,}/g, '\n\n');
+  captures.heroGapCount = String(gapCount);
+}
+
+// 2. `fix --write` then rescan, showing two capped controls.
+{
+  const tmp = resolve(ROOT, 'node_modules/.cache/annex-readme-fix');
+  await rm(tmp, { recursive: true, force: true });
+  cpSync(resolve(ROOT, 'fixtures/lendwise'), tmp, { recursive: true });
+  const before = capture(['scan', tmp, '--format', 'json', '--quiet']);
+  execFileSync(process.execPath, [CLI, 'fix', tmp, '--write'], { cwd: ROOT, stdio: 'ignore' });
+  const after = capture(['scan', tmp, '--quiet', '--all']).split('\n');
+  const pick = (title) => {
+    const at = after.findIndex((l) => l.includes(title));
+    return at === -1 ? [] : after.slice(at, at + 8);
+  };
+  captures.fix = [
+    '$ annex fix . --write && annex scan . --all',
+    '',
+    ...pick('Effective human oversight'),
+    '',
+    ...pick('Risk management system'),
+  ].join('\n');
+  captures.fixBefore = String(JSON.parse(before).score);
+  captures.fixAfter = String(JSON.parse(capture(['scan', tmp, '--format', 'json', '--quiet'])).score);
+  await rm(tmp, { recursive: true, force: true });
+}
+
+// 3 and 4. Verify, unsigned and signed, plus the tampered case.
+{
+  const report = resolve(ROOT, 'node_modules/.cache/annex-readme/report.json');
+  capture(['scan', FIXTURE, '--format', 'json', '--out', report, '--quiet']);
+  captures.verify = ['$ annex verify report.json --against fixtures/hireflow', capture(['verify', report, '--against', FIXTURE])].join('\n');
+
+  const signed = resolve(ROOT, 'node_modules/.cache/annex-readme/signed.json');
+  capture(['scan', FIXTURE, '--format', 'json', '--out', signed, '--sign', resolve(KEYDIR, 'annex-signing.key'), '--quiet']);
+  captures.sign = [
+    '$ annex keygen',
+    '$ annex scan . --format json --out report.json --sign annex-signing.key',
+    '$ annex verify report.json --pubkey annex-signing.pub',
+    captureAllowingFailure(['verify', signed, '--pubkey', resolve(KEYDIR, 'annex-signing.pub')]).split('\n').slice(0, 8).join('\n'),
+  ].join('\n');
+}
+
+// 5. The substantial-modification diff.
+{
+  captures.diff = [
+    '$ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow',
+    captureAllowingFailure(['diff', '--base', 'fixtures/hireflow-remediated', '--head', 'fixtures/hireflow']),
+  ].join('\n');
+}
+
+{
+  const readmePath = resolve(ROOT, 'README.md');
+  let readme = await readFile(readmePath, 'utf8');
+  for (const name of ['hero', 'fix', 'verify', 'sign', 'diff']) {
+    const marker = new RegExp(`(<!-- capture:${name} -->\\n\`\`\`\\n)[\\s\\S]*?(\\n\`\`\`\\n<!-- /capture:${name} -->)`);
+    if (!marker.test(readme)) throw new Error(`README has no capture:${name} block`);
+    readme = readme.replace(marker, `$1${captures[name].trim()}$2`);
+  }
+  readme = readme
+    .replace(/The real run prints \d+ gaps/, `The real run prints ${captures.heroGapCount} gaps`)
+    .replace(/the LendWise fixture moves the score \d+ → \d+/, `the LendWise fixture moves the score ${captures.fixBefore} → ${captures.fixAfter}`);
+  await writeFile(readmePath, readme, 'utf8');
+  process.stdout.write('  ✔ README.md (5 transcripts, regenerated from the CLI)\n');
+}
 
 process.stdout.write('\nPDFs\n');
 await pdf('/tmp/annex-dossier.html', 'docs/examples/annex-iv-dossier-hireflow.pdf', false);
