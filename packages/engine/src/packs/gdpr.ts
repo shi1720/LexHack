@@ -201,7 +201,7 @@ const controls: Control[] = [
     penaltyTier: 'art83-5',
     title: 'Lawful basis for special-category data',
     obligation:
-      'Article 9(1) prohibits processing personal data revealing racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic or biometric data for unique identification, health data, or data concerning sex life or sexual orientation, unless one of the Article 9(2) conditions applies.',
+      'Article 9(1) prohibits processing personal data revealing racial or ethnic origin, political opinions, religious or philosophical beliefs, or trade union membership, and the processing of genetic data, biometric data for the purpose of uniquely identifying a natural person, data concerning health, or data concerning a natural person\'s sex life or sexual orientation, unless one of the ten Article 9(2) conditions applies.',
     family: 'data-governance',
     severity: 'high',
     weight: 6,

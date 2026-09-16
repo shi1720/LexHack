@@ -19,15 +19,27 @@ import { DATES } from '../src/packs/eu-ai-act.js';
  * misstating which chapter an article is in, which is a harder thing to do by
  * accident and an obvious thing to review.
  *
- * Article 113 as amended by Regulation (EU) 2026/1744:
+ * Article 113 as amended by Regulation (EU) 2026/1744. Its structure is one
+ * general rule in the second paragraph and a list of lettered derogations, not
+ * a run of numbered paragraphs — this comment said "¶4" and "¶5" for two of
+ * them, in the file whose entire purpose is structural accuracy:
  *
- *   ¶1  2 February 2025 — Chapters I and II.
- *   ¶2  2 August 2026   — general application: everything not otherwise named,
- *                         which is where Chapter IV (Article 50), Chapter III
- *                         Sections 4 and 5, and Chapter IX all sit.
- *   ¶4  2 December 2027 — Chapter III **Sections 1, 2 and 3**, as regards
- *                         Annex III high-risk systems.
- *   ¶5  2 August 2028   — the same sections, as regards Annex I.
+ *   ¶2       2 August 2026   — the general application date: everything not
+ *                              otherwise carved out, which is where Chapter IV
+ *                              (Article 50), Chapter III Sections 4 and 5,
+ *                              Article 6(5) and Chapter IX all sit.
+ *   (a)      2 February 2025 — Chapters I and II. As amended, Article 5(1)(ba)
+ *                              and (bb) come later, on 2 December 2026.
+ *   (b)      2 August 2025   — Chapter III Section 4, Chapter V, Chapter VII,
+ *                              Chapter XII and Article 78.
+ *   (c)(i)   2 December 2027 — Chapter III **Sections 1, 2 and 3**, as regards
+ *                              Annex III high-risk systems under Article 6(2).
+ *                              Article 6(5) is carved out of the deferral and
+ *                              applies from the general date.
+ *   (c)(ii)  2 August 2028   — the same sections, as regards Annex I under
+ *                              Article 6(1).
+ *   (d)      27 July 2026    — Articles 102 to 110, the consequential
+ *                              amendments to sectoral product legislation.
  */
 
 type Placement =
@@ -131,10 +143,12 @@ describe('application dates are derived from Article 113, not typed by hand', ()
     expect(wrong, wrong.join('\n')).toEqual([]);
   });
 
-  it('keeps Chapter III Sections 4 and 5 and Chapter IX in force while Sections 1-3 are deferred', () => {
+  it('keeps Chapter III Section 5 and Chapter IX in force while Sections 1-3 are deferred', () => {
     // The oddity the Omnibus created, and the one this corpus got wrong once:
     // registration, post-market monitoring and serious-incident reporting all
     // apply sixteen months before the requirements they attach to.
+    // Chapter III Section 4 is not in this table: it applied from 2 August
+    // 2025 under Article 113(b) and no control in the corpus cites it.
     expect(APPLIES_FROM['chapter-iii-s5']).toBe('2026-08-02');
     expect(APPLIES_FROM['chapter-ix']).toBe('2026-08-02');
     expect(APPLIES_FROM['chapter-iii-s2']).toBe('2027-12-02');

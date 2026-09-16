@@ -311,7 +311,7 @@ const liveControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Tell people they are talking to an AI',
     obligation:
-      'Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction.',
+      'Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction. The paragraph does not apply to systems authorised by law to detect, prevent, investigate or prosecute criminal offences — unless the system is available for the public to report an offence, in which case it does.',
     family: 'transparency',
     severity: 'high',
     weight: 8,
@@ -391,7 +391,7 @@ const liveControls: Control[] = [
     requiresWiring: true,
     title: 'Mark synthetic output in a machine-readable format',
     obligation:
-      'Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4).',
+      'Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4). Two limits sit inside the paragraph: it does not reach systems performing an assistive function for standard editing, or systems that do not substantially alter the input data provided by the deployer or the semantics of it — which is why an invoice OCR is outside it — and, like the rest of Article 50, it does not apply to systems authorised by law for criminal-offence detection, prevention, investigation or prosecution.',
     family: 'transparency',
     severity: 'high',
     weight: 8,
@@ -610,7 +610,7 @@ const highRiskControls: Control[] = [
       if (docs.length > 0) {
         return partial(
           'Risk documentation exists, but no explicit residual-risk acceptance was found.',
-          'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall, by a named accountable person. Add that judgement and the date it was made.',
+          'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. Add that judgement and the date it was made. Naming who made it is not in Article 9(5) — it is what makes the judgement auditable, and an assessor will ask.',
           docs.slice(0, 4),
         );
       }
@@ -890,7 +890,7 @@ const highRiskControls: Control[] = [
       }
       return partial(
         'Inference logging exists, but it does not consistently carry the model version and a per-decision identifier.',
-        'Without a pinned model version and a decision identifier, a log cannot tie an outcome to the system state that produced it — which is the whole point of Article 12(2)(a).',
+        'Without a pinned model version and a decision identifier, a log cannot tie an outcome to the system state that produced it. That traceability is the chapeau of Article 12(2); the per-record content requirements in Article 12(3) go further still, though they bind only Annex III point 1(a) systems.',
         inference.evidence.slice(0, 4),
       );
     },

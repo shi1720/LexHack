@@ -251,10 +251,16 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       'The system identifies natural persons from biometric data — Annex III, point 1(a). One-to-one verification to confirm a claimed identity is excluded.',
     citations: [aiActAnnex('III', '1(a)', 'High-risk AI systems — remote biometric identification')],
     requires: ['domain.biometric.identification'],
-    suppressedBy: ['domain.biometric.verification-only'],
+    // Two carve-outs, and only one of them was implemented. Annex III point
+    // 1(a) reaches **remote** biometric identification, which Article 3(41)
+    // defines as identifying people "without their active involvement,
+    // typically at a distance". A fingerprint reader on a door is biometric
+    // identification and is not a remote one — the person walks up and
+    // presents a finger.
+    suppressedBy: ['domain.biometric.verification-only', 'domain.biometric.active-involvement'],
     baseConfidence: 0.7,
     caveat:
-      'AI systems intended to be used for biometric verification whose sole purpose is to confirm that a person is who they claim to be are outside point 1(a).',
+      'Point 1(a) reaches *remote* biometric identification only — Article 3(41): identification without the person\'s active involvement, typically at a distance. A reader someone presents a finger or a face to is outside it, as is biometric verification whose sole purpose is confirming that a person is who they claim to be.',
   },
   {
     id: 'annex-iii.1b.biometric-categorisation',

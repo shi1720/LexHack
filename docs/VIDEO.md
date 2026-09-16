@@ -131,7 +131,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **And it publishes its error rate. Forty-five hand-labelled cases, half of them carve-outs designed to catch a keyword matcher, including five written to find the edge of what static analysis can decide. It passes all forty-five — and the report says plainly that this is a statement about the corpus, not about the world.**
+> **And it publishes its error rate. Forty-six hand-labelled cases, half of them carve-outs designed to catch a keyword matcher, including five written to find the edge of what static analysis can decide. It passes all forty-six — and the report says plainly that this is a statement about the corpus, not about the world.**
 
 *(115 words)*
 
@@ -182,7 +182,7 @@ Add these as simple captions. No animation, no transitions beyond hard cuts.
 | 1:10 | `Annex IV technical documentation — Article 11` |
 | 1:35 | `Substantial modification — Article 3(23), Article 43(4)` |
 | 1:58 | `48 obligations · 5 instruments · 0 model calls` |
-| 2:12 | `45 cases · 100% tier accuracy · 100% carve-out precision` |
+| 2:12 | `46 cases · 100% tier accuracy · 100% carve-out precision` |
 | 2:44 | `github.com/shi1720/LexHack` |
 
 ## Things not to do

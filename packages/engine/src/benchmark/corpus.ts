@@ -628,6 +628,24 @@ def count_hard_hats(frame):
     },
   },
   {
+    id: 'carveout.biometric-not-remote',
+    description: 'Office door controller that matches a fingerprint at the reader',
+    tier: 'unknown',
+    forbidFindings: ['annex-iii.1a.biometric-id'],
+    rationale:
+      'Annex III point 1(a) reaches **remote** biometric identification, and Article 3(41) defines that as identification "without their active involvement, typically at a distance". Somebody walking up to a door and presenting a finger is the opposite of that. The rule carried the one-to-one verification carve-out and not the remoteness requirement, so every fingerprint reader in the corpus classified as high-risk. The tier is `unknown` rather than `minimal` for a second reason worth keeping separate: template matching against an enrolled set is not obviously an AI system under Article 3(1) at all, and nothing here infers anything from input in the way that definition requires.',
+    files: {
+      'requirements.txt': 'pyfingerprint==0.3.0\\n',
+      'src/door.py': `def unlock(door_id):
+    """The holder presents a finger at the reader beside the door."""
+    template = FINGERPRINT_READER.capture()
+    if biometric_template_match(template, enrolled_templates(door_id)):
+        return open_door(door_id)
+    return deny(door_id)
+`,
+    },
+  },
+  {
     id: 'high.migration',
     description: 'Visa application risk assessment',
     tier: 'high',

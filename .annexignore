@@ -43,6 +43,14 @@ apps/web/src/server/narrative.ts
 packages/engine/src/packs/remediation-templates.ts
 packages/engine/src/packs/doc-templates.ts
 
+# Annex's own output, captured verbatim and compiled into the landing page.
+# `hero-capture.ts` is a transcript of a scan of the HireFlow fixture — it
+# contains the literal string `detectEmotion(frames, transcript)` because that
+# is what the tool printed about a different repository. The self-scan read it
+# back and reported Annex as containing a prohibited practice, which is the
+# same read-back loop as `docs/examples/` below and is why both are here.
+apps/web/src/app/hero-capture.ts
+
 # Annex's own output, checked in as worked examples. A CycloneDX attestation
 # describing a prohibited practice is a description of one, and on the next
 # scan it would be read back as evidence about this repository — the same loop

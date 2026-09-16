@@ -343,7 +343,12 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
 
   out.write(`  ${c.grey('repository')}   ${c.bold(report.snapshot.name)} ${c.grey(`· ${report.snapshot.fileCount} files · ${report.durationMs} ms`)}\n`);
   out.write(`  ${c.grey('your role')}    ${report.classification.role.replace('+', ' and ')} ${c.grey('(Arts. 3(3), 3(4))')}\n`);
-  out.write(`  ${c.grey('conformity')}   ${scoreBar(report.score)}\n`);
+  // Print the denominator. A score is a fraction and the numerator alone is
+  // how "100/100" ends up meaning "the two obligations that apply are met" —
+  // which is a true statement and a much smaller one than it looks.
+  out.write(
+    `  ${c.grey('conformity')}   ${scoreBar(report.score)}  ${c.grey(`over ${applicable.length} applicable obligation${applicable.length === 1 ? '' : 's'}`)}\n`,
+  );
   out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
   if (report.exposure.maxFine > 0) {

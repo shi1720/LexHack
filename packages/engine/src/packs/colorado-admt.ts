@@ -25,6 +25,15 @@ function co(locator: string, title: string): Citation {
  */
 const APPLIES = '2027-01-01';
 
+/**
+ * The seven consequential-decision domains in SB 26-189, all of them.
+ *
+ * The pack's own summary recited education, employment, housing, financial and
+ * lending, insurance, health care and essential government services, and the
+ * predicate covered five of them: housing was folded into benefits eligibility
+ * and health care was reached only through emergency triage. Two domains the
+ * statute names in terms were, in practice, not detected at all.
+ */
 const consequential = whenSignal(
   'domain.employment.screening',
   'domain.employment.management',
@@ -32,6 +41,8 @@ const consequential = whenSignal(
   'domain.insurance.pricing',
   'domain.education.assessment',
   'domain.public-benefits',
+  'domain.housing',
+  'domain.health.care',
   'domain.emergency.triage',
 );
 
@@ -271,7 +282,7 @@ export const COLORADO_ADMT_PACK: RulePack = {
   instrument: 'Colorado SB 26-189 (Colorado Automated Decision-Making Technology Act)',
   reconciledOn: '2026-09-15',
   summary:
-    'Colorado repealed and replaced its 2024 AI Act. SB 24-205 was preliminarily enjoined in April 2026 and never took effect; SB 26-189, signed 14 May 2026, applies from 1 January 2027 to automated decision-making technology that materially influences a consequential decision in education, employment, housing, lending, insurance, health care or essential government services.',
+    'Colorado repealed and replaced its 2024 AI Act. SB 24-205 was preliminarily enjoined in April 2026 and never took effect; SB 26-189, signed 14 May 2026, applies from 1 January 2027 to automated decision-making technology that materially influences a consequential decision in education, employment, housing, lending, insurance, health care or essential government services. One honesty note this pack carries and the others do not: the § 6-1-17xx section numbers below come from a secondary framework mapping rather than from the enrolled bill, which the research notes flag as low confidence. The duties are right; check the section numbers against the enrolled text before relying on a locator.',
   url: 'https://leg.colorado.gov/bills/sb26-189',
   milestones: [
     { date: '2026-05-14', label: 'SB 26-189 signed', note: 'Repealed and replaced SB 24-205, which had been preliminarily enjoined and never took effect.' },

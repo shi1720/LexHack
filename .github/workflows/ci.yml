@@ -87,9 +87,15 @@ jobs:
       # A regression gate on Annex's own posture, and honest about its reach:
       # Annex calls no model, so it is not an AI system and only the GDPR and
       # NIST controls apply to it. The high-risk pipeline is exercised by the
-      # 45-case benchmark and the golden fixtures in the job above, not here.
+      # 46-case benchmark and the golden fixtures in the job above, not here.
       - name: Human-readable self-scan
         run: |
+          # What this actually asserts, stated plainly: Annex classifies its own
+          # repository as an AI system of unknown tier, two obligations apply to
+          # it, and both stay satisfied. That is a regression test on the
+          # pipeline running end to end over a real tree — not evidence that the
+          # corpus is right, which is the benchmark's job, and not a compliance
+          # claim about this repository.
           node packages/cli/dist/bin.js scan . \
             --purpose "Compiles AI regulation into executable, evidence-producing controls over a source repository." \
             --markets eu,us-federal \

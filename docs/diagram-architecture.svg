@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" width="1160" height="560" role="img" aria-labelledby="t d">
   <title id="t">Annex architecture: ingest, deterministic core, artefacts</title>
-  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 75 signal detectors, a rule-based classifier and 48 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
+  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 78 signal detectors, a rule-based classifier and 48 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
 
   <defs>
     <style>
@@ -61,7 +61,7 @@
   <text x="512" y="120" class="eyebrow" style="fill:#a11526">NO MODEL · NO NETWORK</text>
 
   <rect class="core" x="312" y="136" width="318" height="70" rx="9"/>
-  <text x="330" y="160" class="h">75 signal detectors</text>
+  <text x="330" y="160" class="h">78 signal detectors</text>
   <text x="330" y="180" class="s">ai-usage · domain · control · data · security</text>
   <text x="330" y="196" class="s" style="font-size:11px">Domain signals fire on code, never on prose</text>
 

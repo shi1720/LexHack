@@ -15,10 +15,10 @@ it, plus a documentation site that merely *writes about* prohibited practices.
 
 | Metric | Result | What it measures |
 |---|---|---|
-| Risk-tier accuracy | **100.0%** (45/45) | The tier Annex assigns matches the label |
+| Risk-tier accuracy | **100.0%** (46/46) | The tier Annex assigns matches the label |
 | Finding recall | **100.0%** (23/23) | Classification findings a competent reader would make, that Annex makes |
-| Carve-out precision | **100.0%** (40/40) | Findings the statute expressly excludes, that Annex correctly does not make |
-| Runtime | 118 ms | The whole corpus, single-threaded, no network |
+| Carve-out precision | **100.0%** (41/41) | Findings the statute expressly excludes, that Annex correctly does not make |
+| Runtime | 129 ms | The whole corpus, single-threaded, no network |
 
 ## Cases Annex gets wrong
 
@@ -65,6 +65,7 @@ and any obligation whose answer is a judgement rather than a fact about code.
 | `high.biometric-categorisation-age-gender` — Digital-signage analytics that estimates the age and gender of passers-by from camera frames | high | high | ✓ |
 | `carveout.demographics-without-biometrics` — CRM enrichment that guesses gender from a first name and age from a date of birth | minimal | minimal | ✓ |
 | `carveout.biometric-categorisation-not-protected` — Warehouse camera that counts how many people on the floor are wearing a hard hat | minimal | minimal | ✓ |
+| `carveout.biometric-not-remote` — Office door controller that matches a fingerprint at the reader | unknown | unknown | ✓ |
 | `high.migration` — Visa application risk assessment | high | high | ✓ |
 | `high.justice` — Judicial research assistant applying law to facts | high | high | ✓ |
 | `transparency.chatbot` — Customer support chatbot with no AI disclosure | transparency | transparency | ✓ |

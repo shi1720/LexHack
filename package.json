@@ -20,7 +20,6 @@
     "lint": "npm run typecheck",
     "packs:verify": "npm run packs:verify -w @annex/engine",
     "selfscan": "node packages/cli/dist/bin.js scan . --purpose \"Compiles AI regulation into executable, evidence-producing controls over a source repository.\" --markets eu,us-federal",
-    "seed": "npm run seed -w @annex/web",
     "benchmark": "node packages/cli/dist/bin.js benchmark",
     "benchmark:report": "node packages/cli/dist/bin.js benchmark --format markdown --out docs/BENCHMARK.md",
     "screenshots": "node scripts/screenshots.mjs",
