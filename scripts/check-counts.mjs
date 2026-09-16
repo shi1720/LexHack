@@ -68,6 +68,9 @@ const CLAIMS = [
   ['docs/VIDEO.md', /`(\d+) obligations · 5 instruments · 0 model calls`/, 'obligations'],
   ['docs/VIDEO.md', /`(\d+) cases · 100% tier accuracy/, 'benchmarkCases'],
   ['CONTRIBUTING.md', /npm run benchmark {5}# (\d+) labelled cases/, 'benchmarkCases'],
+  ['README.md', /signals\/ {11}(\d+) detectors over code, docs and manifests/, 'detectors'],
+  ['docs/ARCHITECTURE.md', /S->>S: (\d+) detectors, keyword-prefiltered/, 'detectors'],
+  ['docs/ARCHITECTURE.md', /^(\d+) detectors in eight families:/m, 'detectors'],
   // Added after a judge found four artefacts stating counts the corpus
   // contradicted, two of them inside the same deck.
   ['docs/ARCHITECTURE.md', /E->>E: (\d+) controls, each with its own application date/, 'obligations'],

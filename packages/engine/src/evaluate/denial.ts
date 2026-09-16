@@ -31,19 +31,48 @@ import type { Evidence } from '../types.js';
  * this repository these patterns fire exactly once, on a sentence that is a
  * genuine denial — and that sentence is not cited by any control.
  */
+/**
+ * Denials of existence and denials of performance.
+ *
+ * An allowlist of phrasings cannot be sound and this one was not: it covered
+ * "we have never commissioned a bias audit" — its own test vector — and four
+ * ordinary refusals walked past it. "No bias audit exists for this tool."
+ * "Status: none." "Remains outstanding." "Was cancelled." So the patterns
+ * below are shapes rather than sentences, and they are applied to the whole
+ * paragraph around a citation rather than to the line under it, in both
+ * directions. That is still a heuristic; what makes it defensible is that
+ * firing wrongly costs a control at `partial` with the offending sentence
+ * quoted, which a reader can disagree with.
+ */
 const DENIES = [
   // "We have never commissioned…", "the team did not establish…"
-  /\b(?:we|the (?:company|organisation|organization|team|provider|deployer)|this (?:document|repository|project|system|product))\b[^.]{0,40}?\b(?:ha(?:ve|s)|had|do(?:es)?|did|is|are|was|were)\s+(?:not|never)\b/i,
+  //
+  // The negation has to attach to a *performance* verb. Without that clause
+  // this fired on "we would rather answer the request than have the authority
+  // ask us why we did not" — a sentence in this repository's own remediated
+  // fixture, which is the kind of ordinary prose a guard like this must leave
+  // alone.
+  /\b(?:we|the (?:company|organisation|organization|team|provider|deployer|board|management)|this (?:document|repository|project|system|product))\b[^.]{0,50}?\b(?:ha(?:ve|s)|had|do(?:es)?|did|is|are|was|were)\s+(?:not|never)\s+(?:yet\s+)?(?:been\s+)?(?:\w+\s+){0,2}?(?:commission\w*|perform\w*|conduct\w*|complet\w*|carr(?:y|ied)|establish\w*|implement\w*|obtain\w*|publish\w*|maintain\w*|audit\w*|review\w*|document\w*|assess\w*|run|done|do|have|had)\b/i,
   // "We have no risk management system", "there is no audit"
   /\b(?:we|there)\s+(?:ha(?:ve|s)|is|are)\s+no\b/i,
   // "…has not yet been performed", "…have never been reviewed"
   /\bha(?:s|ve)\s+(?:not|never)\s+(?:yet\s+)?been\b/i,
-  // "no independent audit has ever been conducted"
-  /\bno\s+[\w\s-]{0,30}?\b(?:has|have|was|were)\s+(?:ever\s+)?been\b/i,
+  // "no independent audit has ever been conducted", "no bias audit exists"
+  /\bno\s+[\w\s-]{0,40}?\b(?:has|have|was|were|exists?|existed)\b/i,
   // A performance verb, negated, whoever the subject is.
   /\b(?:not|never)\s+(?:yet\s+)?(?:commissioned|performed|conducted|completed|carried out|established|implemented|obtained|published|maintained|audited|reviewed|documented|assessed)\b/i,
+  // "has yet to commission", "have yet to be reviewed"
+  /\bha(?:s|ve)\s+yet\s+to\b/i,
+  // "remains outstanding", "is still outstanding", "is pending"
+  /\b(?:remains?|is|are|was|were)\s+(?:still\s+)?(?:outstanding|unstarted|incomplete|unfinished|pending|open)\b/i,
+  // "was cancelled", "were abandoned", "we declined to fund one"
+  /\b(?:cancelled|canceled|abandoned|deferred|postponed|declined|withdrew|withdrawn|lapsed|expired)\b/i,
+  // "Status: none", "Bias audit: n/a"
+  /\b(?:status|result|outcome|state)\b[^.\n]{0,30}:\s*(?:none|n\/a|nil|nothing|not applicable)\b/i,
+  // Bare "none" or "not applicable" as the answer to a heading.
+  /^\s*(?:none|n\/a|nil|not applicable|to be confirmed)\s*\.?\s*$/i,
   // Deferred rather than denied — a plan is not a control.
-  /\b(?:is|are)\s+(?:provisionally\s+)?(?:due|planned|scheduled|pending)\b/i,
+  /\b(?:is|are)\s+(?:provisionally\s+)?(?:due|planned|scheduled)\b/i,
   /\bwill\s+be\s+(?:commissioned|performed|conducted|completed|carried out|established|implemented|published|documented)\b/i,
   /\bwe\s+(?:intend|plan|aim)\s+to\b/i,
   /\b(?:TBD|to be (?:determined|confirmed|completed|decided))\b/i,
@@ -51,6 +80,25 @@ const DENIES = [
 
 export function deniesTheDuty(text: string): boolean {
   return DENIES.some((r) => r.test(text));
+}
+
+/**
+ * The section a line belongs to, bounded by markdown headings.
+ *
+ * Scanning forward from the citation was a second, independent bypass. A
+ * denial one line *below* the last thing a control cited was never examined,
+ * so a table of aspirational rows with "we have never commissioned one" under
+ * it read as satisfied — with the exact sentence the guard was written for
+ * sitting in the file.
+ */
+const HEADING_LINE = /^\s{0,3}#{1,6}\s/;
+
+function sectionAround(lines: string[], index: number): string {
+  let first = index;
+  let last = index;
+  while (first > 0 && !HEADING_LINE.test(lines[first] ?? '')) first--;
+  while (last < lines.length - 1 && !HEADING_LINE.test(lines[last + 1] ?? '')) last++;
+  return lines.slice(first, last + 1).join(' ');
 }
 
 /** A heading names a topic; it does not assert anything about it. */
@@ -72,48 +120,46 @@ function assertionAt(lines: string[], index: number): { line: number; text: stri
  * Returns the denying lines, so the finding can quote the sentence rather than
  * asserting that one exists.
  *
- * Deliberately narrow in three directions.
+ * Three changes from the version an auditor took apart. It reads the whole
+ * *section* around each citation — heading to heading — instead of six lines
+ * forward, because a denial below the last cited line was invisible: a table
+ * of aspirational rows with "we have never commissioned one" in the paragraph
+ * under it read as satisfied. It fires when *any*
+ * documentation citation denies, rather than requiring all of them to —
+ * the old rule meant one positive sentence anywhere disabled the check. And
+ * it no longer requires every citation to be documentation, because a single
+ * incidental code citation was enough to switch the guard off for a control
+ * otherwise resting entirely on prose.
  *
- * It looks only at documentation citations, and only where *every* citation is
- * documentation. A line of code is a fact about the system rather than a claim
- * about it — a `recordInference()` call nothing reaches is a wiring question,
- * not a negation one — so one code citation and the control keeps its verdict.
- *
- * It resolves each citation to the nearest *assertion*. Controls routinely
- * cite a document's heading, and "# Bias audit" neither affirms nor denies
- * anything; what matters is the sentence underneath it.
- *
- * And the patterns are about denied *existence* or denied *performance*, not
- * about negation. Real conformity documentation is full of legitimate
- * negation — "not later than 2 days", "never a final rejection", "a
- * prioritisation signal, not a verdict" — and a word list over `no|not|never`
- * flags all of it. Across every document in every fixture in this repository
- * these patterns fire on exactly one line, which is a genuine denial and is
- * cited by nothing.
- *
- * Where it does fire on a sentence that only reads like a denial, the cost is
- * a control at `partial` whose finding quotes the exact line it read that way
- * — which is a thing a reader can disagree with, rather than a verdict they
- * have to trust.
+ * Code citations are still not examined: a line of code is a fact about the
+ * system rather than a claim about it. Where this fires on a sentence that
+ * only reads like a denial, the cost is a control at `partial` whose finding
+ * quotes the exact line it read that way — a thing a reader can disagree with,
+ * rather than a verdict they have to trust.
  */
 export function deniedByItsOwnEvidence(
   cited: Evidence[],
   fileText: (path: string) => string | undefined,
 ): Evidence[] {
-  const docs = cited.filter((e) => e.kind === 'doc');
-  if (docs.length === 0 || docs.length !== cited.length) return [];
-
   const denying: Evidence[] = [];
   const seen = new Set<string>();
-  for (const e of docs) {
+  for (const e of cited) {
+    if (e.kind !== 'doc') continue;
     const text = fileText(e.path);
     if (text === undefined) continue;
-    const assertion = assertionAt(text.split('\n'), Math.max(0, e.line - 1));
-    if (assertion === undefined || !deniesTheDuty(assertion.text)) continue;
-    const key = `${e.path}:${assertion.line}`;
+    const lines = text.split('\n');
+    const index = Math.max(0, Math.min(lines.length - 1, e.line - 1));
+    if (!deniesTheDuty(sectionAround(lines, index))) continue;
+
+    // Quote the assertion rather than the heading the control happened to
+    // cite, so the finding names the sentence a reader should look at.
+    const assertion = assertionAt(lines, index);
+    const line = assertion && deniesTheDuty(assertion.text) ? assertion.line : index + 1;
+    const snippet = (lines[line - 1] ?? '').trim();
+    const key = `${e.path}:${line}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    denying.push({ ...e, line: assertion.line, snippet: assertion.text.trim() });
+    denying.push({ ...e, line, snippet });
   }
   return denying;
 }

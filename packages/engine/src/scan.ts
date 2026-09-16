@@ -6,6 +6,7 @@ import type {
   SystemProfile,
 } from './types.js';
 import { createSignalIndex, extractSignals, SIGNAL_CATALOGUE_VERSION } from './signals/index.js';
+import { CODE_LANGUAGES } from './ingest/languages.js';
 import { classify } from './classify/index.js';
 import {
   buildClock,
@@ -119,6 +120,28 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
     onProgress: (d, t, id) => opts.onProgress?.('signals', d, t, id),
   });
   const index = createSignalIndex(signals);
+
+  /**
+   * Every detector is written against English identifiers.
+   *
+   * A German or Spanish hiring model with a threshold and an automatic
+   * advance/reject is unambiguously Annex III point 4(a), and Annex sees
+   * nothing in it — which, for a tool whose primary market is the European
+   * Union, is the largest class of false negative it has. That is a scope
+   * limit rather than a bug, and a scope limit that resolves to a clean
+   * result is indistinguishable from a pass, so it is said out loud whenever
+   * a scan finds code and no domain signal at all.
+   */
+  if (
+    snapshot.fileCount > 0 &&
+    !index.hasAny('domain.*') &&
+    snapshot.files.some((f) => f.text && !f.skipped && CODE_LANGUAGES.has(f.lang))
+  ) {
+    warnings.push(
+      'No regulated use case was detected. Worth knowing before you read that as a clean result: every detector in Annex is written against English identifiers, so a hiring model whose variables are in German or Spanish is invisible to it. That is a limit of this tool, not a finding about this system.',
+    );
+  }
+
 
   const classification = classify(index, profile);
   opts.onProgress?.('classify', 1, 1, classification.tier);

@@ -129,6 +129,10 @@ export const AI_SIGNALS: CompiledSignal[] = [
     keywords: [
       'sklearn', 'scikit-learn', 'xgboost', 'lightgbm', 'torch', 'tensorflow', 'keras', 'catboost',
       'statsmodels', 'opencv', 'deepface', 'face_recognition', 'insightface', 'facenet', 'mediapipe',
+      // Class names that appear without their import — a model loaded from a
+      // pickle, or a notebook cell run after the imports scrolled away.
+      'randomforest', 'logisticregression', 'gradientboosting', 'xgbclassifier',
+      'lgbmclassifier', 'nn.module',
     ],
     patterns: [
       /from\s+sklearn|import\s+sklearn|from\s+xgboost|import\s+xgboost|import\s+lightgbm/,
@@ -145,7 +149,7 @@ export const AI_SIGNALS: CompiledSignal[] = [
     label: 'Model training in-repo',
     category: 'ai-usage',
     description: 'The repository trains or fine-tunes a model, not just calls one.',
-    keywords: ['.fit(', 'train_test_split', 'trainer(', 'fine_tune', 'finetune', 'train_loop', 'optimizer', 'epochs'],
+    keywords: ['.fit(', 'train_test_split', 'trainer(', 'fine_tune', 'finetune', 'fine_tuning', 'train_loop', 'optimizer', 'epochs'],
     patterns: [
       /\.fit\s*\(\s*[XxTt]|train_test_split\s*\(|\bTrainer\s*\(/,
       /\b(fine[_-]?tun\w+)\b/i,

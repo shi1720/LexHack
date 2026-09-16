@@ -177,6 +177,62 @@ export async function checkoutUrgency(shopper: { id: string }) {
     },
   },
   {
+    id: 'adversarial.string-literal-comment-opener',
+    description: 'Emotion inference in a file whose first line assigns the string "/*"',
+    tier: 'high',
+    expectFindings: ['annex-iii.1c.emotion'],
+    rationale:
+      'A glob pattern in a string literal is code, and reading its `/*` as the start of a block comment turned every line below it into prose. One line at the top of a file erased the emotion-inference detection, the Annex III finding and the penalty tier beneath it — the inverse of `carveout.prose-in-block-comments`, which only ever tested the false-positive direction.',
+    files: {
+      'package.json': pkg('signal'),
+      'src/interview.ts': `export const GLOB_PATTERN = '/*';
+${OPENAI_CALL}
+export const EMOTION_LABELS = ['engaged', 'hesitant', 'anxious'];
+export async function detectEmotion(frames: string[], transcript: string) {
+  const emotionState = await infer(transcript);
+  return { emotion_state: emotionState, camera_frames: frames.length };
+}
+`,
+    },
+  },
+  {
+    id: 'adversarial.regulated-code-in-a-notebook',
+    description: 'The same threshold-based hiring decision, written in a Jupyter notebook',
+    tier: 'high',
+    expectFindings: ['annex-iii.4a.recruitment'],
+    rationale:
+      'A notebook is JSON wrapping the source that matters, and leaving it unparsed made the format machine-learning work is most often written in completely invisible: renaming `screen.ts` to `screen.ipynb` took a system from twenty-two applicable obligations to none, and the scan came back a clean 100.',
+    files: {
+      'requirements.txt': 'scikit-learn==1.5.0\n',
+      'screen.ipynb': JSON.stringify({
+        cells: [
+          { cell_type: 'markdown', source: ['# Candidate screening\n'] },
+          {
+            cell_type: 'code',
+            execution_count: 1,
+            metadata: {},
+            outputs: [],
+            source: [
+              'from sklearn.ensemble import GradientBoostingClassifier\n',
+              'model = GradientBoostingClassifier()\n',
+              'model.fit(X_train, y_train)\n',
+              '\n',
+              'ADVANCE_THRESHOLD = 0.7\n',
+              'def screen_candidate(applicant):\n',
+              '    parsed_resume = parse_resume(applicant["cv"])\n',
+              '    resume_score = model.predict_proba(parsed_resume)[:, 1]\n',
+              '    hiring_decision = "advance" if resume_score >= ADVANCE_THRESHOLD else "reject"\n',
+              '    return {"candidate": applicant["id"], "job_requisition": job_requisition, "hiring_decision": hiring_decision}\n',
+            ],
+          },
+        ],
+        metadata: {},
+        nbformat: 4,
+        nbformat_minor: 5,
+      }),
+    },
+  },
+  {
     id: 'hard.biometric-hair-colour',
     description: 'Photo app that groups portraits by hair colour',
     tier: 'transparency',

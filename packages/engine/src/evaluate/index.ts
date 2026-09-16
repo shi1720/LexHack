@@ -20,6 +20,12 @@ import { wiredIn, wiringGap } from './wiring.js';
 import { deniedByItsOwnEvidence } from './denial.js';
 import { commentLines } from '../signals/define.js';
 
+/**
+ * What an unfilled placeholder looks like, in any of the forms a generated
+ * scaffold or a hand-written stub uses.
+ */
+const PLACEHOLDER = /\b_{0,2}TODO_{0,2}\b|\bTBD\b|\bFIXME\b|\bFILL[ _-]?IN\b|<[A-Z][A-Z_ ]{2,}>|\b(?:XX+|\?{3,})\b/;
+
 const STATUS_SCORE: Record<ControlStatus, number> = {
   satisfied: 1,
   partial: 0.5,
@@ -122,15 +128,30 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
     const cited = (evaluation.evidence ?? []).filter((e) => e.kind !== 'absence');
     const paths = [...new Set(cited.map((e) => e.path))];
 
+    /**
+     * A placeholder has a shape, not a spelling.
+     *
+     * This tested `text.includes('_TODO_')` literally, so
+     * `sed -i 's/_TODO_/TODO/g'` over the generated documents flipped five
+     * controls from `partial` to `satisfied` without anybody supplying a
+     * single judgement — and a markdown formatter that strips `_emphasis_`
+     * gets there by accident.
+     *
+     * And the guard only fired when *every* cited document was unfilled, so
+     * adding four lines of unrelated prose in a second file was enough to
+     * make the untouched scaffold read as discharged. One document with a
+     * hole in it is a finding with a hole in it, which is the same argument
+     * `wiredIn` makes about orphans.
+     */
     const unfilled = paths.filter((path) =>
-      Boolean(ctx.snapshot.files.find((f) => f.path === path)?.text.includes('_TODO_')),
+      PLACEHOLDER.test(ctx.snapshot.files.find((f) => f.path === path)?.text ?? ''),
     );
-    if (paths.length > 0 && unfilled.length === paths.length) {
+    if (unfilled.length > 0) {
       return {
         ...base,
         status: 'partial',
         score: STATUS_SCORE.partial,
-        finding: `${evaluation.finding} Every document behind this finding still carries unfilled \`_TODO_\` placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
+        finding: `${evaluation.finding} ${unfilled.length === paths.length ? 'Every document' : `${unfilled.length} of the ${paths.length} documents`} behind this finding still carries unfilled placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
         gap: `Fill in the placeholders in ${unfilled.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
         evidence: evaluation.evidence ?? [],
       };

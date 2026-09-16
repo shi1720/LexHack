@@ -1265,12 +1265,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-16T06:16:16.865Z",
+          "endTimeUtc": "2026-09-16T06:53:03.814Z",
           "properties": {
             "conformityScore": 3,
             "liveScore": 3,
             "riskTier": "prohibited",
-            "ledgerRoot": "7e2986dfa029729337ec758eaa45fc9735fa409988706f080699873b28d5d282"
+            "ledgerRoot": "bb84d9868248452a4a835bb457693d1b220b6f50e0fd5f4fa74b31d4acc47976"
           }
         }
       ],

@@ -1,9 +1,20 @@
 /** Directories that never carry compliance-relevant signal but blow up ingest cost. */
+/**
+ * Directories whose name is a reliable claim about their contents.
+ *
+ * `bin`, `env` and `out` came off this list. They are unambiguous in a
+ * JavaScript build tree and entirely ordinary source directories elsewhere —
+ * `bin/` is where Go and Rust projects put commands, `env/` is a plausible
+ * config module, and moving `screen.ts` into `bin/` was enough to take a
+ * regulated hiring system out of the scan with no warning at all. The cost of
+ * reading a build output directory is noise; the cost of skipping a source
+ * one is a false clean bill of health.
+ */
 export const IGNORED_DIRS: ReadonlySet<string> = new Set([
-  'node_modules', '.git', '.next', 'dist', 'build', 'out', 'target', 'vendor',
-  '__pycache__', '.venv', 'venv', 'env', '.tox', '.mypy_cache', '.pytest_cache',
+  'node_modules', '.git', '.next', 'dist', 'build', 'target', 'vendor',
+  '__pycache__', '.venv', 'venv', '.tox', '.mypy_cache', '.pytest_cache',
   'coverage', '.nyc_output', '.turbo', '.cache', '.parcel-cache', '.gradle',
-  'bin', 'obj', '.idea', '.vscode', '.svelte-kit', '.nuxt', 'Pods', '.terraform',
+  'obj', '.idea', '.vscode', '.svelte-kit', '.nuxt', 'Pods', '.terraform',
   'site-packages', '.pnpm-store', 'bower_components', '.yarn',
 ]);
 

@@ -221,7 +221,7 @@ export const CONTROL_SIGNALS: CompiledSignal[] = [
     label: 'Personal data processing',
     category: 'data',
     description: 'Personal data fields are read, stored or sent to a model.',
-    keywords: ['email', 'phone', 'date_of_birth', 'dateofbirth', 'ssn', 'national_id', 'address', 'full_name', 'fullname'],
+    keywords: ['email', 'phone', 'date_of_birth', 'dateofbirth', 'ssn', 'national_id', 'address', 'full_name', 'fullname', 'personal_data', 'pii', 'personally_identifiable'],
     patterns: [
       /\b(email|phone|date_of_birth|dob|ssn|social_security|national_id|passport|address|full_?name|first_?name|last_?name)\b\s*[:=?]/i,
       /\b(personal_data|pii|personally_identifiable)\b/i,

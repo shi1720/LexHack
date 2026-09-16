@@ -94,6 +94,51 @@ describe('Article 6(3) derogation', () => {
     expect(art49?.status).not.toBe('not_applicable');
   });
 
+  /**
+   * The final subparagraph of Article 6(3) closes the derogation for any
+   * system that performs profiling. It is the one limb a scanner can check,
+   * and the detector could not see the two cases that matter most: a
+   * `candidateScore` in a hiring tool, because the prefilter had no keyword
+   * containing "score"; and a `probability_of_default` in a credit tool,
+   * because "economic situation" was not in the pattern at all. A credit
+   * scorer claiming the derogation is the single case the subparagraph most
+   * obviously exists for.
+   */
+  it('closes on a candidate score, which is profiling', () => {
+    // `candidateScore` is the line this project prints as its own example in
+    // the README, the deck and the landing page — and the profiling detector
+    // could not see it, because the keyword prefilter had no entry containing
+    // "score" and the file never reached the line loop.
+    const report = run(
+      {
+        ...SCREENER,
+        'rank.py':
+          'def rank_applicant(applicant, job_requisition):\n' +
+          '    parsed_resume = parse_resume(applicant["cv"])\n' +
+          '    candidate_score = predict(parsed_resume)\n' +
+          '    return {"applicant": applicant["id"], "candidate_score": candidate_score}\n',
+      },
+      { article6_3Derogation: 'narrow-procedural' },
+    );
+    expect(report.classification.article6_3?.available).toBe(false);
+    expect(report.classification.article6_3?.rationale).toMatch(/profiling/i);
+  });
+
+  it('closes on a probability of default, which evaluates an economic situation', () => {
+    const report = run(
+      {
+        'requirements.txt': 'xgboost==2.1.0\n',
+        'score.py':
+          'def score_application(application):\n' +
+          '    features = build_features(application)\n' +
+          '    probability_of_default = float(_booster.predict(features)[0])\n' +
+          '    return {"applicant": application["id"], "probability_of_default": probability_of_default}\n',
+      },
+      { article6_3Derogation: 'pattern-detection', tierOverride: 'high' },
+    );
+    expect(report.classification.article6_3?.available).toBe(false);
+  });
+
   it('records that a claim had nothing to displace', () => {
     const report = run(
       { 'package.json': JSON.stringify({ name: 'wiki' }), 'search.py': 'def search(q):\n    return index.lookup(q)\n' },

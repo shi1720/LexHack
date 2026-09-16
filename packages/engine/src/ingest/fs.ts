@@ -18,6 +18,18 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
   const files: RawFile[] = [];
   const maxFiles = opts.maxFiles ?? INGEST_LIMITS.maxFiles;
 
+  const visited = new Set<string>();
+
+  /** Source before everything else, so a truncated walk truncates the noise. */
+  const rank = (name: string): number =>
+    /^(src|lib|app|packages|apps|services|api|server|core|internal|cmd|pkg)$/i.test(name)
+      ? 0
+      : /^(docs?|documentation)$/i.test(name)
+        ? 2
+        : name.startsWith('.')
+          ? 3
+          : 1;
+
   async function walk(dir: string, top = false): Promise<void> {
     if (files.length >= maxFiles) return;
     let entries;
@@ -36,15 +48,41 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
       }
       return;
     }
-    for (const entry of entries) {
+    // Source first. The walk used to take directories in readdir order and
+    // stop at the file limit, so a repository with four thousand notes under
+    // `aaa/` never reached `src/` — padding the tree was enough to make the
+    // regulated code invisible, and the scan came back clean.
+    const ordered = [...entries].sort((a, b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name));
+
+    for (const entry of ordered) {
       if (files.length >= maxFiles) return;
       const full = join(dir, entry.name);
-      if (entry.isDirectory()) {
+
+      // A symlink is neither `isDirectory()` nor `isFile()`, so the whole
+      // subtree behind one was silently dropped — which is how a pnpm,
+      // Bazel or workspace layout loses its source. Resolve it, and keep a
+      // visited set so a cycle terminates.
+      let isDir = entry.isDirectory();
+      let isFile = entry.isFile();
+      if (entry.isSymbolicLink()) {
+        try {
+          const target = await stat(full);
+          const key = `${target.dev}:${target.ino}`;
+          if (visited.has(key)) continue;
+          visited.add(key);
+          isDir = target.isDirectory();
+          isFile = target.isFile();
+        } catch {
+          continue;
+        }
+      }
+
+      if (isDir) {
         if (IGNORED_DIRS.has(entry.name)) continue;
         await walk(full);
         continue;
       }
-      if (!entry.isFile()) continue;
+      if (!isFile) continue;
       try {
         const info = await stat(full);
         if (info.size > INGEST_LIMITS.maxFileBytes * 4) continue;

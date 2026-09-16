@@ -75,6 +75,14 @@ export function createContext(input: {
       if (out.length >= limit) break;
       if (opts.paths && !opts.paths.test(file.path)) continue;
       // Cheap whole-file test before splitting into lines.
+      //
+      // `lastIndex` is reset here as well as before each line test. A `/g`
+      // pattern carries state between calls, so a leftover offset from the
+      // previous file made this prefilter start mid-string and skip a file
+      // that matches — a result that depends on the order the snapshot
+      // happens to be in, which is the one thing a tool selling determinism
+      // cannot have.
+      pattern.lastIndex = 0;
       if (!pattern.test(file.text)) continue;
       const lines = file.text.split('\n');
       let fromFile = 0;

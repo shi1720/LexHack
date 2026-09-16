@@ -15,10 +15,10 @@ it, plus a documentation site that merely *writes about* prohibited practices.
 
 | Metric | Result | What it measures |
 |---|---|---|
-| Risk-tier accuracy | **100.0%** (48/48) | The tier Annex assigns matches the label |
-| Finding recall | **100.0%** (24/24) | Classification findings a competent reader would make, that Annex makes |
+| Risk-tier accuracy | **100.0%** (50/50) | The tier Annex assigns matches the label |
+| Finding recall | **100.0%** (26/26) | Classification findings a competent reader would make, that Annex makes |
 | Carve-out precision | **100.0%** (43/43) | Findings the statute expressly excludes, that Annex correctly does not make |
-| Runtime | 135 ms | The whole corpus, single-threaded, no network |
+| Runtime | 148 ms | The whole corpus, single-threaded, no network |
 
 ## What this corpus has already caught
 
@@ -52,6 +52,8 @@ and any obligation whose answer is a judgement rather than a fact about code.
 | `hard.obvious-ai-chatbot` — Chat widget branded "AI Assistant" throughout the interface | transparency | transparency | ✓ |
 | `prohibited.manipulative-checkout` — Checkout that generates fake scarcity and a countdown tuned per shopper by a model | prohibited | prohibited | ✓ |
 | `carveout.accessibility-age-segmentation` — Age-appropriate design that switches a stricter default on for under-18 accounts | unknown | unknown | ✓ |
+| `adversarial.string-literal-comment-opener` — Emotion inference in a file whose first line assigns the string "/*" | high | high | ✓ |
+| `adversarial.regulated-code-in-a-notebook` — The same threshold-based hiring decision, written in a Jupyter notebook | high | high | ✓ |
 | `hard.biometric-hair-colour` — Photo app that groups portraits by hair colour | transparency | transparency | ✓ |
 | `hard.driver-drowsiness` — In-car camera detecting driver drowsiness | minimal | minimal | ✓ |
 | `hard.regulated-use-in-sql-only` — Lending model called from Python, with the use case visible only in SQL | high | high | ✓ |

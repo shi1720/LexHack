@@ -389,11 +389,11 @@ and never edited by hand.
 
 | Metric | Result |
 |---|---|
-| Risk-tier accuracy | **100 %** (48/48) |
-| Finding recall | **100 %** (24/24) |
+| Risk-tier accuracy | **100 %** (50/50) |
+| Finding recall | **100 %** (26/26) |
 | Carve-out precision | **100 %** (43/43) |
 
-Roughly half the 48-case corpus exists to catch **false positives**: card-fraud
+Roughly half the 50-case corpus exists to catch **false positives**: card-fraud
 detection (expressly excluded from Annex III 5(b)), one-to-one identity
 verification (excluded from 1(a)), a consumer mood-journal app (Annex III 1(c)
 high-risk, *not* the Article 5(1)(f) prohibition), campaign logistics tooling
@@ -425,7 +425,7 @@ packages/engine/     No model, no framework, zero runtime dependencies.
   ingest/            Dependency-free tar reader, content-addressed snapshot
                      (the only part that touches the network, and only to
                       fetch a GitHub tarball; a local path fetches nothing)
-  signals/           75 detectors over code, docs and manifests
+  signals/           82 detectors over code, docs and manifests
   classify/          Rule table mapping signals → Annex III / Art. 5 / Art. 50
   packs/             The corpus: 52 controls with citations, dates, fixtures
   evaluate/          Control execution, weighted scoring, exposure modelling
@@ -468,7 +468,7 @@ Annex runs this on itself — see [`.github/workflows/ci.yml`](.github/workflows
 Being precise about what that proves: Annex calls no model, so it is not an AI
 system and only the GDPR and NIST controls bind it. The self-scan is a
 regression gate on its own posture, not a demonstration of the high-risk
-pipeline; the 48-case benchmark and the golden fixtures do that job. Its
+pipeline; the 50-case benchmark and the golden fixtures do that job. Its
 `.annexignore` excludes the rule packs, the detector catalogue, the benchmark
 corpus and the fixtures, for one reason stated in the file: a rule pack is
 source code that quotes the practice it detects.
@@ -499,7 +499,7 @@ was originally scoped against had been amended six weeks earlier.
 - **`satisfied` means the evidence is there, not that the duty is discharged.** Annex now refuses two specific ways of faking it — a module nothing in the tree reaches, and a generated document whose `_TODO_` placeholders are unfilled, both of which cap at *partial* — but it still cannot tell you that an override is reachable by a trained, authorised person, or that a log sink is durable. On an Article 14 finding, that is exactly what an assessor will ask. Reachability analysis is the fix and it is not built.
 - **Coverage is TypeScript, JavaScript and Python first.** Go, Java, Ruby, Rust, C# and PHP are detected and scanned, but the detector corpus is thinner for them.
 - **Ingest caps at 4,000 files and 32 MB,** in path order. Larger repositories are scanned partially and the report carries a warning rather than pretending to completeness — but the cut is alphabetical, so on a very large monorepo the sample is arbitrary rather than representative. Prioritising by likely relevance is a known gap.
-- **The benchmark is 48 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
+- **The benchmark is 50 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
 - **One AI system rarely maps to one repository.** Under the Act the unit is the system — a service, a model, a prompt store, a feature pipeline and a UI, often across four repositories and two teams. Annex scans one tree at a time and has no way to compose a system from several. That is the next structural thing to build.
 - **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.

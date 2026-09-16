@@ -127,7 +127,13 @@ export function commentLines(text: string, lines: string[]): Set<number> {
 
     if (inBlock) {
       prose.add(i);
-      if (BLOCK_CLOSE.test(withoutStringLiterals(line))) inBlock = false;
+      // The *closer* is read from the raw line, deliberately. Masking quoted
+      // runs first meant an apostrophe in ordinary prose — "the recruiter's
+      // queue" — opened a string that swallowed the `*/` at the end of the
+      // line, so the block never closed and the rest of the file became
+      // comment. Inside a block there is no code to protect, so there is
+      // nothing to mask.
+      if (BLOCK_CLOSE.test(line)) inBlock = false;
       continue;
     }
     if (inDocstring) {
@@ -151,12 +157,14 @@ export function commentLines(text: string, lines: string[]): Set<number> {
       continue;
     }
 
+    // Masking applies to the *opener*, which is where the attack is: a `/*`
+    // inside a string literal is code and must not start a comment.
     const code = withoutStringLiterals(line);
     const blockOpen = BLOCK_OPEN.exec(code);
     if (blockOpen) {
       // Only the whole-line form is prose; `foo(); /* why */` keeps its code.
       if (trimmed.startsWith('/*') || trimmed.startsWith('<!--')) prose.add(i);
-      if (!BLOCK_CLOSE.test(code.slice((blockOpen.index ?? 0) + 2))) inBlock = true;
+      if (!BLOCK_CLOSE.test(line.slice((blockOpen.index ?? 0) + 2))) inBlock = true;
     }
   }
   return prose;

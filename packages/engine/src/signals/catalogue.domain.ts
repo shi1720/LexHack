@@ -613,7 +613,7 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     category: 'control',
     description:
       'The system produces a draft, a suggestion or a flag for a person to act on rather than an outcome that applies itself. Relevant to Article 6(3)(b) and 6(3)(c): improving the result of a previously completed human activity, or detecting patterns without replacing or influencing the human assessment.',
-    keywords: ['suggest', 'recommend', 'draft', 'assist', 'propose', 'flag'],
+    keywords: ['suggest', 'recommend', 'draft', 'assist', 'propose', 'flag', 'requires', 'awaiting', 'human', 'manual', 'reviewer'],
     patterns: [
       /\b(suggest\w*|recommend\w*|propose\w*|draft)[_\s]?(only|for[_\s]?review|to[_\s]?(user|reviewer|human))\b/i,
       /\b(requires?|needs?|awaiting)[_\s]?(human|manual|reviewer)[_\s]?(approval|confirmation|action|sign[_\s]?off)\b/i,
@@ -630,14 +630,25 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     category: 'domain',
     description:
       'Automated processing of personal data to evaluate personal aspects — performance, economic situation, health, preferences, reliability, behaviour, location or movements. GDPR Article 4(4). Its presence permanently closes the Article 6(3) derogation, by the final subparagraph of that Article.',
-    keywords: ['profile', 'segment', 'persona', 'behaviour', 'behavior', 'propensity'],
+    keywords: ['profile', 'segment', 'persona', 'behaviour', 'behavior', 'propensity', 'score', 'rating', 'predict', 'infer', 'estimate', 'churn', 'probability', 'likelihood', 'creditworthiness'],
     patterns: [
       /\b(user|customer|candidate|applicant|employee|person)[_\s]?(profile|profiling|segment\w*|persona|score)\b/i,
       /\b(profil\w+)[_\s]?(user|customer|person|individual|behaviou?r)\b/i,
       /\b(propensity|churn|risk|credit|trust|reliability)[_\s]?(score|model|rating)\b/i,
       /\b(predict|infer|estimate)[_\s]?(income|health|preference|location|behaviou?r|performance)\b/i,
+      // GDPR Article 4(4) names "economic situation" in terms, and a
+      // probability of default is the purest example of evaluating one. The
+      // credit fixture in this repository used no word on the list above, so
+      // the Article 6(3) derogation stayed open on a credit-scoring system —
+      // which is the single case the final subparagraph most obviously
+      // closes.
+      /\b(probability|likelihood|propensity)[_\s]?of[_\s]?(default|churn|fraud|repayment|delinquency|attrition)\b/i,
+      /\b(creditworthiness|credit[_\s]?risk|default[_\s]?(probability|risk|score))\b/i,
     ],
-    fileGuard: corroborate(['profile', 'score', 'user', 'customer', 'person', 'predict', 'segment'], 2),
+    fileGuard: corroborate(
+      ['profile', 'score', 'user', 'customer', 'person', 'predict', 'segment', 'applicant', 'borrower', 'default', 'credit'],
+      2,
+    ),
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
