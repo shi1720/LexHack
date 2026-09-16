@@ -17,6 +17,7 @@ export { createContext } from './context.js';
 export { wiredIn, wiringGap, type Wiring } from './wiring.js';
 
 import { wiredIn, wiringGap } from './wiring.js';
+import { deniedByItsOwnEvidence } from './denial.js';
 
 const STATUS_SCORE: Record<ControlStatus, number> = {
   satisfied: 1,
@@ -104,8 +105,13 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
   //    Annex's own output.
   //  - **Dead code is not a control.** A generated `human_oversight.py` that
   //    nothing calls discharges nobody's Article 14 duty.
+  //  - **A document that says no is not a yes.** "We have never commissioned
+  //    a bias audit" contains the words a matcher is looking for and denies
+  //    the thing they are looking for. This one was found by a judge in five
+  //    minutes, on the obligation where each further day of use is its own
+  //    penalty.
   //
-  // Both cap at `partial` rather than dropping to `missing`, because "we
+  // All three cap at `partial` rather than dropping to `missing`, because "we
   // could not see it working" is a weaker claim than "it is not there".
   // --------------------------------------------------------------------
   if (evaluation.status === 'satisfied') {
@@ -122,6 +128,19 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
         score: STATUS_SCORE.partial,
         finding: `${evaluation.finding} Every document behind this finding still carries unfilled \`_TODO_\` placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
         gap: `Fill in the placeholders in ${unfilled.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
+        evidence: evaluation.evidence ?? [],
+      };
+    }
+
+    const denied = deniedByItsOwnEvidence(cited, (path) => ctx.snapshot.files.find((f) => f.path === path)?.text);
+    if (denied.length > 0) {
+      const first = denied[0]!;
+      return {
+        ...base,
+        status: 'partial',
+        score: STATUS_SCORE.partial,
+        finding: `${evaluation.finding} But the documentation this rests on denies or defers the thing it is being read as evidence of: ${first.path}:${first.line} reads "${first.snippet.slice(0, 140)}".`,
+        gap: `Either the measure exists and that sentence is out of date, or the sentence is right and the measure does not exist. Annex cannot tell which from prose, and will not read a denial as a discharge.`,
         evidence: evaluation.evidence ?? [],
       };
     }
@@ -344,12 +363,32 @@ export function estimateExposure(
     return none(`No AI Act exposure is modelled: ${outOfAiActScope}.`);
   }
 
-  // A `partial` on a prohibition control means the prohibition was examined and
-  // found *not* to bite — `eu-ai-act.art5.emotion-workplace` returns partial
-  // with the finding "Article 5(1)(f) is not engaged". Pricing that at the
-  // Article 99(3) tier charged 35m/7% for a system the control had just
-  // cleared, so only a `missing` prohibition selects the prohibition tier.
   const failing = results.filter((r) => (r.status === 'missing' || r.status === 'partial') && r.inForce);
+
+  /**
+   * Prohibition controls are inverted, and the exposure model has to know it.
+   *
+   * For an ordinary obligation `partial` means "some of the duty is
+   * discharged", which is a breach and is properly priced. For a prohibition
+   * it means the opposite: the practice was looked for and the prohibition was
+   * found *not* to bite. `eu-ai-act.art5.emotion-workplace` returns partial
+   * with "Article 5(1)(f) is not engaged" for a driver-drowsiness detector
+   * that Recital 18 puts outside the definition altogether.
+   *
+   * Pricing that at the Article 99(3) tier meant Annex classified the system
+   * as minimal risk, told the operator in terms that the prohibition did not
+   * apply, and then billed them at the €35 000 000 / 7 % prohibited-practice
+   * ceiling on the same screen. Article 99(3) reaches "non-compliance with the
+   * prohibition of the AI practices referred to in Article 5" and nothing
+   * else, so only a `missing` prohibition can select that tier.
+   *
+   * This is stated as a rule about prohibitions rather than about Article 5,
+   * because the next prohibition control added will have the same shape: the
+   * new Article 5(1)(ba) and (bb) safeguards arm the identical trap on
+   * 2 December 2026.
+   */
+  const pricedAsBreach = (r: ControlResult, control: Control | undefined): boolean =>
+    control?.family !== 'prohibition' || r.status === 'missing';
 
   // Each regime is modelled on its own terms. Reducing them to a single
   // maximum silently compared a EUR ceiling against a USD per-day penalty and
@@ -371,6 +410,7 @@ export function estimateExposure(
     for (const failure of packFailures) {
       const control = controls.get(failure.controlId);
       if (!control?.penaltyTier) continue;
+      if (!pricedAsBreach(failure, control)) continue;
       const candidate = tiers.get(control.penaltyTier);
       if (!candidate) continue;
       const ceiling = candidate.amount ?? 0;
@@ -458,7 +498,13 @@ export function estimateExposure(
     // Only obligations that carry a fine drive a fine. A voluntary framework
     // with no penalty provision used to top the list under a €15m headline.
     drivers: failing
-      .filter((r) => packs.some((p) => p.penalty && p.controls.some((c) => c.id === r.controlId && c.penaltyTier)))
+      .filter((r) =>
+        packs.some((p) => {
+          if (!p.penalty) return false;
+          const control = p.controls.find((c) => c.id === r.controlId);
+          return Boolean(control?.penaltyTier) && pricedAsBreach(r, control);
+        }),
+      )
       .sort((a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity] || b.weight - a.weight)
       .slice(0, 5)
       .map((r) => ({ controlId: r.controlId, title: r.title, severity: r.severity })),

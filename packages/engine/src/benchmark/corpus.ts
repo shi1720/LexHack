@@ -593,6 +593,23 @@ def analyse_frame(frame):
     },
   },
   {
+    id: 'carveout.demographics-without-biometrics',
+    description: 'CRM enrichment that guesses gender from a first name and age from a date of birth',
+    tier: 'minimal',
+    forbidFindings: ['annex-iii.1b.biometric-categorisation', 'art5.1g.biometric-categorisation'],
+    rationale:
+      'Article 3(40) defines biometric categorisation as assigning people to categories **on the basis of their biometric data**, and Annex III point 1 is the biometrics point. A name and a date of birth are personal data and are not biometric data, so neither point 1(b) nor Article 5(1)(g) is engaged — this is a GDPR problem, not an AI Act high-risk classification. Without the modality guard the attribute keywords alone switched on the whole Chapter III stack, Article 49 registration and Article 86.',
+    files: {
+      'requirements.txt': 'scikit-learn==1.5.0\n',
+      'src/enrich.py': `def enrich(user):
+    """Fill in the gaps in a CRM record."""
+    gender_prediction = NAME_MODEL.predict(user["first_name"])
+    age_estimation = int((today - user["date_of_birth"]).days / 365)
+    return {"gender": gender_prediction, "age": age_estimation}
+`,
+    },
+  },
+  {
     id: 'carveout.biometric-categorisation-not-protected',
     description: 'Warehouse camera that counts how many people on the floor are wearing a hard hat',
     tier: 'minimal',

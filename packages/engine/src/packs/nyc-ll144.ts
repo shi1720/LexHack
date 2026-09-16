@@ -1,6 +1,6 @@
 import type { Control, RulePack } from '../types.js';
 import { nycLL144 } from './citations.js';
-import { allOf, evidenceFrom, missing, pack, partial, satisfied, whenSignal } from './define.js';
+import { allOf, evidenceFrom, missing, needsReview, pack, partial, satisfied, whenSignal } from './define.js';
 
 const c = pack('nyc-ll144');
 
@@ -15,6 +15,17 @@ const c = pack('nyc-ll144');
 const IN_FORCE = '2023-07-05';
 
 const isAedt = whenSignal('domain.employment.screening', 'domain.employment.management');
+
+/**
+ * Fixture dates for a duty that is about elapsed time.
+ *
+ * § 5-301(a) asks whether more than a year has passed, so a golden fixture
+ * with a hard-coded date tests something different every year and eventually
+ * tests the opposite of what it was written for — the previous "satisfied"
+ * case was dated 2026-03-01 and would have started failing in March 2027.
+ */
+const daysAgo = (n: number): string => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
+const AEDT = 'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n';
 
 const controls: Control[] = [
   c({
@@ -38,29 +49,68 @@ const controls: Control[] = [
       const testing = ctx.signals.get('data.bias.testing');
 
       if (audit.length > 0) {
-        // § 5-301(a) is a rule about *currency*: the audit must have been
-        // conducted no more than one year before the tool is used. Accepting
-        // any document containing the words "bias audit" meant a 2023 audit
-        // passed in 2026 — on the most arithmetically checkable duty in the
-        // corpus, in the pack the README singles out for that reason.
+        // § 5-301(a) is a rule about *currency*, and the arithmetic has to be
+        // done properly or the control is worse than nothing. Two ways of
+        // getting it wrong were both live here:
+        //
+        //  - A bare `Math.max` over any year in the document accepted a
+        //    *future* one, so "the next bias audit is provisionally due 2027"
+        //    read as an audit conducted in 2027. An audit cannot have been
+        //    carried out on a date that has not happened.
+        //  - Comparing calendar years meant an audit dated 2 January 2025 was
+        //    "last year" in September 2026 — twenty months old, on the one
+        //    duty in the corpus where every further day of use is a separate
+        //    $500 violation under § 20-872.
+        //
+        // So: a full date is measured against a rolling twelve months, and a
+        // bare year is only conclusive when it is the current one. A year
+        // before that could be eleven months ago or twenty-three, and the
+        // repository does not say which — which is what `needs_review` is for.
         const dated = ctx.grepDocs(/\b(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\b|\b(19|20)\d{2}\b/, 6, /(bias|audit|fairness|ll144|aedt)/i);
-        const years = dated
-          .flatMap((e) => [...e.snippet.matchAll(/\b(20\d{2})\b/g)].map((m) => Number(m[1])))
-          .filter((y) => y >= 2020 && y <= new Date().getFullYear() + 1);
-        const mostRecent = years.length ? Math.max(...years) : undefined;
-        const thisYear = new Date().getFullYear();
+        const now = Date.now();
+        const thisYear = new Date(now).getFullYear();
+        const DAY = 24 * 60 * 60 * 1000;
 
-        if (mostRecent === undefined) {
+        const isoDates = dated
+          .flatMap((e) => [...e.snippet.matchAll(/\b20\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b/g)].map((m) => m[0]))
+          .filter((iso) => Date.parse(iso) <= now);
+        const bareYears = dated
+          .flatMap((e) => [...e.snippet.matchAll(/\b(20\d{2})\b(?!-(?:0[1-9]|1[0-2])-)/g)].map((m) => Number(m[1])))
+          .filter((y) => y >= 2020 && y <= thisYear);
+
+        if (isoDates.length > 0) {
+          const mostRecent = isoDates.reduce((a, b) => (Date.parse(a) > Date.parse(b) ? a : b));
+          const days = Math.floor((now - Date.parse(mostRecent)) / DAY);
+          if (days > 365) {
+            return partial(
+              `Bias audit documentation was found, conducted on ${mostRecent}.`,
+              `6 RCNY § 5-301(a) forbids use where more than one year has passed since the most recent bias audit. That audit is ${days} days old. Each day of continued use is a separate violation under § 20-872.`,
+              audit,
+            );
+          }
+          return satisfied(`A bias audit conducted on ${mostRecent} was found, ${days} days ago.`, audit);
+        }
+
+        if (bareYears.length === 0) {
           return partial(
-            'Bias audit documentation was found, but it carries no date.',
-            '6 RCNY § 5-301(a) requires the audit to have been conducted no more than one year before the tool is used, and § 5-303 requires the date of the most recent audit to be published. An undated audit cannot be shown to be current.',
+            'Bias audit documentation was found, but it names no date that has already passed.',
+            '6 RCNY § 5-301(a) requires the audit to have been conducted no more than one year before the tool is used, and § 5-303(a)(1) requires the date of the most recent audit to be published. A planned audit, or an undated one, cannot be shown to be current.',
             audit,
           );
         }
+
+        const mostRecent = Math.max(...bareYears);
         if (mostRecent < thisYear - 1) {
           return partial(
             `Bias audit documentation was found, but the most recent year it names is ${mostRecent}.`,
-            `6 RCNY § 5-301(a) requires an audit conducted no more than one year before use. On the dates in the document this audit is at least ${thisYear - mostRecent} years old, and each day of continued use is a separate violation under § 20-872.`,
+            `6 RCNY § 5-301(a) requires an audit conducted no more than one year before use. On the dates in the document this audit is at least ${thisYear - mostRecent - 1} year(s) past that limit, and each day of continued use is a separate violation under § 20-872.`,
+            audit,
+          );
+        }
+        if (mostRecent < thisYear) {
+          return needsReview(
+            `Bias audit documentation was found naming ${mostRecent}, with no day or month.`,
+            `Whether ${mostRecent} is within the twelve months § 5-301(a) allows depends on a date the repository does not contain: an audit in December ${mostRecent} is current, one in January ${mostRecent} is not. § 5-303(a)(1) requires the date of the most recent audit to be published — record the full date.`,
             audit,
           );
         }
@@ -104,20 +154,48 @@ const controls: Control[] = [
         // The rule the pack exists for is a rule about currency.
         name: 'partial when the bias audit is more than a year old',
         files: {
-          'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
-          'docs/bias-audit.md':
-            '# Bias audit\n\nIndependent bias audit conducted on 2023-03-01 by an auditor with no employment relationship to us and no material financial interest in the tool.\n',
+          'src/screen.ts': AEDT,
+          'docs/bias-audit.md': `# Bias audit\n\nIndependent bias audit conducted on ${daysAgo(400)} by an auditor with no employment relationship to us and no material financial interest in the tool.\n`,
         },
         expect: 'partial',
       },
       {
-        name: 'satisfied when an independent bias audit is recorded in the repository',
+        // Thirteen months, not three years. The calendar-year arithmetic this
+        // replaces called an audit from January "last year" and passed it in
+        // September — twenty months, on a duty priced per day of use.
+        name: 'partial when the audit is thirteen months old, not merely last calendar year',
         files: {
-          'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
-          'docs/bias-audit-2026.md':
-            '# Bias audit\n\nIndependent bias audit conducted on 2026-03-01 by an auditor with no employment relationship to us and no material financial interest in the tool.\n',
+          'src/screen.ts': AEDT,
+          'docs/bias-audit.md': `# Bias audit\n\nIndependent bias audit conducted on ${daysAgo(395)} by an independent auditor.\n`,
+        },
+        expect: 'partial',
+      },
+      {
+        // An audit cannot have been carried out on a date that has not
+        // happened. Reading the largest year in the document as "the most
+        // recent audit" turned a document that says the opposite into a pass.
+        name: 'partial when the only date named is a future audit that has not happened',
+        files: {
+          'src/screen.ts': AEDT,
+          'docs/bias-audit.md': `# Bias audit\n\nWe have never commissioned a bias audit. The next bias audit is provisionally due ${new Date().getFullYear() + 1}.\n`,
+        },
+        expect: 'partial',
+      },
+      {
+        // A year with no month could be eleven months ago or twenty-three.
+        // The repository does not say, so neither does Annex.
+        name: 'needs_review when the audit is named by year alone and the year is not this one',
+        files: {
+          'src/screen.ts': AEDT,
+          'docs/bias-audit.md': `# Bias audit\n\nOur independent bias audit took place in ${new Date().getFullYear() - 1}, carried out by an auditor with no employment relationship to us.\n`,
+        },
+        expect: 'needs_review',
+      },
+      {
+        name: 'satisfied when an independent bias audit is recorded with a date inside the year',
+        files: {
+          'src/screen.ts': AEDT,
+          'docs/bias-audit-summary.md': `# Bias audit\n\nIndependent bias audit conducted on ${daysAgo(60)} by an auditor with no employment relationship to us and no material financial interest in the tool.\n`,
         },
         expect: 'satisfied',
       },

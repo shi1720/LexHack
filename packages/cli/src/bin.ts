@@ -113,6 +113,10 @@ ${c.bold('SCAN OPTIONS')}
                        market, not put into service there, and its output is
                        not used there. Suppresses the exposure figure.
   --scope-exclusion    research · pre-market · foss   (Art. 2(6), 2(8), 2(12))
+  --public-body        Article 27(1): the deployer is a body governed by public
+                       law or a private entity providing a public service, which
+                       owes a fundamental rights impact assessment whatever the
+                       Annex III point
   --article-6-3 <limb> Claim the Article 6(3) derogation from Annex III:
                        narrow-procedural · improves-human-activity ·
                        pattern-detection · preparatory. Annex checks the one
@@ -156,7 +160,7 @@ const GLOBAL_FLAGS = ['help', 'h', 'version', 'v', 'quiet'];
 /** Everything `profileFrom` reads, so the registry cannot drift from it. */
 const PROFILE_FLAGS = [
   'markets', 'purpose', 'name', 'turnover', 'employees', 'balance-sheet',
-  'no-eu-nexus', 'scope-exclusion', 'article-6-3',
+  'no-eu-nexus', 'scope-exclusion', 'article-6-3', 'public-body',
 ];
 const KNOWN_FLAGS: Record<string, string[]> = {
   scan: [...PROFILE_FLAGS, 'format', 'out', 'fail-under', 'token', 'all', 'ref'],
@@ -221,6 +225,12 @@ function profileFrom(flags: Args['flags']): Partial<SystemProfile> {
 
   const balance = str(flags['balance-sheet']);
   if (balance) profile.balanceSheetEur = Number(balance.replace(/[_,]/g, ''));
+
+  // Article 27(1) limbs (i) and (ii). Not visible in code, and without it the
+  // fundamental rights impact assessment reaches only the Annex III point 5
+  // use cases — so a municipality's recruitment tool owed a FRIA and was
+  // never asked for one.
+  if (flags['public-body']) profile.publicBodyOrPublicService = true;
 
   // Article 2(1). The gate is opt-out rather than opt-in because most people
   // scanning are asking "does this reach me", and answering "no" for them by

@@ -15,6 +15,7 @@ import {
   whenFinding,
   whenHighRisk,
   whenHighRiskOrDerogated,
+  whenDeployer,
   whenProvider,
   whenSignal,
 } from './define.js';
@@ -76,7 +77,7 @@ export const DATES = {
  * Article 49 sits in Chapter III **Section 5**; Articles 72 and 73 sit in
  * Chapter IX. The Digital Omnibus deferred Sections 1, 2 and 3 of Chapter III
  * and left everything else where Article 113(2) put it: 2 August 2026. So
- * these obligations are in force **today**, thirteen months before the
+ * these obligations are in force **today**, sixteen months before the
  * high-risk requirements they relate to.
  *
  * That reads oddly, and the temptation is to "correct" it by dating them with
@@ -88,6 +89,21 @@ export const DATES = {
  * Regulation gives. Each of these controls carries the statutory date, and
  * says in its own finding why the duty may not bite in practice yet.
  */
+
+/**
+ * The sentence the header above promises and this file did not carry.
+ *
+ * Articles 49, 72, 73 and 86 apply from 2 August 2026 on the face of Article
+ * 113, and every one of them is predicated on a system being high-risk under
+ * Annex III — a status Article 6(2) does not confer until 2 December 2027.
+ * Annex reports the statutory date, because that is what the Regulation says
+ * and substituting a practitioner's view of what is sensible is the failure
+ * mode this product exists to avoid. But reporting the date without the
+ * qualification tells an operator to act on a duty whose subject-matter does
+ * not exist yet, which is its own kind of wrong answer.
+ */
+const TIMING_HEDGE =
+  'Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.';
 
 const ANNEX_IV_DOC = 'docs/ai-act/annex-iv-technical-documentation.md';
 
@@ -473,7 +489,9 @@ const liveControls: Control[] = [
     method: 'static-analysis',
     appliesFrom: DATES.GENERAL,
     citations: [aiActArticle(50, '(3)', 'Transparency obligations — emotion recognition and biometric categorisation')],
-    appliesWhen: whenSignal('domain.emotion.recognition', 'domain.biometric.categorisation'),
+    // Article 50(3) is a *deployer* duty — it is the operator of the system who
+    // informs the people exposed to it, not the party that built it.
+    appliesWhen: allOf(whenSignal('domain.emotion.recognition', 'domain.biometric.categorisation'), whenDeployer),
     evaluate: (ctx) => {
       const notified = ctx.signals.hasAny('transparency.ai-disclosure', 'data.consent');
       const ev = evidenceFrom(ctx, 'transparency.ai-disclosure', 'data.consent');
@@ -502,7 +520,9 @@ const liveControls: Control[] = [
     method: 'static-analysis',
     appliesFrom: DATES.GENERAL,
     citations: [aiActArticle(50, '(4)', 'Transparency obligations — deep fakes and public-interest text')],
-    appliesWhen: whenSignal('domain.synthetic.content'),
+    // Article 50(4) likewise binds the deployer who publishes the deep fake or
+    // the public-interest text, not the provider of the generator.
+    appliesWhen: allOf(whenSignal('domain.synthetic.content'), whenDeployer),
     evaluate: (ctx) => {
       const labelled = ctx.signals.hasAny('transparency.ai-disclosure', 'transparency.content.marking');
       const ev = evidenceFrom(ctx, 'transparency.ai-disclosure', 'transparency.content.marking');
@@ -549,7 +569,7 @@ const liveControls: Control[] = [
       // product is built around it; only the organisation knows the rest.
       return needsReview(
         'This repository calls a third-party model and builds a product around the result. If that product is placed on the market or put into service under your own name or trademark, Article 3(3) makes you its provider rather than merely a deployer — and Annex cannot settle that from source code alone.',
-        'Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or used only internally. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is "not to be changed into a high-risk AI system": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.',
+        'Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or put into service for your own use — Article 3(11) covers both, so deploying under your own name internally still makes you the provider. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is "not to be changed into a high-risk AI system": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.',
         evidenceFrom(
           ctx,
           'ai.provider.openai',
@@ -657,6 +677,36 @@ const highRiskControls: Control[] = [
             'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
           'docs/risk-management.md':
             '# Risk management system (Article 9)\n\nA documented, continuous risk register covering the lifecycle.\n\nResidual risk is judged acceptable for each hazard and overall by the VP Engineering, on 2026-08-14.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+      {
+        // The third way of faking a closed control, and the one that survived
+        // longest: a correctly named document, under a correctly named
+        // heading, whose sentences say the measure does not exist. Every
+        // keyword the detector wants is present and the reading is still
+        // wrong. A judge found this in five minutes.
+        name: 'partial when the risk-management document says there is no risk management system',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/risk-management.md':
+            '# Risk management\n\nWe have no risk management system. We have not performed any residual risk acceptance. This document exists only so the scanner finds the words residual risk accepted and risk register.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
+      },
+      {
+        // The guard has to leave real documentation alone, and real
+        // conformity documentation is full of legitimate negation. Nothing
+        // here denies the measure; it qualifies it.
+        name: 'satisfied when the document negates things other than the measure itself',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/risk-management.md':
+            '# Risk management system (Article 9)\n\nA documented, continuous risk register covering the lifecycle. A score is a prioritisation signal, not a verdict, and is never a final rejection.\n\nResidual risk is judged acceptable for each hazard and overall by the VP Engineering, on 2026-08-14. No hazard is closed without a named owner.\n',
         },
         profile: { tierOverride: 'high' },
         expect: 'satisfied',
@@ -913,8 +963,8 @@ const highRiskControls: Control[] = [
       if (shortest !== undefined && shortest < 183) {
         return {
           status: 'missing',
-          finding: `A retention period of ${shortest} days was found. Article 19(1) sets a floor of six months (about 183 days).`,
-          gap: `Raise the retention window to at least 183 days. The current value is ${183 - shortest} days short of the statutory floor.`,
+          finding: `A retention period of ${shortest} days was found. Article 19(1) sets a floor of six months, which is about 183 days.`,
+          gap: `Article 19(1) says six calendar months, not a day count, so a window within a few days of 183 is a judgement rather than a breach — but ${shortest} days is below any reading of it. Raise it to 183 days and the question does not arise.`,
           evidence: retention.evidence.slice(0, 3),
         };
       }
@@ -957,7 +1007,7 @@ const highRiskControls: Control[] = [
       );
     },
     remediation: {
-      summary: 'Scaffold Article 13 instructions for use against all eleven statutory points.',
+      summary: 'Scaffold Article 13 instructions for use against Article 13(3)(a)-(f) and the seven romanettes of (b).',
       reviewerNote: 'Section (b)(v) — performance for specific groups — is the one auditors read first. It cannot be left as TODO in a final version.',
       effort: 'hours',
       files: (ctx) => [
@@ -1261,7 +1311,9 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art72.post-market-monitoring',
-    penaltyTier: 'art99-4',
+    // No penalty tier: Article 72 is a Chapter IX duty and is not among the
+    // nine heads of Article 99(4). Penalised under the Member State rules
+    // required by Article 99(1), without a stated Union ceiling.
     title: 'Post-market monitoring plan',
     obligation:
       'Article 72 requires a documented post-market monitoring system, proportionate to the risks, that actively and systematically collects and analyses data on performance throughout the lifetime of the system. Article 72(3) makes the monitoring plan part of the Annex IV technical documentation.',
@@ -1288,7 +1340,7 @@ const highRiskControls: Control[] = [
       }
       return missing(
         'Neither a post-market monitoring plan nor production monitoring was found.',
-        'Define the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one.',
+        `Define the signals you will collect once the system is live, the thresholds that trigger action, and who owns each one. ${TIMING_HEDGE}`,
         ['post-market monitoring plan', 'drift detection', 'production metrics'],
       );
     },
@@ -1309,7 +1361,9 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art73.incident-reporting',
-    penaltyTier: 'art99-4',
+    // No penalty tier: Article 73 is a Chapter IX duty and is not among the
+    // nine heads of Article 99(4). Penalised under the Member State rules
+    // required by Article 99(1), without a stated Union ceiling.
     title: 'Serious incident reporting procedure',
     obligation:
       'Article 73 requires providers to report serious incidents to the market surveillance authority: within 2 days for a widespread infringement or an Article 3(49)(b) incident, within 10 days where a person has died, and in any event within 15 days otherwise. Article 73(6) forbids altering the system in a way that affects the later evaluation of causes before informing the authorities.',
@@ -1342,7 +1396,7 @@ const highRiskControls: Control[] = [
       }
       return missing(
         'No serious incident reporting procedure was found.',
-        'Write the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation.',
+        `Write the procedure, name the authority, and start the clock at the moment of awareness rather than the moment of confirmation. ${TIMING_HEDGE}`,
         ['incident response', 'runbook', 'escalation policy'],
       );
     },
@@ -1387,7 +1441,7 @@ const highRiskControls: Control[] = [
           )
         : missing(
             'No reference to EU database registration was found.',
-            'Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4).',
+            `Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4). ${TIMING_HEDGE}`,
             ['EU database', 'Article 49', 'declaration of conformity', 'CE marking'],
           );
     },
@@ -1397,7 +1451,7 @@ const highRiskControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Deployer duties: assigned overseers, input data, and telling the workforce',
     obligation:
-      'Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and inform the provider and the market surveillance authority where a risk under Article 79(1) arises (26(5)), keep the automatically generated logs for at least six months (26(6)), and — before putting a high-risk system into service at the workplace — inform workers\' representatives and the affected workers that they will be subject to it (26(7)).',
+      'Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and, where a risk under Article 79(1) arises, inform the provider and the market surveillance authority **and suspend use of the system** without undue delay (26(5)), keep the automatically generated logs for at least six months (26(6)), before putting a high-risk system into service at the workplace inform workers\' representatives and the affected workers that they will be subject to it (26(7)), and — for an Annex III system that makes or assists in making decisions about people — inform those people that they are subject to it (26(11)). A deployer that is a public authority must also comply with the Article 49 registration duty and must not use a system it finds is not registered (26(8)).',
     family: 'human-oversight',
     severity: 'high',
     weight: 7,
@@ -1473,10 +1527,17 @@ const highRiskControls: Control[] = [
   }),
   c({
     id: 'eu-ai-act.art27.fria',
-    penaltyTier: 'art99-4',
+    // No penalty tier. Article 99(4) is a closed list of nine heads, and its
+    // deployer head — (e) — reaches "obligations of deployers pursuant to
+    // Article 26". Article 27 is a separate article and is not incorporated
+    // into Article 26 by reference, so no Union-level ceiling attaches to it.
+    // Article 99(1) still obliges Member States to lay down penalties; what
+    // the Regulation does not give is the EUR 15 000 000 / 3 % figure, and
+    // quoting one it does not give inflates the headline for any high-risk
+    // system failing only this duty.
     title: 'Fundamental rights impact assessment before first use',
     obligation:
-      'Article 27(1) requires deployers that are bodies governed by public law, private entities providing public services, or deployers of the creditworthiness and life-and-health-insurance systems in Annex III points 5(b) and 5(c), to perform an assessment of the impact on fundamental rights before first use: the deployment processes, the period and frequency of use, the categories of natural persons likely to be affected, the specific risks of harm to them, the human oversight measures, and the measures to take if those risks materialise. Article 27(4) allows an existing GDPR data protection impact assessment to be complemented rather than duplicated.',
+      'Article 27(1) requires deployers that are bodies governed by public law, private entities providing public services, or deployers of the creditworthiness and life-and-health-insurance systems in Annex III points 5(b) and 5(c) — in each case other than for the critical-infrastructure systems in Annex III point 2 — to perform an assessment of the impact on fundamental rights before first use: the deployment processes, the period and frequency of use, the categories of natural persons likely to be affected, the specific risks of harm to them, the human oversight measures, and the measures to take if those risks materialise. Article 27(4) allows an existing GDPR data protection impact assessment to be complemented rather than duplicated.',
     family: 'risk-management',
     severity: 'high',
     weight: 6,
@@ -1486,13 +1547,22 @@ const highRiskControls: Control[] = [
       aiActArticle(27, '(1)', 'Fundamental rights impact assessment for high-risk AI systems'),
       aiActArticle(27, '(4)', 'Complementing an existing data protection impact assessment'),
     ],
-    // Article 27 does not bind every high-risk deployer: it reaches public
-    // bodies, private providers of public services, and the two Annex III
-    // point 5 use cases named in 27(1). Credit scoring is one of them, which
-    // is why it applies to the LendWise fixture and not to HireFlow.
+    // Article 27(1) has three limbs, and the predicate carried only the third.
+    // (i) bodies governed by public law and (ii) private entities providing
+    // public services are the limbs that reach a municipality's recruitment
+    // tool, a public hospital's triage system and a school's grading model —
+    // none of which is an Annex III point 5 use case, and all of which owe a
+    // FRIA. Neither is visible in code, so they arrive as an operator
+    // attestation; limb (iii) is detectable and stays detected.
+    //
+    // Point 2 (critical infrastructure) is excluded on the face of 27(1).
     appliesWhen: allOf(
       whenHighRisk,
-      whenFinding('annex-iii.5b.credit', 'annex-iii.5c.insurance', 'annex-iii.5a.public-benefits'),
+      (ctx: EvaluationContext) => !ctx.classification.findings.some((f) => f.id === 'annex-iii.2.infrastructure'),
+      anyOf(
+        (ctx: EvaluationContext) => ctx.profile.publicBodyOrPublicService === true,
+        whenFinding('annex-iii.5b.credit', 'annex-iii.5c.insurance'),
+      ),
     ),
     evaluate: (ctx) => {
       const fria = ctx.grepDocs(
@@ -1605,7 +1675,7 @@ const highRiskControls: Control[] = [
       }
       return missing(
         'Nothing was found that would answer an affected person asking why a decision about them came out the way it did.',
-        'This right has applied since 2 August 2026, ahead of the Chapter III duties over the same system. Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not.',
+        `Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not. ${TIMING_HEDGE}`,
         ['right to explanation', 'Article 86', 'reason codes stored with the decision'],
       );
     },
@@ -1679,7 +1749,7 @@ export const EU_AI_ACT_PACK: RulePack = {
       },
       {
         id: 'art99-4',
-        label: 'Provider, deployer and Article 50 transparency obligations',
+        label: 'Provider, deployer and Article 50 transparency obligations (Arts. 9-15, 17 and 19 are reached through Article 16, not fined in their own right)',
         amount: 15_000_000,
         turnoverPct: 3,
         citation: aiActArticle(99, '(4)', 'Penalties — other obligations'),

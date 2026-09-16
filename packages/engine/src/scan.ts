@@ -34,19 +34,31 @@ export interface ScanOptions {
 export type ScanPhase = 'signals' | 'classify' | 'controls' | 'ledger' | 'remediation';
 
 export function defaultProfile(snapshot: RepoSnapshot, overrides: Partial<SystemProfile> = {}): SystemProfile {
+  /**
+   * Carry through every answer the operator actually gave.
+   *
+   * This used to be an allow-list of field names, which is a bug factory: a
+   * field added to `SystemProfile`, accepted by the CLI and read by a control
+   * is silently dropped here, and the control quietly reports
+   * `not_applicable` for a duty that binds. `publicBodyOrPublicService` did
+   * exactly that on the Article 27 fundamental rights impact assessment — the
+   * flag parsed, the control never saw it, and nothing failed.
+   *
+   * Undefined values are filtered out rather than spread, because
+   * `exactOptionalPropertyTypes` distinguishes an absent key from a present
+   * `undefined` one, and half this file's assertions depend on that.
+   */
+  const supplied = Object.fromEntries(
+    Object.entries(overrides).filter(([, value]) => value !== undefined),
+  ) as Partial<SystemProfile>;
+
   return {
+    ...supplied,
     name: overrides.name ?? snapshot.name,
     purpose: overrides.purpose ?? '',
     role: overrides.role ?? 'unknown',
     euNexus: overrides.euNexus ?? true,
-    markets: overrides.markets ?? ['eu', 'us-federal'],
-    ...(overrides.scopeExclusions?.length ? { scopeExclusions: overrides.scopeExclusions } : {}),
-    ...(overrides.turnoverEur !== undefined ? { turnoverEur: overrides.turnoverEur } : {}),
-    ...(overrides.balanceSheetEur !== undefined ? { balanceSheetEur: overrides.balanceSheetEur } : {}),
-    ...(overrides.employees !== undefined ? { employees: overrides.employees } : {}),
-    ...(overrides.attestations ? { attestations: overrides.attestations } : {}),
-    ...(overrides.tierOverride ? { tierOverride: overrides.tierOverride } : {}),
-    ...(overrides.article6_3Derogation ? { article6_3Derogation: overrides.article6_3Derogation } : {}),
+    markets: overrides.markets?.length ? overrides.markets : ['eu', 'us-federal'],
   };
 }
 

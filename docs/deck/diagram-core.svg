@@ -121,7 +121,7 @@
   <text x="56" y="478" class="eyebrow">THE TWO THINGS THAT MAKE IT EVIDENCE</text>
 
   <circle cx="64" cy="500" r="3.5" class="navy"/>
-  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 53 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
+  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 61 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
 
   <circle cx="64" cy="518" r="3.5" class="moss"/>
   <text x="78" y="522" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The ledger is checkable.</tspan> annex verify re-derives every entry from the results; --against re-hashes each cited file off disk.</text>

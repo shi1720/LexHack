@@ -31,7 +31,7 @@
 
   <!-- title -->
   <text x="40" y="44" class="h" style="font-size:19px">Annex — one scan, end to end</text>
-  <text x="40" y="66" class="s">A regulation is a function over a repository. 430 ms on a 188-file tree, offline, no model call.</text>
+  <text x="40" y="66" class="s">A regulation is a function over a repository. 450 ms on a 191-file tree, offline, no model call.</text>
 
   <!-- ================= INGEST ================= -->
   <rect class="zone" x="36" y="96" width="228" height="330" rx="14"/>
@@ -123,7 +123,7 @@
   <text x="56" y="478" class="eyebrow">THE TWO THINGS THAT MAKE IT EVIDENCE</text>
 
   <circle cx="64" cy="500" r="3.5" class="navy"/>
-  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 53 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
+  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 61 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
 
   <circle cx="64" cy="518" r="3.5" class="moss"/>
   <text x="78" y="522" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The ledger is checkable.</tspan> annex verify re-derives every entry from the results; --against re-hashes each cited file off disk.</text>

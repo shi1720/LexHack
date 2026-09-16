@@ -430,6 +430,19 @@ export interface SystemProfile {
   /** Balance-sheet total in EUR. With turnover, decides SME status. */
   balanceSheetEur?: number;
   /**
+   * Article 27(1) limb (i) or (ii): the deployer is a body governed by public
+   * law, or a private entity providing a public service.
+   *
+   * This is a fact about the organisation, not about the code, so Annex cannot
+   * read it — but without it the fundamental rights impact assessment reaches
+   * only limb (iii), the Annex III point 5(b) and 5(c) use cases. A
+   * municipality deploying a recruitment tool, a public hospital deploying
+   * triage, a school deploying grading and a private operator of a public
+   * transport service are all inside Article 27(1) and were all outside the
+   * control.
+   */
+  publicBodyOrPublicService?: boolean;
+  /**
    * Markets the system is offered in. Drives which rule packs are evaluated:
    * a product that never touches New York should not be graded against
    * Local Law 144, and a score that pretends otherwise is noise.

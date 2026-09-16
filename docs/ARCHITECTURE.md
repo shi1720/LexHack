@@ -28,7 +28,7 @@ sequenceDiagram
     S-->>C: SignalIndex with line-anchored evidence
     C->>C: rule table → Annex III / Art. 5 / Art. 50
     C-->>E: Classification + confidence + citations
-    E->>E: 47 controls, each with its own application date
+    E->>E: 48 controls, each with its own application date
     E-->>L: ControlResult[] with evidence or absence
     L->>L: SHA-256 chain over canonical lines
     L-->>A: root
@@ -82,7 +82,7 @@ definition line  >  usage  >  documentation  >  test file  >  manifest
 
 That is why the Annex III 4(a) citation lands on `rank.ts:28` — `const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject'` — rather than on `"openai"` in `package.json`, even though both are true.
 
-**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 188-file repository — this one — scans in ~430 ms; the 44-case benchmark runs in ~120 ms.
+**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 191-file repository — this one — scans in ~450 ms; the 45-case benchmark runs in ~120 ms.
 
 ## 3. Classification — `packages/engine/src/classify/`
 
@@ -109,7 +109,7 @@ Confidence is derived, not asserted: base confidence, plus corroborating signals
 
 ## 4. Controls — `packages/engine/src/packs/`
 
-47 obligations across five instruments. A control is:
+48 obligations across five instruments. A control is:
 
 ```ts
 {
@@ -188,7 +188,7 @@ Next.js 16 App Router, server components, server actions. No client-side state l
 
 **Authentication is first-party**: scrypt for passwords, a signed JWT in an httpOnly cookie via `jose`. A compliance tool that needs you to sign up to an identity vendor before it will tell you anything is making a joke of itself — and one external service is one more thing that can be down during a demo.
 
-**Sample systems are bundled**, so a scan works with no network and no credentials. The demo workspace seeds and scans four repositories on first load, synchronously, because scans take tens of milliseconds and a reviewer should land on data rather than on four spinners.
+**Sample systems are bundled**, so a scan works with no network and no credentials. The demo workspace seeds and scans four repositories on first load, synchronously, because each of the four sample scans takes tens of milliseconds and a reviewer should land on data rather than on four spinners.
 
 ## Where the language model is, and is not
 

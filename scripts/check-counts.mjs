@@ -39,7 +39,7 @@ const FACTS = {
  * this check silently stopped covering it.
  */
 const CLAIMS = [
-  ['README.md', /(\d+) executable obligations across five jurisdictions/, 'obligations'],
+  ['README.md', /(\d+) executable obligations across five instruments and three jurisdictions/, 'obligations'],
   ['README.md', /E\[(\d+) controls<br\/>5 rule packs\]/, 'obligations'],
   ['README.md', /The corpus: (\d+) controls with citations/, 'obligations'],
   ['README.md', /C\[(\d+) signal detectors/, 'detectors'],
@@ -50,7 +50,7 @@ const CLAIMS = [
   ['README.md', /the (\d+)-case benchmark and the golden fixtures do that job/, 'benchmarkCases'],
   ['README.md', /— (\d+) cases over \d+ obligations, in all five packs —/, 'fixtureCases'],
   ['README.md', /— \d+ cases over (\d+) obligations, in all five packs —/, 'fixtureControls'],
-  ['docs/deck/index.html', /<h2>(\d+) obligations\. 5 jurisdictions/, 'obligations'],
+  ['docs/deck/index.html', /<h2>(\d+) obligations\. 5 instruments/, 'obligations'],
   ['docs/deck/index.html', /<div class="stat s">(\d+)<\/div><div class="cap">executable obligations/, 'obligations'],
   ['docs/deck/index.html', /<div class="stat s">(\d+)<\/div><div class="cap">signal detectors/, 'detectors'],
   ['docs/deck/index.html', /<td>(\d+) obligations · post-Omnibus dates<\/td>/, 'euObligations'],
@@ -65,9 +65,17 @@ const CLAIMS = [
   ['docs/DEVPOST.md', /(\d+) signal detectors/, 'detectors'],
   ['docs/DEVPOST.md', /a (\d+)-case hand-labelled corpus/, 'benchmarkCases'],
   ['docs/DEVPOST.md', /a (\d+)-case benchmark, CI that typechecks/, 'benchmarkCases'],
-  ['docs/VIDEO.md', /`(\d+) obligations · 5 jurisdictions · 0 model calls`/, 'obligations'],
+  ['docs/VIDEO.md', /`(\d+) obligations · 5 instruments · 0 model calls`/, 'obligations'],
   ['docs/VIDEO.md', /`(\d+) cases · 100% tier accuracy/, 'benchmarkCases'],
   ['CONTRIBUTING.md', /npm run benchmark {5}# (\d+) labelled cases/, 'benchmarkCases'],
+  // Added after a judge found four artefacts stating counts the corpus
+  // contradicted, two of them inside the same deck.
+  ['docs/ARCHITECTURE.md', /E->>E: (\d+) controls, each with its own application date/, 'obligations'],
+  ['docs/ARCHITECTURE.md', /^(\d+) obligations across five instruments\./m, 'obligations'],
+  ['docs/BUSINESS.md', /evaluates (\d+) obligations in about/, 'obligations'],
+  ['docs/DEVPOST.md', /Annex reads the code instead: (\d+) obligations/, 'obligations'],
+  ['docs/deck/diagram-core.svg', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
+  ['docs/diagram-architecture.svg', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
 ];
 
 const cache = new Map();

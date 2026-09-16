@@ -85,6 +85,21 @@ export const whenAiPresent = (ctx: EvaluationContext): boolean =>
 export const whenProvider = (ctx: EvaluationContext): boolean =>
   ctx.classification.role === 'provider' || ctx.classification.role === 'provider+deployer';
 
+/**
+ * Article 50 splits by role — 50(1) and 50(2) bind providers, 50(3) and 50(4)
+ * bind deployers — and the pack has to split with it.
+ *
+ * `unknown` counts as a deployer here on purpose. The cost of asking a
+ * provider about a duty that turns out to be its customer's is a paragraph to
+ * read; the cost of silently switching off a duty that is in force today is a
+ * fine. Where the role is positively inferred as provider-only, the duty is
+ * genuinely somebody else's and the control says so.
+ */
+export const whenDeployer = (ctx: EvaluationContext): boolean =>
+  ctx.classification.role === 'deployer' ||
+  ctx.classification.role === 'provider+deployer' ||
+  ctx.classification.role === 'unknown';
+
 export const always = (): boolean => true;
 
 export function allOf(...predicates: ((ctx: EvaluationContext) => boolean)[]) {

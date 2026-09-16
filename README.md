@@ -185,7 +185,7 @@ tests: [
 ]
 ```
 
-`npm test` runs every golden fixture in the corpus — 56 cases over 22 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
+`npm test` runs every golden fixture in the corpus — 61 cases over 22 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
 
 ### 3. Nothing goes green because a file exists
 
@@ -320,7 +320,7 @@ A questionnaire cannot do this at all: it is answered once, by a person, about a
 
 ## What is in the corpus
 
-48 executable obligations across five jurisdictions, each reconciled against primary sources on 2026-09-15.
+48 executable obligations across five instruments and three jurisdictions, each reconciled against primary sources on 2026-09-15. Two of the instruments are EU law and one is a voluntary US framework, which is worth saying plainly: "five jurisdictions" would be a nicer headline and would not be true.
 
 | Pack | Version | Obligations | Status |
 |---|---|---|---|
@@ -342,11 +342,11 @@ and never edited by hand.
 
 | Metric | Result |
 |---|---|
-| Risk-tier accuracy | **100 %** (44/44) |
+| Risk-tier accuracy | **100 %** (45/45) |
 | Finding recall | **100 %** (23/23) |
-| Carve-out precision | **100 %** (38/38) |
+| Carve-out precision | **100 %** (40/40) |
 
-Roughly half the 44-case corpus exists to catch **false positives**: card-fraud
+Roughly half the 45-case corpus exists to catch **false positives**: card-fraud
 detection (expressly excluded from Annex III 5(b)), one-to-one identity
 verification (excluded from 1(a)), a consumer mood-journal app (Annex III 1(c)
 high-risk, *not* the Article 5(1)(f) prohibition), campaign logistics tooling
@@ -392,7 +392,7 @@ apps/web/            Next.js 16 app: dashboard, evidence explorer, dossier, trus
 fixtures/            Four realistic sample repositories used by the demo and the tests
 ```
 
-**The analysis never calls a model and never touches the network.** Fetching a GitHub tarball is the one network call in the engine, and it happens before any analysis begins; scanning a local path makes none at all. The same commit always produces the same ledger root. That is not a performance optimisation — it is the reason the output is usable as evidence, and it is why a scan runs in tens of milliseconds and a conference wifi network cannot break the demo.
+**The analysis never calls a model and never touches the network.** Fetching a GitHub tarball is the one network call in the engine, and it happens before any analysis begins; scanning a local path makes none at all. The same commit always produces the same ledger root. That is not a performance optimisation — it is the reason the output is usable as evidence, and it is why a scan of this repository runs in under half a second, offline, and a conference wifi network cannot break the demo.
 
 A language model is used in exactly one place, and the UI labels it: rewriting an *already settled* finding for a different reader — an engineer, a founder, an assessor. It receives the decision as fact and cannot change a status, a score or a citation. With no `ANTHROPIC_API_KEY` set, that one panel explains itself and everything else is unaffected.
 
@@ -415,7 +415,7 @@ Annex runs this on itself — see [`.github/workflows/ci.yml`](.github/workflows
 Being precise about what that proves: Annex calls no model, so it is not an AI
 system and only the GDPR and NIST controls bind it. The self-scan is a
 regression gate on its own posture, not a demonstration of the high-risk
-pipeline; the 44-case benchmark and the golden fixtures do that job. Its
+pipeline; the 45-case benchmark and the golden fixtures do that job. Its
 `.annexignore` excludes the rule packs, the detector catalogue, the benchmark
 corpus and the fixtures, for one reason stated in the file: a rule pack is
 source code that quotes the practice it detects.
@@ -446,7 +446,7 @@ was originally scoped against had been amended six weeks earlier.
 - **`satisfied` means the evidence is there, not that the duty is discharged.** Annex now refuses two specific ways of faking it — a module nothing in the tree reaches, and a generated document whose `_TODO_` placeholders are unfilled, both of which cap at *partial* — but it still cannot tell you that an override is reachable by a trained, authorised person, or that a log sink is durable. On an Article 14 finding, that is exactly what an assessor will ask. Reachability analysis is the fix and it is not built.
 - **Coverage is TypeScript, JavaScript and Python first.** Go, Java, Ruby, Rust, C# and PHP are detected and scanned, but the detector corpus is thinner for them.
 - **Ingest caps at 4,000 files and 32 MB,** in path order. Larger repositories are scanned partially and the report carries a warning rather than pretending to completeness — but the cut is alphabetical, so on a very large monorepo the sample is arbitrary rather than representative. Prioritising by likely relevance is a known gap.
-- **The benchmark is 44 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
+- **The benchmark is 45 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
 - **One AI system rarely maps to one repository.** Under the Act the unit is the system — a service, a model, a prompt store, a feature pipeline and a UI, often across four repositories and two teams. Annex scans one tree at a time and has no way to compose a system from several. That is the next structural thing to build.
 - **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.

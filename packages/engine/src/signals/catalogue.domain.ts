@@ -204,6 +204,19 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       /\b(gender|sex|age|ethnicity|race|skin[_\s]?tone)[_\s]?(detect\w*|classif\w*|estimat\w*|predict\w*|infer\w*)\b/i,
       /\bface[_\s]?attribute\w*|demographic[_\s]?(inference|prediction)\b/i,
     ],
+    // Article 3(40): biometric categorisation assigns people to categories
+    // **on the basis of their biometric data**, and Annex III point 1 is the
+    // biometrics point. Without the modality the patterns fire on a gender
+    // classifier over *names* and an age inference from a date-of-birth
+    // column — neither of which is biometric, and both of which were enough
+    // to switch on the whole Chapter III stack plus Article 49 registration
+    // and Article 86. The emotion detector already carried this guard for the
+    // identical reason in Article 3(39); this one was written first and did
+    // not.
+    fileGuard: corroborate(
+      ['face', 'facial', 'video', 'frame', 'camera', 'webcam', 'image', 'photo', 'voice', 'audio', 'speech', 'gait', 'iris', 'fingerprint', 'biometric'],
+      1,
+    ),
     maxEvidence: 8,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,

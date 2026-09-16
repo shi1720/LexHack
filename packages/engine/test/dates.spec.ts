@@ -134,7 +134,7 @@ describe('application dates are derived from Article 113, not typed by hand', ()
   it('keeps Chapter III Sections 4 and 5 and Chapter IX in force while Sections 1-3 are deferred', () => {
     // The oddity the Omnibus created, and the one this corpus got wrong once:
     // registration, post-market monitoring and serious-incident reporting all
-    // apply thirteen months before the requirements they attach to.
+    // apply sixteen months before the requirements they attach to.
     expect(APPLIES_FROM['chapter-iii-s5']).toBe('2026-08-02');
     expect(APPLIES_FROM['chapter-ix']).toBe('2026-08-02');
     expect(APPLIES_FROM['chapter-iii-s2']).toBe('2027-12-02');

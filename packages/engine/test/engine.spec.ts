@@ -5,7 +5,7 @@ import { readTar, stripRootDir } from '../src/ingest/tar.js';
 import { detectLanguage } from '../src/ingest/languages.js';
 import { buildLedger, verifyLedger, verifyLedgerAgainstResults, ledgerFingerprint } from '../src/ledger/index.js';
 import { scoreControls, estimateExposure, buildClock } from '../src/evaluate/index.js';
-import { diffReports } from '../src/scan.js';
+import { defaultProfile, diffReports } from '../src/scan.js';
 import { renderPatch } from '../src/remediate/index.js';
 import { EU_AI_ACT_PACK } from '../src/packs/eu-ai-act.js';
 import { ALL_PACKS, packsForMarkets } from '../src/packs/index.js';
@@ -314,6 +314,74 @@ describe('exposure', () => {
     const e = estimateExposure([EU_AI_ACT_PACK], failing, profile({ turnoverEur: 900_000_000, euNexus: false }));
     expect(e.maxFine).toBe(0);
     expect(e.basis).toContain('Article 2(1)');
+  });
+
+  /**
+   * Prohibition controls are inverted: `partial` on one of them means the
+   * practice was looked for and the prohibition was found not to bite. Pricing
+   * that at Article 99(3) meant Annex classified a driver-drowsiness detector
+   * as minimal risk, said in terms that Article 5(1)(f) was not engaged, and
+   * then quoted the EUR 35 000 000 / 7 % prohibited-practice ceiling on the
+   * same screen.
+   */
+  it('does not price a prohibition the control has just cleared at the Article 99(3) tier', () => {
+    const cleared: ControlResult = {
+      controlId: 'eu-ai-act.art5.emotion-workplace', pack: 'eu-ai-act', title: 't',
+      obligation: 'o', family: 'prohibition', severity: 'critical', weight: 10,
+      status: 'partial', score: 50, finding: 'Article 5(1)(f) is not engaged.',
+      citations: [], evidence: [], method: 'static-analysis', remediationAvailable: false,
+      appliesFrom: '2025-02-02', inForce: true,
+    };
+    const e = estimateExposure(
+      [EU_AI_ACT_PACK],
+      [...failing, cleared],
+      profile({ turnoverEur: 900_000_000, employees: 4000 }),
+    );
+    // 3 % of turnover under Article 99(4), not 7 % under Article 99(3).
+    expect(e.maxFine).toBe(27_000_000);
+    expect(e.drivers.map((d) => d.controlId)).not.toContain('eu-ai-act.art5.emotion-workplace');
+  });
+
+  it('still prices a prohibition that is actually breached at the Article 99(3) tier', () => {
+    const breached: ControlResult = {
+      controlId: 'eu-ai-act.art5.emotion-workplace', pack: 'eu-ai-act', title: 't',
+      obligation: 'o', family: 'prohibition', severity: 'critical', weight: 10,
+      status: 'missing', score: 0, finding: 'f',
+      citations: [], evidence: [], method: 'static-analysis', remediationAvailable: false,
+      appliesFrom: '2025-02-02', inForce: true,
+    };
+    const e = estimateExposure(
+      [EU_AI_ACT_PACK],
+      [...failing, breached],
+      profile({ turnoverEur: 900_000_000, employees: 4000 }),
+    );
+    expect(e.maxFine).toBe(63_000_000); // 7 % of turnover beats EUR 35m
+  });
+});
+
+describe('profile plumbing', () => {
+  /**
+   * `defaultProfile` used to copy an allow-list of fields, so a new answer
+   * added to `SystemProfile` and accepted by the CLI never reached the control
+   * that needed it — the control just reported `not_applicable` and nothing
+   * failed. This asserts the shape of the bug, not the list of fields.
+   */
+  it('carries every answer the operator gave through to the controls', () => {
+    const snapshot = buildSnapshot({ name: 'x', files: [{ path: 'a.ts', bytes: Buffer.from('export const a = 1;\n') }] });
+    const answers: Partial<SystemProfile> = {
+      turnoverEur: 4_200_000,
+      employees: 38,
+      balanceSheetEur: 1_000_000,
+      scopeExclusions: ['research'],
+      article6_3Derogation: 'narrow-procedural',
+      publicBodyOrPublicService: true,
+      tierOverride: 'high',
+      attestations: { something: true },
+    };
+    const profile = defaultProfile(snapshot, answers);
+    for (const [key, value] of Object.entries(answers)) {
+      expect(profile[key as keyof SystemProfile], `${key} was dropped`).toEqual(value);
+    }
   });
 });
 

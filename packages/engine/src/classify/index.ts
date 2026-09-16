@@ -86,7 +86,19 @@ export function inferRole(signals: SignalIndex, profile: SystemProfile): ActorRo
     signals.hasAny('ai.inference.call', 'ai.prompt.system', 'ai.ml.training', 'ai.framework.agent');
   const usesThirdPartyModel = signals.hasAny('ai.provider.*');
   if (buildsOwnSystem && usesThirdPartyModel) return 'provider+deployer';
-  if (buildsOwnSystem || usesThirdPartyModel) return 'provider';
+  if (buildsOwnSystem) return 'provider';
+  // A dependency on somebody else's model, and nothing in the repository that
+  // develops a system around it — no prompt, no inference path, no training,
+  // no agent framework. On Article 3(3) that is not a provider: developing the
+  // system is a constituent of the definition, not an inference from the
+  // import. It is Article 3(4) use under your own authority.
+  //
+  // This branch was missing, and its absence was not cosmetic. `ActorRole`
+  // carries 'deployer' and nothing produced it, so `whenProvider` — the gate
+  // on the Article 50(1) and 50(2) duties, which bind providers — was true for
+  // every repository that touched a model, and the UI told a pure consumer of
+  // a vendor API that it was "provider and deployer".
+  if (usesThirdPartyModel) return 'deployer';
   return 'unknown';
 }
 

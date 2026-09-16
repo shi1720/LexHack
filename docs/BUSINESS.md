@@ -90,7 +90,7 @@ A defensible starting ACV is **$25–40 k** — one or two governed systems plus
 
 Every number below is a projection with its assumption written next to it. Nothing here is measured revenue — there is none. What *is* measured is the cost side, because the engine already exists and its cost per scan is a fact rather than a forecast.
 
-**Cost of goods sold is close to nothing, and that is a design consequence, not luck.** The engine is deterministic and offline: classification and control evaluation never call a model. A 188-file repository — this one — evaluates 47 obligations in about 430 ms of a single core. A customer scanning 40 systems on every push, at 200 pushes a system a month, spends about **an hour of CPU a month**. The only variable cost that scales with usage is storage of reports and ledgers, which are tens of kilobytes each.
+**Cost of goods sold is close to nothing, and that is a design consequence, not luck.** The engine is deterministic and offline: classification and control evaluation never call a model. A 191-file repository — this one — evaluates 48 obligations in about 450 ms of a single core. A customer scanning 40 systems on every push, at 200 pushes a system a month, spends about **an hour of CPU a month**. The only variable cost that scales with usage is storage of reports and ledgers, which are tens of kilobytes each.
 
 | Line | Per customer / month | Assumption |
 |---|---|---|
