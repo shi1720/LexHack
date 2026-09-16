@@ -20,6 +20,7 @@
  *   node scripts/smoke.mjs [baseUrl]
  */
 import { readFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -85,7 +86,7 @@ process.stdout.write('\nAccount\n');
 const email = `smoke-${Date.now()}@example.test`;
 // At least ten characters, with a letter and a number — the rule the
 // sign-up form states and enforces.
-const password = 'smoke-passw0rd-2026';
+const password = `Smoke1-${randomBytes(18).toString('hex')}`;
 
 await check('the landing page loads', async () => {
   const response = await page.goto(BASE, { waitUntil: 'networkidle' });

@@ -80,3 +80,9 @@ apps/web/data/
 # is not the system the finding was about.
 scripts/attack.mjs
 scripts/wild.mjs
+
+# Deployment configuration for the optional model explanation layer. The
+# narrative implementation is excluded above; keep its secret binding in the
+# same scope. This self-scan exercises the deterministic compiler, not a
+# compliance assessment of the hosted application.
+scripts/deploy-firebase.sh

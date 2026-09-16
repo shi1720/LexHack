@@ -97,11 +97,12 @@ jobs:
           node packages/cli/dist/bin.js scan . \
             --purpose "Compiles AI regulation into executable, evidence-producing controls over a source repository." \
             --markets eu,us-federal \
-            --format sarif --out annex.sarif
+            --format sarif --out "$RUNNER_TEMP/annex.sarif"
 
       # A regression gate on Annex's own posture, and honest about its reach:
-      # Annex calls no model, so it is not an AI system and only the GDPR and
-      # NIST controls apply to it. The high-risk pipeline is exercised by the
+      # The .annexignore scope excludes the optional AI explanation layer and its
+      # deployment binding. This is a compiler regression check, not a claim
+      # that the hosted app has no model or is legally compliant. The high-risk pipeline is exercised by the
       # 50-case benchmark and the golden fixtures in the job above, not here.
       #
       # This runs *before* the upload deliberately. The gate is the thing that
@@ -142,5 +143,5 @@ jobs:
         continue-on-error: true
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: annex.sarif
+          sarif_file: ${{ runner.temp }}/annex.sarif
           category: annex-selfscan
