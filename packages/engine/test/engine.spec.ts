@@ -4,8 +4,9 @@ import { parseGitHubUrl, IngestError } from '../src/ingest/github.js';
 import { readTar, stripRootDir } from '../src/ingest/tar.js';
 import { detectLanguage } from '../src/ingest/languages.js';
 import { buildLedger, verifyLedger, verifyLedgerAgainstResults, ledgerFingerprint } from '../src/ledger/index.js';
+import { generateSigningKey, signLedgerRoot, verifyLedgerSignature } from '../src/ledger/sign.js';
 import { scoreControls, estimateExposure, buildClock } from '../src/evaluate/index.js';
-import { defaultProfile, diffReports } from '../src/scan.js';
+import { defaultProfile, diffReports, scan } from '../src/scan.js';
 import { renderPatch } from '../src/remediate/index.js';
 import { EU_AI_ACT_PACK } from '../src/packs/eu-ai-act.js';
 import { ALL_PACKS, packsForMarkets } from '../src/packs/index.js';
@@ -388,6 +389,90 @@ describe('exposure', () => {
       profile({ turnoverEur: 900_000_000, employees: 4000 }),
     );
     expect(e.maxFine).toBe(63_000_000); // 7 % of turnover beats EUR 35m
+  });
+});
+
+describe('ledger signature', () => {
+  const ruleVersions = { 'eu-ai-act': '2026.09.1' };
+  const results = (status: ControlStatus): ControlResult[] => [
+    {
+      controlId: 'eu-ai-act.art50.1.interaction-disclosure', pack: 'eu-ai-act', title: 't', obligation: 'o',
+      family: 'transparency', severity: 'high', weight: 8, status, score: 0, finding: 'f',
+      citations: [], evidence: [], method: 'static-analysis', remediationAvailable: true,
+      appliesFrom: '2026-08-02', inForce: true,
+    },
+  ];
+  const sign = (status: ControlStatus, key: string) => {
+    const ledger = buildLedger(results(status), ruleVersions);
+    return { ledger, signature: signLedgerRoot(ledger.root, ledger.algorithm, ledger.entries.length, key) };
+  };
+
+  it('verifies a signature against the key that made it', () => {
+    const kp = generateSigningKey();
+    const { ledger, signature } = sign('missing', kp.privateKey);
+    const check = verifyLedgerSignature(signature, ledger.root, ledger.algorithm, ledger.entries.length, kp.publicKey);
+    expect(check.status).toBe('valid');
+  });
+
+  it('rejects a signature made by a different key', () => {
+    const kp = generateSigningKey();
+    const other = generateSigningKey();
+    const { ledger, signature } = sign('missing', kp.privateKey);
+    const check = verifyLedgerSignature(signature, ledger.root, ledger.algorithm, ledger.entries.length, other.publicKey);
+    expect(check.status).toBe('invalid');
+  });
+
+  /**
+   * The attack the signature exists for. An editor can flip a status, rebuild
+   * a self-consistent chain over the edited results, re-sign it with a key of
+   * their own and paste that public key into the report. Everything is then
+   * internally consistent — which is exactly as far as a checksum chain goes.
+   * Only a key the reader already trusts catches it.
+   */
+  it('catches a rebuilt chain re-signed with the forger\'s own key', () => {
+    const honest = generateSigningKey();
+    const forger = generateSigningKey();
+    const forged = sign('satisfied', forger.privateKey);
+
+    // Self-consistent, so the chain check and a key-less signature check pass.
+    expect(verifyLedger(forged.ledger).valid).toBe(true);
+    expect(
+      verifyLedgerSignature(forged.signature, forged.ledger.root, forged.ledger.algorithm, forged.ledger.entries.length)
+        .status,
+    ).toBe('valid');
+
+    // Against the key the reader actually trusts, it does not.
+    const check = verifyLedgerSignature(
+      forged.signature,
+      forged.ledger.root,
+      forged.ledger.algorithm,
+      forged.ledger.entries.length,
+      honest.publicKey,
+    );
+    expect(check.status).toBe('invalid');
+  });
+
+  it('reports an unsigned ledger as unsigned rather than as valid', () => {
+    const ledger = buildLedger(results('missing'), ruleVersions);
+    expect(verifyLedgerSignature(undefined, ledger.root, ledger.algorithm, ledger.entries.length).status).toBe('unsigned');
+  });
+
+  it('signs through the scan pipeline when a key is supplied', () => {
+    const kp = generateSigningKey();
+    const snapshot = buildSnapshot({ name: 'x', files: [{ path: 'a.ts', bytes: Buffer.from('export const a = 1;\n') }] });
+    const unsigned = scan(snapshot);
+    const signed = scan(snapshot, { signingKey: kp.privateKey });
+    expect(unsigned.ledger.signature).toBeUndefined();
+    expect(signed.ledger.signature?.algorithm).toBe('ed25519');
+    expect(
+      verifyLedgerSignature(
+        signed.ledger.signature,
+        signed.ledger.root,
+        signed.ledger.algorithm,
+        signed.ledger.entries.length,
+        kp.publicKey,
+      ).status,
+    ).toBe('valid');
   });
 });
 

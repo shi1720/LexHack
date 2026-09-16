@@ -50,6 +50,14 @@ export {
   LEDGER_ALGORITHM,
 } from './ledger/index.js';
 export type { LedgerVerification } from './ledger/index.js';
+export {
+  SIGNATURE_ALGORITHM,
+  generateSigningKey,
+  signLedgerRoot,
+  verifyLedgerSignature,
+  keyFingerprint,
+} from './ledger/sign.js';
+export type { SigningKeyPair, SignatureCheck } from './ledger/sign.js';
 
 export { planRemediation, renderPatch } from './remediate/index.js';
 export type { RemediationOptions } from './remediate/index.js';

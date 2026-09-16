@@ -32,6 +32,9 @@ import {
   type RepoSnapshot,
   type ScanReport,
   type SystemProfile,
+  generateSigningKey,
+  keyFingerprint,
+  verifyLedgerSignature,
 } from '@annex/engine';
 import { c, SYMBOL, clearProgress, money, heading, progress, rule, scoreBar, statusBadge, tierBanner, wrap } from './ui.js';
 
@@ -94,6 +97,7 @@ ${c.bold('COMMANDS')}
   ${c.cyan('fix')} [path]               Write the files that close the gaps, or emit a patch
   ${c.cyan('diff')} --base --head       Detect a substantial modification (git ref or directory)
   ${c.cyan('verify')} <report.json>     Re-derive an evidence ledger from the results it describes
+  ${c.cyan('keygen')}                   Create an Ed25519 key pair for signing evidence ledgers
   ${c.cyan('packs')}                    List the rule-pack corpus
   ${c.cyan('benchmark')}                Run the labelled corpus and report accuracy, honestly
   ${c.cyan('explain')} <control-id>     Show an obligation, its citation and how it is detected
@@ -126,6 +130,10 @@ ${c.bold('SCAN OPTIONS')}
                        pattern-detection · preparatory. Annex checks the one
                        limb it can — profiling closes it — and records the
                        Article 6(4) and 49(2) duties that survive.
+  --sign <keyfile>     Sign the evidence ledger root with an Ed25519 private
+                       key in PKCS#8 PEM (see 'annex keygen'). The chain makes
+                       an edit detectable to whoever has the source; the
+                       signature makes it detectable to whoever does not
   --token <pat>        GitHub token, for private repositories and rate limits
   --all                Show satisfied and not-applicable controls too
   --quiet              Suppress the progress indicator
@@ -137,6 +145,11 @@ ${c.bold('DIFF OPTIONS')}
 ${c.bold('VERIFY OPTIONS')}
   --against <dir>      Re-hash every cited file off disk, so a report that no
                        longer describes the tree it claims to describe says so
+  --pubkey <file>      Check the ledger signature against a key you already
+                       trust. Without it a signature is still checked, but only
+                       against the key carried inside the report — which proves
+                       the report has not been edited since somebody signed it,
+                       not who that somebody is
 
 ${c.bold('DOSSIER OPTIONS')}
   --locale <en|de|fr>  Article 11 requires documentation in a language the
@@ -167,11 +180,12 @@ const PROFILE_FLAGS = [
   'no-eu-nexus', 'scope-exclusion', 'article-6-3', 'public-body', 'small-mid-cap',
 ];
 const KNOWN_FLAGS: Record<string, string[]> = {
-  scan: [...PROFILE_FLAGS, 'format', 'out', 'fail-under', 'token', 'all', 'ref'],
+  scan: [...PROFILE_FLAGS, 'format', 'out', 'fail-under', 'token', 'all', 'ref', 'sign'],
   dossier: [...PROFILE_FLAGS, 'locale', 'html', 'out', 'token', 'simplified', 'ref'],
   fix: [...PROFILE_FLAGS, 'patch', 'out', 'write', 'token', 'ref'],
   diff: [...PROFILE_FLAGS, 'base', 'head', 'token', 'all'],
-  verify: ['against'],
+  verify: ['against', 'pubkey'],
+  keygen: ['out'],
   packs: [],
   explain: [],
   benchmark: ['format', 'out'],
@@ -284,9 +298,13 @@ async function runScan(args: Args): Promise<number> {
   if (!quiet) process.stderr.write(`${c.grey('reading')} ${c.bold(target)}\n`);
   const snapshot = await loadSnapshot(target, args.flags);
 
+  const signKeyPath = str(args.flags.sign);
+  const signingKey = signKeyPath ? await readFile(resolve(signKeyPath), 'utf8') : undefined;
+
   const report = scan(snapshot, {
     profile: profileFrom(args.flags),
     remediate: true,
+    ...(signingKey ? { signingKey } : {}),
     onProgress: quiet ? undefined : (phase, done, total) => progress(phase, done, total),
   });
   if (!quiet) clearProgress();
@@ -709,6 +727,34 @@ function summaryMismatches(report: ScanReport): string[] {
   return out;
 }
 
+/**
+ * Create a signing key pair.
+ *
+ * Deliberately two files with different permissions rather than one bundle:
+ * the whole value of the public key is that you can hand it to somebody, and
+ * the whole value of the private one is that you never do.
+ */
+async function runKeygen(args: Args): Promise<number> {
+  const dir = str(args.flags.out) ?? '.';
+  const { privateKey, publicKey } = generateSigningKey();
+  const privatePath = resolve(dir, 'annex-signing.key');
+  const publicPath = resolve(dir, 'annex-signing.pub');
+
+  await writeFile(privatePath, privateKey, { encoding: 'utf8', mode: 0o600 });
+  await writeFile(publicPath, publicKey, 'utf8');
+
+  process.stdout.write(`\n${c.bgGreen(' SIGNING KEY ')}  ${c.bold(keyFingerprint(publicKey))}\n\n`);
+  process.stdout.write(`  ${c.grey('private')}  ${privatePath} ${c.grey('(mode 0600 — never commit this)')}\n`);
+  process.stdout.write(`  ${c.grey('public')}   ${publicPath} ${c.grey('(publish this next to your trust page)')}\n\n`);
+  process.stdout.write(
+    `${wrap('Sign a scan with: annex scan . --sign annex-signing.key ... and check one with: annex verify report.json --pubkey annex-signing.pub. A reader who has your public key can then tell that a report carries your results and not somebody else\'s, without re-running anything.', 74, '  ')}\n`,
+  );
+  process.stdout.write(
+    `\n${wrap('What this does not do: there is no timestamp authority, so a signature says who and not when, and distributing the public key is still your problem. SECURITY.md says both in those words.', 74, '  ')}\n`,
+  );
+  return 0;
+}
+
 async function runVerify(args: Args): Promise<number> {
   const path = args.positional[0];
   if (!path) {
@@ -757,9 +803,40 @@ async function runVerify(args: Args): Promise<number> {
     return 1;
   }
 
+  // The signature is checked before the banner, because a broken one is a
+  // louder fact than an intact chain.
+  const pubkeyPath = str(args.flags.pubkey);
+  const expectedKey = pubkeyPath ? await readFile(resolve(pubkeyPath), 'utf8') : undefined;
+  const sig = verifyLedgerSignature(
+    report.ledger.signature,
+    report.ledger.root,
+    report.ledger.algorithm,
+    report.ledger.entries.length,
+    expectedKey,
+  );
+  if (sig.status === 'invalid') {
+    process.stdout.write(`${c.bgRed(' SIGNATURE INVALID ')}\n\n`);
+    process.stdout.write(`${wrap(`The ledger chain is internally consistent, but ${sig.reason}.`, 74, '  ')}\n`);
+    return 1;
+  }
+
   process.stdout.write(`${c.bgGreen(' LEDGER INTACT ')}  ${c.bold(ledgerFingerprint(report.ledger))}\n\n`);
   process.stdout.write(`  ${check.checked} entries re-derived from the results they describe\n`);
   process.stdout.write(`  ${c.grey(`root ${check.expectedRoot.slice(0, 24)}…`)}\n`);
+
+  if (sig.status === 'valid') {
+    process.stdout.write(
+      `  ${c.green(SYMBOL.pass)} signed by ${c.bold(keyFingerprint(sig.publicKey))} ${c.grey('(ed25519)')}\n`,
+    );
+    process.stdout.write(
+      expectedKey
+        ? `  ${c.grey('checked against the key you supplied, so this report carries that holder\'s results.')}\n`
+        : `  ${c.grey('checked against the key inside the report: it has not been edited since it was')}\n` +
+            `  ${c.grey('signed, but only --pubkey tells you whose key that is.')}\n`,
+    );
+  } else if (expectedKey) {
+    process.stdout.write(`  ${c.yellow(SYMBOL.warn)} ${c.grey('this report is unsigned, so the key you supplied proves nothing about it.')}\n`);
+  }
 
   const against = str(args.flags.against);
   if (!against) {
@@ -900,6 +977,7 @@ async function main(): Promise<void> {
       case 'fix': code = await runFix(args); break;
       case 'diff': code = await runDiff(args); break;
       case 'verify': code = await runVerify(args); break;
+      case 'keygen': code = await runKeygen(args); break;
       case 'packs': code = runPacks(); break;
       case 'benchmark': code = await runBenchmarkCommand(args); break;
       case 'explain': code = runExplain(args); break;

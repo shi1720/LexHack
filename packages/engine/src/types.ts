@@ -600,11 +600,30 @@ export interface LedgerEntry {
   recordedAt: string;
 }
 
+export interface LedgerSignature {
+  algorithm: 'ed25519';
+  /** SPKI PEM of the signing key, carried so the report is self-describing. */
+  publicKey: string;
+  /** Base64 Ed25519 signature over the versioned payload. */
+  value: string;
+  /** What was signed, so a future format change is detectable rather than silent. */
+  signedPayload: 'annex-ledger/v1';
+}
+
 export interface EvidenceLedger {
   /** Merkle-style hash chain over every control result, in deterministic order. */
   entries: LedgerEntry[];
   root: string;
   algorithm: 'sha256-chain/v1';
+  /**
+   * Optional detached signature over the root.
+   *
+   * The chain makes an edit detectable to someone who has the source. The
+   * signature makes it detectable to someone who has neither the source nor a
+   * reason to trust whoever produced the file — which is the reader a
+   * conformity statement is actually for.
+   */
+  signature?: LedgerSignature;
 }
 
 export interface ScanReport {

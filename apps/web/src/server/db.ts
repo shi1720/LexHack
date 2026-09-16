@@ -1,6 +1,8 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { createPublicKey } from 'node:crypto';
+import { generateSigningKey } from '@annex/engine';
 
 /**
  * SQLite, deliberately.
@@ -101,6 +103,34 @@ export function installationSecret(): string {
   const value = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
   db().prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('session_secret', value);
   return value;
+}
+
+/**
+ * The installation's ledger signing key, created on first use.
+ *
+ * Every scan this app publishes is signed, because the trust page is the whole
+ * point of the product and an unsigned conformity statement asks its reader to
+ * take the publisher's word for the numbers. Generating the key on first boot
+ * keeps "clone and run" working with no configuration — the cost is that the
+ * key lives in the same SQLite file as everything else, which SECURITY.md says
+ * in those words rather than leaving you to find out.
+ */
+export function installationSigningKey(): string {
+  const row = db().prepare('SELECT value FROM settings WHERE key = ?').get('ledger_signing_key') as
+    | { value: string }
+    | undefined;
+  if (row) return row.value;
+
+  const { privateKey } = generateSigningKey();
+  db()
+    .prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
+    .run('ledger_signing_key', privateKey);
+  return privateKey;
+}
+
+/** The public half, for showing a reader which key to check against. */
+export function installationPublicKey(): string {
+  return createPublicKey(installationSigningKey()).export({ type: 'spki', format: 'pem' }).toString();
 }
 
 export function nowIso(): string {

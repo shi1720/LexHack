@@ -6,7 +6,7 @@ import {
   type RepoSnapshot,
   type ScanReport,
 } from '@annex/engine';
-import { db, newId, newSlug, nowIso } from './db';
+import { db, installationSigningKey, newId, newSlug, nowIso } from './db';
 
 export type SourceKind = 'github' | 'sample';
 
@@ -300,6 +300,10 @@ export async function runScan(system: System, opts: RunScanOptions = {}): Promis
     const snapshot = await loadSnapshotForSystem(system, opts);
     const report = scan(snapshot, {
       remediate: true,
+      // Every report this installation publishes is signed. A trust page is
+      // read by somebody who has neither the source nor a reason to trust the
+      // publisher, and an unsigned one asks them to take the numbers on faith.
+      signingKey: installationSigningKey(),
       profile: {
         name: system.name,
         purpose: system.purpose,

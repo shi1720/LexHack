@@ -56,6 +56,21 @@ making the same mistake it exists to catch:
 - GitHub tokens are not encrypted at rest (above).
 - There is no rate limiting on the web app's scan endpoint. A scan is CPU-bound
   and synchronous, so a large repository blocks the Node process for seconds.
-- The evidence ledger is a checksum chain, not a signature. It makes a silent
-  edit detectable by anyone holding the source; it does not make one impossible.
-  Notarisation is on the roadmap.
+- **A signature says who, not when.** `annex scan --sign` signs the ledger root
+  with Ed25519 and `annex verify --pubkey` checks it, which closes the gap a
+  bare checksum chain leaves: an editor can rebuild a self-consistent chain over
+  altered results, re-sign it with a key of their own and paste that public key
+  into the report. Only a key the reader already trusts catches that, which is
+  why `annex verify` without `--pubkey` says in terms that it has established
+  the report is unedited since *somebody* signed it and nothing more. There is
+  no timestamp authority, so a signature does not establish when a scan was run,
+  and nothing here distributes or revokes keys — that is still yours to solve.
+- Signing is opt-in in the CLI. An unsigned report is still internally
+  verifiable and is what `annex scan` produces by default, because a scan has to
+  work with no key and no configuration.
+- **The web app signs everything, with a key it generates on first boot and
+  stores in the same SQLite file as the sessions and the tokens.** That keeps
+  "clone and run" working, and it means anyone with the database file can sign
+  as that installation. For a deployment whose trust page anyone relies on, the
+  signing key belongs somewhere the application server can read and an attacker
+  with the database cannot.

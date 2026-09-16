@@ -280,7 +280,31 @@ and it says so — naming the entry, and exiting 1:
 
 `annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value. `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree it claims to describe says so. That is the whole difference between a document and a proof.
 
-Being precise about what this is: a checksum chain, not a signature. There is no key and no external anchor, so anyone holding the report can recompute a self-consistent chain over different numbers. It makes a silent edit detectable by anyone who has the source. Notarisation is on the roadmap for exactly that reason.
+The chain on its own is tamper-*evident*, and it is worth being precise about who that helps. Anyone holding the report can recompute a self-consistent chain over different numbers, so a bare chain only catches an edit for a reader who has the source and can re-run the scan — which is not the reader a conformity statement is handed to.
+
+So the root can be signed:
+
+```
+$ annex keygen
+$ annex scan . --format json --out report.json --sign annex-signing.key
+$ annex verify report.json --pubkey annex-signing.pub
+
+ LEDGER INTACT   7E29-86DF-A029-7293
+
+  52 entries re-derived from the results they describe
+  root 7e2986dfa029729337ec758e…
+  ✔ signed by 2FDE-8AD8-3289-0D60 (ed25519)
+  checked against the key you supplied, so this report carries that holder's results.
+```
+
+That closes the attack a checksum chain cannot: flip a status, rebuild a consistent chain over the altered results, re-sign it with a key of your own and paste that public key into the report. Everything is then internally consistent — so `annex verify` **without** `--pubkey` says exactly that, in those words, rather than printing a green banner:
+
+```
+  checked against the key inside the report: it has not been edited since it was
+  signed, but only --pubkey tells you whose key that is.
+```
+
+Against a key the reader already trusts, the forgery fails and the command exits 1. Signing is opt-in: a scan has to work with no key and no configuration, and an unsigned report is still internally verifiable. What this still does not give you is a *time* — there is no timestamp authority, so a signature establishes who and not when — and key distribution remains your problem. [`SECURITY.md`](SECURITY.md) says both in those words.
 
 ### 5. Only a tool that reads code can detect a substantial modification
 

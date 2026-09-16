@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ALL_PACKS, ledgerFingerprint } from '@annex/engine';
+import { ALL_PACKS, keyFingerprint, ledgerFingerprint } from '@annex/engine';
 import { getSystemBySlug, latestReport } from '@/server/systems';
 import { Citation, Logo, ScoreDial, StatusBadge, TierBadge } from '@/components/primitives';
 
@@ -31,6 +31,7 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
   if (!latest) notFound();
 
   const { report } = latest;
+  const signature = report.ledger.signature;
   const applicable = report.controls.filter((c) => c.status !== 'not_applicable');
   const packNames = Object.fromEntries(ALL_PACKS.map((p) => [p.id, p.name]));
   const byPack = new Map<string, typeof applicable>();
@@ -77,13 +78,32 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
             <span className="code">annex verify --against .</span> re-hashes each cited file off disk — so an
             edited status, or source that has moved since, is detectable by anyone holding the repository.
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {signature ? (
+            <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: '10px 0 0' }}>
+              The root is also <strong>signed</strong>, which is what a chain on its own cannot do for you:
+              anyone can rebuild a consistent chain over altered numbers, so the chain catches an edit only for
+              a reader who has the source. Check the signature against the publisher&rsquo;s key with{' '}
+              <span className="code">annex verify report.json --pubkey &lt;their key&gt;</span> and you have
+              established that these results came from that key&rsquo;s holder, without re-running anything.
+              There is no timestamp authority behind it, so it establishes who and not when.
+            </p>
+          ) : null}
+          <div className={`mt-4 grid gap-4 ${signature ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'}`}>
             <div>
               <div className="eyebrow">Ledger root</div>
               <div className="code" style={{ fontSize: 13, color: 'var(--navy)', letterSpacing: '0.04em' }}>
                 {ledgerFingerprint(report.ledger)}
               </div>
             </div>
+            {signature ? (
+              <div>
+                <div className="eyebrow">Signed by</div>
+                <div className="code" style={{ fontSize: 13, color: 'var(--moss)', letterSpacing: '0.04em' }}>
+                  {keyFingerprint(signature.publicKey)}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-faint)', marginTop: 2 }}>ed25519</div>
+              </div>
+            ) : null}
             <div>
               <div className="eyebrow">Assessed</div>
               <div style={{ fontSize: 13 }}>{report.createdAt.slice(0, 10)}</div>
@@ -96,6 +116,7 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
             </div>
           </div>
           <p style={{ fontSize: 11.5, color: 'var(--ink-faint)', margin: '14px 0 0' }}>
+            {signature ? '' : 'This report is unsigned: the chain establishes internal consistency, not who produced it. '}
             Self-assessment, not a third-party conformity assessment. Source code is not published on this page:
             evidence is shown as the file and line it came from.
           </p>

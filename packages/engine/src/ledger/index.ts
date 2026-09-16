@@ -29,11 +29,20 @@ const GENESIS = '0'.repeat(64);
  *  - **Reproducibility.** Re-run the scan on the same commit with the same
  *    rule versions and the root is identical, or something moved.
  *
- * What it explicitly does *not* buy: this is a checksum chain, not a
- * signature. There is no key and no external anchor, so anyone holding the
- * report can recompute a self-consistent chain over different numbers. It
- * makes silent edits detectable by anyone who has the source; it does not make
- * them impossible. Notarisation is on the roadmap for exactly this reason.
+ * What the chain alone does *not* buy: it is a checksum chain, so anyone
+ * holding the report can recompute a self-consistent one over different
+ * numbers. It makes a silent edit detectable to a reader who has the source
+ * and can re-run the scan — which is not the reader a conformity statement is
+ * handed to.
+ *
+ * That is what `ledger/sign.ts` is for. A detached Ed25519 signature over the
+ * root binds the chain to a key, so a reader holding the public key can tell
+ * that these exact results came from that key's holder without re-running
+ * anything. Signing is opt-in (`annex scan --sign`), because a scan has to
+ * work with no key and no configuration. What remains outside the model is
+ * written down rather than implied away: there is no timestamp authority, so a
+ * signature says who and not when, and key distribution is still the
+ * operator's problem.
  */
 export function buildLedger(results: ControlResult[], ruleVersions: Record<string, string>): EvidenceLedger {
   const ordered = [...results].sort((a, b) => a.controlId.localeCompare(b.controlId));

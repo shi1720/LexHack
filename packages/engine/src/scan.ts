@@ -15,6 +15,7 @@ import {
   scorePacks,
 } from './evaluate/index.js';
 import { buildLedger } from './ledger/index.js';
+import { signLedgerRoot } from './ledger/sign.js';
 import { planRemediation } from './remediate/index.js';
 import { DEFAULT_PACKS, MARKET_PACKS, resolveMarkets } from './packs/index.js';
 import { sha256, stableStringify } from './util/hash.js';
@@ -28,6 +29,13 @@ export interface ScanOptions {
   remediate?: boolean;
   /** Override the clock — used by tests and by "what will bind me in 2027" views. */
   today?: Date;
+  /**
+   * PKCS#8 PEM of an Ed25519 key. When supplied, the ledger root is signed.
+   *
+   * Optional on purpose: a scan has to work with no key, no network and no
+   * configuration, and an unsigned report is still internally verifiable.
+   */
+  signingKey?: string;
   onProgress?: (phase: ScanPhase, done: number, total: number, detail: string) => void;
 }
 
@@ -139,7 +147,13 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
   });
 
   const ruleVersions = Object.fromEntries(packs.map((p) => [p.id, p.version]));
-  const ledger = buildLedger(controls, ruleVersions);
+  let ledger = buildLedger(controls, ruleVersions);
+  if (opts.signingKey) {
+    ledger = {
+      ...ledger,
+      signature: signLedgerRoot(ledger.root, ledger.algorithm, ledger.entries.length, opts.signingKey),
+    };
+  }
   opts.onProgress?.('ledger', 1, 1, ledger.root.slice(0, 12));
 
   const liveControls = controls.filter((r) => r.inForce);
