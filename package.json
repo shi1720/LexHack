@@ -2,7 +2,7 @@
   "name": "annex-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Annex \u2014 the compliance compiler for AI systems.",
+  "description": "Annex - the compliance compiler for AI systems.",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/*",

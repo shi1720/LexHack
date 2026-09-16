@@ -19,7 +19,7 @@ const PUBLISHED = '2023-01-26';
 const controls: Control[] = [
   c({
     id: 'nist-ai-rmf.govern-1-1',
-    title: 'GOVERN 1.1 — legal and regulatory requirements are understood and documented',
+    title: 'GOVERN 1.1 ; legal and regulatory requirements are understood and documented',
     obligation:
       'Legal and regulatory requirements involving AI are understood, managed, and documented.',
     family: 'quality-management',
@@ -32,7 +32,7 @@ const controls: Control[] = [
     evaluate: (ctx) => {
       const ev = evidenceFrom(ctx, 'governance.ai-act.reference', 'governance.qms');
       // "Understood and documented" means a document. A statutory reference in
-      // a code comment is a useful signal and not a regulatory analysis — and
+      // a code comment is a useful signal and not a regulatory analysis ; and
       // since Annex writes those comments into the modules it generates,
       // accepting them here would let its own remediation answer the control.
       const documented = ev.filter((e) => e.kind === 'doc');
@@ -47,14 +47,14 @@ const controls: Control[] = [
         ? satisfied('The repository documents the regulatory regimes that apply to it.', documented)
         : missing(
             'No documented understanding of the regulatory requirements that apply to this system was found.',
-            'Record which regimes apply and why — one page naming the instruments, your role under each, and the obligations that bind today versus later.',
+            'Record which regimes apply and why ; one page naming the instruments, your role under each, and the obligations that bind today versus later.',
             ['AI Act reference', 'regulatory analysis', 'ISO 42001', 'NIST AI RMF'],
           );
     },
   }),
   c({
     id: 'nist-ai-rmf.govern-1-6',
-    title: 'GOVERN 1.6 — an inventory of AI systems is maintained',
+    title: 'GOVERN 1.6 ; an inventory of AI systems is maintained',
     obligation:
       'Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. An inventory nobody maintains by hand is an inventory that is wrong by the second sprint, so it should be generated from the codebase rather than typed into a spreadsheet.',
     family: 'documentation',
@@ -119,7 +119,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nist-ai-rmf.map-1-1',
-    title: 'MAP 1.1 — intended purpose and deployment context are documented',
+    title: 'MAP 1.1 ; intended purpose and deployment context are documented',
     obligation:
       'Intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented.',
     family: 'documentation',
@@ -162,7 +162,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nist-ai-rmf.measure-2-11',
-    title: 'MEASURE 2.11 — fairness and bias are evaluated and documented',
+    title: 'MEASURE 2.11 ; fairness and bias are evaluated and documented',
     obligation: 'Fairness and bias, as identified in the MAP function, are evaluated and results are documented.',
     family: 'data-governance',
     severity: 'high',
@@ -216,7 +216,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nist-ai-rmf.measure-2-7',
-    title: 'MEASURE 2.7 — security and resilience are evaluated',
+    title: 'MEASURE 2.7 ; security and resilience are evaluated',
     obligation:
       'AI system security and resilience are evaluated and documented. For a system built on a language model this means the AI-specific attack surface: prompt injection, jailbreaks, model evasion and data exfiltration through the model, not only the surrounding web application.',
     family: 'accuracy-robustness',
@@ -247,7 +247,7 @@ const controls: Control[] = [
   }),
   c({
     id: 'nist-ai-rmf.manage-4-1',
-    title: 'MANAGE 4.1 — post-deployment monitoring plans are implemented',
+    title: 'MANAGE 4.1 ; post-deployment monitoring plans are implemented',
     obligation:
       'Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.',
     family: 'post-market',

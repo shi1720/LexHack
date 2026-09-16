@@ -1,8 +1,8 @@
 import Link from 'next/link';
+import { db } from '@/server/db';
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import {
-  DEMO_EMAIL,
-  DEMO_PASSWORD,
   createSession,
   createUser,
   currentUser,
@@ -19,6 +19,7 @@ export const dynamic = 'force-dynamic';
 
 async function signIn(formData: FormData) {
   'use server';
+  if (process.env.ANNEX_PUBLIC_DEMO === '1') redirect('/login');
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
   const user = findByEmail(email);
@@ -31,6 +32,7 @@ async function signIn(formData: FormData) {
 
 async function signUp(formData: FormData) {
   'use server';
+  if (process.env.ANNEX_PUBLIC_DEMO === '1') redirect('/login');
   const email = String(formData.get('email') ?? '').trim();
   const name = String(formData.get('name') ?? '').trim();
   const password = String(formData.get('password') ?? '');
@@ -54,6 +56,8 @@ async function signUp(formData: FormData) {
 /** One click into a seeded account. A judge should never meet a signup wall. */
 async function enterDemo() {
   'use server';
+  const count = db().prepare("SELECT count(*) AS n FROM users WHERE email LIKE 'visitor-%@demo.annex.local' AND created_at > ?").get(new Date(Date.now() - 3600_000).toISOString()) as { n: number };
+  if (count.n >= 100) redirect('/login?error=' + encodeURIComponent('The demo is busy. Please try again in an hour, or run Annex locally.'));
   const user = ensureDemoUser();
   seedDemoSystems(user.id);
   await createSession(user.id);
@@ -75,18 +79,19 @@ export default async function LoginPage({
         <Logo />
       </Link>
 
+      {params.error ? <p role="alert" className="demo-notice">{params.error}</p> : null}
       <div className="card p-6">
         <form action={enterDemo}>
-          <button type="submit" className="btn btn-primary w-full" style={{ height: 44, fontSize: 15 }}>
+          <SubmitButton className="btn btn-primary w-full" pending="Preparing your workspace…">
             Enter the demo workspace →
-          </button>
+          </SubmitButton>
         </form>
         <p className="mt-3" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '12px 0 0' }}>
-          Four sample codebases, already scanned. No signup, no credentials, nothing to configure. The
-          account is <code className="code">{DEMO_EMAIL}</code> if you would rather sign in by hand.
+          Four sample codebases in your own isolated workspace. No signup or API key. Demo data expires after 24 hours or a service restart. Download the reports you want to keep.
         </p>
       </div>
 
+      {process.env.ANNEX_PUBLIC_DEMO !== '1' ? <>
       <div className="flex items-center gap-3" aria-hidden="true">
         <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
         <span className="eyebrow">or use your own account</span>
@@ -121,7 +126,7 @@ export default async function LoginPage({
             type="email"
             autoComplete="email"
             required
-            defaultValue={signup ? '' : DEMO_EMAIL}
+            defaultValue=""
           />
           <Field
             label="Password"
@@ -129,7 +134,7 @@ export default async function LoginPage({
             type="password"
             autoComplete={signup ? 'new-password' : 'current-password'}
             required
-            defaultValue={signup ? '' : DEMO_PASSWORD}
+            defaultValue=""
             hint={signup ? 'At least 10 characters, with a letter and a number.' : undefined}
           />
           <button type="submit" className="btn btn-primary w-full">
@@ -145,9 +150,9 @@ export default async function LoginPage({
         </p>
       </div>
 
+      </> : null}
       <p style={{ fontSize: 12, color: 'var(--ink-faint)', textAlign: 'center' }}>
-        Passwords are hashed with scrypt and the session is a signed httpOnly cookie. Annex has no identity
-        vendor and sends nothing anywhere.
+        Scans run on the server without a language model. Optional AI explanations send the selected finding and excerpts to the configured AI provider. Use public or sample code here.
       </p>
     </main>
   );

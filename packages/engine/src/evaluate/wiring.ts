@@ -9,7 +9,7 @@ import type { EvaluationContext, Evidence } from '../types.js';
  * whether an overseer *can* intervene, not whether a function is defined.
  *
  * A file counts as reached when some other file calls a name it exports, or
- * when it is an entry point — which nothing imports, by definition. An import
+ * when it is an entry point ; which nothing imports, by definition. An import
  * with no call is deliberately not enough: `import gate  # noqa: F401` is one
  * line of work, and it used to be the whole difference between partial and
  * satisfied.
@@ -23,7 +23,7 @@ import type { EvaluationContext, Evidence } from '../types.js';
  * Files nothing imports because they are where execution starts.
  *
  * Matched on the **base name only**. A directory clause used to be here, which
- * meant that in a Next.js repository — the demo's own stack — moving a
+ * meant that in a Next.js repository ; the demo's own stack ; moving a
  * generated compliance module into `src/app/` exempted it from the check
  * entirely. The directory a file sits in says nothing about whether anything
  * calls it.
@@ -48,7 +48,7 @@ const FRAMEWORK_DISPATCH = [
   // the broad form was an escape hatch: a generated oversight module with a
   // default export was read as framework-dispatched and skipped the wiring
   // check entirely. A default export is evidence of dispatch when the file
-  // sits where a framework looks for one — a route, a page, a handler, a
+  // sits where a framework looks for one ; a route, a page, a handler, a
   // worker, a serverless function.
   /\bexport\s+default\s+(?:async\s+)?(?:function|class|\w+)/,
   /\b(?:urlpatterns|module\.exports\s*=\s*router|app\.(?:use|get|post)\s*\(|router\.(?:get|post|put|patch|delete)\s*\()/,
@@ -64,7 +64,7 @@ const DEFAULT_EXPORT_PATTERN = 2;
  * A module is dead when nothing reaches it *and* it reaches nothing: no other
  * file calls into it, and it imports no local module of its own. That is what a
  * generated `ai_act/human_oversight.py` looks like the moment after a
- * remediation pull request merges — it imports `os` and is imported by no one.
+ * remediation pull request merges ; it imports `os` and is imported by no one.
  * A hand-written decision module that pulls in its own helpers is a different
  * animal even when nothing imports it, because it is plainly part of the tree.
  */
@@ -72,8 +72,8 @@ const DEFAULT_EXPORT_PATTERN = 2;
  * Does this file define behaviour, as opposed to data?
  *
  * "Nothing calls this" is only a meaningful complaint about a file that has
- * something to call. A module of constants — `export const PROMPT_VERSION =
- * 'screen-2026-09-02'` — is imported and read, never invoked, and asking
+ * something to call. A module of constants ; `export const PROMPT_VERSION =
+ * 'screen-2026-09-02'` ; is imported and read, never invoked, and asking
  * whether anything calls it produced a false "dead code" finding against the
  * remediated fixture's own prompt registry.
  */
@@ -138,7 +138,7 @@ function participates(ctx: EvaluationContext, path: string): boolean {
   if (dispatch) return true;
   // An import has to go somewhere. Accepting the *presence* of a relative
   // import meant `import "./does-not-exist.js";` as line one bought a module
-  // its way past the wiring check — weaker than the dead `import gate` this
+  // its way past the wiring check ; weaker than the dead `import gate` this
   // guard was written to reject, because the target need not exist.
   if (resolvesLocally(ctx, path, file.text)) return true;
   const stems = new Set(
@@ -190,7 +190,7 @@ export function wiredIn(ctx: EvaluationContext, evidence: Evidence[]): Wiring {
       orphans.push(path);
       continue;
     }
-    // An entry point is reached by definition — but only an entry point that
+    // An entry point is reached by definition ; but only an entry point that
     // actually is one. Matching the name alone meant renaming `oversight.ts`
     // to `worker.ts` skipped the check outright, and a rename is not an
     // implementation. A module that runs does something when it is loaded;

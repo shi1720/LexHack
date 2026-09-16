@@ -6,17 +6,18 @@ export function CopyButton({ label, text, className }: { label: string; text: st
   const [copied, setCopied] = useState(false);
 
   async function copy() {
+    const value = text.startsWith('/trust/') ? new URL(text, window.location.origin).href : text;
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
       // Clipboard can be blocked; fall back to a selection the user can copy.
       const area = document.createElement('textarea');
-      area.value = text;
+      area.value = value;
       document.body.appendChild(area);
       area.select();
-      area.setSelectionRange(0, text.length);
+      area.setSelectionRange(0, value.length);
       setCopied(true);
       setTimeout(() => {
         area.remove();

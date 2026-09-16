@@ -6,7 +6,7 @@ const c = pack('nyc-ll144');
 
 /**
  * NYC Local Law 144 of 2021, implemented by 6 RCNY §§ 5-300 to 5-304.
- * Enforced since 5 July 2023 — the only bias-audit mandate anywhere that has
+ * Enforced since 5 July 2023 ; the only bias-audit mandate anywhere that has
  * been live long enough to generate case files, and by far the most precisely
  * codable duty in the corpus. Its arithmetic is fully specified, so a scanner
  * can check for the *formula*, not just the vibe of fairness.
@@ -49,7 +49,7 @@ const isAedt = allOf(
  *
  * § 5-301(a) asks whether more than a year has passed, so a golden fixture
  * with a hard-coded date tests something different every year and eventually
- * tests the opposite of what it was written for — the previous "satisfied"
+ * tests the opposite of what it was written for ; the previous "satisfied"
  * case was dated 2026-03-01 and would have started failing in March 2027.
  */
 const daysAgo = (n: number): string => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
@@ -78,8 +78,8 @@ const controls: Control[] = [
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
     citations: [
-      nycLL144('§ 5-301(a)', 'Bias audit — annual requirement'),
-      nycLL144('§ 5-300', "Definitions — 'independent auditor'"),
+      nycLL144('§ 5-301(a)', 'Bias audit ; annual requirement'),
+      nycLL144('§ 5-300', "Definitions ; 'independent auditor'"),
     ],
     appliesWhen: isAedt,
     evaluate: (ctx) => {
@@ -96,14 +96,14 @@ const controls: Control[] = [
         //    read as an audit conducted in 2027. An audit cannot have been
         //    carried out on a date that has not happened.
         //  - Comparing calendar years meant an audit dated 2 January 2025 was
-        //    "last year" in September 2026 — twenty months old, on the one
+        //    "last year" in September 2026 ; twenty months old, on the one
         //    duty in the corpus where every further day of use is a separate
         //    $500 violation under § 20-872.
         //
         // So: a full date is measured against a rolling twelve months, and a
         // bare year is only conclusive when it is the current one. A year
         // before that could be eleven months ago or twenty-three, and the
-        // repository does not say which — which is what `needs_review` is for.
+        // repository does not say which ; which is what `needs_review` is for.
         const dated = ctx.grepDocs(/\b(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\b|\b(19|20)\d{2}\b/, 6, /(bias|audit|fairness|ll144|aedt)/i);
         const now = Date.now();
         const thisYear = new Date(now).getFullYear();
@@ -148,7 +148,7 @@ const controls: Control[] = [
         if (mostRecent < thisYear) {
           return needsReview(
             `Bias audit documentation was found naming ${mostRecent}, with no day or month.`,
-            `Whether ${mostRecent} is within the twelve months § 5-301(a) allows depends on a date the repository does not contain: an audit in December ${mostRecent} is current, one in January ${mostRecent} is not. § 5-303(a)(1) requires the date of the most recent audit to be published — record the full date.`,
+            `Whether ${mostRecent} is within the twelve months § 5-301(a) allows depends on a date the repository does not contain: an audit in December ${mostRecent} is current, one in January ${mostRecent} is not. § 5-303(a)(1) requires the date of the most recent audit to be published ; record the full date.`,
             audit,
           );
         }
@@ -213,7 +213,7 @@ AEDT,
       {
         // Thirteen months, not three years. The calendar-year arithmetic this
         // replaces called an audit from January "last year" and passed it in
-        // September — twenty months, on a duty priced per day of use.
+        // September ; twenty months, on a duty priced per day of use.
         name: 'partial when the audit is thirteen months old, not merely last calendar year',
         files: {
           'src/screen.ts': AEDT,
@@ -264,8 +264,8 @@ AEDT,
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
     citations: [
-      nycLL144('§ 5-301(b)', 'Bias audit — selection-type AEDT'),
-      nycLL144('§ 5-301(c)', 'Bias audit — scoring-type AEDT'),
+      nycLL144('§ 5-301(b)', 'Bias audit ; selection-type AEDT'),
+      nycLL144('§ 5-301(c)', 'Bias audit ; scoring-type AEDT'),
       nycLL144(
         '§ 5-300',
         'Impact ratio formula',
@@ -287,7 +287,7 @@ AEDT,
       if (hasRatio) {
         return partial(
           'Impact-ratio or selection-rate arithmetic was found, but no intersectional analysis.',
-          '§ 5-301(b)(3) requires the calculation separately for intersectional categories of sex × ethnicity × race — not only for sex and race independently. This is the most commonly missed clause in the rule.',
+          '§ 5-301(b)(3) requires the calculation separately for intersectional categories of sex × ethnicity × race ; not only for sex and race independently. This is the most commonly missed clause in the rule.',
           testing?.evidence.slice(0, 4) ?? [],
         );
       }
@@ -325,16 +325,16 @@ AEDT,
     penaltyTier: 'first',
     title: 'Publish the audit summary before use',
     obligation:
-      '6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit (§ 5-303(a)(1)), the **distribution date of the tool** — the date the employer began using it (§ 5-303(a)(2) with § 5-300) — and a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Where § 5-301(d) was relied on to exclude a category under 2 % of the data, the summary must carry the auditor\'s justification together with that category\'s applicant count and rate. Where the audit used **test data** rather than historical data, § 5-302(c) requires the summary to explain why historical data was not used and how the test data was generated and obtained. Keep the whole thing posted for at least six months after the last use.',
+      '6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit (§ 5-303(a)(1)), the **distribution date of the tool** ; the date the employer began using it (§ 5-303(a)(2) with § 5-300) ; and a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Where § 5-301(d) was relied on to exclude a category under 2 % of the data, the summary must carry the auditor\'s justification together with that category\'s applicant count and rate. Where the audit used **test data** rather than historical data, § 5-302(c) requires the summary to explain why historical data was not used and how the test data was generated and obtained. Keep the whole thing posted for at least six months after the last use.',
     family: 'transparency',
     severity: 'high',
     weight: 6,
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
     citations: [
-      nycLL144('§ 5-303(a)(1)', 'Published results — date of the most recent bias audit'),
-      nycLL144('§ 5-303(a)(2)', 'Published results — distribution date of the tool'),
-      nycLL144('§ 5-302(c)', 'Data requirements — explaining the use of test data'),
+      nycLL144('§ 5-303(a)(1)', 'Published results ; date of the most recent bias audit'),
+      nycLL144('§ 5-303(a)(2)', 'Published results ; distribution date of the tool'),
+      nycLL144('§ 5-302(c)', 'Data requirements ; explaining the use of test data'),
       nycLL144('§ 5-301(d)', 'Excluding a category below 2 % of the data'),
     ],
     appliesWhen: isAedt,
@@ -343,7 +343,7 @@ AEDT,
       if (published.length > 0) {
         // § 5-303(a) lists two dates, and the second is the one everybody
         // forgets: the *distribution date of the tool*, meaning when the
-        // employer started using it — not when the audit happened.
+        // employer started using it ; not when the audit happened.
         const distribution = ctx.grep(
           /\bdistribution[_\s-]?date\b|\b(began|started|commenced)[_\s-]?(using|use)\b|\bin[_\s-]?use[_\s-]?since\b/i,
           { limit: 3 },
@@ -351,7 +351,7 @@ AEDT,
         if (distribution.length === 0) {
           return partial(
             'A published bias audit summary was found, but nothing records the distribution date of the tool.',
-            '6 RCNY § 5-303(a)(2) requires the published summary to carry the distribution date of the AEDT — the date you began using it — alongside the audit date in § 5-303(a)(1). It is a separate date and a separate requirement.',
+            '6 RCNY § 5-303(a)(2) requires the published summary to carry the distribution date of the AEDT ; the date you began using it ; alongside the audit date in § 5-303(a)(1). It is a separate date and a separate requirement.',
             published,
           );
         }
@@ -430,7 +430,7 @@ AEDT,
       if (notice.length > 0) {
         return partial(
           'A candidate notice exists, but no instructions for requesting an alternative process or accommodation.',
-          '§ 5-304 requires the *instructions* to be in the notice. Note the common misreading: the rule does not require you to actually offer an alternative process — only to say how to ask for one.',
+          '§ 5-304 requires the *instructions* to be in the notice. Note the common misreading: the rule does not require you to actually offer an alternative process ; only to say how to ask for one.',
           notice.slice(0, 4),
         );
       }
@@ -519,7 +519,7 @@ export const NYC_LL144_PACK: RulePack = {
   instrument: 'NYC Admin. Code §§ 20-870 to 20-874; 6 RCNY §§ 5-300 to 5-304 (Local Law 144 of 2021)',
   reconciledOn: '2026-09-15',
   summary:
-    'Bias-audit mandate for automated employment decision tools used to screen candidates or employees in New York City. Enforced since 5 July 2023 — the longest-running algorithmic audit obligation in force anywhere, and the most precisely specified: the rule defines the arithmetic.',
+    'Bias-audit mandate for automated employment decision tools used to screen candidates or employees in New York City. Enforced since 5 July 2023 ; the longest-running algorithmic audit obligation in force anywhere, and the most precisely specified: the rule defines the arithmetic.',
   url: 'https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page',
   milestones: [
     { date: IN_FORCE, label: 'Enforcement began', note: 'The Department of Consumer and Worker Protection has enforced Local Law 144 since 5 July 2023.' },

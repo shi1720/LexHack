@@ -1,82 +1,31 @@
-# Deploying the demo
+# Annex deployment
 
-Annex is a Node server with a SQLite file and no external services. That makes
-it easy to host and rules out one whole class of platform: **it cannot run on a
-serverless platform without changes**, because `better-sqlite3` is a native
-module and the demo writes to disk. Vercel's serverless runtime will build it
-and then fail at runtime, which is a worse outcome than not trying.
+Live demo: https://annex-evidence.web.app
 
-So: anything that gives you a persistent container and a writable volume.
-Fly.io and Railway both do, on a free or near-free tier, and both take about
-five minutes.
+Firebase Hosting forwards requests to the `annex` Cloud Run service in `us-central1`. The Dockerfile builds the engine, CLI and Next.js app on Node 22. The server listens on Cloud Run's `PORT`.
 
-## What it needs
+## Update the deployed demo
 
-| | |
-|---|---|
-| Runtime | Node 22 |
-| Build | `npm ci && npm run build` |
-| Start | `npm start` (serves on `$PORT`, default 3000) |
-| Disk | One writable directory for `apps/web/data/annex.db` — a few MB |
-| Network | None at runtime. Outbound HTTPS only if you enable GitHub scanning or the optional explain panel |
-| Secrets | None required. Session and ledger-signing keys are generated on first boot |
-
-Two optional environment variables:
-
-- `ANNEX_FIXTURES` — absolute path to the repository root, so the bundled
-  sample codebases resolve. Set it to your app directory.
-- `ANTHROPIC_API_KEY` — enables the one model-written panel. Without it that
-  panel explains itself and nothing else changes.
-
-## Fly.io
+With authenticated Google Cloud and Firebase CLIs:
 
 ```bash
-fly launch --no-deploy            # accept the Dockerfile it generates
-fly volumes create annex_data --size 1
+./scripts/deploy-firebase.sh
 ```
 
-Then in `fly.toml`:
+The deployment script runs unit tests, a build, typechecking, documentation counts, adversarial checks and a hosted integration suite. It uses an existing build identity and an isolated Annex runtime identity. The runtime can access only the `annex-openai` secret explicitly granted to it. API keys never enter the source tree or browser bundle.
 
-```toml
-[env]
-  ANNEX_FIXTURES = "/app"
+## Public demo boundaries
 
-[[mounts]]
-  source = "annex_data"
-  destination = "/app/apps/web/data"
-```
+The public demo deliberately uses **temporary SQLite storage on one Cloud Run instance**. It is not durable account hosting. Each visitor receives a random identity and separate workspace. Workspaces expire after 24 hours (cleaned on requests) or a container restart. Download exports to keep them. Trust links have the same lifetime.
 
-```bash
-fly deploy
-```
+`ANNEX_PUBLIC_DEMO=1` disables account registration, password sign-in, GitHub token storage and direct pull-request creation. Public repository scans, sample scans, settings, downloads, verification and public summaries remain available. Hosted limits: 12 systems per workspace, 8 scans per system per minute, 100 new demo workspaces per hour and 100 uncached model explanations per instance per hour. Archive downloads and decompressed sizes are bounded.
 
-## Railway
+Sessions use the `__session` cookie that Firebase Hosting forwards to Cloud Run. Every API response, including errors, sets `Cache-Control: private, no-store, max-age=0` to prevent cached access decisions. AI calls are server-side and receive only the selected finding and up to five excerpts after the visitor chooses an audience.
 
-New project → Deploy from GitHub repo. Set the build command to
-`npm ci && npm run build`, the start command to `npm start`, add a volume
-mounted at `/app/apps/web/data`, and set `ANNEX_FIXTURES=/app`.
+## Self-hosting for durable or private work
 
-## A container, anywhere
+Set `ANNEX_PUBLIC_DEMO=0`, mount persistent storage at `ANNEX_DB`, set `ANNEX_FIXTURES` to the repository root and provide a random `ANNEX_SECRET` of at least 32 characters. Run one process with the SQLite file on a local persistent filesystem. Do not place a WAL database on a Cloud Storage FUSE volume. Scale only after moving to a database designed for multiple application instances.
 
-```dockerfile
-FROM node:22-slim
-WORKDIR /app
-COPY . .
-RUN npm ci && npm run build
-ENV ANNEX_FIXTURES=/app
-EXPOSE 3000
-CMD ["npm", "start"]
-```
+Optional `OPENAI_API_KEY` with `OPENAI_MODEL` (default `gpt-4.1-mini`) enables explanations. `ANTHROPIC_API_KEY` remains a supported alternative. Without either, the panel explicitly returns the original rule-based finding. `ANNEX_ORIGIN` should be the public HTTPS origin.
 
-`docker run -p 3000:3000 -v annex-data:/app/apps/web/data annex`
-
-## Before you share the link
-
-The demo workspace is deliberately open — one click, no signup — because that
-is what makes it reviewable. That is a demo posture, not a production one.
-[`SECURITY.md`](../SECURITY.md) lists what is not hardened; the two that matter
-if the link is public are that GitHub tokens are stored in plaintext in the
-SQLite file, and that the scan endpoint has no rate limiting and is CPU-bound.
-
-Do not point the hosted demo at a private repository you care about, and do not
-paste a real GitHub token into it.
+Self-hosted GitHub tokens and the installation signing key are stored in the SQLite database. Protect that disk and its backups. Use a fine-grained token scoped to one repository. Reading needs contents:read; opening a requested remediation pull request also needs contents:write and pull_requests:write. Annex does not claim production readiness for sensitive private repositories.

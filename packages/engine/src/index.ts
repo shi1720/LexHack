@@ -1,5 +1,5 @@
 /**
- * Annex — the compliance engine.
+ * Annex ; the compliance engine.
  *
  * Deterministic, offline, and reproducible: the same commit always produces the
  * same evidence ledger. Language models are used elsewhere in the product to

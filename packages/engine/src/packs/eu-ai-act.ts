@@ -38,7 +38,7 @@ import {
 const c = pack('eu-ai-act');
 
 /**
- * Application dates, as amended by the Digital Omnibus on AI —
+ * Application dates, as amended by the Digital Omnibus on AI ;
  * Regulation (EU) 2026/1744, in force 27 July 2026.
  *
  * The Omnibus moved the Annex III high-risk date from 2 August 2026 to
@@ -48,9 +48,9 @@ const c = pack('eu-ai-act');
  * date instead of inheriting one deadline.
  */
 export const DATES = {
-  /** Chapters I and II — AI literacy and the prohibited practices. */
+  /** Chapters I and II ; AI literacy and the prohibited practices. */
   PROHIBITIONS: '2025-02-02',
-  /** Chapter V — general-purpose AI model obligations. */
+  /** Chapter V ; general-purpose AI model obligations. */
   GPAI: '2025-08-02',
   /** General application, including Chapter IV / Article 50 transparency. */
   GENERAL: '2026-08-02',
@@ -61,8 +61,8 @@ export const DATES = {
   /**
    * Chapter III **Sections 1, 2 and 3** as regards Annex III high-risk systems.
    *
-   * Article 113 as amended defers exactly those sections — the classification
-   * rules, the requirements, and the obligations on providers and deployers —
+   * Article 113 as amended defers exactly those sections ; the classification
+   * rules, the requirements, and the obligations on providers and deployers ;
    * and nothing else. Read the constant's name literally when assigning it.
    */
   HIGH_RISK_ANNEX_III: '2027-12-02',
@@ -81,7 +81,7 @@ export const DATES = {
  * high-risk requirements they relate to.
  *
  * That reads oddly, and the temptation is to "correct" it by dating them with
- * the rest of the high-risk regime — which is exactly what this file did until
+ * the rest of the high-risk regime ; which is exactly what this file did until
  * a reviewer checked it against our own research note, where the right answer
  * was already written down. A tool that sells itself on reading Article 113
  * rather than repeating what the industry assumes does not then quietly
@@ -95,7 +95,7 @@ export const DATES = {
  *
  * Articles 49, 72, 73 and 86 apply from 2 August 2026 on the face of Article
  * 113, and every one of them is predicated on a system being high-risk under
- * Annex III — a status Article 6(2) does not confer until 2 December 2027.
+ * Annex III ; a status Article 6(2) does not confer until 2 December 2027.
  * Annex reports the statutory date, because that is what the Regulation says
  * and substituting a practitioner's view of what is sensible is the failure
  * mode this product exists to avoid. But reporting the date without the
@@ -103,7 +103,7 @@ export const DATES = {
  * not exist yet, which is its own kind of wrong answer.
  */
 const TIMING_HEDGE =
-  'Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.';
+  'Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) ; the provision that makes it so ; is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.';
 
 const ANNEX_IV_DOC = 'docs/ai-act/annex-iv-technical-documentation.md';
 
@@ -115,8 +115,8 @@ const ANNEX_IV_DOC = 'docs/ai-act/annex-iv-technical-documentation.md';
  * green because a document about something else mentioned it.
  *
  * Every documentation control names the topic that entitles a document to
- * satisfy it. A document qualifies either because its **name** is on topic —
- * `risk-management.md` answers Article 9 — or because the match sits under an
+ * satisfy it. A document qualifies either because its **name** is on topic ;
+ * `risk-management.md` answers Article 9 ; or because the match sits under an
  * on-topic **heading**, which is how a README with a "Risk management" section
  * qualifies while a README that merely says the words does not. An earlier
  * version made `readme` an always-eligible alternative, and a twelve-line
@@ -139,7 +139,7 @@ const DOC_SCOPES = {
 
 
 // ===========================================================================
-// Chapter II — prohibited practices. In force since 2 February 2025.
+// Chapter II ; prohibited practices. In force since 2 February 2025.
 // ===========================================================================
 
 const prohibitionControls: Control[] = [
@@ -155,8 +155,8 @@ const prohibitionControls: Control[] = [
     method: 'static-analysis',
     appliesFrom: DATES.PROHIBITIONS,
     citations: [
-      aiActArticle(5, '(1)(f)', 'Prohibited AI practices — emotion inference at work or school'),
-      aiActArticle(99, '(3)', 'Penalties — EUR 35 000 000 or 7 % of worldwide annual turnover'),
+      aiActArticle(5, '(1)(f)', 'Prohibited AI practices ; emotion inference at work or school'),
+      aiActArticle(99, '(3)', 'Penalties ; EUR 35 000 000 or 7 % of worldwide annual turnover'),
     ],
     appliesWhen: whenSignal('domain.emotion.recognition'),
     evaluate: (ctx) => {
@@ -177,7 +177,7 @@ const prohibitionControls: Control[] = [
         status: 'missing',
         finding:
           'This repository infers emotional or affective state from people in a recruitment, employment or education context. Article 5(1)(f) prohibits that outright.',
-        gap: 'Remove the emotion inference feature, or establish and document that the system is placed on the market for medical or safety reasons — the only carve-out in Article 5(1)(f). No amount of consent, disclosure or human review cures a prohibited practice.',
+        gap: 'Remove the emotion inference feature, or establish and document that the system is placed on the market for medical or safety reasons ; the only carve-out in Article 5(1)(f). No amount of consent, disclosure or human review cures a prohibited practice.',
         evidence: ev,
         score: 0,
       };
@@ -211,7 +211,7 @@ const prohibitionControls: Control[] = [
     weight: 8,
     method: 'static-analysis',
     appliesFrom: DATES.PROHIBITIONS,
-    citations: [aiActArticle(5, '(1)(c)', 'Prohibited AI practices — social scoring')],
+    citations: [aiActArticle(5, '(1)(c)', 'Prohibited AI practices ; social scoring')],
     appliesWhen: whenSignal('domain.social-scoring'),
     evaluate: (ctx) =>
       needsReview(
@@ -231,7 +231,7 @@ const prohibitionControls: Control[] = [
     weight: 8,
     method: 'static-analysis',
     appliesFrom: DATES.PROHIBITIONS,
-    citations: [aiActArticle(5, '(1)(e)', 'Prohibited AI practices — untargeted facial-image scraping')],
+    citations: [aiActArticle(5, '(1)(e)', 'Prohibited AI practices ; untargeted facial-image scraping')],
     appliesWhen: whenSignal('domain.biometric.scraping'),
     evaluate: (ctx) => ({
       status: 'missing',
@@ -253,8 +253,8 @@ const prohibitionControls: Control[] = [
     method: 'static-analysis',
     appliesFrom: DATES.NEW_PROHIBITIONS,
     citations: [
-      aiActArticle(5, '(1)(ba)', 'Prohibited AI practices — non-consensual intimate imagery'),
-      aiActArticle(5, '(1)(bb)', 'Prohibited AI practices — child sexual abuse material'),
+      aiActArticle(5, '(1)(ba)', 'Prohibited AI practices ; non-consensual intimate imagery'),
+      aiActArticle(5, '(1)(bb)', 'Prohibited AI practices ; child sexual abuse material'),
       aiActArticle(5, '(1a)', 'Scope of points (ba) and (bb)'),
     ],
     appliesWhen: whenSignal('domain.synthetic.content'),
@@ -278,7 +278,7 @@ const prohibitionControls: Control[] = [
 ];
 
 // ===========================================================================
-// Chapter I + IV — obligations that bind every AI system, in force today.
+// Chapter I + IV ; obligations that bind every AI system, in force today.
 // ===========================================================================
 
 const liveControls: Control[] = [
@@ -301,7 +301,7 @@ const liveControls: Control[] = [
       }
       return missing(
         'No AI literacy or AI usage policy documentation was found.',
-        'Add a short internal page covering what the system does, what it cannot do, and how staff should treat its output. Article 4 as amended does not require you to guarantee any individual competence level — only to take measures.',
+        'Add a short internal page covering what the system does, what it cannot do, and how staff should treat its output. Article 4 as amended does not require you to guarantee any individual competence level ; only to take measures.',
         ['AI literacy policy', 'AI usage guidance', 'staff training documentation'],
       );
     },
@@ -311,16 +311,16 @@ const liveControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Tell people they are talking to an AI',
     obligation:
-      'Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction. The paragraph does not apply to systems authorised by law to detect, prevent, investigate or prosecute criminal offences — unless the system is available for the public to report an offence, in which case it does.',
+      'Article 50(1) requires providers of AI systems intended to interact directly with natural persons to design them so that those persons are informed they are interacting with an AI system, unless that is obvious to a reasonably well-informed, observant and circumspect person. Article 50(5) requires the information to be clear, distinguishable and given at the latest at the first interaction. The paragraph does not apply to systems authorised by law to detect, prevent, investigate or prosecute criminal offences ; unless the system is available for the public to report an offence, in which case it does.',
     family: 'transparency',
     severity: 'high',
     weight: 8,
     method: 'static-analysis',
     appliesFrom: DATES.GENERAL,
     citations: [
-      aiActArticle(50, '(1)', 'Transparency obligations — interaction with natural persons'),
-      aiActArticle(50, '(5)', 'Transparency obligations — manner and timing of disclosure'),
-      aiActArticle(99, '(4)(g)', 'Penalties — EUR 15 000 000 or 3 % of worldwide annual turnover'),
+      aiActArticle(50, '(1)', 'Transparency obligations ; interaction with natural persons'),
+      aiActArticle(50, '(5)', 'Transparency obligations ; manner and timing of disclosure'),
+      aiActArticle(99, '(4)(g)', 'Penalties ; EUR 15 000 000 or 3 % of worldwide annual turnover'),
     ],
     appliesWhen: allOf(whenSignal('domain.chat.enduser'), whenProvider),
     evaluate: (ctx) => {
@@ -391,15 +391,15 @@ const liveControls: Control[] = [
     requiresWiring: true,
     title: 'Mark synthetic output in a machine-readable format',
     obligation:
-      'Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4). Two limits sit inside the paragraph: it does not reach systems performing an assistive function for standard editing, or systems that do not substantially alter the input data provided by the deployer or the semantics of it — which is why an invoice OCR is outside it — and, like the rest of Article 50, it does not apply to systems authorised by law for criminal-offence detection, prevention, investigation or prosecution.',
+      'Article 50(2) requires providers of AI systems generating synthetic audio, image, video or text to ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated. Systems already on the market before 2 August 2026 have until 2 December 2026 under Article 111(4). Two limits sit inside the paragraph: it does not reach systems performing an assistive function for standard editing, or systems that do not substantially alter the input data provided by the deployer or the semantics of it ; which is why an invoice OCR is outside it ; and, like the rest of Article 50, it does not apply to systems authorised by law for criminal-offence detection, prevention, investigation or prosecution.',
     family: 'transparency',
     severity: 'high',
     weight: 8,
     method: 'static-analysis',
     appliesFrom: DATES.GENERAL,
     citations: [
-      aiActArticle(50, '(2)', 'Transparency obligations — machine-readable marking of synthetic content'),
-      aiActArticle(111, '(4)', 'Transitional provision — marking deadline of 2 December 2026'),
+      aiActArticle(50, '(2)', 'Transparency obligations ; machine-readable marking of synthetic content'),
+      aiActArticle(111, '(4)', 'Transitional provision ; marking deadline of 2 December 2026'),
     ],
     appliesWhen: allOf(anyOf(whenSignal('domain.synthetic.content'), whenFinding('art50.2.generated-text')), whenProvider),
     evaluate: (ctx) => {
@@ -415,7 +415,7 @@ const liveControls: Control[] = [
             )
           : partial(
               'A watermark reference exists, but nothing indicates a machine-readable provenance manifest.',
-              'Article 50(2) requires the marking to be machine readable and detectable — a visible badge alone does not satisfy it. Attach C2PA Content Credentials for media, or a provenance manifest for text.',
+              'Article 50(2) requires the marking to be machine readable and detectable ; a visible badge alone does not satisfy it. Attach C2PA Content Credentials for media, or a provenance manifest for text.',
               marking.evidence.slice(0, 4),
             );
       }
@@ -488,8 +488,8 @@ const liveControls: Control[] = [
     weight: 6,
     method: 'static-analysis',
     appliesFrom: DATES.GENERAL,
-    citations: [aiActArticle(50, '(3)', 'Transparency obligations — emotion recognition and biometric categorisation')],
-    // Article 50(3) is a *deployer* duty — it is the operator of the system who
+    citations: [aiActArticle(50, '(3)', 'Transparency obligations ; emotion recognition and biometric categorisation')],
+    // Article 50(3) is a *deployer* duty ; it is the operator of the system who
     // informs the people exposed to it, not the party that built it.
     appliesWhen: allOf(whenSignal('domain.emotion.recognition', 'domain.biometric.categorisation'), whenDeployer),
     evaluate: (ctx) => {
@@ -513,13 +513,13 @@ const liveControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Disclose deep fakes and AI-written public-interest text',
     obligation:
-      'Article 50(4) requires deployers of systems generating or manipulating image, audio or video constituting a deep fake to disclose that the content is artificially generated or manipulated, and deployers generating text published to inform the public on matters of public interest to disclose the same — unless the text underwent human review and a person holds editorial responsibility.',
+      'Article 50(4) requires deployers of systems generating or manipulating image, audio or video constituting a deep fake to disclose that the content is artificially generated or manipulated, and deployers generating text published to inform the public on matters of public interest to disclose the same ; unless the text underwent human review and a person holds editorial responsibility.',
     family: 'transparency',
     severity: 'medium',
     weight: 5,
     method: 'static-analysis',
     appliesFrom: DATES.GENERAL,
-    citations: [aiActArticle(50, '(4)', 'Transparency obligations — deep fakes and public-interest text')],
+    citations: [aiActArticle(50, '(4)', 'Transparency obligations ; deep fakes and public-interest text')],
     // Article 50(4) likewise binds the deployer who publishes the deep fake or
     // the public-interest text, not the provider of the generator.
     appliesWhen: allOf(whenSignal('domain.synthetic.content'), whenDeployer),
@@ -539,7 +539,7 @@ const liveControls: Control[] = [
     id: 'eu-ai-act.art3.role-determination',
     title: 'Determine and record whether you are the provider or the deployer',
     obligation:
-      'Article 3(3) makes whoever develops an AI system and places it on the market or puts it into service under their own name or trademark the provider; Article 3(4) makes whoever uses one under their own authority the deployer. The distinction decides which Article 50 transparency duty binds you today — 50(1) and 50(2) fall on providers, 50(4) on deployers — and, from 2 December 2027, whether the Chapter III provider stack attaches at all.',
+      'Article 3(3) makes whoever develops an AI system and places it on the market or puts it into service under their own name or trademark the provider; Article 3(4) makes whoever uses one under their own authority the deployer. The distinction decides which Article 50 transparency duty binds you today ; 50(1) and 50(2) fall on providers, 50(4) on deployers ; and, from 2 December 2027, whether the Chapter III provider stack attaches at all.',
     family: 'documentation',
     severity: 'high',
     weight: 5,
@@ -549,9 +549,9 @@ const liveControls: Control[] = [
     // deferred with the rest of the high-risk regime by Art. 113 as amended.
     appliesFrom: DATES.GENERAL,
     citations: [
-      aiActArticle(3, '(3)', "Definitions — 'provider'"),
-      aiActArticle(3, '(4)', "Definitions — 'deployer'"),
-      aiActArticle(50, '', 'Transparency obligations — allocated by role'),
+      aiActArticle(3, '(3)', "Definitions ; 'provider'"),
+      aiActArticle(3, '(4)', "Definitions ; 'deployer'"),
+      aiActArticle(50, '', 'Transparency obligations ; allocated by role'),
     ],
     appliesWhen: allOf(whenAiPresent, whenSignal('ai.provider.*')),
     evaluate: (ctx) => {
@@ -563,13 +563,13 @@ const liveControls: Control[] = [
         return satisfied('The repository records its role under the AI Act in writing.', documented);
       }
       // Deliberately not a verdict. Article 3(3) turns on two facts Annex
-      // cannot read out of a repository — whether the system is placed on the
+      // cannot read out of a repository ; whether the system is placed on the
       // market or put into service, and whether that happens under this
       // organisation's own name. Code can show that a model is called and a
       // product is built around it; only the organisation knows the rest.
       return needsReview(
-        'This repository calls a third-party model and builds a product around the result. If that product is placed on the market or put into service under your own name or trademark, Article 3(3) makes you its provider rather than merely a deployer — and Annex cannot settle that from source code alone.',
-        'Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or put into service for your own use — Article 3(11) covers both, so deploying under your own name internally still makes you the provider. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is "not to be changed into a high-risk AI system": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.',
+        'This repository calls a third-party model and builds a product around the result. If that product is placed on the market or put into service under your own name or trademark, Article 3(3) makes you its provider rather than merely a deployer ; and Annex cannot settle that from source code alone.',
+        'Record the determination in writing, with the reasoning: who places the system on the market, under whose name, and whether it is supplied to third parties or put into service for your own use ; Article 3(11) covers both, so deploying under your own name internally still makes you the provider. If you repoint a general-purpose AI system at an Annex III use case you may become the provider under Article 25(1)(c) even without developing it. Then check whether your model vendor has specified that its system is "not to be changed into a high-risk AI system": that switches off the Article 25(2) duty to hand you the documentation you would need for Annex IV.',
         evidenceFrom(
           ctx,
           'ai.provider.openai',
@@ -584,7 +584,7 @@ const liveControls: Control[] = [
 ];
 
 // ===========================================================================
-// Chapter III — high-risk requirements. Annex III systems: 2 December 2027.
+// Chapter III ; high-risk requirements. Annex III systems: 2 December 2027.
 // ===========================================================================
 
 const highRiskControls: Control[] = [
@@ -599,7 +599,7 @@ const highRiskControls: Control[] = [
     weight: 9,
     method: 'documentation',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
-    citations: [aiActArticle(9, '', 'Risk management system'), aiActAnnex('IV', '5', 'Technical documentation — risk management system')],
+    citations: [aiActArticle(9, '', 'Risk management system'), aiActAnnex('IV', '5', 'Technical documentation ; risk management system')],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
       const docs = ctx.grepDocs(/\brisk\s+(register|assessment|management|matrix)\b/i, 5, DOC_SCOPES.risk);
@@ -610,7 +610,7 @@ const highRiskControls: Control[] = [
       if (docs.length > 0) {
         return partial(
           'Risk documentation exists, but no explicit residual-risk acceptance was found.',
-          'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. Add that judgement and the date it was made. Naming who made it is not in Article 9(5) — it is what makes the judgement auditable, and an assessor will ask.',
+          'Article 9(5) requires residual risk to be judged acceptable for each individual hazard and overall. Add that judgement and the date it was made. Naming who made it is not in Article 9(5) ; it is what makes the judgement auditable, and an assessor will ask.',
           docs.slice(0, 4),
         );
       }
@@ -623,7 +623,7 @@ const highRiskControls: Control[] = [
     remediation: {
       summary: 'Scaffold the Article 9 risk management system from the risks the scan already identified.',
       reviewerNote:
-        'The risk table is pre-populated with the hazards implied by your classification. Fill in likelihood, severity and the accountable owner — those are judgements, not facts a scanner can supply.',
+        'The risk table is pre-populated with the hazards implied by your classification. Fill in likelihood, severity and the accountable owner ; those are judgements, not facts a scanner can supply.',
       effort: 'hours',
       files: (ctx) => [
         {
@@ -648,7 +648,7 @@ const highRiskControls: Control[] = [
         // The attack this fixture exists for: a README of compliance phrases,
         // no code change, three obligations green. A document is entitled to
         // answer a duty when its name is on topic or the match sits under an
-        // on-topic heading — not because it contains the words.
+        // on-topic heading ; not because it contains the words.
         name: 'missing when a README merely mentions risk management in passing',
         files: {
           'src/score.ts':
@@ -718,15 +718,15 @@ const highRiskControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Examine training and evaluation data for bias',
     obligation:
-      'Article 10(2)(f) requires examination in view of possible biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law — especially where outputs influence inputs for future operations. Article 10(2)(g) requires measures to detect, prevent and mitigate them.',
+      'Article 10(2)(f) requires examination in view of possible biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law ; especially where outputs influence inputs for future operations. Article 10(2)(g) requires measures to detect, prevent and mitigate them.',
     family: 'data-governance',
     severity: 'critical',
     weight: 9,
     method: 'static-analysis',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
     citations: [
-      aiActArticle(10, '(2)(f)', 'Data and data governance — examination for possible biases'),
-      aiActArticle(10, '(2)(g)', 'Data and data governance — bias mitigation measures'),
+      aiActArticle(10, '(2)(f)', 'Data and data governance ; examination for possible biases'),
+      aiActArticle(10, '(2)(g)', 'Data and data governance ; bias mitigation measures'),
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
@@ -770,15 +770,15 @@ const highRiskControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Document data provenance and preparation',
     obligation:
-      'Article 10(2)(b)-(e) requires documented data collection processes and the origin of the data — including, for personal data, the original purpose of collection — data preparation operations, the assumptions the data encodes, and an assessment of availability, quantity and suitability.',
+      'Article 10(2)(b)-(e) requires documented data collection processes and the origin of the data ; including, for personal data, the original purpose of collection ; data preparation operations, the assumptions the data encodes, and an assessment of availability, quantity and suitability.',
     family: 'data-governance',
     severity: 'high',
     weight: 6,
     method: 'documentation',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
     citations: [
-      aiActArticle(10, '(2)', 'Data and data governance — governance practices'),
-      aiActAnnex('IV', '2(d)', 'Technical documentation — datasheets'),
+      aiActArticle(10, '(2)', 'Data and data governance ; governance practices'),
+      aiActAnnex('IV', '2(d)', 'Technical documentation ; datasheets'),
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
@@ -797,7 +797,7 @@ const highRiskControls: Control[] = [
     },
     remediation: {
       summary: 'Scaffold the Article 10 data governance record against all eight statutory points.',
-      reviewerNote: 'Each heading maps to one lettered point of Article 10(2). Do not delete headings you cannot answer — record why they do not apply.',
+      reviewerNote: 'Each heading maps to one lettered point of Article 10(2). Do not delete headings you cannot answer ; record why they do not apply.',
       effort: 'hours',
       files: (ctx) => [
         {
@@ -859,9 +859,9 @@ const highRiskControls: Control[] = [
     method: 'static-analysis',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
     citations: [
-      aiActArticle(12, '(1)', 'Record-keeping — automatic logging'),
-      aiActArticle(12, '(2)', 'Record-keeping — what the logs must enable'),
-      aiActArticle(21, '(2)', 'Cooperation — access to logs on reasoned request'),
+      aiActArticle(12, '(1)', 'Record-keeping ; automatic logging'),
+      aiActArticle(12, '(2)', 'Record-keeping ; what the logs must enable'),
+      aiActArticle(21, '(2)', 'Cooperation ; access to logs on reasoned request'),
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
@@ -881,7 +881,7 @@ const highRiskControls: Control[] = [
       }
       if (versioned && traceable) {
         // Article 12(1) requires logs to be recorded *while the system is in
-        // use*, so a recorder nothing calls records nothing — which the engine
+        // use*, so a recorder nothing calls records nothing ; which the engine
         // invariant enforces for every control, this one included.
         return satisfied('Inference logging was found, carrying both a model version and a traceable identifier.', [
           ...inference.evidence.slice(0, 3),
@@ -934,7 +934,7 @@ const highRiskControls: Control[] = [
     weight: 5,
     method: 'static-analysis',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
-    citations: [aiActArticle(19, '(1)', 'Automatically generated logs — six-month floor')],
+    citations: [aiActArticle(19, '(1)', 'Automatically generated logs ; six-month floor')],
     appliesWhen: allOf(whenHighRisk, whenSignal('control.logging.inference')),
     evaluate: (ctx) => {
       const retention = ctx.signals.get('control.logging.retention');
@@ -964,7 +964,7 @@ const highRiskControls: Control[] = [
         return {
           status: 'missing',
           finding: `A retention period of ${shortest} days was found. Article 19(1) sets a floor of six months, which is about 183 days.`,
-          gap: `Article 19(1) says six calendar months, not a day count, so a window within a few days of 183 is a judgement rather than a breach — but ${shortest} days is below any reading of it. Raise it to 183 days and the question does not arise.`,
+          gap: `Article 19(1) says six calendar months, not a day count, so a window within a few days of 183 is a judgement rather than a breach ; but ${shortest} days is below any reading of it. Raise it to 183 days and the question does not arise.`,
           evidence: retention.evidence.slice(0, 3),
         };
       }
@@ -1008,7 +1008,7 @@ const highRiskControls: Control[] = [
     },
     remediation: {
       summary: 'Scaffold Article 13 instructions for use against Article 13(3)(a)-(f) and the seven romanettes of (b).',
-      reviewerNote: 'Section (b)(v) — performance for specific groups — is the one auditors read first. It cannot be left as TODO in a final version.',
+      reviewerNote: 'Section (b)(v) ; performance for specific groups ; is the one auditors read first. It cannot be left as TODO in a final version.',
       effort: 'hours',
       files: (ctx) => [
         {
@@ -1034,8 +1034,8 @@ const highRiskControls: Control[] = [
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
     citations: [
       aiActArticle(14, '(1)', 'Human oversight'),
-      aiActArticle(14, '(4)(d)', 'Human oversight — disregard, override or reverse the output'),
-      aiActArticle(14, '(4)(e)', "Human oversight — 'stop' button or similar procedure"),
+      aiActArticle(14, '(4)(d)', 'Human oversight ; disregard, override or reverse the output'),
+      aiActArticle(14, '(4)(e)', "Human oversight ; 'stop' button or similar procedure"),
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
@@ -1055,7 +1055,7 @@ const highRiskControls: Control[] = [
       ].filter(Boolean) as string[];
 
       if (present.length === 3) {
-        // Existence is not oversight — but that is the engine's invariant, not
+        // Existence is not oversight ; but that is the engine's invariant, not
         // this control's business. `evaluateControl` caps a `satisfied` verdict
         // at `partial` when the code behind it is unreached, and cites the call
         // site when it is.
@@ -1129,7 +1129,7 @@ const highRiskControls: Control[] = [
         expect: 'partial',
       },
       {
-        // One line of work — `import gate  # noqa: F401` — used to be enough
+        // One line of work ; `import gate  # noqa: F401` ; used to be enough
         // to turn this control green. An import is a declaration of intent;
         // Article 14 is about what happens at the decision.
         name: 'partial when the oversight module is imported but never called',
@@ -1231,7 +1231,7 @@ const highRiskControls: Control[] = [
     weight: 6,
     method: 'static-analysis',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
-    citations: [aiActArticle(15, '(5)', 'Cybersecurity — AI-specific attack surface')],
+    citations: [aiActArticle(15, '(5)', 'Cybersecurity ; AI-specific attack surface')],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
       const defence = ctx.signals.hasAny('security.prompt-injection');
@@ -1284,7 +1284,7 @@ const highRiskControls: Control[] = [
       if (found.length > 0) {
         return partial(
           `Found ${found.join(' and ')}, which is a start on Article 17.`,
-          'Article 17(1) asks for the compliance strategy, validation procedures and their frequency, and an accountability framework to be written down — not only implemented in tooling.',
+          'Article 17(1) asks for the compliance strategy, validation procedures and their frequency, and an accountability framework to be written down ; not only implemented in tooling.',
           ev,
         );
       }
@@ -1324,7 +1324,7 @@ const highRiskControls: Control[] = [
     appliesFrom: DATES.GENERAL,
     citations: [
       aiActArticle(72, '(1)', 'Post-market monitoring by providers'),
-      aiActAnnex('IV', '9', 'Technical documentation — post-market monitoring plan'),
+      aiActAnnex('IV', '9', 'Technical documentation ; post-market monitoring plan'),
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
@@ -1373,9 +1373,9 @@ const highRiskControls: Control[] = [
     method: 'documentation',
     appliesFrom: DATES.GENERAL,
     citations: [
-      aiActArticle(73, '(2)', 'Reporting of serious incidents — 15-day default'),
-      aiActArticle(73, '(3)', 'Reporting of serious incidents — 2 days'),
-      aiActArticle(73, '(4)', 'Reporting of serious incidents — 10 days where a person has died'),
+      aiActArticle(73, '(2)', 'Reporting of serious incidents ; 15-day default'),
+      aiActArticle(73, '(3)', 'Reporting of serious incidents ; 2 days'),
+      aiActArticle(73, '(4)', 'Reporting of serious incidents ; 10 days where a person has died'),
     ],
     appliesWhen: whenHighRisk,
     evaluate: (ctx) => {
@@ -1443,7 +1443,7 @@ const highRiskControls: Control[] = [
           )
         : missing(
             'No reference to EU database registration was found.',
-            `Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you — it still has to be registered, and the assessment has to be documented beforehand under Article 6(4). ${TIMING_HEDGE}`,
+            `Register the system before placing it on the market. Note the trap in Article 49(2): concluding under Article 6(3) that your system is *not* high-risk does not exempt you ; it still has to be registered, and the assessment has to be documented beforehand under Article 6(4). ${TIMING_HEDGE}`,
             ['EU database', 'Article 49', 'declaration of conformity', 'CE marking'],
           );
     },
@@ -1453,19 +1453,19 @@ const highRiskControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Deployer duties: assigned overseers, input data, and telling the workforce',
     obligation:
-      'Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and, where a risk under Article 79(1) arises, inform the provider and the market surveillance authority **and suspend use of the system** without undue delay (26(5)), keep the automatically generated logs for at least six months (26(6)), before putting a high-risk system into service at the workplace inform workers\' representatives and the affected workers that they will be subject to it (26(7)), and — for an Annex III system that makes or assists in making decisions about people — inform those people that they are subject to it (26(11)). A deployer that is a public authority must also comply with the Article 49 registration duty and must not use a system it finds is not registered (26(8)).',
+      'Article 26 puts duties on the deployer, not the provider: use the system in accordance with the instructions for use (26(1)), assign human oversight to natural persons who have the necessary competence, training and authority and the support to exercise it (26(2)), ensure that input data is relevant and sufficiently representative for the intended purpose so far as the deployer controls it (26(4)), monitor operation and, where a risk under Article 79(1) arises, inform the provider and the market surveillance authority **and suspend use of the system** without undue delay (26(5)), keep the automatically generated logs for at least six months (26(6)), before putting a high-risk system into service at the workplace inform workers\' representatives and the affected workers that they will be subject to it (26(7)), and ; for an Annex III system that makes or assists in making decisions about people ; inform those people that they are subject to it (26(11)). A deployer that is a public authority must also comply with the Article 49 registration duty and must not use a system it finds is not registered (26(8)).',
     family: 'human-oversight',
     severity: 'high',
     weight: 7,
     method: 'static-analysis',
     appliesFrom: DATES.HIGH_RISK_ANNEX_III,
     citations: [
-      aiActArticle(26, '(2)', 'Obligations of deployers — assigned human oversight'),
-      aiActArticle(26, '(4)', 'Obligations of deployers — input data'),
+      aiActArticle(26, '(2)', 'Obligations of deployers ; assigned human oversight'),
+      aiActArticle(26, '(4)', 'Obligations of deployers ; input data'),
       aiActArticle(
         26,
         '(7)',
-        'Obligations of deployers — informing workers',
+        'Obligations of deployers ; informing workers',
         'Before putting into service or using a high-risk AI system at the workplace, deployers who are employers shall inform workers\' representatives and the affected workers that they will be subject to the use of the high-risk AI system',
       ),
     ],
@@ -1496,7 +1496,7 @@ const highRiskControls: Control[] = [
       }
       return needsReview(
         'Article 26 binds whoever deploys this system, which may not be whoever wrote this repository.',
-        'If you deploy it: assign oversight to named people with the authority to act on it, keep the logs for six months under Article 26(6), check that the input data you control is representative, and — at the workplace — inform the affected workers first. If you only supply it, record that Article 26 falls on your customers and give them what Article 13 requires to discharge it.',
+        'If you deploy it: assign oversight to named people with the authority to act on it, keep the logs for six months under Article 26(6), check that the input data you control is representative, and ; at the workplace ; inform the affected workers first. If you only supply it, record that Article 26 falls on your customers and give them what Article 13 requires to discharge it.',
         ev,
       );
     },
@@ -1520,7 +1520,7 @@ const highRiskControls: Control[] = [
           'src/review.ts':
             'export async function assignReviewer(decisionId, reviewerId) {\n  return db.reviews.create({ decisionId, assigned_reviewer: reviewerId });\n}\n',
           'docs/deployer-obligations.md':
-            '# Deployer obligations\n\n## Article 26(7) — informing workers\n\nThe staff consultation was completed on 2026-06-12 with the works council, and the affected workers were informed before the system was put into service.\n',
+            '# Deployer obligations\n\n## Article 26(7) ; informing workers\n\nThe staff consultation was completed on 2026-06-12 with the works council, and the affected workers were informed before the system was put into service.\n',
         },
         profile: { tierOverride: 'high' },
         expect: 'partial',
@@ -1530,7 +1530,7 @@ const highRiskControls: Control[] = [
   c({
     id: 'eu-ai-act.art27.fria',
     // No penalty tier. Article 99(4) is a closed list of nine heads, and its
-    // deployer head — (e) — reaches "obligations of deployers pursuant to
+    // deployer head ; (e) ; reaches "obligations of deployers pursuant to
     // Article 26". Article 27 is a separate article and is not incorporated
     // into Article 26 by reference, so no Union-level ceiling attaches to it.
     // Article 99(1) still obliges Member States to lay down penalties; what
@@ -1539,7 +1539,7 @@ const highRiskControls: Control[] = [
     // system failing only this duty.
     title: 'Fundamental rights impact assessment before first use',
     obligation:
-      'Article 27(1) requires deployers that are bodies governed by public law, private entities providing public services, or deployers of the creditworthiness and life-and-health-insurance systems in Annex III points 5(b) and 5(c) — in each case other than for the critical-infrastructure systems in Annex III point 2 — to perform an assessment of the impact on fundamental rights before first use: the deployment processes, the period and frequency of use, the categories of natural persons likely to be affected, the specific risks of harm to them, the human oversight measures, and the measures to take if those risks materialise. Article 27(4) allows an existing GDPR data protection impact assessment to be complemented rather than duplicated.',
+      'Article 27(1) requires deployers that are bodies governed by public law, private entities providing public services, or deployers of the creditworthiness and life-and-health-insurance systems in Annex III points 5(b) and 5(c) ; in each case other than for the critical-infrastructure systems in Annex III point 2 ; to perform an assessment of the impact on fundamental rights before first use: the deployment processes, the period and frequency of use, the categories of natural persons likely to be affected, the specific risks of harm to them, the human oversight measures, and the measures to take if those risks materialise. Article 27(4) allows an existing GDPR data protection impact assessment to be complemented rather than duplicated.',
     family: 'risk-management',
     severity: 'high',
     weight: 6,
@@ -1552,7 +1552,7 @@ const highRiskControls: Control[] = [
     // Article 27(1) has three limbs, and the predicate carried only the third.
     // (i) bodies governed by public law and (ii) private entities providing
     // public services are the limbs that reach a municipality's recruitment
-    // tool, a public hospital's triage system and a school's grading model —
+    // tool, a public hospital's triage system and a school's grading model ;
     // none of which is an Annex III point 5 use case, and all of which owe a
     // FRIA. Neither is visible in code, so they arrive as an operator
     // attestation; limb (iii) is detectable and stays detected.
@@ -1578,7 +1578,7 @@ const highRiskControls: Control[] = [
       if (dpia && dpia.hits > 0) {
         return partial(
           'A data protection impact assessment was found, but nothing addresses fundamental rights beyond data protection.',
-          'Article 27(4) lets you complement the DPIA rather than start again — but the additional elements are specific: the period and frequency of use, the categories of persons likely to be affected, the specific risks of harm to them, and what you will do if those risks materialise. Add them to the existing assessment and say that is what you have done.',
+          'Article 27(4) lets you complement the DPIA rather than start again ; but the additional elements are specific: the period and frequency of use, the categories of persons likely to be affected, the specific risks of harm to them, and what you will do if those risks materialise. Add them to the existing assessment and say that is what you have done.',
           dpia.evidence.slice(0, 3),
         );
       }
@@ -1621,7 +1621,7 @@ const highRiskControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Conformity assessment before placing on the market',
     obligation:
-      'Article 43 requires a conformity assessment before a high-risk system is placed on the market or put into service. The route depends on the Annex III point. For point 1 (biometrics), Article 43(1) lets a provider that applied harmonised standards or common specifications choose internal control under Annex VI, and *requires* notified-body involvement under Annex VII where no harmonised standard exists, where the provider did not apply one or applied it only in part, or where a published standard carries a restriction. For **Annex III points 2 to 8, Article 43(2) allows internal control under Annex VI only — no notified body is involved at all**. Article 43(4) reopens the assessment on a substantial modification.',
+      'Article 43 requires a conformity assessment before a high-risk system is placed on the market or put into service. The route depends on the Annex III point. For point 1 (biometrics), Article 43(1) lets a provider that applied harmonised standards or common specifications choose internal control under Annex VI, and *requires* notified-body involvement under Annex VII where no harmonised standard exists, where the provider did not apply one or applied it only in part, or where a published standard carries a restriction. For **Annex III points 2 to 8, Article 43(2) allows internal control under Annex VI only ; no notified body is involved at all**. Article 43(4) reopens the assessment on a substantial modification.',
     family: 'quality-management',
     severity: 'high',
     weight: 6,
@@ -1629,8 +1629,8 @@ const highRiskControls: Control[] = [
     // Chapter III Section 5: Article 113 leaves it at the general date.
     appliesFrom: DATES.GENERAL,
     citations: [
-      aiActArticle(43, '(1)', 'Conformity assessment — Annex III point 1 biometrics'),
-      aiActArticle(43, '(2)', 'Conformity assessment — Annex III points 2 to 8, internal control only'),
+      aiActArticle(43, '(1)', 'Conformity assessment ; Annex III point 1 biometrics'),
+      aiActArticle(43, '(2)', 'Conformity assessment ; Annex III points 2 to 8, internal control only'),
       aiActArticle(43, '(4)', 'A substantial modification reopens the assessment'),
     ],
     appliesWhen: allOf(whenHighRisk, whenProvider),
@@ -1661,7 +1661,7 @@ const highRiskControls: Control[] = [
             ? 'A completed conformity assessment is recorded, but this is an Annex III point 1 system.'
             : 'The repository records a conformity assessment route, but not a completed assessment.',
           biometric
-            ? 'This is an Annex III point 1 system, so Article 43(1) is the harder branch: internal control under Annex VI is available only where you applied harmonised standards or common specifications in full. Record which standard, which version, and where you departed from it — otherwise Annex VII and a notified body are mandatory.'
+            ? 'This is an Annex III point 1 system, so Article 43(1) is the harder branch: internal control under Annex VI is available only where you applied harmonised standards or common specifications in full. Record which standard, which version, and where you departed from it ; otherwise Annex VII and a notified body are mandatory.'
             : 'Record the completed assessment and its date, not the intention. For an Annex III point 2 to 8 system this is Annex VI internal control and you run it yourself.',
           record,
         );
@@ -1724,7 +1724,7 @@ const highRiskControls: Control[] = [
     method: 'documentation',
     appliesFrom: DATES.GENERAL,
     citations: [
-      aiActArticle(47, '(1)', 'EU declaration of conformity — form and ten-year retention'),
+      aiActArticle(47, '(1)', 'EU declaration of conformity ; form and ten-year retention'),
       aiActArticle(47, '(2)', 'Content: Section 2 conformity, Annex V information, translation'),
       aiActArticle(47, '(4)', 'Drawing it up assumes responsibility for compliance'),
     ],
@@ -1749,7 +1749,7 @@ const highRiskControls: Control[] = [
       if (machineReadable.length === 0) {
         return partial(
           'A declaration of conformity is documented in prose, but no machine-readable form was found.',
-          'Article 47(1) requires the declaration to be machine-readable as well as written. Annex already emits a CycloneDX attestation from the same evidence — `annex scan --format cdxa` — which is a reasonable carrier for it.',
+          'Article 47(1) requires the declaration to be machine-readable as well as written. Annex already emits a CycloneDX attestation from the same evidence ; `annex scan --format cdxa` ; which is a reasonable carrier for it.',
           doc,
         );
       }
@@ -1856,7 +1856,7 @@ const highRiskControls: Control[] = [
 
   c({
     id: 'eu-ai-act.art85.complaint-route',
-    // No penalty tier: Chapter IX, Section 4 — a right of complaint, not an
+    // No penalty tier: Chapter IX, Section 4 ; a right of complaint, not an
     // operator duty inside the Article 99(4) list.
     title: 'A route for anyone to complain to the market surveillance authority',
     obligation:
@@ -1878,7 +1878,7 @@ const highRiskControls: Control[] = [
         ? satisfied('A route to the market surveillance authority is documented.', route)
         : missing(
             'Nothing tells an affected person where to complain.',
-            `Article 85 does not require you to build anything — the right exists whether or not you mention it. What it makes cheap is telling people, in the same place you tell them about the Article 86 explanation, which authority handles complaints about this system and how to reach it. A complaint that arrives at the authority before it arrives at you is the expensive ordering. ${TIMING_HEDGE}`,
+            `Article 85 does not require you to build anything ; the right exists whether or not you mention it. What it makes cheap is telling people, in the same place you tell them about the Article 86 explanation, which authority handles complaints about this system and how to reach it. A complaint that arrives at the authority before it arrives at you is the expensive ordering. ${TIMING_HEDGE}`,
             ['market surveillance authority', 'right to lodge a complaint', 'Article 85'],
           );
     },
@@ -1916,7 +1916,7 @@ const highRiskControls: Control[] = [
     // be inventing an exposure figure the Regulation does not provide.
     title: 'Explain an individual decision to the person it was taken about',
     obligation:
-      'Article 86(1) gives any affected person subject to a decision the deployer takes on the basis of output from an Annex III high-risk system — other than the critical-infrastructure systems in point 2 — which produces legal effects or similarly significantly affects them in a way they consider adverse to their health, safety or fundamental rights, the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision procedure and of the main elements of the decision taken. Article 86(3) applies it only to the extent the right is not already provided for under other Union law.',
+      'Article 86(1) gives any affected person subject to a decision the deployer takes on the basis of output from an Annex III high-risk system ; other than the critical-infrastructure systems in point 2 ; which produces legal effects or similarly significantly affects them in a way they consider adverse to their health, safety or fundamental rights, the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision procedure and of the main elements of the decision taken. Article 86(3) applies it only to the extent the right is not already provided for under other Union law.',
     family: 'rights',
     severity: 'high',
     weight: 6,
@@ -1961,13 +1961,13 @@ const highRiskControls: Control[] = [
       if (explains.length > 0) {
         return partial(
           'The system produces explanations of its outputs, but no route was found by which the person a decision was about can ask for one.',
-          'The right is exercised by the affected person against the deployer. Publish how to ask — in the decision notice itself, or wherever you tell people about their rights — and say who answers.',
+          'The right is exercised by the affected person against the deployer. Publish how to ask ; in the decision notice itself, or wherever you tell people about their rights ; and say who answers.',
           explains,
         );
       }
       return missing(
         'Nothing was found that would answer an affected person asking why a decision about them came out the way it did.',
-        `Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not. ${TIMING_HEDGE}`,
+        `Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough ; but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not. ${TIMING_HEDGE}`,
         ['right to explanation', 'Article 86', 'reason codes stored with the decision'],
       );
     },
@@ -2015,30 +2015,30 @@ export const EU_AI_ACT_PACK: RulePack = {
   instrument: 'Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744 (Digital Omnibus on AI)',
   reconciledOn: '2026-09-15',
   summary:
-    'The EU Artificial Intelligence Act. Prohibited practices have applied since 2 February 2025 and Article 50 transparency since 2 August 2026. The Digital Omnibus, in force 27 July 2026, moved the Annex III high-risk obligations to 2 December 2027 and the Annex I obligations to 2 August 2028 — but left Article 50 exactly where it was.',
+    'The EU Artificial Intelligence Act. Prohibited practices have applied since 2 February 2025 and Article 50 transparency since 2 August 2026. The Digital Omnibus, in force 27 July 2026, moved the Annex III high-risk obligations to 2 December 2027 and the Annex I obligations to 2 August 2028 ; but left Article 50 exactly where it was.',
   url: 'https://artificialintelligenceact.eu/',
   milestones: [
     { date: DATES.PROHIBITIONS, label: 'Prohibited practices and AI literacy', note: 'Chapters I and II applied from 2 February 2025.' },
     { date: DATES.GPAI, label: 'General-purpose AI model obligations', note: 'Chapter V applied from 2 August 2025.' },
-    { date: DATES.GENERAL, label: 'Article 50 transparency', note: 'General application. Not moved by the Digital Omnibus — this is the obligation that binds AI products today.' },
+    { date: DATES.GENERAL, label: 'Article 50 transparency', note: 'General application. Not moved by the Digital Omnibus ; this is the obligation that binds AI products today.' },
     { date: DATES.MARKING_GRACE, label: 'Synthetic content marking', note: 'Article 111(4): systems on the market before 2 August 2026 must comply with Article 50(2) by 2 December 2026.' },
-    { date: DATES.NEW_PROHIBITIONS, label: 'New Article 5 prohibitions', note: 'Article 5(1)(ba) and (bb) — non-consensual intimate imagery and CSAM — apply from 2 December 2026.' },
+    { date: DATES.NEW_PROHIBITIONS, label: 'New Article 5 prohibitions', note: 'Article 5(1)(ba) and (bb) ; non-consensual intimate imagery and CSAM ; apply from 2 December 2026.' },
     { date: DATES.HIGH_RISK_ANNEX_III, label: 'Annex III high-risk obligations', note: 'Moved from 2 August 2026 by Regulation (EU) 2026/1744.' },
     { date: DATES.HIGH_RISK_ANNEX_I, label: 'Annex I embedded high-risk obligations', note: 'Moved from 2 August 2027 by Regulation (EU) 2026/1744.' },
-    { date: '2030-08-02', label: 'Legacy public-authority high-risk systems', note: 'Article 111(2): a high-risk system already on the market when Chapter III starts applying is caught only if its design is significantly changed afterwards — but a system operated by a public authority must comply by this date regardless.' },
+    { date: '2030-08-02', label: 'Legacy public-authority high-risk systems', note: 'Article 111(2): a high-risk system already on the market when Chapter III starts applying is caught only if its design is significantly changed afterwards ; but a system operated by a public authority must comply by this date regardless.' },
   ],
   penalty: {
     currency: 'EUR',
     smeInversion: true,
     description:
-      'Administrative fines under Article 99. For SMEs and start-ups, Article 99(6) inverts the rule across paragraphs 3, 4 and 5: the cap is the lower of the two figures, not the higher. Article 99(6a) extends the same inversion to small mid-caps for paragraphs 4 and 5 only — an SMC breaching Article 5 faces the full higher-of figure.',
+      'Administrative fines under Article 99. For SMEs and start-ups, Article 99(6) inverts the rule across paragraphs 3, 4 and 5: the cap is the lower of the two figures, not the higher. Article 99(6a) extends the same inversion to small mid-caps for paragraphs 4 and 5 only ; an SMC breaching Article 5 faces the full higher-of figure.',
     tiers: [
       {
         id: 'art99-3',
         label: 'Prohibited practices (Article 5)',
         amount: 35_000_000,
         turnoverPct: 7,
-        citation: aiActArticle(99, '(3)', 'Penalties — prohibited practices'),
+        citation: aiActArticle(99, '(3)', 'Penalties ; prohibited practices'),
       },
       {
         id: 'art99-4',
@@ -2048,7 +2048,7 @@ export const EU_AI_ACT_PACK: RulePack = {
         label: 'Provider, deployer and Article 50 transparency obligations (Arts. 9-15, 17 and 19 are reached through Article 16, not fined in their own right)',
         amount: 15_000_000,
         turnoverPct: 3,
-        citation: aiActArticle(99, '(4)', 'Penalties — other obligations'),
+        citation: aiActArticle(99, '(4)', 'Penalties ; other obligations'),
       },
       {
         id: 'art99-5',
@@ -2056,7 +2056,7 @@ export const EU_AI_ACT_PACK: RulePack = {
         label: 'Incorrect, incomplete or misleading information to authorities',
         amount: 7_500_000,
         turnoverPct: 1,
-        citation: aiActArticle(99, '(5)', 'Penalties — misleading information'),
+        citation: aiActArticle(99, '(5)', 'Penalties ; misleading information'),
       },
     ],
   },

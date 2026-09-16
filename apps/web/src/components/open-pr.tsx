@@ -62,8 +62,7 @@ export function OpenPullRequest({ systemId, canOpen }: { systemId: string; canOp
       </button>
       {!canOpen ? (
         <p style={{ fontSize: 11.5, color: 'var(--ink-faint)', margin: '6px 0 0' }}>
-          Available for GitHub repositories once a token with <code className="code">contents:write</code> is set
-          in Settings. For a bundled sample, download the patch instead.
+          Download the patch in the public demo. Self-hosted installations can open a pull request with a scoped GitHub token.
         </p>
       ) : null}
       {state === 'error' ? (

@@ -9,12 +9,12 @@ const GENESIS = '0'.repeat(64);
  *
  * Every conformity dossier in existence today is a self-attested document: it
  * asserts that controls are in place, and nobody can check the assertion
- * without redoing the work. The ledger narrows that gap — precisely, and no
+ * without redoing the work. The ledger narrows that gap ; precisely, and no
  * further than it actually goes.
  *
- * Each control result is reduced to a canonical line — control id, status, the
+ * Each control result is reduced to a canonical line ; control id, status, the
  * digest of every piece of evidence, and the version of the rule that produced
- * it — and hashed into a chain whose root is short enough to print on the
+ * it ; and hashed into a chain whose root is short enough to print on the
  * front page of the dossier.
  *
  * What that buys, exactly:
@@ -32,7 +32,7 @@ const GENESIS = '0'.repeat(64);
  * What the chain alone does *not* buy: it is a checksum chain, so anyone
  * holding the report can recompute a self-consistent one over different
  * numbers. It makes a silent edit detectable to a reader who has the source
- * and can re-run the scan — which is not the reader a conformity statement is
+ * and can re-run the scan ; which is not the reader a conformity statement is
  * handed to.
  *
  * That is what `ledger/sign.ts` is for. A detached Ed25519 signature over the
@@ -81,7 +81,7 @@ export function buildLedger(results: ControlResult[], ruleVersions: Record<strin
         // `liveScore` filters on `inForce`; and `family` decides whether a
         // prohibition prices at the Article 99(3) tier. An auditor zeroed
         // every failing control's weight, set `inForce: false`, rewrote the
-        // score to 100 and the tier to "limited" — and the root, and the
+        // score to 100 and the tier to "limited" ; and the root, and the
         // signature over it, did not move.
         result.family,
         String(result.weight),
@@ -120,7 +120,7 @@ export interface LedgerVerification {
 /**
  * Structural check only: confirm the links join up and the root is the last
  * hash. It cannot detect an edited *result*, because entries do not carry the
- * score — that is `verifyLedgerAgainstResults`, which is what the CLI runs.
+ * score ; that is `verifyLedgerAgainstResults`, which is what the CLI runs.
  * This exists for callers holding a ledger without the report it came from.
  */
 export function verifyLedger(ledger: EvidenceLedger): LedgerVerification {

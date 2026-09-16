@@ -15,7 +15,7 @@ export type DossierLocale = 'en' | 'de' | 'fr';
  * 1. **Nothing is invented.** Where the codebase answers a point, the answer
  *    cites a file and a line. Where it does not, the document says so and
  *    leaves a marked gap. A generated dossier that guesses at the residual-risk
- *    acceptance is not a shortcut — it is a false statement to a regulator, and
+ *    acceptance is not a shortcut ; it is a false statement to a regulator, and
  *    Article 99(5) prices that at EUR 7.5 million or 1 % of turnover.
  *
  * 2. **The reader can check it.** Every section is traceable to the evidence
@@ -128,8 +128,8 @@ function evidenceOf(controls: ControlResult[], limit = 6) {
  * An open item is a question this document cannot answer *yet*.
  *
  * It used to be a hardcoded string, which meant the dossier could cite
- * `risk-management.md:41` — "residual risk judged acceptable by the VP
- * Engineering" — while simultaneously listing residual-risk acceptance as
+ * `risk-management.md:41` ; "residual risk judged acceptable by the VP
+ * Engineering" ; while simultaneously listing residual-risk acceptance as
  * unanswered, three inches apart. An assessor finds that in the first ten
  * minutes, and it is the kind of contradiction that costs a document its
  * credibility regardless of what else it gets right.
@@ -137,8 +137,8 @@ function evidenceOf(controls: ControlResult[], limit = 6) {
  * So every open item now names the controls that would close it. It survives
  * into the list only if none of them came back satisfied, which makes
  * `openCount` a measurement and `declarationReady` a claim the document is
- * entitled to make. Items no control can settle — the hardware description,
- * the list of standards applied — pass no ids and stay open by construction.
+ * entitled to make. Items no control can settle ; the hardware description,
+ * the list of standards applied ; pass no ids and stay open by construction.
  */
 function openItem(report: ScanReport, label: string, ...closedBy: string[]): string[] {
   if (closedBy.length === 0) return [label];
@@ -153,7 +153,7 @@ function statusLine(controls: ControlResult[]): string[] {
     const citation = c.citations[0];
     const badge =
       c.status === 'satisfied' ? 'Evidenced' : c.status === 'partial' ? 'Partially evidenced' : c.status === 'needs_review' ? 'Requires human determination' : 'No evidence found';
-    return `**${badge} — ${c.title}** (${citation ? `${citation.short} ${citation.locator}` : c.controlId}). ${c.finding}`;
+    return `**${badge} ; ${c.title}** (${citation ? `${citation.short} ${citation.locator}` : c.controlId}). ${c.finding}`;
   });
 }
 
@@ -234,7 +234,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     body: [
       `**(a) Development methods and recourse to third-party systems.** ${
         modelSignals.length > 0
-          ? `The system is built on pre-trained models supplied by third parties (${modelSignals.map((s) => s.label).join(', ')}). Article 25(2) obliges the initial provider to provide the information and the reasonably expected technical access and other assistance needed to assess Article 16 compliance — unless it has specified that its system is not to be changed into a high-risk AI system, which switches that duty off. Confirm which applies before relying on it.`
+          ? `The system is built on pre-trained models supplied by third parties (${modelSignals.map((s) => s.label).join(', ')}). Article 25(2) obliges the initial provider to provide the information and the reasonably expected technical access and other assistance needed to assess Article 16 compliance ; unless it has specified that its system is not to be changed into a high-risk AI system, which switches that duty off. Confirm which applies before relying on it.`
           : 'No third-party pre-trained model was detected.'
       }`,
       `**(b) Design specifications.** ${
@@ -297,7 +297,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     title: h.point['4'] ?? 'Appropriateness of performance metrics',
     body: [
       report.signals.some((s) => s.id === 'quality.eval.suite')
-        ? 'An evaluation harness was found in the repository (see evidence). Why those metrics are the appropriate ones for this intended purpose is an argument that must be written here — the presence of a metric is not the same as its appropriateness.'
+        ? 'An evaluation harness was found in the repository (see evidence). Why those metrics are the appropriate ones for this intended purpose is an argument that must be written here ; the presence of a metric is not the same as its appropriateness.'
         : `${OPEN_MARKER}: no evaluation suite was found, so there are no metrics whose appropriateness could be assessed.`,
     ],
     evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art15.accuracy'), 4),
@@ -342,7 +342,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
     point: '7',
     title: h.point['7'] ?? 'Harmonised standards or solutions adopted',
     body: [
-      'No harmonised standards for the AI Act have yet been cited in the Official Journal of the European Union. CEN-CENELEC announced EN 18286 — a quality management system supporting AI Act regulatory purposes — as the first European standard in this family on 30 July 2026, but a standard is only harmonised once its reference is published in the OJEU, and until then Article 40 gives no presumption of conformity. So Annex IV point 7 takes its second branch: a detailed description of the solutions adopted to meet the Chapter III Section 2 requirements, and a list of other relevant standards applied.',
+      'No harmonised standards for the AI Act have yet been cited in the Official Journal of the European Union. CEN-CENELEC announced EN 18286 ; a quality management system supporting AI Act regulatory purposes ; as the first European standard in this family on 30 July 2026, but a standard is only harmonised once its reference is published in the OJEU, and until then Article 40 gives no presumption of conformity. So Annex IV point 7 takes its second branch: a detailed description of the solutions adopted to meet the Chapter III Section 2 requirements, and a list of other relevant standards applied.',
       report.signals.some((s) => s.id === 'governance.qms')
         ? 'Other standards referenced in this repository appear in the evidence below.'
         : 'No other standards or technical specifications were referenced in this repository.',
@@ -362,7 +362,7 @@ export function buildDossier(report: ScanReport, opts: DossierOptions = {}): Dos
       'Article 47 requires a written, machine-readable, physically or electronically signed EU declaration of conformity for each high-risk AI system, kept available to national competent authorities for ten years.',
       registration?.status === 'satisfied'
         ? 'A declaration of conformity was referenced in the repository.'
-        : `${OPEN_MARKER}: no EU declaration of conformity was found. It cannot be drawn up until the open items in this document are closed — by drawing it up, the provider assumes responsibility for compliance.`,
+        : `${OPEN_MARKER}: no EU declaration of conformity was found. It cannot be drawn up until the open items in this document are closed ; by drawing it up, the provider assumes responsibility for compliance.`,
     ],
     evidence: evidenceOf(controlsFor(report, 'eu-ai-act.art49.registration'), 3),
     open: openItem(report, 'EU declaration of conformity (Article 47, Annex V)'),

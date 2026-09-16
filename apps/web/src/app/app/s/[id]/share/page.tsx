@@ -38,7 +38,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
         </p>
         <p className="legal mt-3" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: '12px 0 0', maxWidth: '76ch' }}>
           It shows the classification, the obligations, the score and the ledger root. It never shows your source
-          code — evidence snippets are replaced by the file and line they came from.
+          code · evidence snippets are replaced by the file and line they came from.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -60,7 +60,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
 
         {system.trustPublic ? (
           <p className="mt-4" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '16px 0 0' }}>
-            Live at <span className="code">{path}</span> — anyone with the link can read it, no account needed.
+            Live at <span className="code">{path}</span> · anyone with the link can read it, no account needed.
           </p>
         ) : (
           <p className="mt-4" style={{ fontSize: 12.5, color: 'var(--ink-faint)', margin: '16px 0 0' }}>
@@ -73,22 +73,22 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
         <Panel title="What a reviewer will see">
           <ul className="space-y-2" style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 13.5 }}>
             <li>
-              <strong>Classification</strong> — {latest.report.classification.summary}
+              <strong>Classification</strong> · {latest.report.classification.summary}
             </li>
             <li>
-              <strong>Role</strong> — {latest.report.classification.role.replace('+', ' and ')} under Article 3(3)
+              <strong>Role</strong> · {latest.report.classification.role.replace('+', ' and ')} under Article 3(3)
             </li>
             <li>
-              <strong>Conformity</strong> —{' '}
+              <strong>Conformity</strong> ;{' '}
               {latest.report.score === null
-                ? 'not assessed — no obligation in the selected markets applied'
+                ? 'not assessed · no obligation in the selected markets applied'
                 : `${latest.report.score}/100 across ${latest.report.controls.filter((c) => c.status !== 'not_applicable').length} applicable obligations`}
             </li>
             <li>
-              <strong>Evidence ledger</strong> — <span className="code">{latest.report.ledger.root.slice(0, 32)}…</span>
+              <strong>Evidence ledger</strong> · <span className="code">{latest.report.ledger.root.slice(0, 32)}…</span>
             </li>
             <li>
-              <strong>Not shown</strong> — snippets, file contents, dependency versions, anything that would leak
+              <strong>Not shown</strong> · snippets, file contents, dependency versions, anything that would leak
               the implementation
             </li>
           </ul>

@@ -43,7 +43,7 @@ export function ExplainPanel({ systemId, controlId }: { systemId: string; contro
   }
 
   return (
-    <section>
+    <section aria-live="polite">
       <div className="flex flex-wrap items-center gap-2">
         <div className="eyebrow">Put it in plain language</div>
         <span className="badge badge-neutral" title="Everything else on this page is decided without a model.">
@@ -51,6 +51,7 @@ export function ExplainPanel({ systemId, controlId }: { systemId: string; contro
         </span>
       </div>
 
+      <p style={{ fontSize: 12, color: 'var(--ink-faint)' }}>Choosing an audience sends this finding and up to five quoted excerpts to the configured AI provider. The scan itself stays unchanged.</p>
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {AUDIENCES.map((a) => (
           <button
@@ -85,7 +86,7 @@ export function ExplainPanel({ systemId, controlId }: { systemId: string; contro
           {available ? (
             <p style={{ fontSize: 11, color: 'var(--ink-faint)', margin: '10px 0 0' }}>
               Written by a language model from the finding above. It cannot change the status, the evidence or
-              the citation — those are produced by the deterministic engine and are what goes in the dossier.
+              the citation · those are produced by the deterministic engine and are what goes in the dossier.
             </p>
           ) : null}
         </div>

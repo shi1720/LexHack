@@ -1,0 +1,40 @@
+{
+  "hosting": {
+    "site": "annex-evidence",
+    "public": "hosting",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "annex",
+          "region": "us-central1"
+        }
+      }
+    ],
+    "headers": [
+      {
+        "source": "/api/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "private, no-store, max-age=0"
+          }
+        ]
+      },
+      {
+        "source": "/app{,/**}",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "private, no-store, max-age=0"
+          }
+        ]
+      }
+    ]
+  }
+}

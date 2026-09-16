@@ -1,4 +1,4 @@
-/** Terminal presentation. No dependencies — colour is just bytes. */
+/** Terminal presentation. No dependencies ; colour is just bytes. */
 
 const useColour = process.env.NO_COLOR === undefined && process.stdout.isTTY !== false;
 

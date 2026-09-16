@@ -1,3 +1,4 @@
+import { PrivateResponse as Response } from '@/server/http';
 import { currentUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
 import { explainControl, type Audience } from '@/server/narrative';
@@ -7,6 +8,9 @@ export const dynamic = 'force-dynamic';
 const AUDIENCES: Audience[] = ['engineer', 'executive', 'auditor'];
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const origin = request.headers.get('origin');
+  if (origin && origin !== new URL(request.url).origin && origin !== process.env.ANNEX_ORIGIN) return Response.json({ error: 'Origin not allowed.' }, { status: 403 });
+  if (Number(request.headers.get('content-length') || 0) > 4096) return Response.json({ error: 'Request too large.' }, { status: 413 });
   const user = await currentUser();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 

@@ -75,7 +75,7 @@ function toScanRecord(row: ScanRow): ScanRecord {
 }
 
 // ---------------------------------------------------------------------------
-// Sample systems — bundled so a scan works with no network and no credentials
+// Sample systems ; bundled so a scan works with no network and no credentials
 // ---------------------------------------------------------------------------
 
 export interface Sample {
@@ -92,8 +92,8 @@ export interface Sample {
    *
    * HireFlow and HireFlow v3 are the same product either side of the
    * conformity work, and the comparison is the argument. Naming it here lets
-   * a screen that has nothing to show — the Evidence tab's `Evidenced` filter
-   * on a repository that evidences nothing — point at the one that does,
+   * a screen that has nothing to show ; the Evidence tab's `Evidenced` filter
+   * on a repository that evidences nothing ; point at the one that does,
    * instead of printing "Nothing matches that filter" on the most important
    * tab of the demo.
    */
@@ -194,6 +194,7 @@ export function createSystem(input: {
   sourceKind: SourceKind;
   markets: string[];
 }): System {
+  if (listSystems(input.userId).length >= 12) throw new Error('This workspace has reached its 12-system limit.');
   const id = newId('sys');
   db()
     .prepare(
@@ -304,6 +305,8 @@ export async function loadSnapshotForSystem(system: System, opts: RunScanOptions
 }
 
 export async function runScan(system: System, opts: RunScanOptions = {}): Promise<{ record: ScanRecord; report: ScanReport }> {
+  const recent = db().prepare("SELECT count(*) AS n FROM scans WHERE system_id = ? AND created_at > ?").get(system.id, new Date(Date.now() - 60_000).toISOString()) as { n: number };
+  if (recent.n >= 8) throw new Error('Please wait a minute before scanning this system again.');
   const id = newId('scn');
   db()
     .prepare("INSERT INTO scans (id, system_id, status, created_at) VALUES (?, ?, 'running', ?)")
@@ -321,8 +324,8 @@ export async function runScan(system: System, opts: RunScanOptions = {}): Promis
         name: system.name,
         purpose: system.purpose,
         markets: system.markets,
-        ...(opts.turnoverEur ? { turnoverEur: opts.turnoverEur } : {}),
-        ...(opts.employees ? { employees: opts.employees } : {}),
+        ...(opts.turnoverEur != null ? { turnoverEur: opts.turnoverEur } : {}),
+        ...(opts.employees != null ? { employees: opts.employees } : {}),
       },
       onProgress: opts.onProgress,
     });

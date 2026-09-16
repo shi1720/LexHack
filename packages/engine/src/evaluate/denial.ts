@@ -7,7 +7,7 @@ import type { Evidence } from '../types.js';
  * The engine already refuses two ways of faking a closed control: a scaffold
  * whose judgements are still `_TODO_`, and a module nothing calls. Both are
  * about evidence that is *incomplete*. This is the third way, and it is the
- * opposite problem — evidence that is complete and says no:
+ * opposite problem ; evidence that is complete and says no:
  *
  *     # Bias audit
  *     We have never commissioned a bias audit. The next bias audit is
@@ -19,7 +19,7 @@ import type { Evidence } from '../types.js';
  * separate $500 violation, that is a tool actively making its user worse off.
  *
  * The hard part is not detecting negation, it is not detecting it everywhere.
- * Real conformity documentation is full of it — "not later than 2 days",
+ * Real conformity documentation is full of it ; "not later than 2 days",
  * "never a final rejection", "not validated for languages other than English",
  * "a prioritisation signal, not a verdict". A word list over `no|not|never`
  * flags all of those and is unusable.
@@ -29,13 +29,13 @@ import type { Evidence } from '../types.js';
  * deferred. "We have not obtained", "no audit has ever been conducted", "is
  * provisionally due", "we plan to". Across every document in every fixture in
  * this repository these patterns fire exactly once, on a sentence that is a
- * genuine denial — and that sentence is not cited by any control.
+ * genuine denial ; and that sentence is not cited by any control.
  */
 /**
  * Denials of existence and denials of performance.
  *
  * An allowlist of phrasings cannot be sound and this one was not: it covered
- * "we have never commissioned a bias audit" — its own test vector — and four
+ * "we have never commissioned a bias audit" ; its own test vector ; and four
  * ordinary refusals walked past it. "No bias audit exists for this tool."
  * "Status: none." "Remains outstanding." "Was cancelled." So the patterns
  * below are shapes rather than sentences, and they are applied to the whole
@@ -49,7 +49,7 @@ const DENIES = [
   //
   // The negation has to attach to a *performance* verb. Without that clause
   // this fired on "we would rather answer the request than have the authority
-  // ask us why we did not" — a sentence in this repository's own remediated
+  // ask us why we did not" ; a sentence in this repository's own remediated
   // fixture, which is the kind of ordinary prose a guard like this must leave
   // alone.
   /\b(?:we|the (?:company|organisation|organization|team|provider|deployer|board|management)|this (?:document|repository|project|system|product))\b[^.]{0,50}?\b(?:ha(?:ve|s)|had|do(?:es)?|did|is|are|was|were)\s+(?:not|never)\s+(?:yet\s+)?(?:been\s+)?(?:\w+\s+){0,2}?(?:commission\w*|perform\w*|conduct\w*|complet\w*|carr(?:y|ied)|establish\w*|implement\w*|obtain\w*|publish\w*|maintain\w*|audit\w*|review\w*|document\w*|assess\w*|run|done|do|have|had)\b/i,
@@ -77,14 +77,14 @@ const DENIES = [
   // a separate $500 violation, because a status table is not a sentence and
   // every pattern above wants a sentence.
   /(?:^|\|)\s*(?:none|n\/a|nil|nothing|not applicable|not performed|not started|not conducted|no)\s*\|/im,
-  // "Has a bias audit been commissioned? Not yet." — a two-word answer.
+  // "Has a bias audit been commissioned? Not yet." ; a two-word answer.
   /\bnot\s+yet\b\s*[.!]?\s*(?:$|\n)/im,
   // "There is none.", "We have none." The `\bno\b` pattern above stops at the
   // word boundary and never sees "none".
   /\b(?:there|we|the \w+)\s+(?:is|are|ha(?:ve|s))\s+(?:currently\s+)?(?:none|nothing)\b/i,
   // Bare "none" or "not applicable" as the answer to a heading.
   /^\s*(?:none|n\/a|nil|not applicable|to be confirmed)\s*\.?\s*$/i,
-  // Deferred rather than denied — a plan is not a control.
+  // Deferred rather than denied ; a plan is not a control.
   /\b(?:is|are)\s+(?:provisionally\s+)?(?:due|planned|scheduled)\b/i,
   /\bwill\s+be\s+(?:commissioned|performed|conducted|completed|carried out|established|implemented|published|documented)\b/i,
   /\bwe\s+(?:intend|plan|aim)\s+to\b/i,
@@ -101,11 +101,11 @@ export function deniesTheDuty(text: string): boolean {
  * Scanning forward from the citation was a second, independent bypass. A
  * denial one line *below* the last thing a control cited was never examined,
  * so a table of aspirational rows with "we have never commissioned one" under
- * it read as satisfied — with the exact sentence the guard was written for
+ * it read as satisfied ; with the exact sentence the guard was written for
  * sitting in the file.
  */
 const HEADING_LINE = /^\s{0,3}#{1,6}\s/;
-/** A setext heading — the underlined form. `eligibleLines` already knows it. */
+/** A setext heading ; the underlined form. `eligibleLines` already knows it. */
 const SETEXT_UNDERLINE = /^\s{0,3}[-=]{3,}\s*$/;
 
 function isHeading(lines: string[], i: number): boolean {
@@ -132,7 +132,7 @@ const STOPWORD = new Set([
  * Used to decide whether a denial *outside* the cited section is a denial of
  * the same thing. `docs/bias-audit.md` opens `# Bias audit`, so "we have never
  * commissioned a bias audit" three headings down is the document contradicting
- * itself and must count — that was the bypass, and moving the sentence under a
+ * itself and must count ; that was the bypass, and moving the sentence under a
  * `## Notes` heading was the whole attack.
  *
  * Reading the whole file unconditionally is the obvious fix and it is wrong: a
@@ -179,11 +179,11 @@ function assertionAt(lines: string[], index: number): { line: number; text: stri
  * asserting that one exists.
  *
  * Three changes from the version an auditor took apart. It reads the whole
- * *section* around each citation — heading to heading — instead of six lines
+ * *section* around each citation ; heading to heading ; instead of six lines
  * forward, because a denial below the last cited line was invisible: a table
  * of aspirational rows with "we have never commissioned one" in the paragraph
  * under it read as satisfied. It fires when *any*
- * documentation citation denies, rather than requiring all of them to —
+ * documentation citation denies, rather than requiring all of them to ;
  * the old rule meant one positive sentence anywhere disabled the check. And
  * it no longer requires every citation to be documentation, because a single
  * incidental code citation was enough to switch the guard off for a control
@@ -192,7 +192,7 @@ function assertionAt(lines: string[], index: number): { line: number; text: stri
  * Code citations are still not examined: a line of code is a fact about the
  * system rather than a claim about it. Where this fires on a sentence that
  * only reads like a denial, the cost is a control at `partial` whose finding
- * quotes the exact line it read that way — a thing a reader can disagree with,
+ * quotes the exact line it read that way ; a thing a reader can disagree with,
  * rather than a verdict they have to trust.
  */
 export function deniedByItsOwnEvidence(

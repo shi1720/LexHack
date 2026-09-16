@@ -21,13 +21,13 @@ export type { ClassificationRule } from './rules.js';
 /**
  * A test describes a system; it is not the system.
  *
- * `lobehub/lobe-chat` came back high-risk under Annex III point 5(d) —
- * emergency triage and dispatch — on two lines of `domain.test.ts` reading
+ * `lobehub/lobe-chat` came back high-risk under Annex III point 5(d) ;
+ * emergency triage and dispatch ; on two lines of `domain.test.ts` reading
  * `description: 'Detect and triage.'`. A test fixture is prose with a `.ts`
  * extension: it names behaviour in order to assert something about it, and it
  * is written to cover edge cases the product does not ship.
  *
- * So a test may *corroborate* a classification and may not carry one alone —
+ * So a test may *corroborate* a classification and may not carry one alone ;
  * the same rule the engine already applies to comments, for the same reason.
  * The remediated HireFlow fixture depends on this being a cap and not an
  * exclusion: its Article 14 evidence includes `tests/rank.test.ts` alongside
@@ -46,7 +46,7 @@ const TIER_RANK: Record<RiskTier, number> = {
 
 /**
  * Keyword hints taken from the operator's own description of the system.
- * They can only *raise* confidence in a rule that already fired on code — a
+ * They can only *raise* confidence in a rule that already fired on code ; a
  * sentence in a form never creates a finding by itself.
  */
 const PURPOSE_HINTS: Record<string, string[]> = {
@@ -92,7 +92,7 @@ function confidenceFor(rule: ClassificationRule, signals: SignalIndex, profile: 
 /**
  * Art. 3(3) defines a provider as whoever develops an AI system *and places it
  * on the market under their own name*. A team calling someone else's model API
- * from their own product is, on that definition, a provider — which surprises
+ * from their own product is, on that definition, a provider ; which surprises
  * almost everyone. Art. 25(1)(c) makes it sharper: repoint a general-purpose
  * model at an Annex III use case and you become the provider of a high-risk
  * system, while the model vendor does not.
@@ -105,14 +105,14 @@ export function inferRole(signals: SignalIndex, profile: SystemProfile): ActorRo
   if (buildsOwnSystem && usesThirdPartyModel) return 'provider+deployer';
   if (buildsOwnSystem) return 'provider';
   // A dependency on somebody else's model, and nothing in the repository that
-  // develops a system around it — no prompt, no inference path, no training,
+  // develops a system around it ; no prompt, no inference path, no training,
   // no agent framework. On Article 3(3) that is not a provider: developing the
   // system is a constituent of the definition, not an inference from the
   // import. It is Article 3(4) use under your own authority.
   //
   // This branch was missing, and its absence was not cosmetic. `ActorRole`
-  // carries 'deployer' and nothing produced it, so `whenProvider` — the gate
-  // on the Article 50(1) and 50(2) duties, which bind providers — was true for
+  // carries 'deployer' and nothing produced it, so `whenProvider` ; the gate
+  // on the Article 50(1) and 50(2) duties, which bind providers ; was true for
   // every repository that touched a model, and the UI told a pure consumer of
   // a vendor API that it was "provider and deployer".
   if (usesThirdPartyModel) return 'deployer';
@@ -129,9 +129,9 @@ const ARTICLE_6_3_LIMBS: Record<NonNullable<SystemProfile['article6_3Derogation'
 };
 
 /**
- * Evaluate an Article 6(3) claim. Annex never makes the claim itself — a
+ * Evaluate an Article 6(3) claim. Annex never makes the claim itself ; a
  * scanner cannot know whether a task is "narrow" in the sense the Regulation
- * means — but once an operator makes it, one part *is* checkable in code: the
+ * means ; but once an operator makes it, one part *is* checkable in code: the
  * final subparagraph closes the derogation whenever the system performs
  * profiling of natural persons, no matter which limb is relied on.
  */
@@ -142,7 +142,7 @@ function assessArticle6_3(
 ): Article6_3Assessment {
   const profiling = signals.get('domain.profiling');
   const citations = [
-    aiActArticle(6, '(3)', 'Classification rules for high-risk AI systems — derogation'),
+    aiActArticle(6, '(3)', 'Classification rules for high-risk AI systems ; derogation'),
     aiActArticle(6, '(4)', 'Obligation to document the assessment before placing on the market'),
     aiActArticle(49, '(2)', 'Registration of Annex III systems considered not high-risk'),
   ];
@@ -171,7 +171,7 @@ function assessArticle6_3(
   return {
     claimed,
     available: true,
-    rationale: `The operator has assessed that the system does not pose a significant risk of harm to the health, safety or fundamental rights of natural persons, including by not materially influencing the outcome of decision making, and that ${ARTICLE_6_3_LIMBS[claimed]}. Both limbs of Article 6(3) are required, and the first is a judgement about consequences that no scanner can make. No profiling of natural persons was found in the code, which is the one limb that is checkable and which would otherwise close the derogation outright. On that assessment the system is not high-risk — but Article 6(4) requires the assessment to be documented before the system is placed on the market or put into service, and Article 49(2) still requires registration in the EU database.`,
+    rationale: `The operator has assessed that the system does not pose a significant risk of harm to the health, safety or fundamental rights of natural persons, including by not materially influencing the outcome of decision making, and that ${ARTICLE_6_3_LIMBS[claimed]}. Both limbs of Article 6(3) are required, and the first is a judgement about consequences that no scanner can make. No profiling of natural persons was found in the code, which is the one limb that is checkable and which would otherwise close the derogation outright. On that assessment the system is not high-risk ; but Article 6(4) requires the assessment to be documented before the system is placed on the market or put into service, and Article 49(2) still requires registration in the EU database.`,
     evidence: [],
     citations,
   };
@@ -261,14 +261,14 @@ function summarise(tier: RiskTier, findings: ClassificationFinding[], usesAi: bo
     case 'high':
       if (!top) return 'High-risk under the AI Act.';
       return top.id.startsWith('annex-iii.')
-        ? `High-risk under Annex III — ${top.title.toLowerCase()}.`
-        : `High-risk under the AI Act — ${top.title.toLowerCase()}.`;
+        ? `High-risk under Annex III ; ${top.title.toLowerCase()}.`
+        : `High-risk under the AI Act ; ${top.title.toLowerCase()}.`;
     case 'transparency':
       return top
-        ? `Subject to Article 50 transparency duties — ${top.title.toLowerCase()}.`
+        ? `Subject to Article 50 transparency duties ; ${top.title.toLowerCase()}.`
         : 'Subject to Article 50 transparency duties.';
     case 'gpai':
-      return 'Provider of a general-purpose AI model — Chapter V obligations apply.';
+      return 'Provider of a general-purpose AI model ; Chapter V obligations apply.';
     case 'minimal':
       return usesAi
         ? 'Uses AI but falls outside Annex III and Article 50 on the evidence found. Articles 4 and 5 still apply.'

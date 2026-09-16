@@ -94,7 +94,7 @@ export async function ingestGitHub(
   const { owner, repo, ref } = parseGitHubUrl(input);
 
   const metaRes = await doFetch(`https://api.github.com/repos/${owner}/${repo}`, {
-    headers: headers(opts.token),
+    headers: headers(opts.token), signal: AbortSignal.timeout(25_000),
   }).catch((err: unknown) => {
     throw new IngestError(`Could not reach GitHub: ${(err as Error).message}`, 'network');
   });
@@ -121,7 +121,7 @@ export async function ingestGitHub(
   const targetRef = ref ?? meta.default_branch;
 
   const tarUrl = `https://codeload.github.com/${owner}/${repo}/tar.gz/${targetRef}`;
-  const tarRes = await doFetch(tarUrl, { headers: headers(opts.token) }).catch((err: unknown) => {
+  const tarRes = await doFetch(tarUrl, { headers: headers(opts.token), signal: AbortSignal.timeout(25_000) }).catch((err: unknown) => {
     throw new IngestError(`Could not download the repository archive: ${(err as Error).message}`, 'network');
   });
   if (!tarRes.ok) {
@@ -131,8 +131,23 @@ export async function ingestGitHub(
     );
   }
 
-  const buf = Buffer.from(await tarRes.arrayBuffer());
   const maxBytes = opts.maxBytes ?? DEFAULT_MAX_BYTES;
+  if (Number(tarRes.headers.get('content-length') || 0) > maxBytes) {
+    await tarRes.body?.cancel();
+    throw new IngestError('Repository archive exceeds the scan size limit.', 'too-large');
+  }
+  const reader = tarRes.body?.getReader();
+  if (!reader) throw new IngestError('GitHub returned an empty archive.', 'network');
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytes += value.byteLength;
+    if (bytes > maxBytes) { await reader.cancel(); throw new IngestError('Repository archive exceeds the scan size limit.', 'too-large'); }
+    chunks.push(value);
+  }
+  const buf = Buffer.concat(chunks);
   if (buf.byteLength > maxBytes) {
     throw new IngestError(
       `Repository archive is ${(buf.byteLength / 1024 / 1024).toFixed(0)} MB, over the ${(maxBytes / 1024 / 1024).toFixed(0)} MB scan limit.`,

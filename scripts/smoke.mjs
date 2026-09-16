@@ -409,7 +409,7 @@ await check('a cookie whose account is gone lands on the login page', async () =
   const stalePage = await stale.newPage();
   await stalePage.goto(BASE, { waitUntil: 'domcontentloaded' });
   await stale.addCookies([
-    { name: 'annex_session', value: 'not.a.token', domain: 'localhost', path: '/', httpOnly: true, sameSite: 'Lax' },
+    { name: '__session', value: 'not.a.token', domain: 'localhost', path: '/', httpOnly: true, sameSite: 'Lax' },
   ]);
   const response = await stalePage.goto(`${BASE}/app`, { waitUntil: 'networkidle' });
   assert(response.status() < 500, `returned ${response.status()}`);

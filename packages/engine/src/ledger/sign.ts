@@ -17,7 +17,7 @@ import type { LedgerSignature } from '../types.js';
  * without re-running anything and without trusting the file.
  *
  * Ed25519, from `node:crypto`, because this has to work with no dependency and
- * no network — the same constraints as the rest of the engine. What it still
+ * no network ; the same constraints as the rest of the engine. What it still
  * does not give you is written down in SECURITY.md rather than implied away:
  * no timestamp authority, so a signature says who and not when; and key
  * distribution is a problem this does not solve.
@@ -43,12 +43,12 @@ export function generateSigningKey(): SigningKeyPair {
  * The numbers a reader actually looks at.
  *
  * The chain covers the control results. It does not cover the score, the live
- * score, the tier or the exposure — those are *derived* from the results and
+ * score, the tier or the exposure ; those are *derived* from the results and
  * stored beside them, so a signature over the root alone leaves every headline
  * unsigned. An auditor produced a report reading `100/100, limited risk, €0
  * exposure` that verified as `LEDGER INTACT · signed by <the real key>` and
  * exited 0, with the root and the signature bytes identical to the honest
- * report. The CLI's `summaryMismatches` catches that — but only the CLI, and
+ * report. The CLI's `summaryMismatches` catches that ; but only the CLI, and
  * only for a reader who runs it.
  */
 export interface SignedSummary {
@@ -86,7 +86,7 @@ export function signLedgerRoot(
   const value = nodeSign(null, payload(root, algorithm, entryCount, summary), privateKeyPem).toString('base64');
   // Carrying the public key beside the signature is deliberate: it makes the
   // report self-describing, so a reader can check internal consistency without
-  // hunting for a key. It is not a substitute for knowing whose key it is —
+  // hunting for a key. It is not a substitute for knowing whose key it is ;
   // a report signed by an unknown key proves only that it has not been edited
   // since somebody signed it, which `annex verify` says in those words.
   const publicKey = createPublicKey(privateKeyPem).export({ type: 'spki', format: 'pem' }).toString();
@@ -113,7 +113,7 @@ export function verifyLedgerSignature(
   if (signature.signedPayload !== 'annex-ledger/v2') {
     return {
       status: 'invalid',
-      reason: `this signature covers "${signature.signedPayload}", which did not bind the report's score, tier or exposure — re-sign it`,
+      reason: `this signature covers "${signature.signedPayload}", which did not bind the report's score, tier or exposure ; re-sign it`,
     };
   }
 

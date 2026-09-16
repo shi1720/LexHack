@@ -54,7 +54,7 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
     }
     // Source first. The walk used to take directories in readdir order and
     // stop at the file limit, so a repository with four thousand notes under
-    // `aaa/` never reached `src/` — padding the tree was enough to make the
+    // `aaa/` never reached `src/` ; padding the tree was enough to make the
     // regulated code invisible, and the scan came back clean.
     const ordered = [...entries].sort((a, b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name));
 
@@ -63,7 +63,7 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
       const full = join(dir, entry.name);
 
       // A symlink is neither `isDirectory()` nor `isFile()`, so the whole
-      // subtree behind one was silently dropped — which is how a pnpm,
+      // subtree behind one was silently dropped ; which is how a pnpm,
       // Bazel or workspace layout loses its source. Resolve it, and keep a
       // visited set so a cycle terminates.
       let isDir = entry.isDirectory();
@@ -74,7 +74,7 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
           // following one is a confidentiality bug rather than a coverage
           // feature: `ln -s /tmp/secrets vendor` made `scan` read and then
           // *quote* files outside the directory the user named, into a report
-          // people publish. Worse, it supplied evidence — a one-line
+          // people publish. Worse, it supplied evidence ; a one-line
           // `notes.md` outside the tree satisfied Article 14.
           const real = await realpath(full);
           if (real !== realRoot && !real.startsWith(realRoot + sep)) continue;
@@ -112,7 +112,7 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
         const path = relative(root, full).split(sep).join('/');
         // A file past the hard limit is *recorded* and not read.
         //
-        // It used to be dropped here, before the snapshot existed — so it was
+        // It used to be dropped here, before the snapshot existed ; so it was
         // absent from `oversizePaths`, produced no warning, and did not change
         // the tree digest. Appending two megabytes of padding to the one file
         // containing `detectEmotion()` therefore took a repository from

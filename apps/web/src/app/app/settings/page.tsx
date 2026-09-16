@@ -9,8 +9,9 @@ export const dynamic = 'force-dynamic';
 async function save(formData: FormData) {
   'use server';
   const user = await requireUser();
-  const turnover = String(formData.get('turnover') ?? '').replace(/[^\d]/g, '');
-  const employees = String(formData.get('employees') ?? '').replace(/[^\d]/g, '');
+  const turnover = String(formData.get('turnover') ?? '').trim();
+  const employees = String(formData.get('employees') ?? '').trim();
+  if ([turnover, employees].some(v => v && (!/^\d+$/.test(v) || !Number.isSafeInteger(Number(v))))) redirect('/app/settings?error=' + encodeURIComponent('Enter whole, non-negative numbers or leave the fields blank.'));
   const token = String(formData.get('github') ?? '').trim();
 
   updateUser(user.id, {
@@ -18,9 +19,10 @@ async function save(formData: FormData) {
     orgName: String(formData.get('org') ?? ''),
     turnoverEur: turnover ? Number(turnover) : null,
     employees: employees ? Number(employees) : null,
-    githubToken: token === '' ? null : token.startsWith('•') ? undefined : token,
-  } as never);
+    githubToken: process.env.ANNEX_PUBLIC_DEMO === '1' ? null : token === '' ? null : token.startsWith('•') ? undefined : token,
+  });
   revalidatePath('/app/settings');
+  redirect('/app/settings?saved=1');
 }
 
 async function eraseAccount(formData: FormData) {
@@ -34,7 +36,7 @@ async function eraseAccount(formData: FormData) {
   redirect('/?erased=1');
 }
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
   const params = await searchParams;
   const user = await requireUser();
 
@@ -47,6 +49,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </p>
       </div>
 
+      {params.saved ? <p role="status" className="demo-notice">Settings saved. Re-scan a system to update its exposure model.</p> : null}
+      {params.error ? <p role="alert" style={{ color: 'var(--crimson)' }}>{params.error}</p> : null}
       <form action={save} className="space-y-5">
         <Panel title="Organisation">
           <div className="space-y-4">
@@ -58,7 +62,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <Panel title="Exposure modelling">
           <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 16px', maxWidth: '68ch' }}>
             Article 99 sets fines as the <em>higher</em> of a flat cap and a percentage of worldwide annual
-            turnover — except for SMEs and start-ups, where Article 99(6) inverts it to the <em>lower</em> of the
+            turnover · except for SMEs and start-ups, where Article 99(6) inverts it to the <em>lower</em> of the
             two. Without these numbers Annex shows only the flat cap, which overstates exposure for a small
             company by a factor of a hundred.
           </p>
@@ -67,25 +71,24 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               label="Worldwide annual turnover (EUR)"
               name="turnover"
               inputMode="numeric"
-              defaultValue={user.turnoverEur ? String(user.turnoverEur) : ''}
+              defaultValue={user.turnoverEur != null ? String(user.turnoverEur) : ''}
               placeholder="4200000"
             />
             <Field
               label="Employees"
               name="employees"
               inputMode="numeric"
-              defaultValue={user.employees ? String(user.employees) : ''}
+              defaultValue={user.employees != null ? String(user.employees) : ''}
               placeholder="38"
               hint="Under 250 applies the SME cap."
             />
           </div>
         </Panel>
 
-        <Panel title="GitHub access">
+        {process.env.ANNEX_PUBLIC_DEMO !== '1' ? <Panel title="GitHub access">
           <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 16px', maxWidth: '68ch' }}>
             Public repositories scan with no credentials at all. A token lifts the anonymous rate limit and
-            reaches private repositories. It is stored in your own database row and used only to download the
-            repository archive.
+            reaches private repositories. It is stored in your own database row and used to download the repository archive and, only when you request it, open a remediation pull request. Self-hosted tokens are stored in the database; protect its disk and backups.
           </p>
           <Field
             label="Personal access token"
@@ -98,6 +101,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           />
         </Panel>
 
+        : <Panel title="Public demo access"><p>Public repositories work without credentials. For private code or opening remediation pull requests, self-host Annex. Patch downloads work here.</p></Panel>}
+
         <button type="submit" className="btn btn-primary">
           Save settings
         </button>
@@ -105,10 +110,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
       <Panel title="Your data">
         <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 16px', maxWidth: '68ch' }}>
-          GDPR Articles 15 and 17. Annex reported this gap against its own web app on a self-scan —{' '}
-          <code className="code">gdpr.art17.erasure</code> came back missing — so it was fixed rather than
-          excluded. Scan reports are derived entirely from public source code and hold no personal data of
-          their own, so erasure here is a real deletion with nothing left to pseudonymise.
+          GDPR Articles 15 and 17. Annex reported this gap against its own web app on a self-scan ;{' '}
+          <code className="code">gdpr.art17.erasure</code> came back missing · so it was fixed rather than
+          excluded. Reports can contain quoted source code and personal data found in that source. Export only what you intend to share. Erasure removes your workspace, reports and published trust pages.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <a className="btn btn-sm" href="/api/account/export">

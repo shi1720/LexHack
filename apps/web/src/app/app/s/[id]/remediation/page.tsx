@@ -30,7 +30,7 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
       <Panel>
         <Empty
           title="Nothing left that code can close"
-          body="Every gap with an available remediation is already closed. What remains needs a human decision — a residual-risk acceptance, a declared accuracy level, a registration filed with an authority."
+          body="Every gap with an available remediation is already closed. What remains needs a human decision · a residual-risk acceptance, a declared accuracy level, a registration filed with an authority."
         />
       </Panel>
     );
@@ -94,13 +94,13 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
           {/* The numbers first. This panel used to open with six lines of
               justified serif before anything countable appeared, so on a phone
               the whole first screen was prose and the artefact was below the
-              fold. The caveat matters and is still here — one line, under the
+              fold. The caveat matters and is still here · one line, under the
               figures it qualifies. */}
           <div className="flex flex-wrap gap-8">
             <Stat label="Files" value={plan.files.length} />
             {/* Not "closed". The whole argument of this project is that a scaffold
-                closes nothing — a document with an unfilled marker in it caps the
-                obligation at *partial* on the very next scan — and a green
+                closes nothing · a document with an unfilled marker in it caps the
+                obligation at *partial* on the very next scan · and a green
                 "Obligations closed 10" beside that argument contradicts it in
                 the product's own interface. */}
             <Stat label="Obligations advanced" value={plan.closes.length} tone="ok" />
@@ -115,7 +115,7 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
             something a person wrote. What it produces is scaffolding backed by statute rather than finished
             compliance: every document carries <code className="code">TODO</code> markers at exactly the points
             where the answer is a judgement your organisation has to make, and Annex leaves those blank on
-            purpose — a scan of the applied branch will cap each of those obligations at <em>partial</em> until
+            purpose · a scan of the applied branch will cap each of those obligations at <em>partial</em> until
             somebody fills them in.
           </p>
         </Panel>

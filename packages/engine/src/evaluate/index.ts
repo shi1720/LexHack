@@ -24,7 +24,7 @@ import { commentLines } from '../signals/define.js';
  * Annex's own mark for a judgement a human still has to supply.
  *
  * The regex below is a guess at other people's spellings and will always be
- * one `sed` behind — it was case-sensitive, so `sed -i 's/TODO/todo/g'` over
+ * one `sed` behind ; it was case-sensitive, so `sed -i 's/TODO/todo/g'` over
  * the generated scaffolds flipped five controls to `satisfied` without
  * anybody supplying a judgement, and `_PENDING_`, `_TK_` and `«fill»` walk
  * past it today. A guard against *Annex's own output* has no business
@@ -64,7 +64,7 @@ const STATUS_SCORE: Record<ControlStatus, number> = {
   not_applicable: 1,
 };
 
-/** Controls that carry a hard prohibition are not gradeable — they are pass/fail. */
+/** Controls that carry a hard prohibition are not gradeable ; they are pass/fail. */
 const HARD_FAIL_FAMILIES = new Set(['prohibition']);
 
 export function evaluateControl(control: Control, ctx: EvaluationContext, today: Date): ControlResult {
@@ -129,14 +129,14 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
   //
   // Annex's whole argument is that a document a company wrote about itself
   // cannot answer the question. Two ways of writing exactly such a document
-  // had to be closed, and they were closed the wrong way the first time —
+  // had to be closed, and they were closed the wrong way the first time ;
   // hand-patched into the two controls a reviewer happened to name, while the
   // other forty-three stayed open. A guard that holds for two controls is not
   // a property of the engine; it is a patch. So it lives here, where every
   // result passes through, and the packs carry no special cases at all.
   //
   //  - **A scaffold is not a control.** Annex writes documentation templates
-  //    with `_TODO_` where a human has to supply a judgement — the residual
+  //    with `_TODO_` where a human has to supply a judgement ; the residual
   //    risk acceptance, the declared accuracy level, the accountable person.
   //    A finding backed only by unfilled placeholders is a finding backed by
   //    Annex's own output.
@@ -172,7 +172,7 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
      *
      * These used to return on the earliest match, so a control resting on an
      * unfilled scaffold *and* on code nothing calls reported only the
-     * scaffold — and the sharper fact, that the module is never reached,
+     * scaffold ; and the sharper fact, that the module is never reached,
      * never reached the reader. A reader fixing one and re-running to find
      * the next is a reader we wasted a cycle of.
      */
@@ -201,7 +201,7 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
         const first = codeCitations[0]!;
         caps.push({
           finding: `Every line behind this finding is a comment: ${first.path}:${first.line} reads "${first.snippet.trim().slice(0, 100)}". A description of a control is not the control.`,
-          gap: 'Either the measure exists and the detector found only the prose describing it — in which case cite the code — or the prose is all there is. Annex will corroborate a verdict with a comment and will not rest one on comments alone.',
+          gap: 'Either the measure exists and the detector found only the prose describing it ; in which case cite the code ; or the prose is all there is. Annex will corroborate a verdict with a comment and will not rest one on comments alone.',
         });
       }
     }
@@ -302,9 +302,9 @@ export function evaluatePacks(
  * The conformity score, or `null` where there is nothing to score.
  *
  * Returning 100 for an empty applicable set was the most dangerous line in the
- * engine. A repository Annex could not read — a Jupyter notebook, an R file,
+ * engine. A repository Annex could not read ; a Jupyter notebook, an R file,
  * a `.annexignore` containing `*`, a source file one byte over the size limit,
- * a tree whose 4,001st file is the interesting one — classifies as `unknown`,
+ * a tree whose 4,001st file is the interesting one ; classifies as `unknown`,
  * applies no obligations, scores a full green 100 and passes `--fail-under 90`
  * in CI. Every false negative became a passing build, and the number most
  * likely to be wrong was the one that looked best.
@@ -402,7 +402,7 @@ const SEVERITY_RANK: Record<Severity, number> = { critical: 3, high: 2, medium: 
  *
  * Article 99(6) borrows the definition in Commission Recommendation
  * 2003/361/EC: fewer than 250 staff **and** either turnover at or below €50m
- * or a balance-sheet total at or below €43m — assessed across linked and
+ * or a balance-sheet total at or below €43m ; assessed across linked and
  * partner enterprises, not the legal entity in isolation.
  *
  * Unknown therefore resolves to **not** an SME. The inversion lowers the cap,
@@ -419,7 +419,7 @@ export function isSmeUnderArticle99(profile: SystemProfile): boolean {
 }
 
 /**
- * Worst-case administrative exposure — a statutory ceiling, not a forecast.
+ * Worst-case administrative exposure ; a statutory ceiling, not a forecast.
  *
  * Only obligations already in force and actually failing count. Two things
  * this deliberately refuses to do: it will not produce a figure at all where
@@ -459,7 +459,7 @@ export function estimateExposure(
   const outOfAiActScope = !profile.euNexus
     ? 'the operator has recorded that the system is not placed on the Union market, is not put into service in the Union, and its output is not used in the Union, so on Article 2(1) the Regulation does not reach it'
     : excluded.includes('research')
-      ? 'the operator has claimed the Article 2(6) exclusion for AI systems developed and put into service for the sole purpose of scientific research and development — an exclusion lost the moment the system is placed on the market or put into service for any other purpose'
+      ? 'the operator has claimed the Article 2(6) exclusion for AI systems developed and put into service for the sole purpose of scientific research and development ; an exclusion lost the moment the system is placed on the market or put into service for any other purpose'
       : excluded.includes('pre-market')
         ? 'the operator has claimed the Article 2(8) exclusion for research, testing and development prior to placing on the market, which does not cover testing in real-world conditions'
         : undefined;
@@ -510,7 +510,7 @@ export function estimateExposure(
     if (packFailures.length === 0) continue;
 
     // The penalty provision is a closed list, so the failing obligations pick
-    // the tier — not their position in an array. An obligation the statute
+    // the tier ; not their position in an array. An obligation the statute
     // does not price carries no Union-level ceiling, and is skipped.
     const controls = new Map(p.controls.map((c) => [c.id, c]));
     const tiers = new Map(p.penalty.tiers.map((t) => [t.id, t]));
@@ -538,7 +538,7 @@ export function estimateExposure(
     // 4 and 5. GDPR Article 83 does not invert at all, and applying it there
     // understated a €20m ceiling by two orders of magnitude.
     //
-    // Article 99(6a) inverts for small mid-caps too — but only for paragraphs
+    // Article 99(6a) inverts for small mid-caps too ; but only for paragraphs
     // 4 and 5. An SMC failing Article 5 faces the full higher-of figure, so
     // the SMC inversion is read off the tier and the SME inversion off the
     // pack. Those are different provisions and collapsing them is a four-fold

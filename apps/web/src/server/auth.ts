@@ -13,12 +13,12 @@ import { db, installationSecret, newId, nowIso } from './db';
  * is one more thing that can be down during a demo.
  */
 
-const COOKIE = 'annex_session';
+const COOKIE = '__session'; // Firebase Hosting forwards only this cookie.
 const MAX_AGE = 60 * 60 * 24 * 14;
 
 /**
  * The session signing key. `ANNEX_SECRET` when set, otherwise a random secret
- * generated on first boot and kept in the database file — never a constant
+ * generated on first boot and kept in the database file ; never a constant
  * published in this repository, which is what a hardcoded fallback would be.
  */
 function secret(): Uint8Array {
@@ -85,6 +85,7 @@ export function verifyPassword(password: string, stored: string): boolean {
 }
 
 export function passwordProblem(password: string): string | undefined {
+  if (password.length > 200) return 'Use no more than 200 characters.';
   if (password.length < 10) return 'Use at least 10 characters.';
   if (!/[a-z]/i.test(password) || !/\d/.test(password)) return 'Include at least one letter and one number.';
   return undefined;
@@ -120,8 +121,8 @@ export async function destroySession(): Promise<void> {
  * The signed-in user, or a redirect to the login page.
  *
  * Pages used to assert `(await currentUser())!`, which is true right up until
- * it is not: a session cookie that outlives the row it points at — a reset
- * database, a deleted account — made every page throw
+ * it is not: a session cookie that outlives the row it points at ; a reset
+ * database, a deleted account ; made every page throw
  * `Cannot read properties of undefined (reading 'id')` and render a 500. The
  * layout's own `if (!user) redirect()` did not save them, because in the App
  * Router a layout and its page render in parallel. Asking for the user and
@@ -132,7 +133,7 @@ export async function requireUser(): Promise<User> {
   // Deliberately does *not* clear the stale cookie. Doing that here threw
   // `Cookies can only be modified in a Server Action or Route Handler` during
   // render, so the page a signed-out visitor got was an error page rather than
-  // the login form — on exactly the path this function exists to make safe. A
+  // the login form ; on exactly the path this function exists to make safe. A
   // cookie pointing at a row that is gone is inert: `currentUser` already
   // returns undefined for it, `/login` renders normally, and the next
   // successful sign-in overwrites it.
@@ -197,8 +198,8 @@ export function updateUser(id: string, patch: Partial<Pick<User, 'name' | 'orgNa
       id,
       name: patch.name ?? current.name,
       orgName: patch.orgName ?? current.org_name,
-      turnoverEur: patch.turnoverEur ?? current.turnover_eur,
-      employees: patch.employees ?? current.employees,
+      turnoverEur: patch.turnoverEur === undefined ? current.turnover_eur : patch.turnoverEur,
+      employees: patch.employees === undefined ? current.employees : patch.employees,
       githubToken: patch.githubToken === undefined ? current.github_token : patch.githubToken,
     });
 }
@@ -207,7 +208,7 @@ export function updateUser(id: string, patch: Partial<Pick<User, 'name' | 'orgNa
  * Erasure and export.
  *
  * GDPR Articles 15 and 17. Annex reported this gap against its own web app on
- * a self-scan — `annex scan .` flagged `gdpr.art17.erasure` as missing — which
+ * a self-scan ; `annex scan .` flagged `gdpr.art17.erasure` as missing ; which
  * is the most direct argument for the tool there is, so it was fixed rather
  * than excluded.
  *
@@ -230,28 +231,20 @@ export function deleteUser(id: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// The demo account — a judge should never meet a signup wall
+// The demo account ; a judge should never meet a signup wall
 // ---------------------------------------------------------------------------
 
 export const DEMO_EMAIL = 'demo@annex.dev';
 export const DEMO_PASSWORD = 'annex-demo-2026';
 
 export function ensureDemoUser(): User {
-  const existing = findByEmail(DEMO_EMAIL);
-  if (existing) return existing;
+  // A fresh, unguessable identity for every visitor. No shared editable account.
+  db().prepare("DELETE FROM users WHERE email LIKE 'visitor-%@demo.annex.local' AND created_at < ?")
+    .run(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
   const user = createUser({
-    email: DEMO_EMAIL,
-    name: 'Demo reviewer',
-    password: DEMO_PASSWORD,
-    orgName: 'Annex Demo Org',
+    email: `visitor-${randomBytes(16).toString('hex')}@demo.annex.local`,
+    name: 'Demo reviewer', password: randomBytes(32).toString('hex'), orgName: 'Your demo workspace',
   });
-  // The same figures the README, the deck and the demo script all use.
-  //
-  // They were €4.2m / 38 here and €9.8m / 40 everywhere else, so the exposure
-  // on the screenshots (€294,000) and the exposure in the write-up (€686,000)
-  // were two different numbers for the same product. Both were arithmetically
-  // right — Article 99(3) is 7 % of turnover — and a reader comparing them has
-  // no way to know that, and stops trusting either.
   updateUser(user.id, { turnoverEur: 9_800_000, employees: 40 });
-  return findByEmail(DEMO_EMAIL)!;
+  return { ...user, turnoverEur: 9_800_000, employees: 40 };
 }

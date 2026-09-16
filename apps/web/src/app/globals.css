@@ -4,7 +4,7 @@
   Annex design language.
 
   The product sits between two crafts that have never shared a screen: statute
-  and source. So the type does the arguing — a serif for anything the law says,
+  and source. So the type does the arguing ; a serif for anything the law says,
   a monospace for anything the code says, and a neutral sans for the interface
   that holds them together. Nothing decorative; every colour carries a meaning
   that is defined once, here.
@@ -180,7 +180,7 @@ pre { overflow-x: auto; max-width: 100%; }
 table { max-width: 100%; }
 
 /* A grid item's automatic minimum size is its min-content size, so one long
-   line of evidence — a source snippet is deliberately unwrapped — would size
+   line of evidence ; a source snippet is deliberately unwrapped ; would size
    the whole column and push the page sideways on a phone. The snippet already
    owns a scroll container; the document must never inherit it. */
 .grid > * { min-width: 0; }
@@ -294,8 +294,8 @@ textarea.input { height: auto; padding: 9px 11px; line-height: 1.5; resize: vert
 /*
   A source line is shown exactly as it is written, so it scrolls rather than
   wraps. Two consequences that had to be handled: with overlay scrollbars there
-  is no sign that more text exists — hence the fade at the right edge, which
-  lifts on hover and on focus — and a scroll region that cannot be focused
+  is no sign that more text exists ; hence the fade at the right edge, which
+  lifts on hover and on focus ; and a scroll region that cannot be focused
   cannot be scrolled from the keyboard at all, so the element carries
   `tabindex` where it is rendered.
 */
@@ -322,7 +322,7 @@ textarea.input { height: auto; padding: 9px 11px; line-height: 1.5; resize: vert
   A horizontal scroller that shows no sign of being one.
 
   The system tab strip overflows below about 480px and the last tab was cut
-  clean at the edge — "Re…" with nothing to suggest there was more to the
+  clean at the edge ; "Re…" with nothing to suggest there was more to the
   right. A fade on the trailing edge is the affordance, and because it is
   painted by a mask it cannot be mistaken for content. `--fade-end` is set to
   0 once the element is scrolled to the end, so the hint disappears when it
@@ -391,3 +391,71 @@ textarea.input { height: auto; padding: 9px 11px; line-height: 1.5; resize: vert
   .no-print { display: none !important; }
   .card { box-shadow: none; border-color: #ddd; }
 }
+
+/* Public product experience */
+.landing-nav { max-width: 1240px; margin: auto; min-height: 84px; display:flex; align-items:center; justify-content:space-between; padding: 18px 32px; gap: 20px; }
+.landing-nav > a { text-decoration:none; }
+.landing-nav nav { display:flex; align-items:center; gap:24px; font-size:13px; }
+.landing-nav nav > a:not(.btn) { text-decoration:none; color:var(--ink-soft); }
+.hero-grid { max-width:1240px; margin:0 auto; padding:74px 32px 88px; display:grid; grid-template-columns:1.12fr 1fr; gap:76px; align-items:center; }
+.live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--moss); margin-right:7px; }
+.hero-copy h1 { font-size:clamp(48px,5.3vw,76px); line-height:1.05; letter-spacing:-.06em; font-weight:580; margin:25px 0; }
+.hero-copy h1 em, .last-cta h2 em { font-family:var(--font-serif); color:var(--navy); font-weight:450; letter-spacing:-.045em; }
+.hero-sub { font-size:21px; line-height:1.5; max-width:30ch; margin:25px 0 14px; }
+.hero-detail { max-width:48ch; color:var(--ink-soft); font-size:16px; line-height:1.7; }
+.hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+.hero-actions .btn, .last-cta .btn { min-height:48px; padding-inline:22px; font-size:14px; }
+.hero-actions .btn span { margin-left:18px; }
+.hero-note { color:var(--ink-faint); font-size:12px; margin-top:14px; }
+.hero-facts { display:flex; gap:32px; margin-top:42px; padding-top:25px; border-top:1px solid var(--line); }
+.hero-facts div { display:flex; flex-direction:column; }
+.hero-facts strong { font-size:26px; font-weight:600; letter-spacing:-.04em; }
+.hero-facts span { color:var(--ink-faint); font-size:11px; }
+.evidence-hero { border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:0 24px 80px -32px #17356b45; transform:rotate(1deg); overflow:hidden; }
+.evidence-top,.evidence-bottom { padding:14px 20px; display:flex; gap:8px; align-items:center; justify-content:space-between; background:var(--sunken); font-size:10px; }
+.evidence-top { border-bottom:1px solid var(--line); }
+.evidence-body { padding:25px; }
+.evidence-body h2 { font-family:var(--font-serif); font-weight:500; font-size:32px; line-height:1.14; letter-spacing:-.035em; margin:22px 0 10px; }
+.evidence-body > p { font-size:12px; color:var(--ink-faint); margin-bottom:24px; }
+.law-block { border-left:3px solid var(--crimson); padding:2px 0 2px 14px; }
+.law-block strong { display:block; font-size:14px; margin-top:8px; }
+.law-block p,.next-block p { font-size:12px; color:var(--ink-soft); line-height:1.7; margin:7px 0; }
+.source-block { margin:23px 0; background:var(--sunken); border:1px solid var(--line); border-radius:7px; padding:14px; }
+.source-block pre { font-size:12px; margin:10px 0 0; line-height:1.8; white-space:pre-wrap; }
+.source-block pre span { color:var(--ink-faint); }
+.source-block pre b { color:var(--crimson); font-weight:600; }
+.file-label { margin-top:8px; color:var(--navy); font-size:11px; }
+.evidence-bottom { justify-content:flex-start; border-top:1px solid var(--line); }
+.evidence-bottom > span:last-child { margin-left:auto; color:var(--ink-faint); }
+.pack-strip { display:flex; flex-wrap:wrap; justify-content:center; gap:24px 36px; padding:25px; background:var(--sunken); border-block:1px solid var(--line); font-size:13px; font-weight:550; }
+.pack-strip .eyebrow { align-self:center; font-size:9px; }
+.landing-section { max-width:1240px; margin:auto; padding:82px 32px; }
+.section-heading { display:flex; justify-content:space-between; gap:40px; align-items:flex-end; margin-bottom:38px; }
+.landing-section h2,.comparison-section h2 { font-size:clamp(28px,3.2vw,42px); line-height:1.15; font-weight:550; letter-spacing:-.045em; margin:16px 0 0; }
+.section-heading > p { color:var(--ink-soft); max-width:30ch; font-size:14px; }
+.workflow-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.workflow-card { border-top:2px solid var(--line-strong); padding:26px 4px; }
+.step-number { color:var(--navy); font-family:var(--font-mono); font-size:13px; }
+.workflow-card h3 { font-size:20px; font-weight:550; margin:22px 0 12px; }
+.workflow-card p { font-size:14px; color:var(--ink-soft); min-height:105px; max-width:35ch; }
+.workflow-card .eyebrow { font-size:10px; }
+.comparison-section { padding:64px max(32px,calc((100vw - 1176px)/2)); display:grid; grid-template-columns:1fr 1fr; gap:90px; background:var(--navy-soft); border-block:1px solid var(--line); }
+.comparison-section > div > p:not(.eyebrow) { max-width:47ch; color:var(--ink-soft); font-size:15px; margin:22px 0; }
+.comparison-card { background:var(--surface); border:1px solid var(--line); padding:30px; border-radius:12px; }
+.comparison-card > div:not(.comparison-arrow) { display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px; }
+.comparison-card p { flex-basis:100%; font-size:14px; }
+.comparison-arrow { padding:20px 0; color:var(--ink-faint); font-size:23px; }
+.comparison-arrow span { font-size:12px; margin-left:10px; }
+.comparison-card .comparison-foot { font-size:12px; border-top:1px solid var(--line); padding-top:18px; margin-bottom:0; }
+.trust-section { display:grid; grid-template-columns:1fr 1.1fr; gap:70px; }
+.trust-section > div > p:not(.eyebrow) { font-size:15px; color:var(--ink-soft); margin-top:22px; }
+.trust-grid { display:grid; grid-template-columns:1fr 1fr; gap:28px; padding-top:10px; }
+.trust-grid strong { font-size:15px; font-weight:600; }
+.trust-grid p { color:var(--ink-soft); font-size:13px; margin:10px 0; }
+.last-cta { text-align:center; padding:65px 24px 78px; background:var(--sunken); border-block:1px solid var(--line); }
+.last-cta h2 { font-size:clamp(32px,4vw,52px); line-height:1.2; letter-spacing:-.045em; font-weight:550; margin:22px 0 28px; }
+.landing-footer { max-width:1240px; margin:auto; padding:30px 32px; display:flex; align-items:center; justify-content:space-between; gap:25px; }
+.landing-footer p,.landing-footer a { font-size:12px; color:var(--ink-faint); }
+.demo-notice { border:1px solid var(--line); background:var(--navy-soft); color:var(--ink-soft); padding:12px 16px; border-radius:8px; font-size:12px; margin:0 0 24px; }
+@media(max-width:900px) { .hero-grid { gap:32px; padding-top:40px; } .hero-facts{gap:20px} .comparison-section{gap:40px} .trust-section{gap:35px} }
+@media(max-width:680px) { .landing-nav{padding:16px 20px}.landing-nav nav{gap:10px}.landing-nav nav > a:not(.btn){display:none}.hero-grid{grid-template-columns:1fr;padding:32px 20px 50px;gap:36px}.hero-copy h1{font-size:53px}.evidence-hero{transform:none}.hero-facts{justify-content:space-between}.section-heading{display:block}.landing-section{padding:50px 20px}.workflow-grid{grid-template-columns:1fr;gap:6px}.workflow-card p{min-height:0;max-width:none}.comparison-section{grid-template-columns:1fr;padding:45px 20px;gap:30px}.trust-section{grid-template-columns:1fr}.trust-grid{gap:20px}.pack-strip{gap:12px 20px;font-size:11px}.pack-strip .eyebrow{width:100%;text-align:center}.landing-footer{flex-wrap:wrap;padding:25px 20px}.evidence-body{padding:20px}.hero-sub{font-size:20px}.hero-detail{font-size:15px} }

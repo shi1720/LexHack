@@ -42,7 +42,7 @@ import { c, SYMBOL, clearProgress, money, heading, progress, rule, scoreBar, sta
 const CLI_VERSION = '0.1.0';
 
 // ---------------------------------------------------------------------------
-// Argument parsing — small enough not to need a dependency
+// Argument parsing ; small enough not to need a dependency
 // ---------------------------------------------------------------------------
 
 interface Args {
@@ -87,7 +87,7 @@ const list = (v: string | boolean | undefined): string[] | undefined => str(v)?.
 // ---------------------------------------------------------------------------
 
 const HELP = `
-${c.bold('annex')} ${c.grey(`v${CLI_VERSION}`)} — conformity evidence, compiled from source code.
+${c.bold('annex')} ${c.grey(`v${CLI_VERSION}`)} ; conformity evidence, compiled from source code.
 
 ${c.bold('USAGE')}
   annex <command> [target] [options]
@@ -120,7 +120,7 @@ ${c.bold('SCAN OPTIONS')}
   --scope-exclusion    research · pre-market · foss   (Art. 2(6), 2(8), 2(12))
   --small-mid-cap      Article 99(6a): the operator is a small mid-cap, which
                        caps Article 99(4) and 99(5) fines at the lower of the
-                       two figures — but not Article 99(3), so an Article 5
+                       two figures ; but not Article 99(3), so an Article 5
                        breach still carries the full higher-of amount
   --public-body        Article 27(1): the deployer is a body governed by public
                        law or a private entity providing a public service, which
@@ -129,7 +129,7 @@ ${c.bold('SCAN OPTIONS')}
   --article-6-3 <limb> Claim the Article 6(3) derogation from Annex III:
                        narrow-procedural · improves-human-activity ·
                        pattern-detection · preparatory. Annex checks the one
-                       limb it can — profiling closes it — and records the
+                       limb it can ; profiling closes it ; and records the
                        Article 6(4) and 49(2) duties that survive.
   --sign <keyfile>     Sign the evidence ledger root with an Ed25519 private
                        key in PKCS#8 PEM (see 'annex keygen'). The chain makes
@@ -148,7 +148,7 @@ ${c.bold('VERIFY OPTIONS')}
                        longer describes the tree it claims to describe says so
   --pubkey <file>      Check the ledger signature against a key you already
                        trust. Without it a signature is still checked, but only
-                       against the key carried inside the report — which proves
+                       against the key carried inside the report ; which proves
                        the report has not been edited since somebody signed it,
                        not who that somebody is
 
@@ -197,7 +197,7 @@ const KNOWN_FLAGS: Record<string, string[]> = {
  * Flags that take a value. Given none, they must fail rather than fall back.
  *
  * The parser turns `--fail-under --markets eu` into `failUnder: true`, and
- * every consumer read that as "not supplied" — so a CI gate written with a
+ * every consumer read that as "not supplied" ; so a CI gate written with a
  * typo'd or dropped value passed silently, which is the exact failure the
  * unknown-flag check above exists to prevent, one step further along.
  */
@@ -239,7 +239,7 @@ async function loadSnapshot(target: string, flags: Args['flags']): Promise<RepoS
 
   const path = resolve(target);
   const snapshot = await ingestDirectory(path, { name: str(flags.name) ?? undefined });
-  // Annotate with the git commit when there is one — it is what the dossier cites.
+  // Annotate with the git commit when there is one ; it is what the dossier cites.
   try {
     const commit = execFileSync('git', ['-C', path, 'rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
     const branch = execFileSync('git', ['-C', path, 'rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
@@ -267,7 +267,7 @@ function profileFrom(flags: Args['flags']): Partial<SystemProfile> {
 
   // Article 27(1) limbs (i) and (ii). Not visible in code, and without it the
   // fundamental rights impact assessment reaches only the Annex III point 5
-  // use cases — so a municipality's recruitment tool owed a FRIA and was
+  // use cases ; so a municipality's recruitment tool owed a FRIA and was
   // never asked for one.
   if (flags['public-body']) profile.publicBodyOrPublicService = true;
 
@@ -365,7 +365,7 @@ async function runScan(args: Args): Promise<number> {
   /**
    * The gate. Everything below is about refusing to pass rather than about
    * passing, because a CI check that goes green over nothing is worse than no
-   * check at all — it is a check somebody is relying on.
+   * check at all ; it is a check somebody is relying on.
    */
   if (args.flags['fail-under'] === true) {
     process.stderr.write(c.red('--fail-under needs a number: --fail-under 70.\n'));
@@ -388,7 +388,7 @@ async function runScan(args: Args): Promise<number> {
     // hashed, still counted in the tree digest and now named in the report, so
     // a reader can see exactly what was left out and the snapshot id changes
     // the moment the list does. Truncation and an unreadable tree are
-    // different — there the scan does not know what it missed.
+    // different ; there the scan does not know what it missed.
     //
     // Refusing on any exclusion at all was the earlier behaviour and it was
     // wrong twice over. It made the flag unusable on every repository with
@@ -396,7 +396,7 @@ async function runScan(args: Args): Promise<number> {
     // stop the attack it was written for, because anyone willing to exclude
     // the incriminating file is willing to drop the flag. What does stop it is
     // making the exclusion visible in an artefact the auditee cannot edit
-    // without breaking the ledger — which is what the list below prints.
+    // without breaking the ledger ; which is what the list below prints.
     const refusals: string[] = [];
     const read = report.snapshot.fileCount - report.snapshot.ignoredCount;
     if (report.snapshot.fileCount === 0) refusals.push('the snapshot contains no readable source files');
@@ -411,7 +411,7 @@ async function runScan(args: Args): Promise<number> {
     }
     // The cheapest way to hide a file is to make it too big to read. This
     // check existed as `const oversize = report.snapshot.sampledPaths ===
-    // undefined ? 0 : 0;` — a no-op reading the wrong field — so appending
+    // undefined ? 0 : 0;` ; a no-op reading the wrong field ; so appending
     // padding to the one file containing the prohibited practice produced
     // `100/100 over 2 applicable obligations` and exit 0 against a floor of 90.
     const oversize = report.snapshot.oversizePaths ?? [];
@@ -468,7 +468,7 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   out.write(`  ${c.grey('repository')}   ${c.bold(report.snapshot.name)} ${c.grey(`· ${report.snapshot.fileCount} files · ${report.durationMs} ms`)}\n`);
   out.write(`  ${c.grey('your role')}    ${report.classification.role.replace('+', ' and ')} ${c.grey('(Arts. 3(3), 3(4))')}\n`);
   // Print the denominator. A score is a fraction and the numerator alone is
-  // how "100/100" ends up meaning "the two obligations that apply are met" —
+  // how "100/100" ends up meaning "the two obligations that apply are met" ;
   // which is a true statement and a much smaller one than it looks.
   if (report.score === null) {
     out.write(
@@ -497,7 +497,7 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   }
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
   if (report.exposure.maxFine > 0) {
-    // Cite whichever regime actually sets the headline ceiling — it is not
+    // Cite whichever regime actually sets the headline ceiling ; it is not
     // always the AI Act; for a system that fails GDPR too, Article 83(5) is
     // the higher number and the reader is owed the article it comes from.
     const headline = report.exposure.byRegime[0]?.citation;
@@ -568,7 +568,7 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   if (report.clock.next) {
     const n = report.clock.next;
     out.write(heading('Next deadline') + '\n');
-    out.write(`  ${c.bold(n.label)} ${c.grey(`— ${n.date}, in ${n.daysAway} days`)}\n`);
+    out.write(`  ${c.bold(n.label)} ${c.grey(`; ${n.date}, in ${n.daysAway} days`)}\n`);
     out.write(wrap(n.note, 74) + '\n');
     out.write(`  ${c.grey(`${n.controlIds.length} obligation${n.controlIds.length === 1 ? '' : 's'} attached to this date are not yet evidenced.`)}\n`);
   }
@@ -591,14 +591,14 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
 function renderMarkdown(report: ScanReport): string {
   const applicable = report.controls.filter((r) => r.status !== 'not_applicable');
   const lines = [
-    `# AI Act conformity — ${report.snapshot.name}`,
+    `# AI Act conformity ; ${report.snapshot.name}`,
     '',
     `**${report.classification.summary}**`,
     '',
     `| | |`,
     `|---|---|`,
     // `null` is "not assessed", and interpolating it printed the literal
-    // word `null` into a markdown report — the mirror image of the `0` the
+    // word `null` into a markdown report ; the mirror image of the `0` the
     // nullable score was introduced to stop.
     `| Conformity score | ${report.score === null ? '_not assessed_' : `**${report.score}/100**`} |`,
     `| Obligations in force today | ${report.liveScore === null ? '_not assessed_' : `${report.liveScore}/100`} |`,
@@ -613,8 +613,8 @@ function renderMarkdown(report: ScanReport): string {
     lines.push('## Classification', '');
     for (const f of report.classification.findings) {
       const cite = f.citations[0];
-      lines.push(`### ${f.title}`, '', `${cite ? `**${cite.short} ${cite.locator}** — ` : ''}${f.rationale}`, '');
-      for (const e of f.evidence.slice(0, 3)) lines.push(`- \`${e.path}:${e.line}\` — \`${e.snippet.trim()}\``);
+      lines.push(`### ${f.title}`, '', `${cite ? `**${cite.short} ${cite.locator}** ; ` : ''}${f.rationale}`, '');
+      for (const e of f.evidence.slice(0, 3)) lines.push(`- \`${e.path}:${e.line}\` ; \`${e.snippet.trim()}\``);
       lines.push('');
     }
   }
@@ -675,7 +675,7 @@ async function runFix(args: Args): Promise<number> {
    * `runFix` never read the flag: `annex fix .` wrote straight into the tree
    * and reported "10 files written". The README's own transcript shows
    * `annex fix . --write`, which tells a reader the flag gates the mutation,
-   * and it gated nothing — so anybody who ran the command without it, to see
+   * and it gated nothing ; so anybody who ran the command without it, to see
    * what it would do, had already had it done. On a demo machine that quietly
    * rewrote `fixtures/hireflow`, which is the prohibited fixture the whole
    * demo rests on.
@@ -737,7 +737,7 @@ async function runDiff(args: Args): Promise<number> {
    * Either side may be a git ref or a directory.
    *
    * Comparing two directories is the form that works in a demo, in a tarball,
-   * and in a repository with no history — and `git archive` gives us a ref's
+   * and in a repository with no history ; and `git archive` gives us a ref's
    * tree without touching the working copy, so there is nothing to stash and
    * nothing to clean up if the scan throws.
    */
@@ -811,7 +811,7 @@ async function runDiff(args: Args): Promise<number> {
 }
 
 /**
- * A report is untrusted input — it arrives as a file, often from the party
+ * A report is untrusted input ; it arrives as a file, often from the party
  * being audited. Check its shape before touching it, so a malformed dossier
  * produces a sentence rather than a stack trace.
  */
@@ -819,8 +819,8 @@ async function runDiff(args: Args): Promise<number> {
  * Validate the elements, not just the arrays.
  *
  * Checking that `controls` is an array and then dereferencing its members got
- * an internal TypeError — "Cannot read properties of undefined (reading
- * 'map')" — on a file that is simply not an Annex report. The user should be
+ * an internal TypeError ; "Cannot read properties of undefined (reading
+ * 'map')" ; on a file that is simply not an Annex report. The user should be
  * told that, not handed a stack frame.
  */
 function badControl(controls: unknown[]): string | null {
@@ -860,7 +860,7 @@ function assertReportShape(value: unknown, path: string): asserts value is ScanR
  * Re-hash every file the report cites, straight off disk.
  *
  * The ledger proves the report is internally consistent. It cannot, on its
- * own, prove that the *source* still says what the report says it said —
+ * own, prove that the *source* still says what the report says it said ;
  * `fileSha256` is a number the report carries about itself. This closes that
  * loop: point `--against` at the working tree and every cited digest is
  * recomputed from the bytes actually on disk.
@@ -927,7 +927,7 @@ function summaryMismatches(report: ScanReport): string[] {
   }
 
   // The exposure is a pure function of the controls, the packs and the
-  // profile, all of which the report carries — so recompute it rather than
+  // profile, all of which the report carries ; so recompute it rather than
   // checking one degenerate case. Editing `exposure.maxFine` from €15,000,000
   // to €250,000 in an unsigned report used to pass `verify` with LEDGER
   // INTACT and exit 0.
@@ -959,7 +959,7 @@ function summaryMismatches(report: ScanReport): string[] {
   return out;
 }
 
-/** The Chapter III, Section 2 articles — the ones only a high-risk system owes. */
+/** The Chapter III, Section 2 articles ; the ones only a high-risk system owes. */
 const HIGH_RISK_ARTICLE = /\.art(?:9|10|11|12|13|14|15|17|43|47|48)\./;
 
 /**
@@ -980,7 +980,7 @@ async function runKeygen(args: Args): Promise<number> {
   await writeFile(publicPath, publicKey, 'utf8');
 
   process.stdout.write(`\n${c.bgGreen(' SIGNING KEY ')}  ${c.bold(keyFingerprint(publicKey))}\n\n`);
-  process.stdout.write(`  ${c.grey('private')}  ${privatePath} ${c.grey('(mode 0600 — never commit this)')}\n`);
+  process.stdout.write(`  ${c.grey('private')}  ${privatePath} ${c.grey('(mode 0600 ; never commit this)')}\n`);
   process.stdout.write(`  ${c.grey('public')}   ${publicPath} ${c.grey('(publish this next to your trust page)')}\n\n`);
   process.stdout.write(
     `${wrap('Sign a scan with: annex scan . --sign annex-signing.key ... and check one with: annex verify report.json --pubkey annex-signing.pub. A reader who has your public key can then tell that a report carries your results and not somebody else\'s, without re-running anything.', 74, '  ')}\n`,
@@ -1024,7 +1024,7 @@ async function runVerify(args: Args): Promise<number> {
   }
 
   // The chain covers the control results. It does not cover the four numbers
-  // anyone actually reads — the score, the tier, the exposure — which sit
+  // anyone actually reads ; the score, the tier, the exposure ; which sit
   // beside it in the same JSON and are derived from those results. Leaving
   // them unchecked meant a report could be edited to say 94/100, minimal risk,
   // no exposure, over forty-five entries that all still said "missing", and
@@ -1032,7 +1032,7 @@ async function runVerify(args: Args): Promise<number> {
   const derived = summaryMismatches(report);
   if (derived.length > 0) {
     process.stdout.write(`${c.bgRed(' REPORT INCONSISTENT ')}\n\n`);
-    process.stdout.write(`  The ledger is intact, so the control results are the ones it was built over —\n`);
+    process.stdout.write(`  The ledger is intact, so the control results are the ones it was built over ;\n`);
     process.stdout.write(`  but the report's own summary does not follow from them:\n\n`);
     for (const d of derived) process.stdout.write(`  ${c.red(SYMBOL.fail)} ${d}\n`);
     process.stdout.write(`\n  ${c.grey('Re-run the scan rather than trusting the headline.')}\n`);
@@ -1102,7 +1102,7 @@ async function runVerify(args: Args): Promise<number> {
    * Citations cover what Annex found; a tree can gain an entire prohibited
    * practice without touching any of them. An auditor scanned the remediated
    * fixture, added a working `detectEmotion()` in a new file, and `--against`
-   * printed "every cited file still hashes" and exited 0 — while the README
+   * printed "every cited file still hashes" and exited 0 ; while the README
    * promised "a report that no longer describes the tree it claims to
    * describe says so". The snapshot id is content-addressed over every path
    * and digest, so comparing it is the check that sentence was describing.
@@ -1112,8 +1112,8 @@ async function runVerify(args: Args): Promise<number> {
     const now = await ingestDirectory(resolve(against), { name: report.snapshot.name });
     if (now.id !== report.snapshot.id) {
       // `sampledPaths` is the first forty paths, so it can name *some* of what
-      // appeared and never all of it. Say which ones it can — a reader who is
-      // told "the tree changed" and not how has to go and diff it themselves —
+      // appeared and never all of it. Say which ones it can ; a reader who is
+      // told "the tree changed" and not how has to go and diff it themselves ;
       // and be explicit that the list is partial rather than implying it is
       // the whole set.
       const before = new Set(report.snapshot.sampledPaths ?? []);
@@ -1132,7 +1132,7 @@ async function runVerify(args: Args): Promise<number> {
   }
 
   if (treeChanged) {
-    process.stdout.write(`  ${c.red(SYMBOL.fail)} the tree is not the tree this report describes — ${treeChanged}\n`);
+    process.stdout.write(`  ${c.red(SYMBOL.fail)} the tree is not the tree this report describes ; ${treeChanged}\n`);
     process.stdout.write(
       `\n${wrap('The cited files may all still match: a repository can gain an entire prohibited practice in a file this report never mentions, because a citation covers what the scan found and not what was there. Re-scan before relying on it.', 74, '  ')}\n`,
     );
@@ -1165,7 +1165,7 @@ async function runBenchmarkCommand(args: Args): Promise<number> {
   const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
   const wrong = summary.outcomes.filter((o) => !o.tierCorrect || o.missedFindings.length || o.falseFindings.length);
 
-  process.stdout.write(`\n${c.bold('Benchmark')} ${c.grey(`— ${summary.total} hand-labelled cases, ${summary.durationMs} ms`)}\n${rule()}\n`);
+  process.stdout.write(`\n${c.bold('Benchmark')} ${c.grey(`; ${summary.total} hand-labelled cases, ${summary.durationMs} ms`)}\n${rule()}\n`);
   process.stdout.write(`  ${c.grey('risk-tier accuracy  ')} ${c.bold(pct(summary.tierAccuracy))} ${c.grey(`(${summary.tierCorrect}/${summary.total})`)}\n`);
   process.stdout.write(`  ${c.grey('finding recall      ')} ${c.bold(pct(summary.recall))} ${c.grey(`(${summary.recalledFindings}/${summary.expectedFindings})`)}\n`);
   process.stdout.write(`  ${c.grey('carve-out precision ')} ${c.bold(pct(summary.carveOutPrecision))} ${c.grey(`(${summary.forbiddenChecks - summary.forbiddenViolations}/${summary.forbiddenChecks})`)}\n`);
@@ -1186,7 +1186,7 @@ async function runBenchmarkCommand(args: Args): Promise<number> {
 }
 
 function runPacks(): number {
-  process.stdout.write(`\n${c.bold('Rule-pack corpus')} ${c.grey(`— ${CORPUS_SIZE} executable obligations`)}\n`);
+  process.stdout.write(`\n${c.bold('Rule-pack corpus')} ${c.grey(`; ${CORPUS_SIZE} executable obligations`)}\n`);
   for (const pack of ALL_PACKS) {
     process.stdout.write(`\n  ${c.bold(pack.name)} ${c.cyan(pack.version)} ${c.grey(`· ${pack.jurisdiction} · reconciled ${pack.reconciledOn}`)}\n`);
     process.stdout.write(c.grey(wrap(pack.summary, 74, '    ')) + '\n');
@@ -1223,7 +1223,7 @@ function runExplain(args: Args): number {
   process.stdout.write(wrap(control.obligation, 76) + '\n\n');
   process.stdout.write(c.bold('Citations\n'));
   for (const cite of control.citations) {
-    process.stdout.write(`  ${c.cyan(`${cite.short} ${cite.locator}`)} — ${cite.title}\n  ${c.grey(cite.url)}\n`);
+    process.stdout.write(`  ${c.cyan(`${cite.short} ${cite.locator}`)} ; ${cite.title}\n  ${c.grey(cite.url)}\n`);
     if (cite.quote) process.stdout.write(c.italic(c.grey(wrap(`“${cite.quote}”`, 72, '    '))) + '\n');
     process.stdout.write('\n');
   }

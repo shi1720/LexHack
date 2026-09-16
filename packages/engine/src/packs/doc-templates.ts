@@ -5,10 +5,10 @@ function heading(ctx: EvaluationContext, title: string, citation: string): strin
 
 > **System:** ${ctx.profile.name}
 > **Legal basis:** ${citation}
-> **Status:** DRAFT — scaffolded by Annex from evidence found in this repository. Every _TODO_ below is a question only a human in your organisation can answer.
+> **Status:** DRAFT ; scaffolded by Annex from evidence found in this repository. Every _TODO_ below is a question only a human in your organisation can answer.
 > **Last reconciled with the codebase:** commit \`${(ctx.snapshot.commit ?? ctx.snapshot.id).slice(0, 12)}\`
 
-<!-- annex:unfilled — remove this line when every _TODO_ above has been answered.
+<!-- annex:unfilled ; remove this line when every _TODO_ above has been answered.
      Annex reads it as "a human has not signed off on this document yet" and
      will not let the document close an obligation while it is here. Renaming
      the placeholders does not remove it. -->
@@ -19,7 +19,7 @@ function heading(ctx: EvaluationContext, title: string, citation: string): strin
 function evidenceList(ctx: EvaluationContext, signalIds: string[], emptyNote: string): string {
   const evidence = ctx.signals.evidenceFor(...signalIds).slice(0, 8);
   if (evidence.length === 0) return `_${emptyNote}_\n`;
-  return evidence.map((e) => `- \`${e.path}:${e.line}\` — \`${e.snippet.trim()}\``).join('\n') + '\n';
+  return evidence.map((e) => `- \`${e.path}:${e.line}\` ; \`${e.snippet.trim()}\``).join('\n') + '\n';
 }
 
 // ---------------------------------------------------------------------------
@@ -48,8 +48,8 @@ ${findings
       `| R${i + 1} | _TODO: describe the concrete harm_ | ${f.title} (${f.citations[0]?.locator ?? 'n/a'}) | _TODO_ | _TODO_ | Open |`,
   )
   .join('\n')}
-| R${findings.length + 1} | Automation bias — the reviewer defers to the model rather than assessing it | Article 14(4)(b) | _TODO_ | _TODO_ | Open |
-| R${findings.length + 2} | Feedback loop — outputs influence future training inputs | Article 15(4) | _TODO_ | _TODO_ | Open |
+| R${findings.length + 1} | Automation bias ; the reviewer defers to the model rather than assessing it | Article 14(4)(b) | _TODO_ | _TODO_ | Open |
+| R${findings.length + 2} | Feedback loop ; outputs influence future training inputs | Article 15(4) | _TODO_ | _TODO_ | Open |
 
 ## 3. Risks surfaced by post-market monitoring (Article 9(2)(c))
 
@@ -112,7 +112,7 @@ _TODO: annotation, labelling, cleaning, updating, enrichment and aggregation. Na
 
 ## (d) Assumptions
 
-_TODO: what is each dataset **supposed to measure and represent**? State this explicitly — Article 10(2)(d) asks for the formulation of assumptions, and unstated assumptions are where discrimination hides._
+_TODO: what is each dataset **supposed to measure and represent**? State this explicitly ; Article 10(2)(d) asks for the formulation of assumptions, and unstated assumptions are where discrimination hides._
 
 ## (e) Availability, quantity and suitability
 
@@ -120,7 +120,7 @@ _TODO: how much data, and is it enough for the intended purpose?_
 
 ## (f) Examination for possible biases
 
-Article 10(2)(f) requires examination in view of biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law — **especially where outputs influence inputs for future operations**.
+Article 10(2)(f) requires examination in view of biases likely to affect health and safety, negatively impact fundamental rights, or lead to discrimination prohibited under Union law ; **especially where outputs influence inputs for future operations**.
 
 Bias or fairness testing found in this repository:
 
@@ -138,7 +138,7 @@ _TODO_
 
 _TODO: what is missing from the data, and how will it be addressed?_
 
-## Article 10(3)-(4) — quality criteria
+## Article 10(3)-(4) ; quality criteria
 
 - **Relevant, sufficiently representative, and to the best extent possible free of errors and complete** in view of the intended purpose: _TODO_
 - Appropriate statistical properties, including as regards the persons or groups on whom the system is to be used: _TODO_
@@ -211,7 +211,7 @@ _TODO_
 
 ## (f) Mechanisms for the deployer to collect, store and interpret the logs
 
-${evidenceList(ctx, ['control.logging.inference'], 'No inference logging was detected — Article 13(3)(f) cannot be answered without it.')}
+${evidenceList(ctx, ['control.logging.inference'], 'No inference logging was detected ; Article 13(3)(f) cannot be answered without it.')}
 `
   );
 }
@@ -228,7 +228,7 @@ An incident or malfunctioning of the AI system that directly or indirectly leads
 3. an **infringement of obligations under Union law intended to protect fundamental rights**;
 4. **serious harm to property or the environment**.
 
-## Statutory deadlines — Article 73(2)-(4)
+## Statutory deadlines ; Article 73(2)-(4)
 
 | Situation | Deadline | Basis |
 |---|---|---|

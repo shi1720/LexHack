@@ -5,7 +5,7 @@ import { SAMPLES, createSystem, listSystems, runScan, updateSystem } from './sys
  *
  * Runs synchronously on first entry so a reviewer lands on populated data
  * rather than four empty cards and a spinner. Scans take tens of milliseconds
- * each, so this costs nothing — but it is what makes the demo survive a
+ * each, so this costs nothing ; but it is what makes the demo survive a
  * conference wifi network.
  */
 export function seedDemoSystems(userId: string): void {

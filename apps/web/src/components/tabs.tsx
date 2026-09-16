@@ -24,7 +24,7 @@ export function Tabs({ base, items }: { base: string; items: { href: string; lab
    *
    * At 390px the strip is wider than the screen, so landing on Remediation
    * put its own tab half off the right edge, reading as `Re` with a fade over
-   * it — the page you are on, clipped, on the tab bar that tells you where you
+   * it · the page you are on, clipped, on the tab bar that tells you where you
    * are. `nearest` so the common case, where the active tab is already
    * visible, does not move anything.
    */

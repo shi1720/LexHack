@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { revalidatePath } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { currentUser, requireUser } from '@/server/auth';
 import { getSystem, latestReport, runScan } from '@/server/systems';
@@ -21,9 +22,10 @@ async function rescan(formData: FormData) {
   if (!system) return;
   await runScan(system, {
     ...(user.githubToken ? { githubToken: user.githubToken } : {}),
-    ...(user.turnoverEur ? { turnoverEur: user.turnoverEur } : {}),
-    ...(user.employees ? { employees: user.employees } : {}),
+    ...(user.turnoverEur != null ? { turnoverEur: user.turnoverEur } : {}),
+    ...(user.employees != null ? { employees: user.employees } : {}),
   }).catch(() => undefined);
+  revalidatePath(`/app/s/${system.id}`);
 }
 
 export default async function SystemLayout({

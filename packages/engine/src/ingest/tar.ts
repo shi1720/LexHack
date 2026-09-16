@@ -72,7 +72,7 @@ export function readTar(input: Buffer): TarEntry[] {
 }
 
 export function readTarGz(input: Buffer | Uint8Array): TarEntry[] {
-  return readTar(gunzipSync(Buffer.from(input)));
+  return readTar(gunzipSync(Buffer.from(input), { maxOutputLength: 128 * 1024 * 1024 }));
 }
 
 /** GitHub tarballs nest everything under `owner-repo-sha/`. Strip that prefix. */

@@ -1,3 +1,4 @@
+import { PrivateResponse as Response } from '@/server/http';
 import { buildDossier, dossierToHtml, dossierToMarkdown } from '@annex/engine';
 import { currentUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';

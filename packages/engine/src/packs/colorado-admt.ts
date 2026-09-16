@@ -57,13 +57,13 @@ const controls: Control[] = [
     id: 'colorado-admt.pre-use-notice',
     title: 'Clear pre-use notice before a consequential decision',
     obligation:
-      'A deployer must give clear and conspicuous notice, before the consequential decision, that covered automated decision-making technology is or will be used — accessible to consumers with disabilities and with limited English proficiency.',
+      'A deployer must give clear and conspicuous notice, before the consequential decision, that covered automated decision-making technology is or will be used ; accessible to consumers with disabilities and with limited English proficiency.',
     family: 'transparency',
     severity: 'high',
     weight: 7,
     method: 'static-analysis',
     appliesFrom: APPLIES,
-    citations: [co('§ 6-1-1703', 'Deployer duties — pre-use notice')],
+    citations: [co('§ 6-1-1703', 'Deployer duties ; pre-use notice')],
     appliesWhen: consequential,
     evaluate: (ctx) => {
       const notice = ctx.grep(/\b(pre[_\s-]?use[_\s-]?notice|automated[_\s-]?decision[_\s-]?notice|ai[_\s-]?notice)\b/i, { limit: 3 });
@@ -94,7 +94,7 @@ const controls: Control[] = [
     weight: 7,
     method: 'static-analysis',
     appliesFrom: APPLIES,
-    citations: [co('§ 6-1-1703', 'Deployer duties — adverse outcome explanation')],
+    citations: [co('§ 6-1-1703', 'Deployer duties ; adverse outcome explanation')],
     appliesWhen: consequential,
     evaluate: (ctx) => {
       const explanation = ctx.signals.hasAny('transparency.explanation');
@@ -165,8 +165,8 @@ const controls: Control[] = [
     method: 'static-analysis',
     appliesFrom: APPLIES,
     citations: [
-      co('§ 6-1-1704', 'Deployer duties — designated reviewers'),
-      co('§ 6-1-1705', 'Consumer rights — meaningful human review'),
+      co('§ 6-1-1704', 'Deployer duties ; designated reviewers'),
+      co('§ 6-1-1705', 'Consumer rights ; meaningful human review'),
     ],
     appliesWhen: consequential,
     evaluate: (ctx) => {
@@ -232,7 +232,7 @@ const controls: Control[] = [
     weight: 5,
     method: 'static-analysis',
     appliesFrom: APPLIES,
-    citations: [co('§ 6-1-1705', 'Consumer rights — access and correction')],
+    citations: [co('§ 6-1-1705', 'Consumer rights ; access and correction')],
     appliesWhen: consequential,
     evaluate: (ctx) => {
       const rights = ctx.signals.get('data.subject-rights');
@@ -249,13 +249,13 @@ const controls: Control[] = [
     id: 'colorado-admt.developer-documentation',
     title: 'Documentation handed to deployers',
     obligation:
-      'A developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures — and must notify deployers of any material update that changes them. Records must be retained for at least three years. The corresponding deployer duty runs the other way: records of each consequential decision, and of the technology that influenced it, kept for at least three years after the decision.',
+      'A developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures ; and must notify deployers of any material update that changes them. Records must be retained for at least three years. The corresponding deployer duty runs the other way: records of each consequential decision, and of the technology that influenced it, kept for at least three years after the decision.',
     family: 'documentation',
     severity: 'high',
     weight: 6,
     method: 'documentation',
     appliesFrom: APPLIES,
-    citations: [co('§ 6-1-1702', 'Developer duties — documentation to deployers')],
+    citations: [co('§ 6-1-1702', 'Developer duties ; documentation to deployers')],
     appliesWhen: consequential,
     evaluate: (ctx) => {
       const instructions = ctx.signals.hasAny('transparency.instructions');

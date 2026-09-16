@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MARKET_PACKS, parseGitHubUrl } from '@annex/engine';
 import { requireUser } from '@/server/auth';
-import { SAMPLES, createSystem, runScan } from '@/server/systems';
+import { SAMPLES, createSystem, runScan, listSystems } from '@/server/systems';
 import { Panel } from '@/components/primitives';
 
 export const metadata = { title: 'Add a system' };
@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 async function addSample(formData: FormData) {
   'use server';
   const user = await requireUser();
+  if (listSystems(user.id).length >= 12) redirect('/app/new?error=' + encodeURIComponent('This demo workspace has reached its 12-system limit. Sign out and start a fresh demo to continue.'));
   const key = String(formData.get('sample'));
   const sample = SAMPLES.find((s) => s.key === key);
   if (!sample) redirect('/app/new?error=' + encodeURIComponent('Unknown sample.'));
@@ -24,8 +25,8 @@ async function addSample(formData: FormData) {
     markets: sample.markets,
   });
   await runScan(system, {
-    ...(user.turnoverEur ? { turnoverEur: user.turnoverEur } : {}),
-    ...(user.employees ? { employees: user.employees } : {}),
+    ...(user.turnoverEur != null ? { turnoverEur: user.turnoverEur } : {}),
+    ...(user.employees != null ? { employees: user.employees } : {}),
   }).catch(() => undefined);
   redirect(`/app/s/${system.id}`);
 }
@@ -33,9 +34,10 @@ async function addSample(formData: FormData) {
 async function addRepo(formData: FormData) {
   'use server';
   const user = await requireUser();
+  if (listSystems(user.id).length >= 12) redirect('/app/new?error=' + encodeURIComponent('This demo workspace has reached its 12-system limit. Sign out and start a fresh demo to continue.'));
   const source = String(formData.get('repo') ?? '').trim();
   const purpose = String(formData.get('purpose') ?? '').trim();
-  const markets = formData.getAll('markets').map(String);
+  const markets = formData.getAll('markets').map(String).filter(m => m in MARKET_PACKS);
 
   let name = source;
   try {
@@ -57,8 +59,8 @@ async function addRepo(formData: FormData) {
   try {
     await runScan(system, {
       ...(user.githubToken ? { githubToken: user.githubToken } : {}),
-      ...(user.turnoverEur ? { turnoverEur: user.turnoverEur } : {}),
-      ...(user.employees ? { employees: user.employees } : {}),
+      ...(user.turnoverEur != null ? { turnoverEur: user.turnoverEur } : {}),
+      ...(user.employees != null ? { employees: user.employees } : {}),
     });
   } catch (err) {
     redirect(`/app/s/${system.id}?error=` + encodeURIComponent((err as Error).message));
@@ -79,8 +81,7 @@ export default async function NewSystemPage({ searchParams }: { searchParams: Pr
           Add a system
         </h1>
         <p style={{ color: 'var(--ink-faint)', fontSize: 13.5, margin: '5px 0 0', maxWidth: '72ch' }}>
-          Annex downloads the repository archive, analyses it in memory and keeps only the report. Nothing is
-          cloned to disk and no source code leaves this machine.
+          Annex downloads the repository archive, analyses it in memory and keeps only the report. The report includes quoted source lines. Optional AI explanations send only the selected finding and excerpts to the AI provider when you request them.
         </p>
       </div>
 
@@ -135,7 +136,7 @@ export default async function NewSystemPage({ searchParams }: { searchParams: Pr
               aria-describedby="repo-hint"
             />
             <p id="repo-hint" style={{ fontSize: 12, color: 'var(--ink-faint)', margin: '5px 0 0' }}>
-              Public repositories work with no credentials. For private ones, add a token in Settings.
+              Public repositories work with no credentials. Use a self-hosted installation for private code.
             </p>
           </div>
 

@@ -129,7 +129,7 @@ export const AI_SIGNALS: CompiledSignal[] = [
     keywords: [
       'sklearn', 'scikit-learn', 'xgboost', 'lightgbm', 'torch', 'tensorflow', 'keras', 'catboost',
       'statsmodels', 'opencv', 'deepface', 'face_recognition', 'insightface', 'facenet', 'mediapipe',
-      // Class names that appear without their import — a model loaded from a
+      // Class names that appear without their import ; a model loaded from a
       // pickle, or a notebook cell run after the imports scrolled away.
       'randomforest', 'logisticregression', 'gradientboosting', 'xgbclassifier',
       'lgbmclassifier', 'nn.module',
@@ -178,7 +178,7 @@ export const AI_SIGNALS: CompiledSignal[] = [
     id: 'ai.prompt.system',
     label: 'System prompt / prompt template',
     category: 'ai-usage',
-    description: 'Defines the instructions that shape model behaviour — a core design choice under Art. 11.',
+    description: 'Defines the instructions that shape model behaviour ; a core design choice under Art. 11.',
     keywords: ['system prompt', 'system_prompt', 'systemprompt', 'role": "system', "role': 'system", 'prompttemplate', 'prompt_template'],
     patterns: [
       /\b(SYSTEM_PROMPT|system_prompt|systemPrompt|SYSTEM_MESSAGE)\b/,
@@ -194,7 +194,7 @@ export const AI_SIGNALS: CompiledSignal[] = [
     id: 'ai.autonomy.tooluse',
     label: 'Model-invoked tool or function calling',
     category: 'ai-usage',
-    description: 'The model can trigger side effects — raises the human-oversight bar under Art. 14.',
+    description: 'The model can trigger side effects ; raises the human-oversight bar under Art. 14.',
     keywords: ['tool_calls', 'toolcalls', 'function_call', 'tool_use', 'tools=[', 'tools: [', 'tool_choice'],
     patterns: [
       /\btool_calls?\b|\btoolCalls?\b|\bfunction_call\b|\btool_use\b/,

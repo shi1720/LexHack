@@ -1,3 +1,5 @@
+> Historical development measurements below vary by machine and checkout. Run `npm run check:counts` for current scan size and time.
+
 # The commercial case
 
 Written the way it would be written for an investor who is going to check the numbers, which means the weaknesses are in here too. Sources are linked; where a widely-quoted figure is unreliable, it says so.

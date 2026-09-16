@@ -46,8 +46,8 @@ export interface MarketResolution {
  *
  * An unrecognised market code used to expand silently to the whole corpus, so
  * `--markets uk` scored you against New York City and said nothing. The
- * fallback is still the safe default — it is better to over-report than to
- * report nothing — but the caller is now told, and the warning reaches the
+ * fallback is still the safe default ; it is better to over-report than to
+ * report nothing ; but the caller is now told, and the warning reaches the
  * report.
  */
 export function resolveMarkets(markets?: string[]): MarketResolution {

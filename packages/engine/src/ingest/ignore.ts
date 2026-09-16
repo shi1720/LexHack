@@ -3,7 +3,7 @@
  * Directories whose name is a reliable claim about their contents.
  *
  * `bin`, `env` and `out` came off this list. They are unambiguous in a
- * JavaScript build tree and entirely ordinary source directories elsewhere —
+ * JavaScript build tree and entirely ordinary source directories elsewhere ;
  * `bin/` is where Go and Rust projects put commands, `env/` is a plausible
  * config module, and moving `screen.ts` into `bin/` was enough to take a
  * regulated hiring system out of the scan with no warning at all. The cost of

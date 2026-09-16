@@ -2,6 +2,8 @@
 
 # Annex
 
+[Live Firebase demo](https://annex-evidence.web.app) · [Current submission story](docs/submission/project-story.md) · [Testing instructions](docs/submission/testing-instructions.md)
+
 ### Proof, not paperwork.
 
 **Annex reads your codebase, decides where it falls under the EU AI Act, and answers every obligation with a file, a line and a hash.**
@@ -121,7 +123,7 @@ So the industry filled the gap with questionnaires. [Why nobody has done this](#
 
 It left **Article 50 exactly where it was.**
 
-If your product talks to a person, or generates text, images, audio or video, you have been in scope since 2 August 2026, with **€15 million or 3 % of worldwide turnover** attached under Article 99(4)(g). Machine-readable marking of generated content is due **2 December 2026**. Those are not future problems.
+If your product talks to a person, or generates text, images, audio or video, you have been in scope since 2 August 2026, with **€15 million or 3 % of worldwide turnover** attached under Article 99(4)(g). The marking grace period ends **2 December 2026** for systems placed on the market before 2 August 2026; newer systems follow the August date. Those are not future problems.
 
 > **Where this comes from, and how far to trust it.** The whole timing argument
 > rests on one amending instrument, and the corpus was reconciled at a point
@@ -553,7 +555,7 @@ fixtures/            Four realistic sample repositories used by the demo and the
 
 **The analysis never calls a model and never touches the network.** Fetching a GitHub tarball is the one network call in the engine, and it happens before any analysis begins; scanning a local path makes none at all. The same commit always produces the same ledger root. That is not a performance optimisation — it is the reason the output is usable as evidence, and it is why a scan of this repository runs in about seven hundred milliseconds, offline, and a conference wifi network cannot break the demo.
 
-A language model is used in exactly one place, and the UI labels it: rewriting an *already settled* finding for a different reader — an engineer, a founder, an assessor. It receives the decision as fact and cannot change a status, a score or a citation. With no `ANTHROPIC_API_KEY` set, that one panel explains itself and everything else is unaffected.
+An optional language model (OpenAI or Anthropic) is used in exactly one place, and the UI labels it: rewriting an *already settled* finding for a different reader — an engineer, a founder, an assessor. It receives the decision as fact and cannot change a status, a score or a citation. With neither `OPENAI_API_KEY` nor `ANTHROPIC_API_KEY` set, that one panel explains itself and everything else is unaffected.
 
 ## Continuous conformity
 

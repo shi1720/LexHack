@@ -29,7 +29,7 @@ export interface ScanOptions {
   profile?: Partial<SystemProfile>;
   /** Produce a remediation plan alongside the report. */
   remediate?: boolean;
-  /** Override the clock — used by tests and by "what will bind me in 2027" views. */
+  /** Override the clock ; used by tests and by "what will bind me in 2027" views. */
   today?: Date;
   /**
    * PKCS#8 PEM of an Ed25519 key. When supplied, the ledger root is signed.
@@ -51,7 +51,7 @@ export function defaultProfile(snapshot: RepoSnapshot, overrides: Partial<System
    * field added to `SystemProfile`, accepted by the CLI and read by a control
    * is silently dropped here, and the control quietly reports
    * `not_applicable` for a duty that binds. `publicBodyOrPublicService` did
-   * exactly that on the Article 27 fundamental rights impact assessment — the
+   * exactly that on the Article 27 fundamental rights impact assessment ; the
    * flag parsed, the control never saw it, and nothing failed.
    *
    * Undefined values are filtered out rather than spread, because
@@ -77,7 +77,7 @@ export function defaultProfile(snapshot: RepoSnapshot, overrides: Partial<System
  *
  * Every step is deterministic and offline. No model is called, nothing is sent
  * anywhere, and the same commit always produces the same ledger root. That is
- * not an optimisation — it is the reason the output is usable as evidence.
+ * not an optimisation ; it is the reason the output is usable as evidence.
  */
 export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport {
   const started = Date.now();
@@ -126,7 +126,7 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
    *
    * A German or Spanish hiring model with a threshold and an automatic
    * advance/reject is unambiguously Annex III point 4(a), and Annex sees
-   * nothing in it — which, for a tool whose primary market is the European
+   * nothing in it ; which, for a tool whose primary market is the European
    * Union, is the largest class of false negative it has. That is a scope
    * limit rather than a bug, and a scope limit that resolves to a clean
    * result is indistinguishable from a pass, so it is said out loud whenever
@@ -150,7 +150,7 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
    * Article 111(2), the largest scope carve-out in the amended Act.
    *
    * A high-risk system already on the market when Chapter III starts applying
-   * is only caught by it if the design is significantly changed afterwards —
+   * is only caught by it if the design is significantly changed afterwards ;
    * except for a public-authority system, which has to comply by 2 August 2030
    * regardless. The Omnibus replaced the hard-coded date with a dynamic
    * reference to Article 113, so the cut-off moved with the deferral.
@@ -165,7 +165,7 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
     classification.findings.some((f) => f.id.startsWith('annex-iii.'))
   ) {
     warnings.push(
-      'Article 111(2): if this system was placed on the market or put into service before 2 December 2027, the Chapter III obligations below bind it only if its design is significantly changed after that date — and a system operated by a public authority must comply by 2 August 2030 whatever happens. Annex cannot tell when a system was placed on the market, so it reports the obligations as though it were new.',
+      'Article 111(2): if this system was placed on the market or put into service before 2 December 2027, the Chapter III obligations below bind it only if its design is significantly changed after that date ; and a system operated by a public authority must comply by 2 August 2030 whatever happens. Annex cannot tell when a system was placed on the market, so it reports the obligations as though it were new.',
     );
   }
 
@@ -180,7 +180,7 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
   const ledgerBase = buildLedger(controls, ruleVersions);
 
   // The signature has to cover the derived figures, not only the chain. They
-  // are computed here so the same values are signed and stored — a signature
+  // are computed here so the same values are signed and stored ; a signature
   // over numbers recomputed later would be signing something the report might
   // not say.
   const score = scoreControls(controls);
@@ -249,7 +249,7 @@ function stripFiles(snapshot: RepoSnapshot): Omit<RepoSnapshot, 'files'> {
 /**
  * Article 43(4): a substantial modification re-opens the conformity assessment.
  * Only something that reads the code can tell you a modification was
- * substantial — which is the one thing a questionnaire can never do.
+ * substantial ; which is the one thing a questionnaire can never do.
  */
 export interface DriftReport {
   substantial: boolean;
@@ -309,7 +309,7 @@ export function diffReports(before: ScanReport, after: ScanReport): DriftReport 
   return {
     substantial,
     // An unscorable side makes the delta meaningless rather than zero, and
-    // `diffReports` has no way to say "unknown" — so it reports no movement
+    // `diffReports` has no way to say "unknown" ; so it reports no movement
     // and the summary above names the tier change, which is the fact that
     // survives.
     scoreDelta: after.score === null || before.score === null ? 0 : after.score - before.score,

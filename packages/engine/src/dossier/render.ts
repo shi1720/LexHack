@@ -12,9 +12,9 @@ const LABELS = {
     fingerprint: 'Evidence ledger',
     method: 'Statement of method',
     evidence: 'Evidence',
-    open: 'Open items — determinations this document cannot make',
-    appendix: 'Appendix A — Control register',
-    ledgerAppendix: 'Appendix B — Evidence ledger',
+    open: 'Open items ; determinations this document cannot make',
+    appendix: 'Appendix A ; Control register',
+    ledgerAppendix: 'Appendix B ; Evidence ledger',
     control: 'Control',
     status: 'Status',
     citation: 'Citation',
@@ -33,9 +33,9 @@ const LABELS = {
     fingerprint: 'Nachweisregister',
     method: 'Methodenerklärung',
     evidence: 'Nachweise',
-    open: 'Offene Punkte — Feststellungen, die dieses Dokument nicht treffen kann',
-    appendix: 'Anhang A — Kontrollregister',
-    ledgerAppendix: 'Anhang B — Nachweisregister',
+    open: 'Offene Punkte ; Feststellungen, die dieses Dokument nicht treffen kann',
+    appendix: 'Anhang A ; Kontrollregister',
+    ledgerAppendix: 'Anhang B ; Nachweisregister',
     control: 'Kontrolle',
     status: 'Status',
     citation: 'Fundstelle',
@@ -54,9 +54,9 @@ const LABELS = {
     fingerprint: 'Registre de preuves',
     method: 'Déclaration de méthode',
     evidence: 'Preuves',
-    open: 'Points ouverts — déterminations que ce document ne peut pas établir',
-    appendix: 'Annexe A — Registre des contrôles',
-    ledgerAppendix: 'Annexe B — Registre de preuves',
+    open: 'Points ouverts ; déterminations que ce document ne peut pas établir',
+    appendix: 'Annexe A ; Registre des contrôles',
+    ledgerAppendix: 'Annexe B ; Registre de preuves',
     control: 'Contrôle',
     status: 'Statut',
     citation: 'Référence',
@@ -71,7 +71,7 @@ const METHOD_STATEMENT = `This document was compiled by Annex directly from the 
 
 1. **Evidenced.** The statement is supported by one or more citations to a file and a line in the repository. Each citation carries the SHA-256 digest of the file it came from, recorded in Appendix B.
 2. **No evidence found.** The engine searched the whole snapshot and found nothing supporting the statement. The negative finding is recorded rather than omitted.
-3. **Open.** The determination requires a judgement that cannot be derived from source code — a residual-risk acceptance, a declared accuracy level, an accountable person. These are listed per section and summarised on the front page. They are left blank deliberately. A generated document that invents them would be a false statement about the system, and where such a statement is supplied to a notified body or a national competent authority in reply to a request, Article 99(5) prices it at EUR 7 500 000 or 1 % of worldwide annual turnover.
+3. **Open.** The determination requires a judgement that cannot be derived from source code ; a residual-risk acceptance, a declared accuracy level, an accountable person. These are listed per section and summarised on the front page. They are left blank deliberately. A generated document that invents them would be a false statement about the system, and where such a statement is supplied to a notified body or a national competent authority in reply to a request, Article 99(5) prices it at EUR 7 500 000 or 1 % of worldwide annual turnover.
 
 No language model participated in any determination in this document. Classification and control evaluation are rule-based, deterministic and offline; the same commit always produces the same evidence ledger root. Where a language model contributed narrative prose, the section says so.
 
@@ -86,7 +86,7 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
   const lines: string[] = [];
 
   lines.push(`# ${dossier.title}`, '');
-  lines.push(`> Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744, Annex IV${dossier.simplified ? ' — simplified form (Article 11(1), third subparagraph)' : ''}`, '');
+  lines.push(`> Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744, Annex IV${dossier.simplified ? ' ; simplified form (Article 11(1), third subparagraph)' : ''}`, '');
   lines.push(
     '| | |',
     '|---|---|',
@@ -109,7 +109,7 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
     for (const p of section.body) lines.push(p, '');
     if (section.evidence.length > 0) {
       lines.push(`**${t.evidence}**`, '');
-      for (const e of section.evidence) lines.push(`- \`${e.path}:${e.line}\` — \`${e.snippet}\``);
+      for (const e of section.evidence) lines.push(`- \`${e.path}:${e.line}\` ; \`${e.snippet}\``);
       lines.push('');
     }
     if (section.open.length > 0) {
@@ -155,7 +155,7 @@ export function dossierToMarkdown(dossier: Dossier, report: ScanReport): string 
 }
 
 // ---------------------------------------------------------------------------
-// HTML — print-ready, A4, no external assets
+// HTML ; print-ready, A4, no external assets
 // ---------------------------------------------------------------------------
 
 function esc(s: string): string {
@@ -243,7 +243,7 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(dossier.systemName)} — ${esc(dossier.title)}</title>
+<title>${esc(dossier.systemName)} ; ${esc(dossier.title)}</title>
 <style>
   @page { size: A4; margin: 20mm 18mm; }
   :root {
@@ -310,7 +310,7 @@ export function dossierToHtml(dossier: Dossier, report: ScanReport): string {
 <body>
 <div class="sheet">
   <h1>${esc(dossier.title)}</h1>
-  <p class="sub">Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744, Annex IV${dossier.simplified ? ' — simplified form under Article 11(1)' : ''} · compiled from source by Annex</p>
+  <p class="sub">Regulation (EU) 2024/1689, as amended by Regulation (EU) 2026/1744, Annex IV${dossier.simplified ? ' ; simplified form under Article 11(1)' : ''} · compiled from source by Annex</p>
 
   <table class="meta">
     <tr><th>${t.system}</th><td>${esc(dossier.systemName)}</td></tr>

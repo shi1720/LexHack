@@ -80,7 +80,7 @@ export interface RepoSnapshot {
    * A count tells a reader that something was left out; it does not tell them
    * *what*, and "103 files excluded" under a green score is the whole audit in
    * the hands of the party being audited. The paths travel in the report so a
-   * third party who has the report and not the tree — the trust-page case —
+   * third party who has the report and not the tree ; the trust-page case ;
    * can see the boundary the auditee drew. They are also hashed into the
    * snapshot id, so the list cannot change without the ledger root changing.
    */
@@ -115,7 +115,7 @@ export interface Evidence {
 }
 
 // ---------------------------------------------------------------------------
-// Signals — the deterministic facts we extract from source
+// Signals ; the deterministic facts we extract from source
 // ---------------------------------------------------------------------------
 
 export type SignalCategory =
@@ -146,7 +146,7 @@ export interface Signal {
   evidence: Evidence[];
   /** Number of distinct files the signal fired in. Not capped. */
   fileCount: number;
-  /** Total matching lines across the snapshot. Not capped — see `evidence`. */
+  /** Total matching lines across the snapshot. Not capped ; see `evidence`. */
   hits: number;
 }
 
@@ -181,7 +181,7 @@ export interface Citation {
    * Why this pin-cite should not be relied on as a locator.
    *
    * Set where the section number came from a secondary source rather than the
-   * enrolled text — the Colorado ADMT Act's `§ 6-1-17xx` numbering is the only
+   * enrolled text ; the Colorado ADMT Act's `§ 6-1-17xx` numbering is the only
    * case in the corpus today. The duty is right and the number may not be, and
    * a reader quoting it into a filing needs to be told that at the point they
    * read it, not in a research appendix. Rendered next to the citation
@@ -235,7 +235,7 @@ export interface Classification {
   findings: ClassificationFinding[];
   /** Human-readable one-liner used in headlines and the dossier. */
   summary: string;
-  /** 0..1 — how sure the engine is about the top tier. */
+  /** 0..1 ; how sure the engine is about the top tier. */
   confidence: number;
   /** Set when the operator overrode the automatic classification. */
   overridden?: boolean;
@@ -358,7 +358,7 @@ export interface Control {
    * Article 14(4)(d)-(e) require that an overseer can override or stop the
    * system **while it is in use**; Article 12(1) requires logs recorded
    * **over the lifetime of the system**. For those, a module nothing calls
-   * discharges nothing, and the engine caps the verdict at `partial` — which
+   * discharges nothing, and the engine caps the verdict at `partial` ; which
    * is what stops merging Annex's own remediation pull request from turning
    * the score green without a line of running code changing.
    *
@@ -377,7 +377,7 @@ export interface Control {
    * Penalty provisions are closed lists, and the tier used to be chosen by
    * position in an array: the first if any prohibition was failing, otherwise
    * the second. That charged €15,000,000 under Article 99(4) for a missing AI
-   * literacy page — and Article 99 does not mention Article 4 at all — while
+   * literacy page ; and Article 99 does not mention Article 4 at all ; while
    * pricing every GDPR breach at the Article 83(4) tier even when the failing
    * obligations were Article 9 and Article 17, which are Article 83(5).
    *
@@ -386,7 +386,7 @@ export interface Control {
    */
   penaltyTier?: string;
   remediation?: Remediation;
-  /** Golden tests — the law gets a test suite. */
+  /** Golden tests ; the law gets a test suite. */
   tests?: ControlTest[];
 }
 
@@ -409,8 +409,8 @@ export interface RulePack {
     description: string;
     /**
      * Currency of the flat amounts in this regime. NYC's civil penalties are
-     * dollars, and running them through a euro formatter — as this did until
-     * the field existed — turns $1,500 into €1,500 and invites a comparison
+     * dollars, and running them through a euro formatter ; as this did until
+     * the field existed ; turns $1,500 into €1,500 and invites a comparison
      * across regimes that is not a comparison at all.
      */
     currency: 'EUR' | 'USD';
@@ -418,7 +418,7 @@ export interface RulePack {
      * Does this regime invert the higher-of rule for SMEs?
      *
      * Article 99(6) of the AI Act does. GDPR Article 83(4) and 83(5) both say
-     * "whichever is higher", full stop — applying the inversion to them
+     * "whichever is higher", full stop ; applying the inversion to them
      * reported a €20,000,000 ceiling as €196,000.
      */
     smeInversion?: boolean;
@@ -460,8 +460,8 @@ export interface SystemProfile {
    * True where the system is placed on the Union market or put into service in
    * the Union, the deployer is established or located in the Union, or the
    * output produced by the system is used in the Union. When this is false the
-   * EU packs still evaluate — a team usually wants to know what *would* bind
-   * them — but the exposure figure is suppressed, because a €35M banner over a
+   * EU packs still evaluate ; a team usually wants to know what *would* bind
+   * them ; but the exposure figure is suppressed, because a €35M banner over a
    * product with no Union nexus is the error most likely to embarrass its
    * author.
    */
@@ -469,7 +469,7 @@ export interface SystemProfile {
   /**
    * Article 2 exclusions the operator claims: scientific research and
    * development only (2(6)), pre-market research, testing or development
-   * (2(8)), or free and open-source release (2(12) — which does not reach
+   * (2(8)), or free and open-source release (2(12) ; which does not reach
    * Articles 5 and 50, or a high-risk placing on the market).
    */
   scopeExclusions?: ('research' | 'pre-market' | 'foss')[];
@@ -480,7 +480,7 @@ export interface SystemProfile {
    * law, or a private entity providing a public service.
    *
    * This is a fact about the organisation, not about the code, so Annex cannot
-   * read it — but without it the fundamental rights impact assessment reaches
+   * read it ; but without it the fundamental rights impact assessment reaches
    * only limb (iii), the Annex III point 5(b) and 5(c) use cases. A
    * municipality deploying a recruitment tool, a public hospital deploying
    * triage, a school deploying grading and a private operator of a public
@@ -492,7 +492,7 @@ export interface SystemProfile {
    * Article 99(6a), inserted by the Digital Omnibus: the operator is a **small
    * mid-cap company**.
    *
-   * SMCs get the lower-of rule for paragraphs 4 and 5 — and **not** for
+   * SMCs get the lower-of rule for paragraphs 4 and 5 ; and **not** for
    * paragraph 3, so an Article 5 breach by an SMC carries the full higher-of
    * €35 000 000 or 7 %. The inversion is therefore per-tier, which is why this
    * is a separate flag rather than a wider reading of the SME test.
@@ -511,7 +511,7 @@ export interface SystemProfile {
    * Local Law 144, and a score that pretends otherwise is noise.
    */
   markets?: string[];
-  /** Annual worldwide turnover in EUR — drives fine exposure modelling. */
+  /** Annual worldwide turnover in EUR ; drives fine exposure modelling. */
   turnoverEur?: number;
   employees?: number;
   /** Operator attestations for things not visible in code. */
@@ -522,7 +522,7 @@ export interface SystemProfile {
    * Article 6(3) derogation, claimed by the operator.
    *
    * An Annex III system is not high-risk where it does not pose a significant
-   * risk of harm to health, safety or fundamental rights — because it performs
+   * risk of harm to health, safety or fundamental rights ; because it performs
    * a narrow procedural task, improves the result of a previously completed
    * human activity, detects decision-making patterns or deviations from prior
    * patterns without replacing or influencing the human assessment, or performs
@@ -556,7 +556,7 @@ export interface EvaluationContext {
    *
    * `paths` narrows which documents may answer. Without it, a repo-wide grep
    * for "risk management" is answered by the words "risk management" appearing
-   * in an incident-response runbook — which is how a documentation control
+   * in an incident-response runbook ; which is how a documentation control
    * ends up satisfied by a document about something else.
    */
   grepDocs: (pattern: RegExp, limit?: number, paths?: RegExp) => Evidence[];
@@ -647,7 +647,7 @@ export interface LedgerSignature {
    * What was signed, so a format change is detectable rather than silent.
    *
    * v1 covered the ledger root alone, which left the score, the tier and the
-   * exposure — every number a reader looks at — outside the signature. v2
+   * exposure ; every number a reader looks at ; outside the signature. v2
    * binds them. A v1 signature is now rejected rather than accepted.
    */
   signedPayload: 'annex-ledger/v2';
@@ -663,7 +663,7 @@ export interface EvidenceLedger {
    *
    * The chain makes an edit detectable to someone who has the source. The
    * signature makes it detectable to someone who has neither the source nor a
-   * reason to trust whoever produced the file — which is the reader a
+   * reason to trust whoever produced the file ; which is the reader a
    * conformity statement is actually for.
    */
   signature?: LedgerSignature;
@@ -683,12 +683,12 @@ export interface ScanReport {
   controls: ControlResult[];
   packs: PackScore[];
   /**
-   * Weighted conformity score across every applicable obligation, 0-100 — or
+   * Weighted conformity score across every applicable obligation, 0-100 ; or
    * `null` where nothing applied and there is therefore nothing to score.
    *
    * `null` is not zero and it is not a hundred: it says Annex did not assess
-   * this repository. A tree it could not read — an unsupported language, an
-   * `.annexignore` that excluded everything, a file over the size limit —
+   * this repository. A tree it could not read ; an unsupported language, an
+   * `.annexignore` that excluded everything, a file over the size limit ;
    * used to score a full green 100 and pass a CI gate.
    */
   score: number | null;

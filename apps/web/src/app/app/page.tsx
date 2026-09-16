@@ -15,8 +15,8 @@ export default async function Dashboard() {
 
   // A first visit lands on populated data, not four spinners.
   await seedDemoScans(user.id, {
-    ...(user.turnoverEur ? { turnoverEur: user.turnoverEur } : {}),
-    ...(user.employees ? { employees: user.employees } : {}),
+    ...(user.turnoverEur != null ? { turnoverEur: user.turnoverEur } : {}),
+    ...(user.employees != null ? { employees: user.employees } : {}),
   });
 
   const systems = listSystems(user.id);
@@ -30,7 +30,7 @@ export default async function Dashboard() {
   // The *largest* ceiling across the portfolio, not the sum.
   //
   // These are statutory maxima on an undertaking, and the same undertaking
-  // owns every system here — so adding them together would report €60m for
+  // owns every system here · so adding them together would report €60m for
   // three systems that share one €20m GDPR ceiling. A NYC per-day civil
   // penalty is a different kind of number again, and stays on the system it
   // belongs to.
@@ -63,10 +63,10 @@ export default async function Dashboard() {
       {scanned.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Tile
-            label="In force and failing"
+            label="Current evidence gaps"
             value={String(liveGaps.length)}
             tone={liveGaps.length > 0 ? 'bad' : 'ok'}
-            hint="obligations binding today"
+            hint="includes voluntary framework checks"
           />
           <Tile
             label="Prohibited practices"
@@ -82,7 +82,7 @@ export default async function Dashboard() {
           />
           <Tile
             label="Next deadline"
-            value={nextMilestone ? relativeDays(nextMilestone.days) : '—'}
+            value={nextMilestone ? relativeDays(nextMilestone.days) : ';'}
             hint={nextMilestone ? `${nextMilestone.label} · ${nextMilestone.date}` : undefined}
           />
         </div>
@@ -93,7 +93,7 @@ export default async function Dashboard() {
         <Panel>
           <Empty
             title="No systems yet"
-            body="Point Annex at a GitHub repository, or start with one of the four bundled sample codebases — including one that contains a practice prohibited in the EU today."
+            body="Point Annex at a GitHub repository, or start with one of the four bundled sample codebases · including one that contains a practice prohibited in the EU today."
             action={
               <Link className="btn btn-primary" href="/app/new">
                 Add a system
@@ -119,7 +119,7 @@ export default async function Dashboard() {
                   </div>
 
                   <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '7px 0 0', maxWidth: '72ch' }}>
-                    {system.purpose || 'No intended purpose recorded — the sentence that decides the classification.'}
+                    {system.purpose || 'No intended purpose recorded · the sentence that decides the classification.'}
                   </p>
 
                   {data ? (
@@ -150,9 +150,9 @@ export default async function Dashboard() {
 
                 {data ? (
                   <div className="flex items-center gap-6">
-                    <ScoreDial score={data.report.score} label="Conformity" size={92} />
+                    <ScoreDial score={data.report.score} label="Evidence score" size={92} />
                     <div className="hidden sm:block">
-                      <ScoreDial score={data.report.liveScore} label="In force today" size={92} />
+                      <ScoreDial score={data.report.liveScore} label="Current checks" size={92} />
                     </div>
                   </div>
                 ) : null}
@@ -205,7 +205,7 @@ export default async function Dashboard() {
                 </div>
                 <div className="flex items-center gap-2 whitespace-nowrap">
                   <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>{pack.controls.length} obligations</span>
-                  {covered ? <StatusBadge status="satisfied" /> : <span className="badge badge-neutral">Not in scope</span>}
+                  {covered ? <span className="badge badge-info">In scope</span> : <span className="badge badge-neutral">Not in scope</span>}
                 </div>
               </div>
             );

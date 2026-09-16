@@ -56,6 +56,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </nav>
       </header>
       <main id="main" className="mx-auto max-w-6xl px-5 py-8">
+        {process.env.ANNEX_PUBLIC_DEMO === '1' ? <p className="demo-notice" role="note">Private demo workspace · Public repositories and samples only · Data resets after 24 hours or a service restart. Export reports to keep them.</p> : null}
         {children}
       </main>
       <footer className="border-t" style={{ borderColor: 'var(--line)' }}>

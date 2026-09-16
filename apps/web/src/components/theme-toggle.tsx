@@ -20,7 +20,7 @@ export function ThemeToggle() {
         apply(stored);
       }
     } catch {
-      /* private window or blocked site data — the default look is correct anyway */
+      /* private window or blocked site data · the default look is correct anyway */
     }
   }, []);
 

@@ -12,8 +12,8 @@ const EXT_MAP: Record<string, Language> = {
   php: 'php',
   sql: 'sql',
   // Languages an AI-compliance scanner cannot afford to be blind to. A
-  // Jupyter notebook was invisible — which for a tool aimed at machine
-  // learning is the single most likely place for a regulated model to live —
+  // Jupyter notebook was invisible ; which for a tool aimed at machine
+  // learning is the single most likely place for a regulated model to live ;
   // and so was R, the second ML language in existence. Renaming `screen.ts`
   // to `screen.ipynb` took a system from 22 applicable obligations to none.
   ipynb: 'notebook',

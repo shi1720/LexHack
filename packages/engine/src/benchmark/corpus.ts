@@ -21,15 +21,15 @@ export interface BenchmarkCase {
   files: Record<string, string>;
   /**
    * Operator-supplied facts for this case. Some determinations are not in the
-   * code by construction — the Article 6(3) derogation is one an operator
-   * claims — and a benchmark that cannot express them cannot test them.
+   * code by construction ; the Article 6(3) derogation is one an operator
+   * claims ; and a benchmark that cannot express them cannot test them.
    */
   profile?: Partial<SystemProfile>;
   /** The tier a competent reader of the Act would assign. */
   tier: RiskTier;
   /** Classification finding ids that must fire. */
   expectFindings?: string[];
-  /** Classification finding ids that must NOT fire — the carve-outs. */
+  /** Classification finding ids that must NOT fire ; the carve-outs. */
   forbidFindings?: string[];
   /** Why the label is what it is. Shown in the benchmark report. */
   rationale: string;
@@ -38,7 +38,7 @@ export interface BenchmarkCase {
    *
    * A clean sheet on a self-authored corpus is close to zero evidence on its
    * own, and saying so in a caveat is cheap. What is not cheap is the list of
-   * defects the corpus has actually found — a case whose label was wrong when
+   * defects the corpus has actually found ; a case whose label was wrong when
    * it was written, or a detector it falsified. Recording those keeps the
    * 100 % honest: it is 100 % *after* the corpus did its job, and the report
    * prints the job.
@@ -70,7 +70,7 @@ export const BENCHMARK: BenchmarkCase[] = [
     tier: 'unknown',
     forbidFindings: ['annex-iii.4a.recruitment', 'annex-iii.1c.emotion', 'art5.1f.emotion-workplace', 'art5.1g.biometric-categorisation'],
     rationale:
-      'The first version of the comment fix only skipped lines that *begin* with a marker, which left the interior of a block comment and of a Python docstring looking exactly like code. A repository containing nothing but prose classified high-risk and cited the sentence saying the opposite as its evidence. This case is the one the earlier corpus case should have been. The expected tier is `unknown` because there is no AI code here at all — only prose about AI, which is exactly the point.',
+      'The first version of the comment fix only skipped lines that *begin* with a marker, which left the interior of a block comment and of a Python docstring looking exactly like code. A repository containing nothing but prose classified high-risk and cited the sentence saying the opposite as its evidence. This case is the one the earlier corpus case should have been. The expected tier is `unknown` because there is no AI code here at all ; only prose about AI, which is exactly the point.',
     files: {
       'package.json': pkg('prose-only'),
       'src/notes.ts': `/*
@@ -126,7 +126,7 @@ export async function charge(customerId: string, amountMinor: number) {
     tier: 'transparency',
     expectFindings: ['art50.1.chat-disclosure'],
     rationale:
-      'Article 50(1) does not apply where it is obvious to a reasonably well-informed, observant and circumspect natural person that they are interacting with an AI system. Whether branding makes it obvious is a judgement about a reader, not a fact about a file — Annex should raise the duty and say the carve-out has to be assessed, not silently decide either way.',
+      'Article 50(1) does not apply where it is obvious to a reasonably well-informed, observant and circumspect natural person that they are interacting with an AI system. Whether branding makes it obvious is a judgement about a reader, not a fact about a file ; Annex should raise the duty and say the carve-out has to be assessed, not silently decide either way.',
     files: {
       'package.json': pkg('assistant-widget'),
       'src/widget.ts': `${OPENAI_CALL}
@@ -162,7 +162,7 @@ export async function checkoutUrgency(shopper: { id: string }) {
     tier: 'unknown',
     forbidFindings: ['art5.1b.vulnerability-exploitation', 'art5.1a.manipulation'],
     rationale:
-      'Article 5(1)(b) reaches the *exploitation* of a vulnerability — distorting behaviour to the person\'s significant detriment. Segmenting by age to make the product safer is the opposite, and a rule that fired on the word "minor" next to the word "segment" would flag every age-appropriate design code in Europe as a prohibited practice. The tier is `unknown` because a branch on a date of birth is not an AI system within Article 3(1) either — nothing here infers anything.',
+      'Article 5(1)(b) reaches the *exploitation* of a vulnerability ; distorting behaviour to the person\'s significant detriment. Segmenting by age to make the product safer is the opposite, and a rule that fired on the word "minor" next to the word "segment" would flag every age-appropriate design code in Europe as a prohibited practice. The tier is `unknown` because a branch on a date of birth is not an AI system within Article 3(1) either ; nothing here infers anything.',
     files: {
       'requirements.txt': 'django==5.1\\n',
       'src/defaults.py': `def account_defaults(user):
@@ -182,7 +182,7 @@ export async function checkoutUrgency(shopper: { id: string }) {
     tier: 'high',
     expectFindings: ['annex-iii.1c.emotion'],
     rationale:
-      'A glob pattern in a string literal is code, and reading its `/*` as the start of a block comment turned every line below it into prose. One line at the top of a file erased the emotion-inference detection, the Annex III finding and the penalty tier beneath it — the inverse of `carveout.prose-in-block-comments`, which only ever tested the false-positive direction.',
+      'A glob pattern in a string literal is code, and reading its `/*` as the start of a block comment turned every line below it into prose. One line at the top of a file erased the emotion-inference detection, the Annex III finding and the penalty tier beneath it ; the inverse of `carveout.prose-in-block-comments`, which only ever tested the false-positive direction.',
     files: {
       'package.json': pkg('signal'),
       'src/interview.ts': `export const GLOB_PATTERN = '/*';
@@ -254,7 +254,7 @@ export async function groupPortraits(faces: string[]) {
     tier: 'minimal',
     forbidFindings: ['art5.1f.emotion-workplace', 'annex-iii.1c.emotion'],
     rationale:
-      'Recital 18 is explicit that the notion of emotion recognition does not include physical states such as pain or fatigue, "including, for example, systems used in detecting the state of fatigue of professional pilots or drivers for the purpose of preventing accidents". Fatigue never enters the Article 3(39) definition, so this is not an Article 5(1)(f) exemption case — the provision is not engaged at all. As a safety component of a vehicle it is an Annex I product, and Article 2(2) limits the Act to Article 6(1), Articles 102-109 and Article 112 for those, so the Chapter III stack does not attach either.',
+      'Recital 18 is explicit that the notion of emotion recognition does not include physical states such as pain or fatigue, "including, for example, systems used in detecting the state of fatigue of professional pilots or drivers for the purpose of preventing accidents". Fatigue never enters the Article 3(39) definition, so this is not an Article 5(1)(f) exemption case ; the provision is not engaged at all. As a safety component of a vehicle it is an Annex I product, and Article 2(2) limits the Act to Article 6(1), Articles 102-109 and Article 112 for those, so the Chapter III stack does not attach either.',
     files: {
       'package.json': pkg('drowsiness', { 'scikit-learn': '^1.4.0' }),
       'detect.py': `${SKLEARN_CALL}
@@ -316,7 +316,7 @@ export async function summarise(text: string) {
   },
 
   // =======================================================================
-  // Article 6(3) — the derogation most real Annex III conversations turn on
+  // Article 6(3) ; the derogation most real Annex III conversations turn on
   // =======================================================================
   {
     id: 'derogation.narrow-procedural-claimed',
@@ -325,7 +325,7 @@ export async function summarise(text: string) {
     profile: { article6_3Derogation: 'narrow-procedural' },
     expectFindings: ['annex-iii.4a.recruitment'],
     rationale:
-      'Annex III point 4(a) is engaged on the face of it — the finding fires and stays in the record — but the operator has claimed the Article 6(3)(a) narrow-procedural-task derogation and no profiling of natural persons appears in the code, so the tier drops. The Article 6(4) documentation duty and the Article 49(2) registration duty survive the claim. Without the finding firing, this case would pass for the wrong reason, which is what it did until a test went looking.',
+      'Annex III point 4(a) is engaged on the face of it ; the finding fires and stays in the record ; but the operator has claimed the Article 6(3)(a) narrow-procedural-task derogation and no profiling of natural persons appears in the code, so the tier drops. The Article 6(4) documentation duty and the Article 49(2) registration duty survive the claim. Without the finding firing, this case would pass for the wrong reason, which is what it did until a test went looking.',
     files: {
       'package.json': pkg('cv-router', { 'scikit-learn': '^1.4.0' }),
       'router.py': `${SKLEARN_CALL}
@@ -392,7 +392,7 @@ def tag_document(text):
   },
 
   // =======================================================================
-  // Article 50(2) — the "does not substantially alter the input" carve-out
+  // Article 50(2) ; the "does not substantially alter the input" carve-out
   // =======================================================================
   {
     id: 'carveout.invoice-ocr',
@@ -435,7 +435,7 @@ export async function draftChaseEmail(invoice: unknown) {
   },
 
   // =======================================================================
-  // Annex III point 8(b) — the "not directly exposed" exclusion
+  // Annex III point 8(b) ; the "not directly exposed" exclusion
   // =======================================================================
   {
     id: 'carveout.campaign-logistics',
@@ -457,7 +457,7 @@ def plan_routes(volunteers, streets):
   },
 
   // =======================================================================
-  // Prohibited practices — Article 5
+  // Prohibited practices ; Article 5
   // =======================================================================
   {
     id: 'prohibited.emotion-hiring',
@@ -536,7 +536,7 @@ export function computeTrustScore(person: { historyMonths: number }) {
   },
 
   // =======================================================================
-  // High risk — Annex III
+  // High risk ; Annex III
   // =======================================================================
   {
     id: 'high.recruitment',
@@ -679,7 +679,7 @@ def identify_person(frame, gallery):
     expectFindings: ['annex-iii.1b.biometric-categorisation'],
     forbidFindings: ['art5.1g.biometric-categorisation'],
     rationale:
-      'Annex III, point 1(b): biometric categorisation according to sensitive or protected attributes inferred from biometric data. Sex and age are protected grounds in Union non-discrimination law, so this is high-risk — but neither is in the closed Article 5(1)(g) list, so it is not prohibited. That gap is the whole reason point 1(b) needs a rule of its own: with only the prohibition modelled, this system classified as minimal risk.',
+      'Annex III, point 1(b): biometric categorisation according to sensitive or protected attributes inferred from biometric data. Sex and age are protected grounds in Union non-discrimination law, so this is high-risk ; but neither is in the closed Article 5(1)(g) list, so it is not prohibited. That gap is the whole reason point 1(b) needs a rule of its own: with only the prohibition modelled, this system classified as minimal risk.',
     files: {
       'requirements.txt': 'opencv-python==4.10.0\ntensorflow==2.17.0\n',
       'src/audience.py': `import cv2
@@ -702,9 +702,9 @@ def analyse_frame(frame):
     tier: 'minimal',
     forbidFindings: ['annex-iii.1b.biometric-categorisation', 'art5.1g.biometric-categorisation'],
     caught:
-      'Fired on a gender classifier over names and an age inference from a date-of-birth column, with no biometrics anywhere — switching on the whole Chapter III stack, Article 49 registration and Article 86. The modality guard in `domain.biometric.categorisation` came from this case.',
+      'Fired on a gender classifier over names and an age inference from a date-of-birth column, with no biometrics anywhere ; switching on the whole Chapter III stack, Article 49 registration and Article 86. The modality guard in `domain.biometric.categorisation` came from this case.',
     rationale:
-      'Article 3(40) defines biometric categorisation as assigning people to categories **on the basis of their biometric data**, and Annex III point 1 is the biometrics point. A name and a date of birth are personal data and are not biometric data, so neither point 1(b) nor Article 5(1)(g) is engaged — this is a GDPR problem, not an AI Act high-risk classification. Without the modality guard the attribute keywords alone switched on the whole Chapter III stack, Article 49 registration and Article 86.',
+      'Article 3(40) defines biometric categorisation as assigning people to categories **on the basis of their biometric data**, and Annex III point 1 is the biometrics point. A name and a date of birth are personal data and are not biometric data, so neither point 1(b) nor Article 5(1)(g) is engaged ; this is a GDPR problem, not an AI Act high-risk classification. Without the modality guard the attribute keywords alone switched on the whole Chapter III stack, Article 49 registration and Article 86.',
     files: {
       'requirements.txt': 'scikit-learn==1.5.0\n',
       'src/enrich.py': `def enrich(user):
@@ -723,7 +723,7 @@ def analyse_frame(frame):
     caught:
       'Its own label. It was written as `transparency` and the system shows nobody anything and generates nothing, so no Article 50 duty is engaged and `minimal` is the answer.',
     rationale:
-      'Point 1(b) reaches categorisation according to a *sensitive or protected* attribute. Personal protective equipment is not an attribute of the person at all, and a rule that fired on any camera that sorted people into buckets would make every safety system in a warehouse high-risk. Minimal rather than transparency: the system shows nobody anything and generates nothing, so no Article 50 duty is engaged either — it was labelled transparency when it was written, which the benchmark caught.',
+      'Point 1(b) reaches categorisation according to a *sensitive or protected* attribute. Personal protective equipment is not an attribute of the person at all, and a rule that fired on any camera that sorted people into buckets would make every safety system in a warehouse high-risk. Minimal rather than transparency: the system shows nobody anything and generates nothing, so no Article 50 duty is engaged either ; it was labelled transparency when it was written, which the benchmark caught.',
     files: {
       'requirements.txt': 'opencv-python==4.10.0\n',
       'src/ppe.py': `import cv2
@@ -785,7 +785,7 @@ export async function judicialDecisionSupport(caseFile: string) {
   },
 
   // =======================================================================
-  // Transparency — Article 50
+  // Transparency ; Article 50
   // =======================================================================
   {
     id: 'transparency.chatbot',
@@ -839,7 +839,7 @@ async function synthesizeSpeech(s: Buffer, t: string) { return Buffer.from(''); 
   },
 
   // =======================================================================
-  // Carve-outs — these look high-risk to a keyword matcher and are not
+  // Carve-outs ; these look high-risk to a keyword matcher and are not
   // =======================================================================
   {
     id: 'carveout.fraud-detection',
@@ -887,7 +887,7 @@ def verify_identity(selfie_path, passport_photo_path):
     tier: 'transparency',
     forbidFindings: ['annex-iii.4a.recruitment', 'art5.1c.social-scoring'],
     rationale:
-      'Ranking products is not ranking people, so no Annex III use case applies. The repository still calls a model that generates text, which engages Art. 50(2) — the point of this case is that Annex must not promote it to high-risk.',
+      'Ranking products is not ranking people, so no Annex III use case applies. The repository still calls a model that generates text, which engages Art. 50(2) ; the point of this case is that Annex must not promote it to high-risk.',
     files: {
       'package.json': pkg('shoprank'),
       'src/rank.ts': `${OPENAI_CALL}
@@ -919,7 +919,7 @@ export async function extractReceipt(image: string) {
     tier: 'transparency',
     forbidFindings: ['annex-iii.1c.emotion', 'art5.1f.emotion-workplace'],
     caught:
-      'Its own label, again. The case was labelled high-risk in an earlier version of the corpus — which is how a benchmark can be at 100 % and still be wrong.',
+      'Its own label, again. The case was labelled high-risk in an earlier version of the corpus ; which is how a benchmark can be at 100 % and still be wrong.',
     rationale:
       'Article 3(39) defines an emotion recognition system as one inferring emotions or intentions **on the basis of biometric data**, and Annex III point 1(c) uses that defined term. Sentiment over text a person typed is not biometric data, so neither the high-risk classification nor the Article 5(1)(f) prohibition is engaged. This case was labelled high-risk in an earlier version of the corpus, which is how a benchmark can be at 100% and still be wrong.',
     files: {

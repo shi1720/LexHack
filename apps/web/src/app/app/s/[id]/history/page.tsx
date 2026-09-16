@@ -24,7 +24,7 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
           Article 3(23) defines a substantial modification as a change, not foreseen in the initial conformity
           assessment, that affects compliance with Chapter III Section 2 or modifies the intended purpose.
           Article 43(4) then requires a new conformity assessment. Only something that reads the code can tell
-          you a modification was substantial — which is the one thing a questionnaire can never do.
+          you a modification was substantial · which is the one thing a questionnaire can never do.
         </p>
 
         {!drift ? (
@@ -54,10 +54,10 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
                 label="Conformity"
                 // A score of `null` is "not assessed", and interpolating it
                 // put the literal word `null` in front of a reader. An
-                // unscorable scan is a real state — every obligation in the
-                // selected markets came back not-applicable — and the em dash
+                // unscorable scan is a real state · every obligation in the
+                // selected markets came back not-applicable · and the em dash
                 // is how the dial and the CLI both say it.
-                value={`${previous!.report.score ?? '—'} → ${latest!.report.score ?? '—'}`}
+                value={`${previous!.report.score ?? ';'} → ${latest!.report.score ?? ';'}`}
                 tone={drift.scoreDelta >= 0 ? 'ok' : 'bad'}
               />
               <Stat label="Tier" value={`${drift.previousTier} → ${drift.currentTier}`} tone={drift.classificationChanged ? 'bad' : undefined} />
@@ -117,11 +117,11 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
                       {scan.status}
                     </span>
                   </td>
-                  <td style={{ padding: '9px 16px' }}>{scan.tier ?? '—'}</td>
-                  <td style={{ padding: '9px 16px', fontWeight: 600 }}>{scan.score ?? '—'}</td>
-                  <td style={{ padding: '9px 16px' }}>{scan.liveScore ?? '—'}</td>
+                  <td style={{ padding: '9px 16px' }}>{scan.tier ?? ';'}</td>
+                  <td style={{ padding: '9px 16px', fontWeight: 600 }}>{scan.score ?? ';'}</td>
+                  <td style={{ padding: '9px 16px' }}>{scan.liveScore ?? ';'}</td>
                   <td className="code" style={{ padding: '9px 16px', color: 'var(--ink-faint)' }}>
-                    {scan.ledgerRoot?.slice(0, 16) ?? scan.error?.slice(0, 40) ?? '—'}
+                    {scan.ledgerRoot?.slice(0, 16) ?? scan.error?.slice(0, 40) ?? ';'}
                   </td>
                 </tr>
               ))}

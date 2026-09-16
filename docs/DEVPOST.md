@@ -1,3 +1,5 @@
+> Historical development measurements below vary by machine and checkout. Run `npm run check:counts` for current scan size and time.
+
 # Devpost submission — Annex
 
 > Copy each section into the matching Devpost field. Word counts are noted where

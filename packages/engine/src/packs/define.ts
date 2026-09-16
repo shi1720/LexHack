@@ -74,7 +74,7 @@ export const whenHighRisk = (ctx: EvaluationContext): boolean =>
  * Article 49(2) is the obligation that survives a successful claim: a provider
  * who concludes a system is not high-risk still has to register it. Hanging
  * that control off `whenHighRisk` meant the derogation switched off the one
- * duty it does not switch off — while the control's own gap text said so.
+ * duty it does not switch off ; while the control's own gap text said so.
  */
 export const whenHighRiskOrDerogated = (ctx: EvaluationContext): boolean =>
   whenHighRisk(ctx) || ctx.classification.article6_3?.available === true;
@@ -86,8 +86,8 @@ export const whenProvider = (ctx: EvaluationContext): boolean =>
   ctx.classification.role === 'provider' || ctx.classification.role === 'provider+deployer';
 
 /**
- * Article 50 splits by role — 50(1) and 50(2) bind providers, 50(3) and 50(4)
- * bind deployers — and the pack has to split with it.
+ * Article 50 splits by role ; 50(1) and 50(2) bind providers, 50(3) and 50(4)
+ * bind deployers ; and the pack has to split with it.
  *
  * `unknown` counts as a deployer here on purpose. The cost of asking a
  * provider about a duty that turns out to be its customer's is a paragraph to

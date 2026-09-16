@@ -51,7 +51,7 @@ export default async function DossierPage({
           <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '76ch' }}>
             Article 11(1) requires this document before a high-risk system is placed on the market, and Annex IV
             sets out what it must contain. Every statement below is either backed by a citation to a file and a
-            line, recorded as a negative finding, or left explicitly open — because a generated document that
+            line, recorded as a negative finding, or left explicitly open · because a generated document that
             invents the residual-risk acceptance is a false statement to a competent authority, and Article 99(5)
             prices that at €7.5 million or 1 % of turnover.
           </p>
@@ -130,7 +130,7 @@ export default async function DossierPage({
             {dossier.title}
           </h2>
           <p style={{ fontSize: 12, color: 'var(--ink-faint)', margin: '6px 0 0' }}>
-            Regulation (EU) 2024/1689, Annex IV{simplified ? ' — simplified form under Article 11(1)' : ''} ·
+            Regulation (EU) 2024/1689, Annex IV{simplified ? ' · simplified form under Article 11(1)' : ''} ·
             compiled from source by Annex
           </p>
 
@@ -187,7 +187,7 @@ export default async function DossierPage({
               {section.open.length > 0 ? (
                 <div className="mt-3 rounded-md p-3.5" style={{ background: 'var(--amber-soft)', border: '1px solid color-mix(in srgb, var(--amber) 30%, transparent)' }}>
                   <div className="eyebrow" style={{ color: 'var(--amber)' }}>
-                    Open — determinations this document cannot make
+                    Open · determinations this document cannot make
                   </div>
                   <ul className="mt-2" style={{ margin: '8px 0 0', paddingLeft: 18, fontSize: 13, color: 'var(--ink-soft)' }}>
                     {section.open.map((o) => (

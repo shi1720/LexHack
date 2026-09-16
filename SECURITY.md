@@ -74,3 +74,7 @@ making the same mistake it exists to catch:
   as that installation. For a deployment whose trust page anyone relies on, the
   signing key belongs somewhere the application server can read and an attacker
   with the database cannot.
+
+## Public Firebase deployment, September 2026
+
+The hosted demo now uses random visitor identities rather than the shared demo account. It rejects private-repository token storage and PR creation. API responses explicitly prevent CDN caching, including denial responses. Downloads have streaming size limits and a decompression cap, and scans and AI calls are bounded. Optional explanations can use OpenAI; errors never expose provider response bodies or credentials. See docs/DEPLOY.md for retention and self-hosting boundaries. The historical limitations above about token storage still apply to a self-hosted installation with GitHub credentials enabled.

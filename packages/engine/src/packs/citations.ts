@@ -8,7 +8,7 @@ import type { Citation } from '../types.js';
 
 const AI_ACT_BASE = 'https://artificialintelligenceact.eu';
 
-/** Regulation (EU) 2024/1689 — the EU AI Act. */
+/** Regulation (EU) 2024/1689 ; the EU AI Act. */
 export function aiAct(locator: string, title: string, opts: { anchor?: string; quote?: string } = {}): Citation {
   const c: Citation = {
     instrument: 'Regulation (EU) 2024/1689 (EU Artificial Intelligence Act)',
@@ -50,7 +50,7 @@ export function gdpr(locator: string, title: string, quote?: string): Citation {
  * other does not exist.
  *
  * The statute is NYC Administrative Code §§ 20-870 to 20-874. The rules that
- * implement it — where the arithmetic actually lives — are 6 RCNY §§ 5-300 to
+ * implement it ; where the arithmetic actually lives ; are 6 RCNY §§ 5-300 to
  * 5-304. Every locator here used to carry the Administrative Code instrument,
  * so the product rendered "NYC Admin. Code tit. 20, ch. 5, subch. 25,
  * § 5-301(a)", which is not a provision of anything. On a tool whose pitch is

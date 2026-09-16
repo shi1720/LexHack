@@ -12,7 +12,7 @@ export interface RawFile {
    *
    * Set by the directory walker for a file past the per-file limit, which is
    * recorded rather than read. Without it the snapshot would see a zero-byte
-   * file, decide it was small enough to analyse, and report an empty one —
+   * file, decide it was small enough to analyse, and report an empty one ;
    * which is how a padded file used to disappear from the tree entirely.
    */
   declaredBytes?: number;
@@ -37,7 +37,7 @@ function byteLength(bytes: Uint8Array | string): number {
   return typeof bytes === 'string' ? Buffer.byteLength(bytes, 'utf8') : bytes.byteLength;
 }
 
-/** Heuristic NUL-byte check — cheaper and more reliable than extension alone. */
+/** Heuristic NUL-byte check ; cheaper and more reliable than extension alone. */
 /**
  * A Jupyter notebook is JSON wrapping the source that matters.
  *
@@ -82,7 +82,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
   const sorted = [...input.files].sort((a, b) => a.path.localeCompare(b.path));
 
   // `.annexignore` is read before anything else, so an excluded file is still
-  // counted and still hashed into the tree — it simply produces no signals.
+  // counted and still hashed into the tree ; it simply produces no signals.
   const ignoreFile = sorted.find((f) => f.path.replace(/^\.\//, '') === '.annexignore');
   const rules: IgnoreRule[] = ignoreFile ? parseAnnexIgnore(toText(ignoreFile.bytes)) : [];
   let ignoredCount = 0;
@@ -161,7 +161,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
 }
 
 // ---------------------------------------------------------------------------
-// Dependency extraction — the input to the AI bill of materials
+// Dependency extraction ; the input to the AI bill of materials
 // ---------------------------------------------------------------------------
 
 export function extractDependencies(files: SourceFile[]): Dependency[] {

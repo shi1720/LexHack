@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const system = getSystemBySlug(slug);
   return {
-    title: system ? `${system.name} — AI Act conformity` : 'Trust page',
+    title: system ? `${system.name} · AI Act conformity` : 'Trust page',
     description: system?.purpose,
     robots: { index: false },
   };
@@ -75,7 +75,7 @@ export default async function TrustPage({ params }: { params: Promise<{ slug: st
             deterministic, offline analysis. No language model participated in any determination. The results
             are hashed into a chain whose root is printed here: re-run the same scan on the same commit and you
             get the same root. Every entry can be re-derived from the results it describes, and{' '}
-            <span className="code">annex verify --against .</span> re-hashes each cited file off disk — so an
+            <span className="code">annex verify --against .</span> re-hashes each cited file off disk · so an
             edited status, or source that has moved since, is detectable by anyone holding the repository.
           </p>
           {signature ? (

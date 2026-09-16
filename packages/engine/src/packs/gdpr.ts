@@ -6,7 +6,7 @@ const c = pack('gdpr');
 
 /**
  * GDPR has been in force since 25 May 2018. It is included here because for
- * most AI products it is the regulation that already applies — the AI Act adds
+ * most AI products it is the regulation that already applies ; the AI Act adds
  * to it rather than replacing it, and Article 22 reaches automated decisions
  * that fall well outside Annex III.
  */
@@ -29,7 +29,7 @@ const controls: Control[] = [
     appliesFrom: IN_FORCE,
     citations: [
       gdpr('Art. 22(1)', 'Automated individual decision-making, including profiling'),
-      gdpr('Art. 22(3)', 'Safeguards — human intervention, point of view, contest'),
+      gdpr('Art. 22(3)', 'Safeguards ; human intervention, point of view, contest'),
     ],
     appliesWhen: allOf(touchesPeople, whenSignal('domain.automated.decision')),
     evaluate: (ctx) => {
@@ -101,8 +101,8 @@ const controls: Control[] = [
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
     citations: [
-      gdpr('Art. 13(2)(f)', 'Information to be provided — logic involved'),
-      gdpr('Art. 15(1)(h)', 'Right of access — logic involved'),
+      gdpr('Art. 13(2)(f)', 'Information to be provided ; logic involved'),
+      gdpr('Art. 15(1)(h)', 'Right of access ; logic involved'),
     ],
     appliesWhen: allOf(touchesPeople, whenSignal('domain.automated.decision')),
     evaluate: (ctx) => {
@@ -138,7 +138,7 @@ const controls: Control[] = [
     appliesFrom: IN_FORCE,
     citations: [
       gdpr('Art. 35(1)', 'Data protection impact assessment'),
-      gdpr('Art. 35(3)(a)', 'When a DPIA is required — automated evaluation of personal aspects'),
+      gdpr('Art. 35(3)(a)', 'When a DPIA is required ; automated evaluation of personal aspects'),
     ],
     appliesWhen: allOf(touchesPeople, whenSignal('domain.automated.decision', 'data.special-category')),
     evaluate: (ctx) => {
@@ -236,7 +236,7 @@ const controls: Control[] = [
       {
         // Never better than partial: consent machinery shows a basis *exists*,
         // not that the right Article 9(2) condition was picked per attribute.
-        name: 'partial when a consent mechanism exists — the condition still has to be named',
+        name: 'partial when a consent mechanism exists ; the condition still has to be named',
         files: {
           'src/model.ts':
             'export interface Applicant {\n  full_name: string;\n  email: string;\n  ethnicity: string;\n  religion: string;\n  disability: boolean;\n}\n',
@@ -257,7 +257,7 @@ export const GDPR_PACK: RulePack = {
   instrument: 'Regulation (EU) 2016/679 (General Data Protection Regulation)',
   reconciledOn: '2026-09-15',
   summary:
-    'The subset of the GDPR that bites on AI systems making decisions about people: Article 22 automated decision-making, the Article 13-15 explanation duties, Article 35 impact assessments, and Article 9 special-category data. In force since 2018 — for most AI products this is the regulation that already applies.',
+    'The subset of the GDPR that bites on AI systems making decisions about people: Article 22 automated decision-making, the Article 13-15 explanation duties, Article 35 impact assessments, and Article 9 special-category data. In force since 2018 ; for most AI products this is the regulation that already applies.',
   url: 'https://gdpr-info.eu/',
   milestones: [{ date: IN_FORCE, label: 'GDPR applies', note: 'In force since 25 May 2018.' }],
   penalty: {

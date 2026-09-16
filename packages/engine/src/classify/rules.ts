@@ -16,13 +16,13 @@ export interface ClassificationRule {
   boosts?: string[];
   /** Signals that suppress the rule entirely (documented carve-outs). */
   suppressedBy?: string[];
-  /** Signals that cancel a suppression — the carve-out's own carve-out. */
+  /** Signals that cancel a suppression ; the carve-out's own carve-out. */
   suppressionLiftedBy?: string[];
   /**
    * Which instrument this rule classifies under.
    *
-   * `RiskTier` is the AI Act's lattice — prohibited, high, transparency,
-   * minimal — and only AI Act rules may set it. A GDPR Article 22 finding
+   * `RiskTier` is the AI Act's lattice ; prohibited, high, transparency,
+   * minimal ; and only AI Act rules may set it. A GDPR Article 22 finding
    * tiered `high` made the summary read "High-risk under Annex III" for a
    * system in no Annex III use case, and switched on the whole Chapter III
    * stack behind it. Article 22 is a restriction on processing; it is not
@@ -36,12 +36,12 @@ export interface ClassificationRule {
 
 /**
  * Classification is deliberately rule-based and readable. A regulator, a
- * lawyer, or a judge can audit this table line by line — which is the whole
+ * lawyer, or a judge can audit this table line by line ; which is the whole
  * point. An LLM may *annotate* these findings but never produces them.
  */
 export const CLASSIFICATION_RULES: ClassificationRule[] = [
   // ---------------------------------------------------------------------
-  // Art. 5 — prohibited practices. Applicable since 2 February 2025.
+  // Art. 5 ; prohibited practices. Applicable since 2 February 2025.
   // ---------------------------------------------------------------------
   {
     id: 'art5.1f.emotion-workplace',
@@ -53,10 +53,10 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActArticle(
         5,
         '(1)(f)',
-        'Prohibited AI practices — emotion inference at work or school',
+        'Prohibited AI practices ; emotion inference at work or school',
         'the placing on the market, the putting into service for this specific purpose, or the use of AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except where the use of the AI system is intended to be put in place or into the market for medical or safety reasons',
       ),
-      aiActArticle(99, '(3)', 'Penalties — up to EUR 35 000 000 or 7 % of worldwide annual turnover'),
+      aiActArticle(99, '(3)', 'Penalties ; up to EUR 35 000 000 or 7 % of worldwide annual turnover'),
     ],
     // Recital 18 again: a physical state is not an emotion, so the
     // prohibition is not engaged rather than exempted.
@@ -78,7 +78,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActArticle(
         5,
         '(1)(e)',
-        'Prohibited AI practices — untargeted scraping of facial images',
+        'Prohibited AI practices ; untargeted scraping of facial images',
         'the placing on the market, the putting into service for this specific purpose, or the use of AI systems that create or expand facial recognition databases through the untargeted scraping of facial images from the internet or CCTV footage',
       ),
     ],
@@ -96,7 +96,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActArticle(
         5,
         '(1)(c)',
-        'Prohibited AI practices — social scoring',
+        'Prohibited AI practices ; social scoring',
         'the placing on the market, the putting into service or the use of AI systems for the evaluation or classification of natural persons or groups of persons over a certain period of time based on their social behaviour or known, inferred or predicted personal or personality characteristics',
       ),
     ],
@@ -112,8 +112,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     basis:
       'The code predicts the likelihood that an individual commits an offence. Article 5(1)(d) prohibits this where the assessment is based solely on profiling or on personality traits.',
     citations: [
-      aiActArticle(5, '(1)(d)', 'Prohibited AI practices — predicting criminal offences'),
-      aiActAnnex('III', '6', 'High-risk AI systems — law enforcement'),
+      aiActArticle(5, '(1)(d)', 'Prohibited AI practices ; predicting criminal offences'),
+      aiActAnnex('III', '6', 'High-risk AI systems ; law enforcement'),
     ],
     requires: ['domain.predictive-policing'],
     baseConfidence: 0.55,
@@ -126,7 +126,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     title: 'Subliminal, manipulative or deceptive techniques',
     basis:
       'The code deploys techniques designed to push a person toward a decision they would not otherwise take. Article 5(1)(a) prohibits subliminal techniques beyond a person\'s consciousness, and purposefully manipulative or deceptive techniques, where the objective or the effect is to materially distort behaviour by appreciably impairing the ability to make an informed decision, in a manner that causes or is reasonably likely to cause significant harm.',
-    citations: [aiActArticle(5, '(1)(a)', 'Prohibited AI practices — subliminal, manipulative or deceptive techniques')],
+    citations: [aiActArticle(5, '(1)(a)', 'Prohibited AI practices ; subliminal, manipulative or deceptive techniques')],
     requires: ['domain.dark-patterns'],
     // The prohibition is not about persuasion: it needs material distortion of
     // behaviour *and* significant harm. A pattern name in a growth experiment
@@ -135,20 +135,20 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     requiresAny: ['ai.inference.call', 'ai.ml.training', 'ai.framework.agent'],
     baseConfidence: 0.42,
     caveat:
-      'Article 5(1)(a) requires the technique to materially distort behaviour by appreciably impairing informed decision-making *and* to cause, or be reasonably likely to cause, significant harm. Lawful persuasion, advertising and personalisation are outside it — Recital 29 says so in terms. Annex can see the technique; whether it distorts behaviour and causes significant harm is a judgement about your users, not about your code.',
+      'Article 5(1)(a) requires the technique to materially distort behaviour by appreciably impairing informed decision-making *and* to cause, or be reasonably likely to cause, significant harm. Lawful persuasion, advertising and personalisation are outside it ; Recital 29 says so in terms. Annex can see the technique; whether it distorts behaviour and causes significant harm is a judgement about your users, not about your code.',
   },
   {
     id: 'art5.1b.vulnerability-exploitation',
     tier: 'prohibited',
     title: 'Exploiting vulnerabilities of age, disability or economic situation',
     basis:
-      'The code segments people on the grounds Article 5(1)(b) names — age, disability, or a specific social or economic situation — while influencing their behaviour. The prohibition bites where the objective or the effect is to materially distort that behaviour in a manner causing or reasonably likely to cause significant harm.',
-    citations: [aiActArticle(5, '(1)(b)', 'Prohibited AI practices — exploitation of vulnerabilities')],
+      'The code segments people on the grounds Article 5(1)(b) names ; age, disability, or a specific social or economic situation ; while influencing their behaviour. The prohibition bites where the objective or the effect is to materially distort that behaviour in a manner causing or reasonably likely to cause significant harm.',
+    citations: [aiActArticle(5, '(1)(b)', 'Prohibited AI practices ; exploitation of vulnerabilities')],
     requires: ['domain.vulnerability-targeting'],
     requiresAny: ['domain.dark-patterns', 'ai.inference.call', 'ai.ml.training'],
     baseConfidence: 0.4,
     caveat:
-      'Segmenting by age or circumstance is not by itself prohibited — accessibility features, age-appropriate design and hardship programmes all do it, and protectively. Article 5(1)(b) reaches *exploitation*: distorting behaviour to the person\'s significant detriment. That determination is not in the code.',
+      'Segmenting by age or circumstance is not by itself prohibited ; accessibility features, age-appropriate design and hardship programmes all do it, and protectively. Article 5(1)(b) reaches *exploitation*: distorting behaviour to the person\'s significant detriment. That determination is not in the code.',
   },
   {
     id: 'art5.1g.biometric-categorisation',
@@ -157,17 +157,17 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     basis:
       'The code infers race, political opinions, trade union membership, religious or philosophical beliefs, sex life or sexual orientation from biometric data. Article 5(1)(g) prohibits this.',
     citations: [
-      aiActArticle(5, '(1)(g)', 'Prohibited AI practices — biometric categorisation of sensitive attributes'),
+      aiActArticle(5, '(1)(g)', 'Prohibited AI practices ; biometric categorisation of sensitive attributes'),
     ],
     requires: ['domain.biometric.categorisation'],
     requiresAny: ['data.special-category', 'domain.biometric.identification'],
     baseConfidence: 0.5,
     caveat:
-      'Labelling or filtering of lawfully acquired biometric datasets is carved out. Age and gender estimation is not inherently within the Article 5(1)(g) list — check which attribute is actually inferred.',
+      'Labelling or filtering of lawfully acquired biometric datasets is carved out. Age and gender estimation is not inherently within the Article 5(1)(g) list ; check which attribute is actually inferred.',
   },
 
   // ---------------------------------------------------------------------
-  // Annex III — high-risk. Chapter III Sections 1-3 apply from 2 December 2027
+  // Annex III ; high-risk. Chapter III Sections 1-3 apply from 2 December 2027
   // for these systems; the classification itself is what these rules produce.
   // ---------------------------------------------------------------------
   {
@@ -180,7 +180,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActAnnex(
         'III',
         '4(a)',
-        'High-risk AI systems — employment and worker management',
+        'High-risk AI systems ; employment and worker management',
         'AI systems intended to be used for the recruitment or selection of natural persons, in particular to place targeted job advertisements, to analyse and filter job applications, and to evaluate candidates',
       ),
       aiActArticle(6, '(2)', 'Classification rules for high-risk AI systems'),
@@ -200,7 +200,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActAnnex(
         'III',
         '4(b)',
-        'High-risk AI systems — decisions affecting work relationships',
+        'High-risk AI systems ; decisions affecting work relationships',
         'AI systems intended to be used to make decisions affecting terms of work-related relationships, the promotion or termination of work-related contractual relationships, to allocate tasks based on individual behaviour or personal traits or characteristics or to monitor and evaluate the performance and behaviour of persons in such relationships',
       ),
     ],
@@ -218,7 +218,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActAnnex(
         'III',
         '5(b)',
-        'High-risk AI systems — creditworthiness',
+        'High-risk AI systems ; creditworthiness',
         'AI systems intended to be used to evaluate the creditworthiness of natural persons or establish their credit score, with the exception of AI systems used for the purpose of detecting financial fraud',
       ),
     ],
@@ -232,8 +232,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Essential services: life and health insurance pricing',
     basis:
-      'The system performs risk assessment or pricing for life or health insurance in relation to natural persons — Annex III, point 5(c).',
-    citations: [aiActAnnex('III', '5(c)', 'High-risk AI systems — insurance risk assessment and pricing')],
+      'The system performs risk assessment or pricing for life or health insurance in relation to natural persons ; Annex III, point 5(c).',
+    citations: [aiActAnnex('III', '5(c)', 'High-risk AI systems ; insurance risk assessment and pricing')],
     requires: ['domain.insurance.pricing'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical', 'ai.provider.*'],
     baseConfidence: 0.75,
@@ -243,8 +243,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Essential services: eligibility for public assistance',
     basis:
-      'The system evaluates eligibility for essential public assistance benefits and services, or grants, reduces, revokes or reclaims them — Annex III, point 5(a).',
-    citations: [aiActAnnex('III', '5(a)', 'High-risk AI systems — public assistance benefits')],
+      'The system evaluates eligibility for essential public assistance benefits and services, or grants, reduces, revokes or reclaims them ; Annex III, point 5(a).',
+    citations: [aiActAnnex('III', '5(a)', 'High-risk AI systems ; public assistance benefits')],
     requires: ['domain.public-benefits'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical', 'ai.provider.*', 'domain.automated.decision'],
     baseConfidence: 0.8,
@@ -254,8 +254,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Essential services: emergency triage and dispatch',
     basis:
-      'The system evaluates or classifies emergency calls, or dispatches or prioritises emergency response, including patient triage — Annex III, point 5(d).',
-    citations: [aiActAnnex('III', '5(d)', 'High-risk AI systems — emergency services and patient triage')],
+      'The system evaluates or classifies emergency calls, or dispatches or prioritises emergency response, including patient triage ; Annex III, point 5(d).',
+    citations: [aiActAnnex('III', '5(d)', 'High-risk AI systems ; emergency services and patient triage')],
     requires: ['domain.emergency.triage'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical', 'ai.provider.*'],
     baseConfidence: 0.76,
@@ -267,8 +267,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Education: admission, evaluation and proctoring',
     basis:
-      'The system determines access to education, evaluates learning outcomes or monitors students during tests — Annex III, point 3.',
-    citations: [aiActAnnex('III', '3', 'High-risk AI systems — education and vocational training')],
+      'The system determines access to education, evaluates learning outcomes or monitors students during tests ; Annex III, point 3.',
+    citations: [aiActAnnex('III', '3', 'High-risk AI systems ; education and vocational training')],
     requires: ['domain.education.assessment'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical', 'ai.provider.*'],
     baseConfidence: 0.78,
@@ -278,37 +278,37 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Biometrics: remote biometric identification',
     basis:
-      'The system identifies natural persons from biometric data — Annex III, point 1(a). One-to-one verification to confirm a claimed identity is excluded.',
-    citations: [aiActAnnex('III', '1(a)', 'High-risk AI systems — remote biometric identification')],
+      'The system identifies natural persons from biometric data ; Annex III, point 1(a). One-to-one verification to confirm a claimed identity is excluded.',
+    citations: [aiActAnnex('III', '1(a)', 'High-risk AI systems ; remote biometric identification')],
     requires: ['domain.biometric.identification'],
     // Two carve-outs, and only one of them was implemented. Annex III point
     // 1(a) reaches **remote** biometric identification, which Article 3(41)
     // defines as identifying people "without their active involvement,
     // typically at a distance". A fingerprint reader on a door is biometric
-    // identification and is not a remote one — the person walks up and
+    // identification and is not a remote one ; the person walks up and
     // presents a finger.
     suppressedBy: ['domain.biometric.verification-only', 'domain.biometric.active-involvement'],
     baseConfidence: 0.7,
     caveat:
-      'Point 1(a) reaches *remote* biometric identification only — Article 3(41): identification without the person\'s active involvement, typically at a distance. A reader someone presents a finger or a face to is outside it, as is biometric verification whose sole purpose is confirming that a person is who they claim to be.',
+      'Point 1(a) reaches *remote* biometric identification only ; Article 3(41): identification without the person\'s active involvement, typically at a distance. A reader someone presents a finger or a face to is outside it, as is biometric verification whose sole purpose is confirming that a person is who they claim to be.',
   },
   {
     id: 'annex-iii.1b.biometric-categorisation',
     tier: 'high',
     title: 'Biometrics: biometric categorisation',
     basis:
-      'The system sorts people according to a sensitive or protected attribute inferred from their biometric data — Annex III, point 1(b).',
-    citations: [aiActAnnex('III', '1(b)', 'High-risk AI systems — biometric categorisation')],
+      'The system sorts people according to a sensitive or protected attribute inferred from their biometric data ; Annex III, point 1(b).',
+    citations: [aiActAnnex('III', '1(b)', 'High-risk AI systems ; biometric categorisation')],
     requires: ['domain.biometric.categorisation'],
     baseConfidence: 0.62,
     // Point 1(b) and Article 5(1)(g) are not the same set, and the difference
     // is the whole reason this rule has to exist separately. Article 5(1)(g)
-    // prohibits a closed list — race, political opinions, trade union
+    // prohibits a closed list ; race, political opinions, trade union
     // membership, religious or philosophical beliefs, sex life, sexual
     // orientation. Point 1(b) reaches sensitive and protected attributes more
     // broadly, which in Union non-discrimination law includes sex and age. So
     // an age or gender estimator over faces is high-risk under 1(b) and not
-    // prohibited under 5(1)(g) — and with only the prohibition modelled, it
+    // prohibited under 5(1)(g) ; and with only the prohibition modelled, it
     // came out of the classifier as minimal risk.
     caveat:
       'Point 1(b) reaches categorisation by a sensitive or protected attribute, not by any attribute: grouping portraits by hair colour is neither. Recital 16 also leaves out categorisation that is ancillary to another commercial service and strictly necessary for objective technical reasons. Where the attribute is one of those listed in Article 5(1)(g) the practice is prohibited outright rather than high-risk.',
@@ -318,14 +318,14 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Biometrics: emotion recognition',
     basis:
-      'The system infers emotions from biometric data outside workplace and education settings — Annex III, point 1(c). Inside those settings it is prohibited under Article 5(1)(f).',
-    citations: [aiActAnnex('III', '1(c)', 'High-risk AI systems — emotion recognition')],
+      'The system infers emotions from biometric data outside workplace and education settings ; Annex III, point 1(c). Inside those settings it is prohibited under Article 5(1)(f).',
+    citations: [aiActAnnex('III', '1(c)', 'High-risk AI systems ; emotion recognition')],
     // Recital 18: the notion of emotion recognition "does not include
     // physical states, such as pain or fatigue, including, for example,
     // systems used in detecting the state of fatigue of professional pilots or
     // drivers for the purpose of preventing accidents". Fatigue never enters
     // the Article 3(39) definition, so this is a definitional exclusion rather
-    // than an exemption — the provision is not engaged at all.
+    // than an exemption ; the provision is not engaged at all.
     suppressedBy: ['domain.physical-state'],
     requires: ['domain.emotion.recognition'],
     baseConfidence: 0.65,
@@ -334,8 +334,8 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     id: 'annex-iii.7.migration',
     tier: 'high',
     title: 'Migration, asylum and border control',
-    basis: 'The system assesses migration, asylum or border applications — Annex III, point 7.',
-    citations: [aiActAnnex('III', '7', 'High-risk AI systems — migration, asylum and border control')],
+    basis: 'The system assesses migration, asylum or border applications ; Annex III, point 7.',
+    citations: [aiActAnnex('III', '7', 'High-risk AI systems ; migration, asylum and border control')],
     requires: ['domain.migration.border'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical', 'ai.provider.*'],
     baseConfidence: 0.75,
@@ -345,40 +345,40 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     tier: 'high',
     title: 'Administration of justice',
     basis:
-      'The system assists a judicial authority in researching and interpreting facts and law, or applying the law to a concrete set of facts — Annex III, point 8(a).',
-    citations: [aiActAnnex('III', '8(a)', 'High-risk AI systems — administration of justice')],
+      'The system assists a judicial authority in researching and interpreting facts and law, or applying the law to a concrete set of facts ; Annex III, point 8(a).',
+    citations: [aiActAnnex('III', '8(a)', 'High-risk AI systems ; administration of justice')],
     requires: ['domain.justice.administration'],
     requiresAny: ['ai.inference.call', 'ai.provider.*'],
     baseConfidence: 0.7,
     caveat:
-      'Purely ancillary administrative activities — anonymisation, document management, scheduling — are outside point 8(a).',
+      'Purely ancillary administrative activities ; anonymisation, document management, scheduling ; are outside point 8(a).',
   },
   {
     id: 'annex-iii.8b.elections',
     tier: 'high',
     title: 'Influencing elections and voting behaviour',
-    basis: 'The system is intended to influence an election outcome or voting behaviour — Annex III, point 8(b).',
-    citations: [aiActAnnex('III', '8(b)', 'High-risk AI systems — democratic processes')],
+    basis: 'The system is intended to influence an election outcome or voting behaviour ; Annex III, point 8(b).',
+    citations: [aiActAnnex('III', '8(b)', 'High-risk AI systems ; democratic processes')],
     requires: ['domain.democratic.process'],
     requiresAny: ['ai.inference.call', 'ai.provider.*'],
     baseConfidence: 0.68,
     caveat:
-      'Point 8(b) expressly excludes AI systems to the output of which natural persons are not directly exposed — such as tools used to organise, optimise or structure political campaigns from an administrative or logistical point of view. If nobody sees the output, the point does not bite.',
+      'Point 8(b) expressly excludes AI systems to the output of which natural persons are not directly exposed ; such as tools used to organise, optimise or structure political campaigns from an administrative or logistical point of view. If nobody sees the output, the point does not bite.',
   },
   {
     id: 'annex-iii.2.infrastructure',
     tier: 'high',
     title: 'Critical infrastructure safety component',
     basis:
-      'The system is a safety component in the management and operation of critical digital infrastructure, road traffic or the supply of water, gas, heating or electricity — Annex III, point 2.',
-    citations: [aiActAnnex('III', '2', 'High-risk AI systems — critical infrastructure')],
+      'The system is a safety component in the management and operation of critical digital infrastructure, road traffic or the supply of water, gas, heating or electricity ; Annex III, point 2.',
+    citations: [aiActAnnex('III', '2', 'High-risk AI systems ; critical infrastructure')],
     requires: ['domain.critical-infrastructure'],
     requiresAny: ['ai.inference.call', 'ai.ml.classical'],
     baseConfidence: 0.7,
   },
 
   // ---------------------------------------------------------------------
-  // Art. 50 — transparency obligations.
+  // Art. 50 ; transparency obligations.
   // ---------------------------------------------------------------------
   {
     id: 'art50.1.chat-disclosure',
@@ -390,7 +390,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActArticle(
         50,
         '(1)',
-        'Transparency obligations — interaction with natural persons',
+        'Transparency obligations ; interaction with natural persons',
         'Providers shall ensure that AI systems intended to interact directly with natural persons are designed and developed in such a way that the natural persons concerned are informed that they are interacting with an AI system, unless this is obvious from the point of view of a natural person who is reasonably well-informed, observant and circumspect',
       ),
     ],
@@ -408,10 +408,10 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActArticle(
         50,
         '(2)',
-        'Transparency obligations — marking of synthetic content',
+        'Transparency obligations ; marking of synthetic content',
         'Providers of AI systems, including general-purpose AI systems, generating synthetic audio, image, video or text content, shall ensure that the outputs of the AI system are marked in a machine-readable format and detectable as artificially generated or manipulated',
       ),
-      aiActArticle(50, '(4)', 'Transparency obligations — deep fakes and public-interest text'),
+      aiActArticle(50, '(4)', 'Transparency obligations ; deep fakes and public-interest text'),
     ],
     requires: ['domain.synthetic.content'],
     baseConfidence: 0.78,
@@ -427,10 +427,10 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       aiActArticle(
         50,
         '(2)',
-        'Transparency obligations — marking of synthetic content',
+        'Transparency obligations ; marking of synthetic content',
         'Providers of AI systems, including general-purpose AI systems, generating synthetic audio, image, video or text content, shall ensure that the outputs of the AI system are marked in a machine-readable format and detectable as artificially generated or manipulated',
       ),
-      aiActArticle(111, '(4)', 'Transitional provision — marking deadline of 2 December 2026'),
+      aiActArticle(111, '(4)', 'Transitional provision ; marking deadline of 2 December 2026'),
     ],
     requires: ['ai.inference.call'],
     requiresAny: ['ai.provider.openai', 'ai.provider.anthropic', 'ai.provider.google', 'ai.provider.cloud', 'ai.provider.openweights', 'ai.framework.agent'],
@@ -443,11 +443,11 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     suppressionLiftedBy: ['domain.chat.enduser', 'domain.synthetic.content', 'ai.prompt.system'],
     baseConfidence: 0.62,
     caveat:
-      'Article 50(2) does not apply to the extent the system performs an assistive function for standard editing, does not substantially alter the input data or its semantics, or where the system is authorised by law to detect, prevent, investigate or prosecute criminal offences. Code completion, spell-checking and faithful translation are the usual candidates for the first carve-out — confirm which limb your system falls in.',
+      'Article 50(2) does not apply to the extent the system performs an assistive function for standard editing, does not substantially alter the input data or its semantics, or where the system is authorised by law to detect, prevent, investigate or prosecute criminal offences. Code completion, spell-checking and faithful translation are the usual candidates for the first carve-out ; confirm which limb your system falls in.',
   },
 
   // ---------------------------------------------------------------------
-  // GDPR Art. 22 — automated individual decision-making.
+  // GDPR Art. 22 ; automated individual decision-making.
   // ---------------------------------------------------------------------
   {
     id: 'gdpr.art22.automated-decision',
@@ -465,14 +465,14 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
         'Automated individual decision-making, including profiling',
         'The data subject shall have the right not to be subject to a decision based solely on automated processing, including profiling, which produces legal effects concerning him or her or similarly significantly affects him or her',
       ),
-      gdpr('Art. 22(3)', 'Safeguards — right to obtain human intervention'),
+      gdpr('Art. 22(3)', 'Safeguards ; right to obtain human intervention'),
     ],
     requires: ['domain.automated.decision', 'data.pii.handling'],
     // Deliberately NOT suppressed by `control.human.review`. A function named
     // `human_review()` is not a Article 22 safeguard: EDPB WP251rev.01 requires
     // the involvement to be meaningful, carried out by someone with the
     // authority and competence to change the decision, and CJEU C-634/21
-    // (SCHUFA) went further still — a probability value a third party draws
+    // (SCHUFA) went further still ; a probability value a third party draws
     // strongly on is itself the "decision". Suppressing the finding on a
     // keyword would be exactly the "code presence is conformity" mistake this
     // product exists to argue against. The GDPR pack's own Art. 22 control
@@ -480,7 +480,7 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
     boosts: ['domain.profiling'],
     baseConfidence: 0.6,
     caveat:
-      'Article 22(1) applies only where the decision is based *solely* on automated processing and produces legal or similarly significant effects. Article 22(2) then permits it where it is necessary for a contract, authorised by Union or Member State law, or based on explicit consent — with Article 22(3) safeguards, and Article 22(4) restricting special-category data. If a human review step exists, the question is whether the reviewer has the authority and competence to reach a different outcome; a rubber stamp does not take the processing outside Article 22 (EDPB WP251rev.01; CJEU C-634/21 SCHUFA).',
+      'Article 22(1) applies only where the decision is based *solely* on automated processing and produces legal or similarly significant effects. Article 22(2) then permits it where it is necessary for a contract, authorised by Union or Member State law, or based on explicit consent ; with Article 22(3) safeguards, and Article 22(4) restricting special-category data. If a human review step exists, the question is whether the reviewer has the authority and competence to reach a different outcome; a rubber stamp does not take the processing outside Article 22 (EDPB WP251rev.01; CJEU C-634/21 SCHUFA).',
   },
 ];
 

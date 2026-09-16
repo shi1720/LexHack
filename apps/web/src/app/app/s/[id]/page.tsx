@@ -42,10 +42,10 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(320px,0.9fr)_minmax(0,1fr)]">
         <div className="space-y-4">
           <div className="card flex items-center justify-center gap-8 p-6">
-            <ScoreDial score={report.score} label="Conformity" sublabel={`${applicable.length} obligations`} />
+            <ScoreDial score={report.score} label="Evidence score" sublabel={`${applicable.length} obligations`} />
             <ScoreDial
               score={report.liveScore}
-              label="In force today"
+              label="Current checks"
               sublabel={`${liveFailing.length} failing now`}
             />
           </div>
@@ -69,8 +69,8 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
                 service under their own name the <strong>provider</strong>; Article 3(4) makes whoever uses one
                 under their own authority the <strong>deployer</strong>. Calling someone else&rsquo;s model does
                 not by itself make you only a deployer. Article 25(1)(c) can convert a deployer into the
-                provider where they repoint a general-purpose AI system — already on the market and not
-                classified high-risk — at an Annex III use case. Whether either applies here turns on facts
+                provider where they repoint a general-purpose AI system · already on the market and not
+                classified high-risk · at an Annex III use case. Whether either applies here turns on facts
                 Annex cannot read out of a repository: who supplies the system, under whose name, and to whom.
                 Annex records the model dependency; the determination is yours.
               </p>
@@ -106,7 +106,7 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
                 <p className="legal" style={{ fontSize: 12.5, color: 'var(--ink-soft)', margin: '8px 0 0' }}>
                   A ceiling, not a forecast: every one of these regimes leaves the amount to the enforcing
                   authority, and the AI Act says so expressly in Article 99(1) and 99(7). Two systems in the
-                  same penalty tier, owned by the same undertaking, share a ceiling — the figure describes the
+                  same penalty tier, owned by the same undertaking, share a ceiling · the figure describes the
                   undertaking&rsquo;s turnover, not the system&rsquo;s risk. Each regime is priced on its own
                   terms: the Article 99(6) SME inversion applies to the AI Act and not to GDPR Article 83,
                   which says &ldquo;whichever is higher&rdquo; without exception.
@@ -213,8 +213,8 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
       {/* Gaps ------------------------------------------------------------ */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel
-          title={`Failing today (${liveFailing.length})`}
-          action={<span className="badge badge-bad">Enforceable now</span>}
+          title={`Current evidence gaps (${liveFailing.length})`}
+          action={<span className="badge badge-bad">Current rules and voluntary checks</span>}
         >
           <GapList controls={liveFailing} systemId={system.id} />
         </Panel>

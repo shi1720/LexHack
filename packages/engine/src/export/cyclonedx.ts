@@ -8,8 +8,8 @@ import { sha256 } from '../util/hash.js';
  * Two documents, both standardised, both machine-readable:
  *
  *  - an **attestation** (CycloneDX Attestations, standardised as ECMA-424),
- *    which expresses exactly the shape Annex produces — standard, requirement,
- *    claim, evidence, conformance — including non-conformance and counter-
+ *    which expresses exactly the shape Annex produces ; standard, requirement,
+ *    claim, evidence, conformance ; including non-conformance and counter-
  *    evidence. It exists so producers, assessors and regulators can exchange
  *    assurance without inventing a format each time. Annex does not invent one.
  *
@@ -88,7 +88,7 @@ export function toAttestation(report: ScanReport, packs: RulePack[]): string {
     description:
       r.evidence.length > 0
         ? r.evidence
-            .map((e) => (e.kind === 'absence' ? e.snippet : `${e.path}:${e.line} — ${e.snippet.trim()}`))
+            .map((e) => (e.kind === 'absence' ? e.snippet : `${e.path}:${e.line} ; ${e.snippet.trim()}`))
             .join(' | ')
         : 'No evidence located.',
     created: report.createdAt,

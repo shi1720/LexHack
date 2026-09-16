@@ -14,7 +14,7 @@ import { commentLines, trimSnippet } from '../signals/define.js';
 
 const DOC_FILE = /\.(md|mdx|rst|txt|adoc)$/i;
 // One line at a time, so the multi-line setext alternative that used to be
-// here could never match. The setext case is handled where it belongs — by a
+// here could never match. The setext case is handled where it belongs ; by a
 // lookahead at the *next* line, in `eligibleLines`.
 const HEADING = /^\s{0,3}(#{1,6}\s+|={2,}\s*$)/;
 
@@ -31,7 +31,7 @@ const HEADING = /^\s{0,3}(#{1,6}\s+|={2,}\s*$)/;
  *
  * So the rule is: a document is eligible where its **name** is on topic, or
  * where the match sits under a **heading** that is on topic. A README can
- * still answer the Article 9 duty — from its "Risk management" section, which
+ * still answer the Article 9 duty ; from its "Risk management" section, which
  * is what a reader would look for. A passing mention three paragraphs into the
  * installation instructions cannot.
  */
@@ -82,7 +82,7 @@ export function createContext(input: {
       // `lastIndex` is reset here as well as before each line test. A `/g`
       // pattern carries state between calls, so a leftover offset from the
       // previous file made this prefilter start mid-string and skip a file
-      // that matches — a result that depends on the order the snapshot
+      // that matches ; a result that depends on the order the snapshot
       // happens to be in, which is the one thing a tool selling determinism
       // cannot have.
       pattern.lastIndex = 0;
@@ -123,7 +123,7 @@ export function createContext(input: {
    *
    * Deliberately syntactic and deliberately generous: an import of the module
    * path, or a call to one of the names it exports. Generous is the right bias
-   * here — a false "this is wired in" is a missed gap, but a false "nothing
+   * here ; a false "this is wired in" is a missed gap, but a false "nothing
    * calls this" would nag teams whose wiring lives somewhere we cannot see, so
    * the callers below degrade to `partial` rather than `missing` when this
    * comes back empty.
@@ -156,7 +156,7 @@ export function createContext(input: {
       // The import guard below was here and this one was not, so two lines of
       // `// Follow-up: we should call gate(outcome) from screenCandidate one
       // day.` were enough to make a generated, entirely unreached
-      // `human-oversight.ts` read as wired — and the gap sentence that said
+      // `human-oversight.ts` read as wired ; and the gap sentence that said
       // "nothing in the repository reaches it" simply disappeared. On one
       // fixture that moved the score from 36 to 53 and flipped Articles 12
       // and 14 from `partial` to `satisfied`.

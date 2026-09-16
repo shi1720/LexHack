@@ -16,9 +16,16 @@ import { generateSigningKey } from '@annex/engine';
 const DB_PATH = resolve(process.env.ANNEX_DB ?? './data/annex.db');
 
 let instance: Database.Database | undefined;
+let lastCleanup = 0;
+function cleanup(handle: Database.Database) {
+  if (Date.now() - lastCleanup < 60_000) return;
+  lastCleanup = Date.now();
+  handle.prepare("DELETE FROM users WHERE email LIKE 'visitor-%@demo.annex.local' AND created_at < ?")
+    .run(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+}
 
 export function db(): Database.Database {
-  if (instance) return instance;
+  if (instance) { cleanup(instance); return instance; }
 
   mkdirSync(dirname(DB_PATH), { recursive: true });
   const handle = new Database(DB_PATH);
@@ -88,7 +95,7 @@ function migrate(handle: Database.Database): void {
  * "clone it and run it" into a configuration exercise for a reviewer who just
  * wants to look at the thing. Generating one on first boot has neither
  * problem, and an operator who wants to manage the secret themselves still
- * can — `ANNEX_SECRET` takes precedence and is what a multi-instance
+ * can ; `ANNEX_SECRET` takes precedence and is what a multi-instance
  * deployment should set, since a value in one container's SQLite file does not
  * reach another's.
  */
@@ -111,7 +118,7 @@ export function installationSecret(): string {
  * Every scan this app publishes is signed, because the trust page is the whole
  * point of the product and an unsigned conformity statement asks its reader to
  * take the publisher's word for the numbers. Generating the key on first boot
- * keeps "clone and run" working with no configuration — the cost is that the
+ * keeps "clone and run" working with no configuration ; the cost is that the
  * key lives in the same SQLite file as everything else, which SECURITY.md says
  * in those words rather than leaving you to find out.
  */

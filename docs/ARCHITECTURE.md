@@ -1,3 +1,5 @@
+> Historical development measurements below vary by machine and checkout. Run `npm run check:counts` for current scan size and time.
+
 # Architecture
 
 How one scan runs, end to end, and why each decision was made that way.

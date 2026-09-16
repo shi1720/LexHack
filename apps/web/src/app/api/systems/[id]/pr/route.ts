@@ -1,3 +1,4 @@
+import { PrivateResponse as Response } from '@/server/http';
 import { parseGitHubUrl } from '@annex/engine';
 import { currentUser } from '@/server/auth';
 import { getSystem, latestReport } from '@/server/systems';
@@ -6,6 +7,7 @@ import { PullRequestError, openRemediationPullRequest } from '@/server/github-pr
 export const dynamic = 'force-dynamic';
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (process.env.ANNEX_PUBLIC_DEMO === '1') return Response.json({ error: 'Download the patch here. Opening pull requests requires a self-hosted installation.' }, { status: 403 });
   const user = await currentUser();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 

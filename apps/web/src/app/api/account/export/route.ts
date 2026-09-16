@@ -1,3 +1,4 @@
+import { PrivateResponse as Response } from '@/server/http';
 import { currentUser, exportUserData } from '@/server/auth';
 
 export const dynamic = 'force-dynamic';

@@ -70,7 +70,7 @@ export function ScoreDial({
   size = 132,
   sublabel,
 }: {
-  /** `null` means not assessed — which is not zero, and must not look like it. */
+  /** `null` means not assessed · which is not zero, and must not look like it. */
   score: number | null;
   label: string;
   size?: number;
@@ -124,9 +124,9 @@ export function ScoreDial({
               color: assessed ? undefined : 'var(--ink-faint)',
             }}
           >
-            {assessed ? score : '—'}
+            {assessed ? score : ';'}
             <span className="sr-only">
-              {assessed ? ` out of 100 — ${label}` : ` not assessed — ${label}`}
+              {assessed ? ` out of 100 · ${label}` : ` not assessed · ${label}`}
             </span>
           </span>
           <span className="eyebrow" aria-hidden="true" style={{ fontSize: 9.5 }}>
@@ -161,7 +161,7 @@ export function Citation({ short, locator, title, url }: { short: string; locato
       <span style={{ fontWeight: 600 }}>
         {short} {locator}
       </span>
-      {title ? <span style={{ color: 'var(--ink-faint)' }}> — {title}</span> : null}
+      {title ? <span style={{ color: 'var(--ink-faint)' }}> · {title}</span> : null}
     </>
   );
   return url ? (

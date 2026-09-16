@@ -70,7 +70,7 @@ const CONFIG_LANGS: ReadonlySet<Language> = new Set<Language>(['yaml', 'json', '
  *
  * "Domain signals fire on code, never on prose" was implemented twice and was
  * wrong both times. First it excluded documentation *files*, and a sentence in
- * a `//` comment inside a TypeScript file is prose too — Annex found that by
+ * a `//` comment inside a TypeScript file is prose too ; Annex found that by
  * scanning itself and classifying itself as an emotion-recognition system.
  * Then it skipped lines that *begin* with a comment marker, which leaves the
  * interior of a `/* … *' + '/` block and of a Python docstring looking exactly
@@ -90,7 +90,7 @@ const BLOCK_OPEN = /\/\*|<!--/;
  * for a comment opener.
  *
  * `export const GLOB = '/*';` is code, and reading its `/*` as the start of a
- * block comment turned every following line in the file into prose — so one
+ * block comment turned every following line in the file into prose ; so one
  * line at the top of a file erased the emotion-inference detection, the Annex
  * III finding and the €35m tier beneath it. `const HTML = '<!--';` did the
  * same.
@@ -106,7 +106,7 @@ const BLOCK_OPEN = /\/\*|<!--/;
  * Each of those, placed at the top of a file, took a repository from
  * PROHIBITED at €35,000,000 to TRANSPARENCY at €15,000,000. So this now
  * tracks three states rather than one. It is still not a full JavaScript
- * lexer — it does not need to be, because every construct it does not know
+ * lexer ; it does not need to be, because every construct it does not know
  * about is read as ordinary code, which is the safe direction.
  */
 interface MaskState {
@@ -136,7 +136,7 @@ function withoutStringLiterals(line: string, state: MaskState = { template: fals
     }
     if (ch === '"' || ch === "'" || ch === '`') { quote = ch; out += ch; continue; }
     // A regex literal. `//` is a line comment and `/*` a block opener, so
-    // neither can start one — everything else in expression position can.
+    // neither can start one ; everything else in expression position can.
     if (ch === '/' && line[i + 1] !== '/' && line[i + 1] !== '*' && REGEX_ALLOWED_BEFORE.test(out)) {
       let j = i + 1;
       let inClass = false;
@@ -181,8 +181,8 @@ export function commentLines(lines: string[]): Set<number> {
     if (inBlock) {
       prose.add(i);
       // The *closer* is read from the raw line, deliberately. Masking quoted
-      // runs first meant an apostrophe in ordinary prose — "the recruiter's
-      // queue" — opened a string that swallowed the `*/` at the end of the
+      // runs first meant an apostrophe in ordinary prose ; "the recruiter's
+      // queue" ; opened a string that swallowed the `*/` at the end of the
       // line, so the block never closed and the rest of the file became
       // comment. Inside a block there is no code to protect, so there is
       // nothing to mask.
@@ -208,7 +208,7 @@ export function commentLines(lines: string[]): Set<number> {
     //     """
     //
     // never entered `inDocstring` and three sentences of English were read as
-    // code — enough, with a `def main()` beneath them, to satisfy Article 14
+    // code ; enough, with a `def main()` beneath them, to satisfy Article 14
     // on a repository containing no oversight code at all. An opener anywhere
     // on the line opens the docstring; only an opener that *starts* the line
     // makes that line itself prose, because `POLICY =` is code.

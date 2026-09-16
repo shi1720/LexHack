@@ -5,7 +5,7 @@ import { ENGINE_VERSION } from '../scan.js';
  * SARIF 2.1.0 output.
  *
  * This is the format GitHub's code scanning ingests, so a conformity gap shows
- * up as an annotation on the exact line of the pull request that caused it —
+ * up as an annotation on the exact line of the pull request that caused it ;
  * next to the security findings, in the workflow engineers already have. A
  * compliance finding that lives in a PDF gets read once a year; one that lives
  * in a diff gets fixed the same afternoon.
@@ -36,7 +36,7 @@ export function toSarif(report: ScanReport): string {
     shortDescription: { text: c.title },
     fullDescription: { text: c.obligation },
     help: {
-      text: `${c.obligation}\n\n${c.gap ?? ''}\n\n${c.citations.map((ct) => `${ct.short} ${ct.locator} — ${ct.title}: ${ct.url}`).join('\n')}`,
+      text: `${c.obligation}\n\n${c.gap ?? ''}\n\n${c.citations.map((ct) => `${ct.short} ${ct.locator} ; ${ct.title}: ${ct.url}`).join('\n')}`,
       markdown: [
         `**${c.title}**`,
         '',
@@ -45,7 +45,7 @@ export function toSarif(report: ScanReport): string {
         c.gap ? `**How to close it:** ${c.gap}` : '',
         '',
         '**Citations**',
-        ...c.citations.map((ct) => `- [${ct.short} ${ct.locator} — ${ct.title}](${ct.url})`),
+        ...c.citations.map((ct) => `- [${ct.short} ${ct.locator} ; ${ct.title}](${ct.url})`),
         '',
         `_In force from ${c.appliesFrom}._`,
       ]
@@ -71,7 +71,7 @@ export function toSarif(report: ScanReport): string {
           tool: {
             driver: {
               name: 'Annex',
-              fullName: 'Annex — AI Act conformity engine',
+              fullName: 'Annex ; AI Act conformity engine',
               version: ENGINE_VERSION,
               semanticVersion: ENGINE_VERSION,
               informationUri: 'https://github.com/shi1720/LexHack',

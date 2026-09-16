@@ -9,7 +9,7 @@ type Filter = 'gaps' | 'live' | 'all' | 'evidenced';
 
 const FILTERS: { key: Filter; label: string; hint: string }[] = [
   { key: 'gaps', label: 'Gaps', hint: 'Obligations with no or partial evidence' },
-  { key: 'live', label: 'In force today', hint: 'Obligations already enforceable' },
+  { key: 'live', label: 'Current checks', hint: 'Current rules and voluntary framework checks' },
   { key: 'evidenced', label: 'Evidenced', hint: 'Obligations the code already satisfies' },
   { key: 'all', label: 'All', hint: 'Every applicable obligation' },
 ];
@@ -103,7 +103,7 @@ export function EvidenceExplorer({
           A filter group, not a tab list. The ARIA tab pattern promises a screen
           reader that Left and Right move between the tabs and that each one
           controls a panel; neither was true here, and these are not tabs
-          anyway — they narrow one list rather than swapping between several.
+          anyway · they narrow one list rather than swapping between several.
           `aria-pressed` describes what they actually are: toggles.
         */}
         <div role="group" aria-label="Filter obligations" className="flex flex-wrap gap-1.5">
@@ -178,18 +178,18 @@ export function EvidenceExplorer({
               <li style={{ padding: 20, fontSize: 13.5, color: 'var(--ink-faint)' }}>
                 {/* "Nothing matches that filter" is true and useless. The case
                     that matters is `Evidenced` over a repository that evidences
-                    nothing — the state of the demo's own headline system, and
+                    nothing · the state of the demo's own headline system, and
                     the strongest thing this screen has to say if it says it. */}
                 {filter === 'evidenced' && !query && packFilter === 'all' ? (
                   <>
                     <strong style={{ color: 'var(--ink-soft)' }}>This repository evidences nothing.</strong>
                     <span style={{ display: 'block', marginTop: 6 }}>
-                      Every applicable obligation is a gap. That is not a bug in the scan — it is what a
+                      Every applicable obligation is a gap. That is not a bug in the scan · it is what a
                       product that has had no conformity work done to it looks like from the code.
                     </span>
                     {compareTo ? (
                       <a href={compareTo.href} style={{ display: 'inline-block', marginTop: 10, color: 'var(--navy)', fontWeight: 560 }}>
-                        See the same product after the work — {compareTo.name} →
+                        See the same product after the work · {compareTo.name} →
                       </a>
                     ) : null}
                   </>
@@ -224,11 +224,11 @@ export function EvidenceExplorer({
                       <span className="cite" style={{ fontSize: 12 }}>
                         {c.citations[0] ? `${c.citations[0].short} ${c.citations[0].locator}` : c.controlId}
                       </span>
-                      {/* A neutral fact — this obligation is enforceable today —
+                      {/* A neutral fact · this obligation is enforceable today ;
                           not an alarm. Crimson here sat next to a crimson
                           severity badge and a crimson status badge, three
                           different meanings in one card. */}
-                      {c.inForce ? <span className="badge badge-neutral">In force today</span> : null}
+                      {c.inForce ? <span className="badge badge-neutral">{c.pack === 'nist-ai-rmf' ? 'Voluntary framework' : 'In force today'}</span> : null}
                     </div>
                     <div style={{ fontSize: 13.5, fontWeight: active ? 600 : 480, marginTop: 2, lineHeight: 1.35 }}>
                       {c.title}

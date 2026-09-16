@@ -37,7 +37,7 @@ export default async function EvidencePage({ params }: { params: Promise<{ id: s
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '78ch' }}>
           Every obligation, the text of the law that imposes it, and the lines of your code that answer it.
-          Hashed into a chain rooted at <span className="code">{ledgerFingerprint(latest.report.ledger)}</span> —
+          Hashed into a chain rooted at <span className="code">{ledgerFingerprint(latest.report.ledger)}</span> ;
           re-run the scan on the same commit and you get the same root.
         </p>
       </div>

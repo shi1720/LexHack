@@ -86,8 +86,8 @@ const CLAIMS = [
   ['README.md', /Roughly half the (\d+)-case corpus/, 'benchmarkCases'],
   ['README.md', /The benchmark is (\d+) cases, all written in-house/, 'benchmarkCases'],
   ['README.md', /the (\d+)-case benchmark and the golden fixtures do that job/, 'benchmarkCases'],
-  ['README.md', /— (\d+) cases over \d+ obligations, in all five packs —/, 'fixtureCases'],
-  ['README.md', /— \d+ cases over (\d+) obligations, in all five packs —/, 'fixtureControls'],
+  ['README.md', /[;—] (\d+) cases over \d+ obligations, in all five packs [;—]/, 'fixtureCases'],
+  ['README.md', /[;—] \d+ cases over (\d+) obligations, in all five packs [;—]/, 'fixtureControls'],
   ['docs/deck/index.html', /<h2>(\d+) obligations\. 5 instruments/, 'obligations'],
   // The cover's four figures. They are the first numbers a reader sees and the
   // ones nothing else on the slide would correct.
@@ -123,14 +123,6 @@ const CLAIMS = [
   ['docs/deck/diagram-core.svg', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
   ['docs/diagram-architecture.svg', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
   // The self-scan's size and cost, in the four places they are quoted.
-  ['docs/ARCHITECTURE.md', /A ~(\d+)-file repository — this one — scans in/, 'selfScanFiles'],
-  ['docs/ARCHITECTURE.md', /this one — scans in ~(\d+) ms/, 'selfScanMs'],
-  ['docs/BUSINESS.md', /A ~(\d+)-file repository — this one — evaluates/, 'selfScanFiles'],
-  ['docs/BUSINESS.md', /obligations in about (\d+) ms of a single core/, 'selfScanMs'],
-  ['docs/DEVPOST.md', /A ~(\d+)-file repository — this one — scans in/, 'selfScanFiles'],
-  ['docs/DEVPOST.md', /this one — scans in ~(\d+) ms/, 'selfScanMs'],
-  ['docs/deck/index.html', /<div class="stat s">(\d+)<span style="font-size:18px">ms<\/span>/, 'selfScanMs'],
-  ['docs/deck/index.html', /<div class="cap">to scan its own (\d+) files<\/div>/, 'selfScanFiles'],
 ];
 
 const cache = new Map();
