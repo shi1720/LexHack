@@ -119,7 +119,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 **Say:**
 
-> **Forty-seven obligations across five jurisdictions, each compiled into a function with its own citation and its own start date. The engine is deterministic and offline — it never calls a model, because an auditor can't accept "the model thought so" as evidence.**
+> **Forty-eight obligations across five jurisdictions, each compiled into a function with its own citation and its own start date. The engine is deterministic and offline — it never calls a model, because an auditor can't accept "the model thought so" as evidence.**
 
 **Screen:** Cut to the terminal, run `annex verify report.json`. The green `LEDGER INTACT` banner.
 

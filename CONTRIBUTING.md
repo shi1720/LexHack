@@ -66,8 +66,14 @@ If your case fails, that is a result. Do not tune the label to the engine.
 
 ```bash
 npm run typecheck && npm run test:run && npm run benchmark && npm run build
+npm run check:counts          # every documented number still describes the corpus
 node scripts/audit.mjs        # accessibility and responsive, against a running app
 npm run selfscan              # Annex scans Annex; it should stay at 100/100
 ```
+
+If you added or removed an obligation, also run `npm run artefacts`, which
+re-renders the example dossier, the standards exports, the deck PDF and its
+stills from the current corpus — and fails if a slide's content no longer fits
+its page.
 
 CI runs all of these plus a dogfood scan that uploads SARIF.

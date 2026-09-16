@@ -26,7 +26,8 @@
     "screenshots": "node scripts/screenshots.mjs",
     "start": "npm run start -w @annex/web",
     "audit": "node scripts/audit.mjs",
-    "artefacts": "node scripts/artefacts.mjs"
+    "artefacts": "node scripts/artefacts.mjs",
+    "check:counts": "node scripts/check-counts.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

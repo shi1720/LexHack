@@ -36,6 +36,13 @@ jobs:
       - name: Benchmark
         run: npm run benchmark
 
+      # Every count in the README, the deck and the write-up is a claim about
+      # the corpus, and the corpus changes. This derives them and fails when a
+      # documented number stops being true — twice a control was added and the
+      # numbers were corrected by hand a commit later.
+      - name: Documented counts match the corpus
+        run: npm run check:counts
+
       # The accessibility and responsive audit runs against a live instance,
       # because the things it checks — a stack whose spacing collapsed, a
       # scroll region nobody can focus, a control border under 3:1 — are not
