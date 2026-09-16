@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ALL_PACKS, ledgerFingerprint } from '@annex/engine';
 import { requireUser } from '@/server/auth';
-import { getSystem, latestReport } from '@/server/systems';
+import { getSystem, latestReport, listSystems, sampleByKey } from '@/server/systems';
 import { EvidenceExplorer } from '@/components/evidence-explorer';
 import { Empty, Panel } from '@/components/primitives';
 
@@ -24,6 +24,14 @@ export default async function EvidencePage({ params }: { params: Promise<{ id: s
 
   const packNames = Object.fromEntries(ALL_PACKS.map((p) => [p.id, p.name]));
 
+  // The before-or-after of this system, if the workspace holds it. Only the
+  // bundled samples declare a counterpart; a repository somebody added has
+  // none, and the explorer simply says less in that case.
+  const counterpartKey = sampleByKey(system.source)?.compareWith;
+  const counterpart = counterpartKey
+    ? listSystems(user.id).find((s) => s.source === counterpartKey)
+    : undefined;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -33,7 +41,12 @@ export default async function EvidencePage({ params }: { params: Promise<{ id: s
           re-run the scan on the same commit and you get the same root.
         </p>
       </div>
-      <EvidenceExplorer controls={latest.report.controls} packNames={packNames} systemId={system.id} />
+      <EvidenceExplorer
+        controls={latest.report.controls}
+        packNames={packNames}
+        systemId={system.id}
+        {...(counterpart ? { compareTo: { href: `/app/s/${counterpart.id}/evidence`, name: counterpart.name } } : {})}
+      />
     </div>
   );
 }

@@ -26,6 +26,7 @@
     "start": "npm run start -w @annex/web",
     "audit": "node scripts/audit.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "attack": "node scripts/attack.mjs",
     "artefacts": "node scripts/artefacts.mjs",
     "check:counts": "node scripts/check-counts.mjs"
   },

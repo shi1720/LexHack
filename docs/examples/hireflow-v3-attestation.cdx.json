@@ -5,7 +5,7 @@
   "serialNumber": "urn:uuid:05dbaf16-5228-406a-a449-af22cb11c41b",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-16T07:40:02.654Z",
+    "timestamp": "2026-09-16T07:53:21.047Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "type": "application",
       "bom-ref": "component:hireflow-remediated",
       "name": "hireflow-remediated",
-      "version": "6d33c79f4dec"
+      "version": "76e3e162018a"
     }
   },
   "declarations": {
@@ -1152,7 +1152,7 @@
         "bom-ref": "evidence:eu-ai-act.art4.ai-literacy",
         "propertyName": "eu-ai-act.art4.ai-literacy",
         "description": "docs/ai-literacy.md:1 — # AI literacy and usage policy | docs/ai-literacy.md:4 — support the development of AI literacy among the people who operate their AI",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "6ba6f81a1d325e93c19b7d40357487363c8e10047074e23c6610a4781dc4528c"
@@ -1162,7 +1162,7 @@
         "bom-ref": "evidence:eu-ai-act.art50.1.interaction-disclosure",
         "propertyName": "eu-ai-act.art50.1.interaction-disclosure",
         "description": "lib/ai-act/disclosure.ts:7 — 'You are chatting with an AI assistant, not a human. It can make mistakes, so check anything important. Ask for a human at any time.'; | src/components/ChatPanel.tsx:27 — <p role=\"status\" className=\"ai-disclosure\" data-ai-disclosure=\"art50-1\">",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "946d5b1e09fb74f83680c55d25e3588ca81bc93ddd1dd4f86d48c392577df617"
@@ -1172,7 +1172,7 @@
         "bom-ref": "evidence:eu-ai-act.art50.2.content-marking",
         "propertyName": "eu-ai-act.art50.2.content-marking",
         "description": "No match for: C2PA, content credentials, provenance manifest, watermark",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "8eba2822624b52611972c18e7b3bb9c3c0561a931c8f5fbdae2e41cd3f24f384"
@@ -1182,7 +1182,7 @@
         "bom-ref": "evidence:eu-ai-act.art3.role-determination",
         "propertyName": "eu-ai-act.art3.role-determination",
         "description": "docs/ai-act/deployer-obligations.md:1 — # What a deployer has to do, and what we do for you | docs/ai-act/role-determination.md:1 — # Role under the EU AI Act | README.md:1 — # HireFlow",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "7e636e6e507ddf8f7c85c752a86e0a8c5e5ee0e55d5833e948d8ffb64b0f79f7"
@@ -1192,7 +1192,7 @@
         "bom-ref": "evidence:eu-ai-act.art9.risk-management",
         "propertyName": "eu-ai-act.art9.risk-management",
         "description": "docs/ai-act/risk-management.md:1 — # Risk management system | docs/ai-act/risk-management.md:39 — ## 5. Residual risk | docs/ai-act/risk-management.md:41 — Per-hazard and overall residual risk judged **acceptable** by the VP Engineering",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "4666c74cad46f86f496107abc2cfd914b33b77e90ed025aaf450164f4d369c86"
@@ -1202,7 +1202,7 @@
         "bom-ref": "evidence:eu-ai-act.art10.bias-examination",
         "propertyName": "eu-ai-act.art10.bias-examination",
         "description": "evals/bias-audit.ts:4 — * NYC Local Law 144, 6 RCNY § 5-301(b): calculate the selection rate and the | evals/bias-audit.ts:23 — export function selectionRate(rows: AuditRow[]): number { | src/app/careers/notice.tsx:12 — * § 5-303(a): the bias audit summary must be published on the employment | src/app/careers/notice.tsx:19 — export const BIAS_AUDIT_SUMMARY_URL = '/careers/bias-audit-2026'; | docs/ai-act/risk-management.md:42 — on 2026-09-02, on the basis of the Q2 monitoring data and the current bias audit.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "d9496ebbc6024848be5472a68f06a0b9a64e415b59758847f762da34322a5592"
@@ -1212,7 +1212,7 @@
         "bom-ref": "evidence:eu-ai-act.art10.data-governance",
         "propertyName": "eu-ai-act.art10.data-governance",
         "description": "docs/ai-act/data-governance.md:1 — # Data and data governance | docs/ai-act/data-governance.md:12 — Training data source: 38,000 historical applications from consenting customer",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "98bb82a40e21aa98a8ed717aff5a3ad1d92c1ca3591a0841b11ac70e3534bc16"
@@ -1222,7 +1222,7 @@
         "bom-ref": "evidence:eu-ai-act.art11.technical-documentation",
         "propertyName": "eu-ai-act.art11.technical-documentation",
         "description": "No match for: Annex IV, technical documentation",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "8eba2822624b52611972c18e7b3bb9c3c0561a931c8f5fbdae2e41cd3f24f384"
@@ -1232,7 +1232,7 @@
         "bom-ref": "evidence:eu-ai-act.art12.record-keeping",
         "propertyName": "eu-ai-act.art12.record-keeping",
         "description": "lib/ai-act/audit-log.ts:38 — export function recordInference(input: Omit<InferenceRecord, 'decisionId' | 'occurredAt' | 'inputDigest' | 'outputDigest'> & { | lib/ai-act/audit-log.ts:59 — console.info(JSON.stringify({ event: 'ai.inference_decision', ...record })); | src/app/api/candidate-data/route.ts:24 — // Right to erasure: personal data is deleted, the decision log is pseudonymised. | src/screening/prompts.ts:1 — export const PROMPT_VERSION = 'screen-2026-09-02'; | lib/ai-act/audit-log.ts:14 — modelId: string;",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "a6464b8456fde437da2559a71ec284304927a8e950c524536722a56e1493623d"
@@ -1242,7 +1242,7 @@
         "bom-ref": "evidence:eu-ai-act.art19.log-retention",
         "propertyName": "eu-ai-act.art19.log-retention",
         "description": "src/app/api/candidate-data/route.ts:13 — return Response.json({ userId: session.userId, personalData: {}, retentionPolicy: 'RETENTION_DAYS=190' });",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "2f722d2d5e6152908f0bf0117468c950b75a7cf857e384c59804d9258d140151"
@@ -1252,7 +1252,7 @@
         "bom-ref": "evidence:eu-ai-act.art13.instructions-for-use",
         "propertyName": "eu-ai-act.art13.instructions-for-use",
         "description": "docs/ai-act/instructions-for-use.md:1 — # Instructions for use | docs/ai-act/instructions-for-use.md:11 — ### (i) Intended purpose | docs/ai-act/templates/worker-notice.md:12 — - **What it does:** [intended purpose, from the instructions for use] | docs/ai-act/instructions-for-use.md:70 — ## Limitations | README.md:45 — ## Limitations",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "e1fa43d5dff6fc72da61395446c6a4aca81a32e5de12f26f7f523a3d1793043b"
@@ -1262,7 +1262,7 @@
         "bom-ref": "evidence:eu-ai-act.art14.human-oversight",
         "propertyName": "eu-ai-act.art14.human-oversight",
         "description": "src/screening/rank.ts:4 — import { gate } from '../../lib/ai-act/human-oversight'; | src/screening/rank.ts:14 — decision: 'advance' | 'pending_review'; | lib/ai-act/human-oversight.ts:17 — * Article 14 human oversight gate. No adverse outcome is ever applied without a | src/components/ReviewQueue.tsx:6 — * The human oversight surface. Every screening outcome below the threshold | src/components/ReviewQueue.tsx:16 — <h2 id=\"queue-heading\">Awaiting human review</h2> | lib/ai-act/human-oversight.ts:30 — input.escalate('adverse outcome requires human confirmation'); | tests/rank.test.ts:16 — const ranked = await rankApplicants(applicants as never, posting as never); | docs/ai-act/risk-management.md:34 — 2. **Mitigate and control.** Human oversight gate (`lib/ai-act/human-oversight.ts`), | src/screening/rank.ts:39 — const oversight = gate({ isAdverse, confidence: candidateScore, explanation, escalate });",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "c967614884558f1fa6ccb18f46f349bf8a07d7af8a9e7ecf6746a7ebdbc6674b"
@@ -1272,7 +1272,7 @@
         "bom-ref": "evidence:eu-ai-act.art15.accuracy",
         "propertyName": "eu-ai-act.art15.accuracy",
         "description": "evals/accuracy.ts:9 — export interface EvalCase { resumeText: string; postingId: string; humanLabel: 'advance' | 'reject' } | evals/accuracy.ts:6 — export const GROUND_TRUTH_SET = 'evals/fixtures/screening-golden-2026Q2.jsonl'; | docs/ai-act/instructions-for-use.md:20 — | Accuracy | Agreement with human recruiter label | **0.86** | 420-case frozen set, `evals/accuracy.ts` | | docs/ai-act/instructions-for-use.md:24 — Accuracy degrades on: resumes under 200 words, non-English resumes, and career",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "ff72cffd71f3837401d4bfd630b1ed2d758f707993e8711f4a884155155b1c7e"
@@ -1282,7 +1282,7 @@
         "bom-ref": "evidence:eu-ai-act.art15.cybersecurity",
         "propertyName": "eu-ai-act.art15.cybersecurity",
         "description": "evals/adversarial.ts:4 — * prompt injection and model evasion. | evals/adversarial.ts:20 — export async function redTeam(score: (t: string) => Promise<number>): Promise<{ passed: number; failed: string[] }> { | evals/adversarial.ts:2 — * Adversarial suite. Article 15(5) requires resilience against attempts by",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "6d24a34a4989f0a8ec28197fcbd947d91acfdd980e77396f17d6842e1a6f62f4"
@@ -1292,7 +1292,7 @@
         "bom-ref": "evidence:eu-ai-act.art17.quality-management",
         "propertyName": "eu-ai-act.art17.quality-management",
         "description": "tests/rank.test.ts:10 — describe('rankApplicants', () => { | tests/rank.test.ts:11 — it('sorts advanced applicants by score', async () => { | docs/ai-act/conformity-assessment.md:19 — | Quality management system in place under Article 17 | `docs/ai-act/quality-management.md` | 2026-06-30 | | docs/ai-act/conformity-assessment.md:25 — quality management system. | .github/workflows/ai-act-conformity.yml:8 — runs-on: ubuntu-latest | .github/workflows/test.yml:5 — runs-on: ubuntu-latest",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "5fde886387b33df644e2739f02f00ae8c6b738c730f14c854a75303f3ae8590f"
@@ -1302,7 +1302,7 @@
         "bom-ref": "evidence:eu-ai-act.art72.post-market-monitoring",
         "propertyName": "eu-ai-act.art72.post-market-monitoring",
         "description": "docs/ai-act/conformity-assessment.md:21 — | Design and development, and post-market monitoring, verified as consistent with that documentation | `docs/ai-act/post-market-monitoring.md` | 2026-07-09 | | docs/ai-act/post-market-monitoring.md:1 — # Post-market monitoring plan | docs/ai-act/risk-management.md:22 — ## 3. Risks from post-market monitoring",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "81470dd57f0ccfd4e9d3fc69700c292e4fa0fc5d9c739cb06555e58da1282e11"
@@ -1312,7 +1312,7 @@
         "bom-ref": "evidence:eu-ai-act.art73.incident-reporting",
         "propertyName": "eu-ai-act.art73.incident-reporting",
         "description": "docs/ai-act/incident-reporting.md:1 — # Serious incident reporting procedure",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "4ec70a80ad826e28a571238813ba72ce0f71b23d5159ce6aac38b0c8b9ff83b9"
@@ -1322,7 +1322,7 @@
         "bom-ref": "evidence:eu-ai-act.art49.registration",
         "propertyName": "eu-ai-act.art49.registration",
         "description": "src/app/careers/notice.tsx:49 — CE marking, and it has to be easily accessible from the interface the | src/app/careers/notice.tsx:52 — <a href=\"/conformity/declaration-of-conformity.json\" aria-label=\"CE marking and EU declaration of conformity\"> | docs/ai-act/conformity-assessment.md:1 — # Conformity assessment | docs/ai-act/conformity-assessment.md:12 — **internal control** procedure in **Annex VI**. No notified body is involved. | docs/ai-act/declaration-of-conformity.md:1 — # EU declaration of conformity | docs/ai-act/declaration-of-conformity.md:15 — | Annex V information | `provider`, `conformityAssessment`, `signature` |",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "62727f5a4e31f7f9ec5521c98fd8bf4bdfd2d6d7376dec192d495d9257bb3849"
@@ -1332,7 +1332,7 @@
         "bom-ref": "evidence:eu-ai-act.art26.deployer-obligations",
         "propertyName": "eu-ai-act.art26.deployer-obligations",
         "description": "lib/ai-act/human-oversight.ts:18 — * named reviewer confirming it (Article 14(4)(d)). | docs/ai-act/deployer-obligations.md:37 — Our staff consultation for internal use was completed on 2026-06-12 with the | docs/ai-act/deployer-obligations.md:38 — works council; the record is held by HR. A template notice for your own",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "f21286e200749a97b1bf6815a7cde9ed5b7fde59c21a846ef1c6626d3878929d"
@@ -1342,7 +1342,7 @@
         "bom-ref": "evidence:eu-ai-act.art43.conformity-assessment",
         "propertyName": "eu-ai-act.art43.conformity-assessment",
         "description": "docs/ai-act/conformity-assessment.md:24 — Assessment completed **2026-07-09** by the accountable person named in the | docs/ai-act/conformity-assessment.md:1 — # Conformity assessment | docs/ai-act/conformity-assessment.md:12 — **internal control** procedure in **Annex VI**. No notified body is involved. | docs/ai-act/declaration-of-conformity.md:15 — | Annex V information | `provider`, `conformityAssessment`, `signature` |",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "370ec813be1dad57985ff25c78da91ca29c917f518a51543b6dd8b38fc5d9d22"
@@ -1352,7 +1352,7 @@
         "bom-ref": "evidence:eu-ai-act.art47.declaration-of-conformity",
         "propertyName": "eu-ai-act.art47.declaration-of-conformity",
         "description": "docs/ai-act/declaration-of-conformity.md:1 — # EU declaration of conformity | docs/ai-act/declaration-of-conformity.md:3 — Regulation (EU) 2024/1689, Article 47 and Annex V. | conformity/declaration-of-conformity.json:2 — \"declarationOfConformity\": {",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "4b0c6a185f69d5d1b27759cf9226df056e41c2a153cd8fbe0d888f7c9269b19b"
@@ -1362,7 +1362,7 @@
         "bom-ref": "evidence:eu-ai-act.art48.ce-marking",
         "propertyName": "eu-ai-act.art48.ce-marking",
         "description": "src/app/careers/notice.tsx:49 — CE marking, and it has to be easily accessible from the interface the | src/app/careers/notice.tsx:52 — <a href=\"/conformity/declaration-of-conformity.json\" aria-label=\"CE marking and EU declaration of conformity\"> | src/app/careers/notice.tsx:49 — CE marking, and it has to be easily accessible from the interface the | src/app/careers/notice.tsx:52 — <a href=\"/conformity/declaration-of-conformity.json\" aria-label=\"CE marking and EU declaration of conformity\">",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "b65c494bee6f40093d9d54ae41b139c5e5f3a8d052ac28e8f8cc43d5c6afea80"
@@ -1372,7 +1372,7 @@
         "bom-ref": "evidence:eu-ai-act.art85.complaint-route",
         "propertyName": "eu-ai-act.art85.complaint-route",
         "description": "docs/ai-act/your-rights.md:16 — ## Right to lodge a complaint — Article 85 | docs/ai-act/your-rights.md:19 — submit a complaint to the **market surveillance authority** of your Member",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "7518c2805d7c5765d61e5a8f6f7c122ab250f45f42431870013185cecf3a43a2"
@@ -1382,7 +1382,7 @@
         "bom-ref": "evidence:eu-ai-act.art86.right-to-explanation",
         "propertyName": "eu-ai-act.art86.right-to-explanation",
         "description": "src/screening/rank.ts:35 — const explanation = explainScore(applicant, posting, candidateScore); | src/screening/explain.ts:15 — export function explainScore(applicant: Applicant, posting: JobPosting, candidateScore: number): string { | lib/ai-act/human-oversight.ts:11 — reason: string; | docs/ai-act/templates/worker-notice.md:18 — information before the system is used. Under Article 86 you may request an | docs/ai-act/your-rights.md:5 — ## Right to an explanation — Article 86",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "71586ff3746c4e3e7c41d58d6a78e7f73b4f188862b2b2dce474d0b45124bf34"
@@ -1392,7 +1392,7 @@
         "bom-ref": "evidence:gdpr.art22.human-intervention",
         "propertyName": "gdpr.art22.human-intervention",
         "description": "src/screening/rank.ts:4 — import { gate } from '../../lib/ai-act/human-oversight'; | src/screening/rank.ts:14 — decision: 'advance' | 'pending_review'; | lib/ai-act/human-oversight.ts:17 — * Article 14 human oversight gate. No adverse outcome is ever applied without a | src/components/ReviewQueue.tsx:6 — * The human oversight surface. Every screening outcome below the threshold | src/components/ReviewQueue.tsx:16 — <h2 id=\"queue-heading\">Awaiting human review</h2> | lib/ai-act/human-oversight.ts:30 — input.escalate('adverse outcome requires human confirmation'); | tests/rank.test.ts:16 — const ranked = await rankApplicants(applicants as never, posting as never); | docs/ai-act/risk-management.md:34 — 2. **Mitigate and control.** Human oversight gate (`lib/ai-act/human-oversight.ts`), | src/screening/rank.ts:39 — const oversight = gate({ isAdverse, confidence: candidateScore, explanation, escalate });",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "c967614884558f1fa6ccb18f46f349bf8a07d7af8a9e7ecf6746a7ebdbc6674b"
@@ -1402,7 +1402,7 @@
         "bom-ref": "evidence:gdpr.art13-15.meaningful-information",
         "propertyName": "gdpr.art13-15.meaningful-information",
         "description": "src/screening/rank.ts:35 — const explanation = explainScore(applicant, posting, candidateScore); | src/screening/explain.ts:15 — export function explainScore(applicant: Applicant, posting: JobPosting, candidateScore: number): string { | lib/ai-act/human-oversight.ts:11 — reason: string; | lib/ai-act/human-oversight.ts:13 — explanation: string;",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "9a98aa84e89659d2310a052b7603037db18e2b69a0659b2abfabc993e2651c35"
@@ -1412,7 +1412,7 @@
         "bom-ref": "evidence:gdpr.art35.dpia",
         "propertyName": "gdpr.art35.dpia",
         "description": "No match for: DPIA, data protection impact assessment, privacy impact assessment",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "8eba2822624b52611972c18e7b3bb9c3c0561a931c8f5fbdae2e41cd3f24f384"
@@ -1422,7 +1422,7 @@
         "bom-ref": "evidence:gdpr.art17.erasure",
         "propertyName": "gdpr.art17.erasure",
         "description": "src/app/api/candidate-data/route.ts:4 — * Subject access and correction. | src/app/api/candidate-data/route.ts:24 — // Right to erasure: personal data is deleted, the decision log is pseudonymised.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "be27992ffb6aedeeecd816ccfce5379b8c623174b087974a97b7d56acc6edc72"
@@ -1432,7 +1432,7 @@
         "bom-ref": "evidence:gdpr.art9.special-category",
         "propertyName": "gdpr.art9.special-category",
         "description": "evals/bias-audit.ts:44 — export function unknownCategoryCount(rows: { sex?: string; race?: string }[]): number { | evals/bias-audit.ts:14 — race: ['hispanic_or_latino', 'white', 'black_or_african_american', 'native_hawaiian_or_pacific_islander', 'asian', 'american_indian_or_alaska_native', 'two_or_more_races'], | src/db/schema.ts:10 — ethnicity: string | null; | src/db/schema.ts:11 — disability: string | null; | docs/ai-act/data-governance.md:40 — Protected attributes and known proxies excluded from features; the system prompt | docs/ai-act/risk-management.md:32 — recruitment context. Protected attributes and their known proxies are",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "394298281577a18e65d0a2d386f52dbcbf6b02a2f7f466c003efb8df62a40991"
@@ -1442,7 +1442,7 @@
         "bom-ref": "evidence:nyc-ll144.bias-audit",
         "propertyName": "nyc-ll144.bias-audit",
         "description": "evals/bias-audit.ts:4 — * NYC Local Law 144, 6 RCNY § 5-301(b): calculate the selection rate and the | evals/bias-audit.ts:23 — export function selectionRate(rows: AuditRow[]): number { | src/app/careers/notice.tsx:12 — * § 5-303(a): the bias audit summary must be published on the employment | src/app/careers/notice.tsx:19 — export const BIAS_AUDIT_SUMMARY_URL = '/careers/bias-audit-2026';",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "c0514e5124e42bc7208f7240eaaf16d390b346002a6f308993b2643ec22acdbc"
@@ -1452,7 +1452,7 @@
         "bom-ref": "evidence:nyc-ll144.impact-ratio",
         "propertyName": "nyc-ll144.impact-ratio",
         "description": "evals/bias-audit.ts:4 — * NYC Local Law 144, 6 RCNY § 5-301(b): calculate the selection rate and the | evals/bias-audit.ts:23 — export function selectionRate(rows: AuditRow[]): number { | src/app/careers/notice.tsx:12 — * § 5-303(a): the bias audit summary must be published on the employment | docs/ai-act/data-governance.md:35 — category and for intersectional sex x ethnicity x race categories, on every | evals/bias-audit.ts:6 — * intersectional sex x ethnicity x race categories, using EEO-1 categories.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "14d8304fb162c9768d6f581490764a74a6c3e14dc1eb1ccebc6a2f408087922a"
@@ -1462,7 +1462,7 @@
         "bom-ref": "evidence:nyc-ll144.publish-summary",
         "propertyName": "nyc-ll144.publish-summary",
         "description": "src/app/careers/notice.tsx:12 — * § 5-303(a): the bias audit summary must be published on the employment | src/app/careers/notice.tsx:19 — export const BIAS_AUDIT_SUMMARY_URL = '/careers/bias-audit-2026'; | src/app/careers/notice.tsx:14 — * the most recent audit (a)(1) and the distribution date of the tool (a)(2) — | src/app/careers/notice.tsx:15 — * the date we began using it, which is not the same date.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "62d3ebb2787e198632019000fd06af1610358bdff4f6748291225e10cd39c6b5"
@@ -1472,7 +1472,7 @@
         "bom-ref": "evidence:nyc-ll144.candidate-notice",
         "propertyName": "nyc-ll144.candidate-notice",
         "description": "docs/ai-act/risk-management.md:36 — 3. **Inform.** Instructions for use published to deployers; candidate notice | docs/ai-act/your-rights.md:3 — Published on the careers site alongside the candidate notice. | src/app/careers/notice.tsx:7 — * selection process or a reasonable accommodation. | src/app/careers/notice.tsx:43 — To request an alternative selection process or a reasonable accommodation, email{' '} | src/app/careers/notice.tsx:10 — * qualifications and characteristics the tool will use. | src/app/careers/notice.tsx:34 — <strong>Job qualifications and characteristics it assesses:</strong> relevant work history, the",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "67a0de7a07d6aa075b3e3a4a6ea26266a4eb71fc920ab42c049778ee8e1065a1"
@@ -1482,7 +1482,7 @@
         "bom-ref": "evidence:nyc-ll144.data-policy",
         "propertyName": "nyc-ll144.data-policy",
         "description": "src/app/api/candidate-data/route.ts:13 — return Response.json({ userId: session.userId, personalData: {}, retentionPolicy: 'RETENTION_DAYS=190' }); | docs/ai-act/data-governance.md:12 — Training data source: 38,000 historical applications from consenting customer",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "3d2ec036c39244aee0ff1fb5cd8324ab933c23df3272e9343c7c6a1500585444"
@@ -1492,7 +1492,7 @@
         "bom-ref": "evidence:colorado-admt.pre-use-notice",
         "propertyName": "colorado-admt.pre-use-notice",
         "description": "lib/ai-act/disclosure.ts:7 — 'You are chatting with an AI assistant, not a human. It can make mistakes, so check anything important. Ask for a human at any time.'; | src/components/ChatPanel.tsx:27 — <p role=\"status\" className=\"ai-disclosure\" data-ai-disclosure=\"art50-1\">",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "946d5b1e09fb74f83680c55d25e3588ca81bc93ddd1dd4f86d48c392577df617"
@@ -1502,7 +1502,7 @@
         "bom-ref": "evidence:colorado-admt.adverse-explanation",
         "propertyName": "colorado-admt.adverse-explanation",
         "description": "src/screening/rank.ts:35 — const explanation = explainScore(applicant, posting, candidateScore); | src/screening/explain.ts:15 — export function explainScore(applicant: Applicant, posting: JobPosting, candidateScore: number): string { | lib/ai-act/human-oversight.ts:11 — reason: string; | lib/ai-act/human-oversight.ts:13 — explanation: string; | src/screening/rank.ts:15 — explanation: string; | tests/rank.test.ts:16 — const ranked = await rankApplicants(applicants as never, posting as never); | src/screening/rank.ts:35 — const explanation = explainScore(applicant, posting, candidateScore); | docs/ai-act/risk-management.md:34 — 2. **Mitigate and control.** Human oversight gate (`lib/ai-act/human-oversight.ts`), | src/screening/rank.ts:39 — const oversight = gate({ isAdverse, confidence: candidateScore, explanation, escalate });",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "6d6b59c8fffa22789599e7526e7565c21c0875882eaab422d0c9112d6d421298"
@@ -1512,7 +1512,7 @@
         "bom-ref": "evidence:colorado-admt.human-review-override",
         "propertyName": "colorado-admt.human-review-override",
         "description": "src/screening/rank.ts:4 — import { gate } from '../../lib/ai-act/human-oversight'; | src/screening/rank.ts:14 — decision: 'advance' | 'pending_review'; | lib/ai-act/human-oversight.ts:17 — * Article 14 human oversight gate. No adverse outcome is ever applied without a | src/components/ReviewQueue.tsx:6 — * The human oversight surface. Every screening outcome below the threshold | src/components/ReviewQueue.tsx:16 — <h2 id=\"queue-heading\">Awaiting human review</h2> | lib/ai-act/human-oversight.ts:30 — input.escalate('adverse outcome requires human confirmation'); | tests/rank.test.ts:16 — const ranked = await rankApplicants(applicants as never, posting as never); | docs/ai-act/risk-management.md:34 — 2. **Mitigate and control.** Human oversight gate (`lib/ai-act/human-oversight.ts`), | src/screening/rank.ts:39 — const oversight = gate({ isAdverse, confidence: candidateScore, explanation, escalate });",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "c967614884558f1fa6ccb18f46f349bf8a07d7af8a9e7ecf6746a7ebdbc6674b"
@@ -1522,7 +1522,7 @@
         "bom-ref": "evidence:colorado-admt.data-correction",
         "propertyName": "colorado-admt.data-correction",
         "description": "src/app/api/candidate-data/route.ts:4 — * Subject access and correction. | src/app/api/candidate-data/route.ts:24 — // Right to erasure: personal data is deleted, the decision log is pseudonymised.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "be27992ffb6aedeeecd816ccfce5379b8c623174b087974a97b7d56acc6edc72"
@@ -1532,7 +1532,7 @@
         "bom-ref": "evidence:colorado-admt.developer-documentation",
         "propertyName": "colorado-admt.developer-documentation",
         "description": "docs/ai-act/instructions-for-use.md:1 — # Instructions for use | docs/ai-act/instructions-for-use.md:11 — ### (i) Intended purpose | docs/ai-act/templates/worker-notice.md:12 — - **What it does:** [intended purpose, from the instructions for use] | docs/ai-act/templates/worker-notice.md:13 — - **What data it uses:** [categories, from the instructions for use] | docs/ai-act/deployer-obligations.md:5 — requires the instructions for use to give you what you need to discharge them.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "61641767afb7059153b99b51bcd9dcb3d4f8abc06343004163a6ae5ef529b1bc"
@@ -1542,7 +1542,7 @@
         "bom-ref": "evidence:nist-ai-rmf.govern-1-1",
         "propertyName": "nist-ai-rmf.govern-1-1",
         "description": "docs/ai-act/conformity-assessment.md:19 — | Quality management system in place under Article 17 | `docs/ai-act/quality-management.md` | 2026-06-30 | | docs/ai-act/conformity-assessment.md:25 — quality management system. | docs/ai-act/conformity-assessment.md:3 — Regulation (EU) 2024/1689, Article 43. Part of the Annex IV technical | docs/ai-act/conformity-assessment.md:8 — HireFlow is high-risk under **Annex III, point 4(a)** — recruitment and",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "2f1170c15da8a8a9dcb32c1e81360103f734b4cf7d130b5cada0159304e7f45e"
@@ -1552,7 +1552,7 @@
         "bom-ref": "evidence:nist-ai-rmf.govern-1-6",
         "propertyName": "nist-ai-rmf.govern-1-6",
         "description": "src/screening/prompts.ts:1 — export const PROMPT_VERSION = 'screen-2026-09-02'; | lib/ai-act/audit-log.ts:14 — modelId: string; | lib/ai-act/audit-log.ts:15 — modelVersion: string; | src/screening/rank.ts:42 — modelId: SCORING_MODEL, | src/screening/rank.ts:43 — modelVersion: SCORING_MODEL,",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "caca189239e0810682fa6d85cdf97eef4d8d75a3451fe153396036634d17059b"
@@ -1562,7 +1562,7 @@
         "bom-ref": "evidence:nist-ai-rmf.map-1-1",
         "propertyName": "nist-ai-rmf.map-1-1",
         "description": "docs/ai-act/instructions-for-use.md:1 — # Instructions for use | docs/ai-act/instructions-for-use.md:11 — ### (i) Intended purpose | docs/ai-act/templates/worker-notice.md:12 — - **What it does:** [intended purpose, from the instructions for use] | docs/ai-act/templates/worker-notice.md:13 — - **What data it uses:** [categories, from the instructions for use] | docs/ai-act/deployer-obligations.md:5 — requires the instructions for use to give you what you need to discharge them. | docs/ai-act/risk-management.md:36 — 3. **Inform.** Instructions for use published to deployers; candidate notice",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "7246f22cba6946487ba98d924c0a075257da85e7c9295503c88bf176582721c2"
@@ -1572,7 +1572,7 @@
         "bom-ref": "evidence:nist-ai-rmf.measure-2-11",
         "propertyName": "nist-ai-rmf.measure-2-11",
         "description": "evals/bias-audit.ts:4 — * NYC Local Law 144, 6 RCNY § 5-301(b): calculate the selection rate and the | evals/bias-audit.ts:23 — export function selectionRate(rows: AuditRow[]): number { | src/app/careers/notice.tsx:12 — * § 5-303(a): the bias audit summary must be published on the employment | src/app/careers/notice.tsx:19 — export const BIAS_AUDIT_SUMMARY_URL = '/careers/bias-audit-2026';",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "c0514e5124e42bc7208f7240eaaf16d390b346002a6f308993b2643ec22acdbc"
@@ -1582,7 +1582,7 @@
         "bom-ref": "evidence:nist-ai-rmf.measure-2-7",
         "propertyName": "nist-ai-rmf.measure-2-7",
         "description": "evals/adversarial.ts:4 — * prompt injection and model evasion. | evals/adversarial.ts:20 — export async function redTeam(score: (t: string) => Promise<number>): Promise<{ passed: number; failed: string[] }> { | evals/adversarial.ts:2 — * Adversarial suite. Article 15(5) requires resilience against attempts by | src/lib/auth.ts:9 — /** Session cookie is issued by the org SSO exchange. */",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "4e7cbfa2b6ae429cdd704845ae96f324981b7a790304be564222b7207249315e"
@@ -1592,7 +1592,7 @@
         "bom-ref": "evidence:nist-ai-rmf.manage-4-1",
         "propertyName": "nist-ai-rmf.manage-4-1",
         "description": "src/app/api/appeals/route.ts:13 — const appeal = await openAppealTicket({ decisionId, statement }); | src/app/api/appeals/route.ts:4 — * Candidate appeal endpoint. | docs/ai-act/risk-management.md:20 — | R4 | Candidate cannot understand or contest an outcome | GDPR Art. 22(3) | Low | High | Accepted — appeal route with 30-day SLA | | docs/ai-act/incident-reporting.md:22 — 1. Detect — on-call alert, deployer report or candidate complaint. | docs/ai-act/risk-management.md:19 — | R3 | Model output drifts after a posting-template change | Art. 15(4) | Medium | Medium | Accepted — weekly golden-set run, alert below 0.82 | | docs/ai-act/incident-reporting.md:22 — 1. Detect — on-call alert, deployer report or candidate complaint.",
-        "created": "2026-09-16T07:40:02.654Z",
+        "created": "2026-09-16T07:53:21.047Z",
         "signature": {
           "algorithm": "SHA-256",
           "value": "de61516c288f4e1a7b59887be6cb30f7c81937b8f2640fd2485f147d4b6ba763"

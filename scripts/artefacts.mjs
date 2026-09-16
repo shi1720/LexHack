@@ -191,10 +191,51 @@ const captures = {};
   ].join('\n');
 }
 
+// 6. The five attempts on Article 14. Abridged to the badge and the reason,
+//    because the full run is three screens and the README is showing the
+//    shape of the answer rather than reproducing the script.
+{
+  const full = strip(execFileSync(process.execPath, [resolve(ROOT, 'scripts/attack.mjs')], { cwd: ROOT, encoding: 'utf8' }));
+  const lines = full.split('\n');
+  const kept = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i] ?? '';
+    if (/^\d+\. /.test(line)) {
+      kept.push('', line);
+      continue;
+    }
+    if (!/^\s+(SATISFIED|PARTIAL|MISSING)/.test(line)) continue;
+    kept.push(line.replace(/\s+$/, ''));
+    // The reason, to its first full stop. Cutting at a fixed line count left
+    // every entry ending mid-clause, which reads as a broken paste rather
+    // than an abridgement.
+    const reason = [];
+    for (let j = i + 1; j < lines.length && (lines[j] ?? '').trim() && !/^→/.test((lines[j] ?? '').trim()); j += 1) {
+      reason.push((lines[j] ?? '').trim());
+    }
+    const sentence = reason.join(' ').split(/(?<=\.)\s/)[0];
+    if (sentence) kept.push(`   ${sentence}`);
+    // Steps 3 and 4 fail for the same stated reason — nothing reaches the
+    // module — and the difference between them is the whole point, so where
+    // the sentence repeats, print the gap clause that distinguishes them.
+    if (sentence && kept.filter((l) => l === `   ${sentence}`).length > 1) {
+      const gap = lines.slice(i + 1).find((l) => l.trim().startsWith('→'));
+      const rest = [];
+      if (gap) {
+        const at = lines.indexOf(gap);
+        for (let j = at; j < lines.length && (lines[j] ?? '').trim(); j += 1) rest.push((lines[j] ?? '').trim());
+      }
+      const clause = rest.join(' ').replace(/^→\s*/, '').split(': ').slice(1).join(': ');
+      if (clause) kept.push(`   → ${clause.split(/(?<=\.)\s/)[0]}`);
+    }
+  }
+  captures.attack = ['$ npm run attack', ...kept].join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 {
   const readmePath = resolve(ROOT, 'README.md');
   let readme = await readFile(readmePath, 'utf8');
-  for (const name of ['hero', 'fix', 'verify', 'sign', 'diff']) {
+  for (const name of ['hero', 'fix', 'verify', 'sign', 'diff', 'attack']) {
     const marker = new RegExp(`(<!-- capture:${name} -->\\n\`\`\`\\n)[\\s\\S]*?(\\n\`\`\`\\n<!-- /capture:${name} -->)`);
     if (!marker.test(readme)) throw new Error(`README has no capture:${name} block`);
     readme = readme.replace(marker, `$1${captures[name].trim()}$2`);
@@ -203,7 +244,7 @@ const captures = {};
     .replace(/The real run prints \d+ gaps/, `The real run prints ${captures.heroGapCount} gaps`)
     .replace(/the LendWise fixture moves the score \d+ → \d+/, `the LendWise fixture moves the score ${captures.fixBefore} → ${captures.fixAfter}`);
   await writeFile(readmePath, readme, 'utf8');
-  process.stdout.write('  ✔ README.md (5 transcripts, regenerated from the CLI)\n');
+  process.stdout.write('  ✔ README.md (6 transcripts, regenerated from the CLI)\n');
 }
 
 process.stdout.write('\nPDFs\n');

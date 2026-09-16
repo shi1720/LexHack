@@ -4,43 +4,22 @@
 
 ### Proof, not paperwork.
 
-**Annex reads your codebase, decides where it falls under the EU AI Act, and proves every obligation with a file, a line and a hash.**
+**Annex reads your codebase, decides where it falls under the EU AI Act, and answers every obligation with a file, a line and a hash.**
 
-[Live demo](#try-it-in-two-minutes) · [How it works](#how-it-works) · [Benchmark](docs/BENCHMARK.md) · [Architecture](#architecture) · [Limitations](#limitations-and-known-issues)
+[Run it](#try-it-in-two-minutes) · [How it works](#how-it-works) · [Benchmark](docs/BENCHMARK.md) · [Why nobody has done this](#why-nobody-has-done-this) · [Limitations](#limitations-and-known-issues)
 
 ![Annex evidence explorer — the statute on the left, the lines of code that answer it on the right](docs/screenshots/05-evidence.png)
 
 </div>
 
+> Built by **Shivam Gupta** for LexHack 2026, with Claude as a pair programmer.
+> The legal corpus, the detector design and every judgement call about what the
+> statute means are mine; a lot of the typing is not. [`Credits`](#credits)
+> says which is which. *"We"* below means that pair.
+
 ---
 
-## The problem
-
-Every EU AI Act conformity dossier in existence is a document a company wrote about itself. Nobody has ever checked one against the system it describes.
-
-That is not a snipe at compliance teams — it is a structural fact. The Act asks whether your system logs inference, whether a human can override it, whether you examined your data for bias. Those questions have answers, and the answers are in the repository. But the people who write the dossier cannot read the repository, and the people who can read it were never asked.
-
-So the industry filled the gap with questionnaires. The IAPP's 2026 vendor census lists roughly ninety AI-governance vendors. Searching that document for `source code`, `static analysis`, `SAST`, `codebase` or `git repo` returns two hits, one of which is a GDPR privacy scanner and the other of which is the phrase "a U.S. codebase". No funded vendor in that census is reading the code.
-
-Six unfunded open-source projects are — Systima Comply is the most developed, doing import, dependency, config and call-chain analysis against Articles 5, 9-15 and 50. That is the honest competitive position and it is a better one than an empty field: the mechanic is proven and nobody has claimed it. [`docs/BUSINESS.md`](docs/BUSINESS.md) names them and says what Annex does that they do not.
-
-**And most teams believe they have until December 2027.** On 27 July 2026 the Digital Omnibus — [Regulation (EU) 2026/1744](https://artificialintelligenceact.eu/ai-act-explorer/digital-omnibus/) — pushed the Annex III high-risk deadline from August 2026 out to 2 December 2027, and the compliance industry exhaled.
-
-It left **Article 50 exactly where it was.**
-
-If your product talks to a person, or generates text, images, audio or video, you have been in scope since 2 August 2026, with **€15 million or 3 % of worldwide turnover** attached under Article 99(4)(g). Machine-readable marking of generated content is due **2 December 2026**. Those are not future problems.
-
-> **Where this comes from, and how far to trust it.** The whole timing argument
-> rests on one amending instrument, and the corpus was reconciled at a point
-> when EUR-Lex could not be reached — so Regulation (EU) 2026/1744 was read
-> through secondary sources rather than the Official Journal text. The
-> underlying Regulation (EU) 2024/1689 provisions were checked against primary
-> sources. Every item that could not be is marked in
-> [`docs/research/`](docs/research/), which opens by saying so. If you are
-> relying on the dates rather than reading about them, check the ELI before you
-> do: <http://data.europa.eu/eli/reg/2024/1689/oj>.
-
-## What Annex does
+## What it does, in one command
 
 <!-- capture:hero -->
 ```
@@ -87,19 +66,81 @@ Gaps
 <!-- /capture:hero -->
 
 Abridged for length — whole findings and whole gaps have been cut, but every
-line shown is verbatim. The real run prints 35 gaps, each with its citation, its
-evidence and its remediation. Run the command against the bundled
-`fixtures/hireflow` and you get those numbers, ledger fingerprint included, with
-only the timing moving.
+line shown is verbatim, regenerated from the CLI by `npm run artefacts`. The
+real run prints 35 gaps, each with its citation, its evidence and its
+remediation. Run it against the bundled `fixtures/hireflow` and you get these
+numbers, ledger fingerprint included, with only the timing moving.
 
-Three things in that output are the whole product. **`src/screening/rank.ts:28`**
+The screenshots below are the same repository with `us-federal` selected as
+well, so they show 41 obligations and a score of 3 rather than 35 and 2. A
+score is a fraction over the obligations you selected, and changing the
+markets changes the denominator — which is why the denominator is printed next
+to it everywhere it appears.
+
+## And why you should believe it
+
+A conformity dossier is a document a company wrote about itself, and the only
+thing standing behind it is that company's word. Annex produces a different
+kind of object. Every control result is hashed into a chain, the root goes on
+the front of the dossier, and `annex verify` re-derives the whole chain from
+the results the report describes.
+
+Flip one status in that report from `missing` to `satisfied`, change nothing
+else, and it names the entry and exits 1:
+
+```
+ LEDGER BROKEN
+
+  Entry 20 ("eu-ai-act.art5.emotion-workplace") does not hash to its
+  recorded value: the status, score, rule version or cited evidence in this
+  report is not what the ledger was built over.
+```
+
+Sign the root with `--sign` and a reader who has never seen your repository can
+check that the numbers are yours.
+
+"Proof" is the tagline and it is worth saying immediately what kind. This is
+tamper-*evidence*, not notarisation: there is no timestamp authority, so a
+signature establishes **who** and not **when**, and distributing the public key
+is still your problem. [`SECURITY.md`](SECURITY.md) says both in those words,
+and the trust page says it to the reader rather than to you. What it does give
+you is the difference between a document and a claim somebody else can check —
+which is the thing a self-attested dossier has never had.
+
+---
+
+## The problem
+
+Almost every EU AI Act conformity dossier is a document a company wrote about itself, and nobody has checked it against the system it describes. Article 43(1) routes some Annex III point 1 biometrics through a notified body, and Annex I products already carry third-party assessment under their sectoral legislation — but even there the assessor reads the documentation, not the repository.
+
+That is not a snipe at compliance teams — it is a structural fact. The Act asks whether your system logs inference, whether a human can override it, whether you examined your data for bias. Those questions have answers, and the answers are in the repository. But the people who write the dossier cannot read the repository, and the people who can read it were never asked.
+
+So the industry filled the gap with questionnaires. [Why nobody has done this](#why-nobody-has-done-this), further down, is the honest account of who else is trying.
+
+**And most teams believe they have until December 2027.** On 27 July 2026 the Digital Omnibus — [Regulation (EU) 2026/1744](https://artificialintelligenceact.eu/ai-act-explorer/digital-omnibus/) — pushed the Annex III high-risk deadline from August 2026 out to 2 December 2027, and the compliance industry exhaled.
+
+It left **Article 50 exactly where it was.**
+
+If your product talks to a person, or generates text, images, audio or video, you have been in scope since 2 August 2026, with **€15 million or 3 % of worldwide turnover** attached under Article 99(4)(g). Machine-readable marking of generated content is due **2 December 2026**. Those are not future problems.
+
+> **Where this comes from, and how far to trust it.** The whole timing argument
+> rests on one amending instrument, and the corpus was reconciled at a point
+> when EUR-Lex could not be reached — so Regulation (EU) 2026/1744 was read
+> through secondary sources rather than the Official Journal text. The
+> underlying Regulation (EU) 2024/1689 provisions were checked against primary
+> sources. Every item that could not be is marked in
+> [`docs/research/`](docs/research/), which opens by saying so. If you are
+> relying on the dates rather than reading about them, check the ELI before you
+> do: <http://data.europa.eu/eli/reg/2024/1689/oj>.
+
+## What Annex does
+
+Three things in the output above are the whole product. **`src/screening/rank.ts:28`**
 is a citation, not a category — you can disagree with it by opening the file.
 **`in force now`** is a second score, because the Act is not one deadline.
 **€686,000** is the Article 99(6) SME inversion applied to a €9.8m turnover;
 without `--turnover` it shows the flat €35m cap, and the €20m headline is the
 GDPR ceiling for the same failures, which Article 83 does *not* invert.
-
-
 
 Four artefacts come out of one scan:
 
@@ -197,12 +238,20 @@ tests: [
 The whole argument is that a document a company wrote about itself cannot
 answer the question. So the ways of writing exactly such a document are closed
 in the engine, as invariants over every control rather than checks inside a few
-of them. There are four, and each one is here because somebody got past the
+of them. There are five, and each one is here because somebody got past the
 others:
 
 A control that trips more than one says so in the same finding, rather than
 naming the first and making you re-run to discover the second.
 
+- **A duty about running code needs running code.** Where a control declares
+  that it is about run-time behaviour, a verdict resting on no executable
+  evidence at all caps at *partial*. This was the cheapest attack of the lot
+  and it was open while the harder ones were closed: five lines of
+  `docs/oversight.md` describing a review queue, an override and a kill switch
+  satisfied Article 14 over a repository containing no oversight code — easier
+  than the comment-only file below, because the attacker simply does not write
+  the file.
 - **A scaffold is not a control.** Annex writes documentation templates with
   `_TODO_` where a human has to supply a judgement — the residual-risk
   acceptance, the declared accuracy level, the accountable person. A finding
@@ -222,7 +271,43 @@ naming the first and making you re-run to discover the second.
   merely says the words does not, and neither does an incident-response runbook
   that happens to contain them.
 
-The test of all four is Annex's own remediation pull request. Applying it to
+You do not have to take any of that on trust. `npm run attack` makes five
+attempts at Article 14 — the heaviest control in the corpus — on a repository
+built for the purpose, one edit at a time, and prints what Annex says to each:
+
+<!-- capture:attack -->
+```
+$ npm run attack
+
+1. Write a policy document
+    PARTIAL
+   This obligation is about what the system does while it runs, and every line behind this finding is documentation: docs/ai-act/human-oversight.md:1.
+
+2. Describe it in a code comment
+    PARTIAL
+   Every line behind this finding is a comment: lib/ai-act/human-oversight.ts:2 reads "* Human oversight.".
+
+3. Actually write the module
+    PARTIAL
+   The code behind this finding is not reached from anywhere else in the repository, so it cannot be doing the work at the moment the obligation bites.
+
+4. Import it without calling it
+    PARTIAL
+   The code behind this finding is not reached from anywhere else in the repository, so it cannot be doing the work at the moment the obligation bites.
+   → lib/ai-act/human-oversight.ts is imported but never called.
+
+5. Wire it into the decision
+    SATISFIED
+```
+<!-- /capture:attack -->
+
+The difference between the fourth attempt and the fifth is one line, which is
+the point: one line is also the difference between an overseer who can
+intervene and one who cannot. The script asserts its own five outcomes and
+exits non-zero if any of them changes, so it runs in CI alongside everything
+else.
+
+The other test of all five is Annex's own remediation pull request. Applying it to
 the LendWise fixture moves the score 37 → 40 — six obligations closed, and not
 one of them all the way — and every control it touches says why:
 
@@ -301,7 +386,7 @@ $ annex verify report.json --pubkey annex-signing.pub
 
   52 entries re-derived from the results they describe
   root bb84d9868248452a4a835bb4…
-  ✔ signed by 80DC-D72A-BA5C-3176 (ed25519)
+  ✔ signed by 79A5-CBB8-FBA3-A85E (ed25519)
   checked against the key you supplied, so this report carries that holder's results.
 ```
 <!-- /capture:sign -->
@@ -388,7 +473,7 @@ A questionnaire cannot do this at all: it is answered once, by a person, about a
 | **Colorado ADMT Act** — SB 26-189 | 2026.09.1 | 5 | From 2027-01-01 |
 | **NIST AI RMF 1.0** — NIST AI 100-1 | 2026.09.1 | 6 | Voluntary; a statutory affirmative defence in Texas TRAIGA |
 
-Each obligation carries its own application date, so the score splits into "conformity" and "in force today" rather than pretending the Act is one deadline. Colorado is in the corpus partly as a demonstration: SB 24-205 was preliminarily enjoined in April 2026 and repealed, and SB 26-189 replaced it. When a legislature does that, every dependent dossier goes stale — which is why packs carry a version and a reconciliation date.
+Each obligation carries its own application date, so the score splits into "conformity" and "in force today" rather than pretending the Act is one deadline. Colorado is in the corpus partly as a demonstration: SB 24-205 was preliminarily enjoined in April 2026 — reported by practitioner sources rather than read off a docket, and marked medium-confidence in [`docs/research/`](docs/research/) for that reason — and then repealed outright, with SB 26-189 replacing it. Its pin-cites carry a warning wherever they are rendered, because the `§ 6-1-17xx` numbering comes from a secondary mapping and not the enrolled bill. When a legislature does that, every dependent dossier goes stale — which is why packs carry a version and a reconciliation date.
 
 Run `annex packs` to print the whole corpus, or `annex explain <control-id>` for one obligation with its citation, its detector and its fixtures.
 
@@ -463,17 +548,28 @@ A language model is used in exactly one place, and the UI labels it: rewriting a
 - uses: actions/checkout@v4
   with: { fetch-depth: 0 }
 
+# Annex is not on npm yet, so this repository is the distribution. When it
+# is published these three lines become `npx @annex/cli`, and nothing below
+# changes.
+- name: Install Annex
+  run: |
+    git clone --depth 1 https://github.com/shi1720/LexHack "$RUNNER_TEMP/annex"
+    npm --prefix "$RUNNER_TEMP/annex" ci
+    npm --prefix "$RUNNER_TEMP/annex" run build
+
 - name: AI Act conformity
-  run: npx @annex/cli scan . --format sarif --out annex.sarif --fail-under 70
+  run: node "$RUNNER_TEMP/annex/packages/cli/dist/bin.js" scan . --format sarif --out annex.sarif --fail-under 70
 
 - uses: github/codeql-action/upload-sarif@v3
   with: { sarif_file: annex.sarif }
 
 - name: Detect substantial modification
-  run: npx @annex/cli diff --base origin/main --head HEAD
+  run: node "$RUNNER_TEMP/annex/packages/cli/dist/bin.js" diff --base origin/main --head HEAD
 ```
 
 Findings land in the Security tab as code-scanning alerts, on the line that caused them. A compliance finding that lives in a PDF gets read once a year; one that lives in a diff gets fixed the same afternoon.
+
+Two honest notes about that block. Ingesting SARIF into the Security tab needs a public repository or GitHub Advanced Security; where neither holds, the API refuses and `annex.sarif` is still a valid SARIF 2.1.0 file any viewer will open. And `npm run build` builds the engine before the CLI on purpose — the CLI's types come from the engine's compiled output, so building the CLI on its own in a fresh clone fails.
 
 Annex runs this on itself — see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 Being precise about what that proves: Annex calls no model, so it is not an AI
@@ -514,6 +610,14 @@ was originally scoped against had been amended six weeks earlier.
 - **One AI system rarely maps to one repository.** Under the Act the unit is the system — a service, a model, a prompt store, a feature pipeline and a UI, often across four repositories and two teams. Annex scans one tree at a time and has no way to compose a system from several. That is the next structural thing to build.
 - **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.
+
+## Why nobody has done this
+
+The IAPP's 2026 vendor census lists roughly ninety AI-governance vendors. Searching that document for `source code`, `static analysis`, `SAST`, `codebase` or `git repo` returns two hits, one of which is a GDPR privacy scanner and the other of which is the phrase "a U.S. codebase". No funded vendor in that census is reading the code.
+
+That is a keyword search of a marketing document and it is worth saying so: a census entry is not a product spec, and a vendor could be doing static analysis without using any of those five words. Treat it as evidence that code-grounded evidence is not what this category *sells on*, which is the weaker claim and the one the search actually supports.
+
+Six unfunded open-source projects are reading code — Systima Comply is the most developed, doing import, dependency, config and call-chain analysis against Articles 5, 9-15 and 50. That is the honest competitive position and it is a better one than an empty field: the mechanic is proven and nobody has claimed it. [`docs/BUSINESS.md`](docs/BUSINESS.md) names them, says what Annex does that they do not, and has a section titled *What would make me wrong*.
 
 ## Commercial model
 

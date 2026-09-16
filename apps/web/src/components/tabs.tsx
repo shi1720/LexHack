@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export function Tabs({ base, items }: { base: string; items: { href: string; label: string }[] }) {
   const pathname = usePathname();
@@ -18,6 +18,21 @@ export function Tabs({ base, items }: { base: string; items: { href: string; lab
     const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
     el.style.setProperty('--fade-end', atEnd ? '0px' : '22px');
   }, []);
+
+  /**
+   * Scroll the current tab into view.
+   *
+   * At 390px the strip is wider than the screen, so landing on Remediation
+   * put its own tab half off the right edge, reading as `Re` with a fade over
+   * it — the page you are on, clipped, on the tab bar that tells you where you
+   * are. `nearest` so the common case, where the active tab is already
+   * visible, does not move anything.
+   */
+  useEffect(() => {
+    const el = strip.current?.querySelector('[aria-current="page"]');
+    el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    onScroll();
+  }, [pathname, onScroll]);
 
   return (
     <nav

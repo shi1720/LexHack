@@ -63,3 +63,11 @@ docs/BENCHMARK.md
 # gitignored — but a scan reads the disk, not the index, so on a developer's
 # tree they arrived as an oversize skip warning about a file that is not source.
 apps/web/data/
+
+# `npm run attack`, which builds a hiring product in a temporary directory in
+# order to try five ways of faking a discharged Article 14 duty against it. The
+# screening code is written out as string literals, so a scan of this
+# repository reads them and classifies Annex as an Annex III point 4(a)
+# recruitment system — the same read-back loop as `hero-capture.ts` above. A
+# script that writes a fixture is not the fixture.
+scripts/attack.mjs

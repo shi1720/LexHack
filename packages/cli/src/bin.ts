@@ -519,6 +519,10 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
         `  ${finding.tier === 'prohibited' ? c.red(SYMBOL.fail) : c.yellow(SYMBOL.warn)} ${c.bold(finding.title)} ${c.grey(`${Math.round(finding.confidence * 100)}% confidence`)}\n`,
       );
       if (cite) out.write(`    ${c.cyan(`${cite.short} ${cite.locator}`)} ${c.grey(cite.title)}\n`);
+      // A pin-cite that came from a secondary source says so where it is
+      // read, not in a research appendix. It is the thing that gets copied
+      // into a filing.
+      if (cite?.unverifiedLocator) out.write(`    ${c.yellow(`⚠ ${cite.unverifiedLocator}`)}\n`);
       for (const e of finding.evidence.slice(0, 2)) {
         out.write(`    ${c.grey(`${e.path}:${e.line}`)}  ${e.snippet.trim().slice(0, 78)}\n`);
       }
@@ -540,6 +544,7 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
         const clock = control.inForce ? c.red('IN FORCE') : c.grey(`from ${control.appliesFrom}`);
         out.write(`    ${statusBadge(control.status)} ${c.bold(control.title)}  ${clock}\n`);
         out.write(`      ${c.cyan(cite ? `${cite.short} ${cite.locator}` : control.controlId)}\n`);
+        if (cite?.unverifiedLocator) out.write(c.yellow(wrap(`⚠ ${cite.unverifiedLocator}`, 74, '      ')) + '\n');
         out.write(wrap(control.finding, 74, '      ') + '\n');
         if (control.gap) out.write(c.grey(wrap(`${SYMBOL.arrow} ${control.gap}`, 74, '      ')) + '\n');
         for (const e of control.evidence.filter((x) => x.kind !== 'absence').slice(0, 2)) {

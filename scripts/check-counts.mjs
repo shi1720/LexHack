@@ -64,7 +64,7 @@ const CLAIMS = [
   ['docs/DEVPOST.md', /a readable classification rule table, (\d+) controls/, 'obligations'],
   ['docs/DEVPOST.md', /(\d+) signal detectors/, 'detectors'],
   ['docs/DEVPOST.md', /a (\d+)-case hand-labelled corpus/, 'benchmarkCases'],
-  ['docs/DEVPOST.md', /a (\d+)-case benchmark, CI that typechecks/, 'benchmarkCases'],
+  ['docs/DEVPOST.md', /A (\d+)-case benchmark, a unit suite/, 'benchmarkCases'],
   ['docs/VIDEO.md', /`(\d+) obligations · 5 instruments · 0 model calls`/, 'obligations'],
   ['docs/VIDEO.md', /`(\d+) cases · 100% tier accuracy/, 'benchmarkCases'],
   ['CONTRIBUTING.md', /npm run benchmark {5}# (\d+) labelled cases/, 'benchmarkCases'],

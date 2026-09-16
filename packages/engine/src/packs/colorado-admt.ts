@@ -10,6 +10,12 @@ function co(locator: string, title: string): Citation {
     locator,
     title,
     url: 'https://leg.colorado.gov/bills/sb26-189',
+    // The pack summary says this once. A summary is not where somebody
+    // reading a single control is looking, and a pin-cite is exactly the
+    // thing that gets copied into a filing, so it travels with every
+    // citation instead.
+    unverifiedLocator:
+      'Section number from a secondary framework mapping, not the enrolled bill. The duty is right; check the locator against the 2026 C.R.S. before citing it.',
   };
 }
 

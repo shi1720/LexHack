@@ -104,15 +104,17 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
           className="scroll-x mt-4 rounded-md p-4"
           style={{ background: 'var(--sunken)', fontSize: 12.5, fontFamily: 'var(--font-mono)', margin: '16px 0 0' }}
         >
-{`- name: AI Act conformity
-  run: npx @annex/cli scan . --format sarif --out annex.sarif --fail-under 70
+{`- name: Install Annex
+  run: |
+    git clone --depth 1 https://github.com/shi1720/LexHack "$RUNNER_TEMP/annex"
+    npm --prefix "$RUNNER_TEMP/annex" ci
+    npm --prefix "$RUNNER_TEMP/annex" run build
 
-- uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: annex.sarif
+- name: AI Act conformity
+  run: node "$RUNNER_TEMP/annex/packages/cli/dist/bin.js" scan . --fail-under 70
 
 - name: Detect substantial modification
-  run: npx @annex/cli diff --base origin/main --head HEAD`}
+  run: node "$RUNNER_TEMP/annex/packages/cli/dist/bin.js" diff --base origin/main --head HEAD`}
         </pre>
         <p style={{ fontSize: 12, color: 'var(--ink-faint)', margin: '12px 0 0' }}>
           Findings land in the Security tab as code-scanning alerts, on the line that caused them.

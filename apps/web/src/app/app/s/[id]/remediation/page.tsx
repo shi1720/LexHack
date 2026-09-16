@@ -24,6 +24,7 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
   }
 
   const plan = latest.report.remediation;
+  const canOpenPr = system.sourceKind === 'github' && Boolean(user.githubToken);
   if (!plan) {
     return (
       <Panel>
@@ -90,13 +91,12 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
         <Panel title={prohibited ? 'What the pull request does close' : 'The pull request Annex would open'}>
-          <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '76ch' }}>
-            Every file here is additive and written only when absent, so applying this can never overwrite
-            something a person wrote. The files are scaffolding backed by statute, not finished compliance:
-            each carries <code className="code">TODO</code> markers at exactly the points where the answer is a
-            judgement your organisation has to make. Annex leaves those blank on purpose.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-8">
+          {/* The numbers first. This panel used to open with six lines of
+              justified serif before anything countable appeared, so on a phone
+              the whole first screen was prose and the artefact was below the
+              fold. The caveat matters and is still here — one line, under the
+              figures it qualifies. */}
+          <div className="flex flex-wrap gap-8">
             <Stat label="Files" value={plan.files.length} />
             <Stat label="Obligations closed" value={plan.closes.length} tone="ok" />
             <Stat
@@ -105,20 +105,33 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
               tone={plan.scoreAfter > plan.scoreBefore ? 'ok' : undefined}
             />
           </div>
+          <p className="legal mt-5" style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '20px 0 0', maxWidth: '76ch' }}>
+            Additive only, and written only where the file is absent, so applying this can never overwrite
+            something a person wrote. What it produces is scaffolding backed by statute rather than finished
+            compliance: every document carries <code className="code">TODO</code> markers at exactly the points
+            where the answer is a judgement your organisation has to make, and Annex leaves those blank on
+            purpose — a scan of the applied branch will cap each of those obligations at <em>partial</em> until
+            somebody fills them in.
+          </p>
         </Panel>
 
         <Panel title="Apply it">
+          {/* The download comes first unless the pull request can actually be
+              opened. A disabled primary button at the top of the panel is the
+              product telling a first-time reader that its headline action is
+              unavailable, when the artefact underneath it is real and one
+              click away. */}
           <div className="space-y-2">
-            <OpenPullRequest
-              systemId={system.id}
-              canOpen={system.sourceKind === 'github' && Boolean(user.githubToken)}
-            />
+            {canOpenPr ? (
+              <OpenPullRequest systemId={system.id} canOpen />
+            ) : null}
             <a
-              className={`btn btn-sm w-full${system.sourceKind === 'github' && user.githubToken ? '' : ' btn-primary'}`}
+              className={`btn btn-sm w-full${canOpenPr ? '' : ' btn-primary'}`}
               href={`/api/systems/${system.id}/patch`}
             >
               Download .patch
             </a>
+            {canOpenPr ? null : <OpenPullRequest systemId={system.id} canOpen={false} />}
             <CopyButton
               label="Copy PR description"
               text={plan.body}

@@ -245,6 +245,13 @@ export function ensureDemoUser(): User {
     password: DEMO_PASSWORD,
     orgName: 'Annex Demo Org',
   });
-  updateUser(user.id, { turnoverEur: 4_200_000, employees: 38 });
+  // The same figures the README, the deck and the demo script all use.
+  //
+  // They were €4.2m / 38 here and €9.8m / 40 everywhere else, so the exposure
+  // on the screenshots (€294,000) and the exposure in the write-up (€686,000)
+  // were two different numbers for the same product. Both were arithmetically
+  // right — Article 99(3) is 7 % of turnover — and a reader comparing them has
+  // no way to know that, and stops trusting either.
+  updateUser(user.id, { turnoverEur: 9_800_000, employees: 40 });
   return findByEmail(DEMO_EMAIL)!;
 }

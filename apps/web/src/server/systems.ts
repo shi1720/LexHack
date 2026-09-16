@@ -87,11 +87,23 @@ export interface Sample {
   headline: string;
   blurb: string;
   expect: string;
+  /**
+   * The sample this one is the before-or-after of.
+   *
+   * HireFlow and HireFlow v3 are the same product either side of the
+   * conformity work, and the comparison is the argument. Naming it here lets
+   * a screen that has nothing to show — the Evidence tab's `Evidenced` filter
+   * on a repository that evidences nothing — point at the one that does,
+   * instead of printing "Nothing matches that filter" on the most important
+   * tab of the demo.
+   */
+  compareWith?: string;
 }
 
 export const SAMPLES: Sample[] = [
   {
     key: 'hireflow',
+    compareWith: 'hireflow-remediated',
     name: 'HireFlow',
     purpose: 'Ranks and filters job applicants against a posting for high-volume recruiting teams.',
     dir: 'fixtures/hireflow',
@@ -103,6 +115,7 @@ export const SAMPLES: Sample[] = [
   },
   {
     key: 'hireflow-remediated',
+    compareWith: 'hireflow',
     name: 'HireFlow v3',
     purpose: 'Ranks and prioritises job applicants against a posting for recruiters. Human review on every adverse outcome.',
     dir: 'fixtures/hireflow-remediated',

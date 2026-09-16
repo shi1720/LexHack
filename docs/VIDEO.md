@@ -55,7 +55,7 @@ Everything below in **bold** is said out loud, word for word. Everything in plai
 
 > **Article 5 of the EU AI Act bans inferring emotion from people in the workplace. That has been in force since February 2025. Nobody on this team knew, because compliance lives in a PDF and the system lives in a repository, and nothing connects them.**
 >
-> **So every AI Act conformity dossier in existence is a document a company wrote about itself. Nobody has ever checked one against the system it describes.**
+> **So almost every AI Act conformity dossier is a document a company wrote about itself, and nobody has checked it against the system it describes.**
 
 **Screen:** On the last sentence, cut to the landing page's "In force today / Coming" clock.
 

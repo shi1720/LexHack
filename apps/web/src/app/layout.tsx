@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Annex — conformity evidence, compiled from source code',
     description:
-      'Every AI Act conformity dossier in existence is a self-attested document nobody has checked. Annex reads the code instead.',
+      'Almost every AI Act conformity dossier is a self-attested document nobody has checked against the code. Annex reads the code instead.',
     type: 'website',
   },
 };

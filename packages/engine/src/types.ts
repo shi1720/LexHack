@@ -177,6 +177,17 @@ export interface Citation {
   url: string;
   /** Verbatim quote of the operative text, where short enough to quote. */
   quote?: string;
+  /**
+   * Why this pin-cite should not be relied on as a locator.
+   *
+   * Set where the section number came from a secondary source rather than the
+   * enrolled text — the Colorado ADMT Act's `§ 6-1-17xx` numbering is the only
+   * case in the corpus today. The duty is right and the number may not be, and
+   * a reader quoting it into a filing needs to be told that at the point they
+   * read it, not in a research appendix. Rendered next to the citation
+   * wherever a citation is rendered.
+   */
+  unverifiedLocator?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -26,11 +26,14 @@ export function EvidenceExplorer({
   packNames,
   systemId,
   initialSelected,
+  compareTo,
 }: {
   controls: ControlResult[];
   packNames: Record<string, string>;
   systemId: string;
   initialSelected?: string;
+  /** The same product on the other side of the conformity work, if it is here. */
+  compareTo?: { href: string; name: string };
 }) {
   const [filter, setFilter] = useState<Filter>('gaps');
   const [packFilter, setPackFilter] = useState<string>('all');
@@ -173,7 +176,26 @@ export function EvidenceExplorer({
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: 640, overflowY: 'auto' }}>
             {visible.length === 0 ? (
               <li style={{ padding: 20, fontSize: 13.5, color: 'var(--ink-faint)' }}>
-                Nothing matches that filter.
+                {/* "Nothing matches that filter" is true and useless. The case
+                    that matters is `Evidenced` over a repository that evidences
+                    nothing — the state of the demo's own headline system, and
+                    the strongest thing this screen has to say if it says it. */}
+                {filter === 'evidenced' && !query && packFilter === 'all' ? (
+                  <>
+                    <strong style={{ color: 'var(--ink-soft)' }}>This repository evidences nothing.</strong>
+                    <span style={{ display: 'block', marginTop: 6 }}>
+                      Every applicable obligation is a gap. That is not a bug in the scan — it is what a
+                      product that has had no conformity work done to it looks like from the code.
+                    </span>
+                    {compareTo ? (
+                      <a href={compareTo.href} style={{ display: 'inline-block', marginTop: 10, color: 'var(--navy)', fontWeight: 560 }}>
+                        See the same product after the work — {compareTo.name} →
+                      </a>
+                    ) : null}
+                  </>
+                ) : (
+                  'Nothing matches that filter.'
+                )}
               </li>
             ) : null}
             {visible.map((c) => {
@@ -279,6 +301,14 @@ function ControlDetail({ control, packName, systemId }: { control: ControlResult
                   >
                     “{cite.quote}”
                   </blockquote>
+                ) : null}
+                {cite.unverifiedLocator ? (
+                  <p
+                    className="mt-1.5"
+                    style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--amber)', maxWidth: '68ch' }}
+                  >
+                    ⚠ {cite.unverifiedLocator}
+                  </p>
                 ) : null}
               </div>
             ))}

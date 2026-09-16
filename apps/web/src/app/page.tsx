@@ -57,7 +57,7 @@ export default function Landing() {
           </h1>
 
           <p className="legal mt-6" style={{ maxWidth: '62ch', fontSize: 19, lineHeight: 1.6, color: 'var(--ink-soft)' }}>
-            Every EU AI Act conformity dossier in existence is a document a company wrote about itself.
+            Almost every EU AI Act conformity dossier is a document a company wrote about itself.
             Nobody has ever checked one against the system it describes. Annex reads the codebase instead —
             classifies it, tests every obligation against it, and cites a file, a line and a hash for each answer.
           </p>

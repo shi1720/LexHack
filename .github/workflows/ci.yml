@@ -46,6 +46,14 @@ jobs:
       - name: Documented counts match the corpus
         run: npm run check:counts
 
+      # Five attempts to discharge Article 14 without implementing it, each a
+      # single edit to a purpose-built repository. Four are refused with the
+      # reason and the fifth — a real call site — goes green. The script
+      # asserts all five outcomes, so "nothing goes green because a file
+      # exists" fails the build the day it stops being true.
+      - name: Nothing goes green because a file exists
+        run: npm run attack
+
       # Two checks against a live instance, from an empty database.
       #
       # `audit` is about how the app looks — contrast, overflow, landmarks,
