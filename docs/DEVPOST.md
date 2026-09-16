@@ -120,7 +120,7 @@ After that: customer-authored detectors for in-house ML platforms, and getting a
 ## Try it out
 
 - **Repository:** https://github.com/shi1720/LexHack
-- **Live demo:** one click into a seeded workspace — no signup, no credit card, no API key
+- **Live demo:** one click into a seeded workspace — no signup, no credit card, no API key. Hosting takes about five minutes on any platform with a persistent container and a writable volume; [`docs/DEPLOY.md`](DEPLOY.md) has the recipe, and says why a serverless platform is the one thing that will not work.
 - **In the terminal:** `npm install && npm run build && node packages/cli/dist/bin.js scan fixtures/hireflow --markets eu,us-nyc`
 - **Benchmark:** `npm run benchmark` — it prints its own failures
 - **Self-scan:** `npm run selfscan` — Annex checking Annex
