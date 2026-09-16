@@ -98,7 +98,12 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
               figures it qualifies. */}
           <div className="flex flex-wrap gap-8">
             <Stat label="Files" value={plan.files.length} />
-            <Stat label="Obligations closed" value={plan.closes.length} tone="ok" />
+            {/* Not "closed". The whole argument of this project is that a scaffold
+                closes nothing — a document with an unfilled marker in it caps the
+                obligation at *partial* on the very next scan — and a green
+                "Obligations closed 10" beside that argument contradicts it in
+                the product's own interface. */}
+            <Stat label="Obligations advanced" value={plan.closes.length} tone="ok" />
             <Stat
               label="Projected score"
               value={`${plan.scoreBefore} → ${plan.scoreAfter}`}
@@ -152,7 +157,8 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
             as partial. The projected score above already assumes that.
           </p>
           <p style={{ fontSize: 11.5, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
-            Or run <code className="code">annex fix .</code> in the repository — the CLI writes the same files.
+            Or run <code className="code">annex fix .</code> in the repository to see the plan, and{' '}
+            <code className="code">annex fix . --write</code> to apply it. Same files, same markers.
           </p>
         </Panel>
       </div>

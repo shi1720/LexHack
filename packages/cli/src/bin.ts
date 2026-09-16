@@ -576,7 +576,7 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   if (report.remediation) {
     out.write(heading('Remediation available') + '\n');
     out.write(
-      `  ${c.green(SYMBOL.arrow)} ${c.bold('annex fix .')} writes ${report.remediation.files.length} files and closes ${report.remediation.closes.length} obligations ${c.grey(`(score ${report.remediation.scoreBefore} → ${report.remediation.scoreAfter})`)}\n`,
+      `  ${c.green(SYMBOL.arrow)} ${c.bold('annex fix . --write')} writes ${report.remediation.files.length} files and advances ${report.remediation.closes.length} obligations ${c.grey(`(score ${report.remediation.scoreBefore} → ${report.remediation.scoreAfter})`)}\n`,
     );
     for (const f of report.remediation.files) out.write(`     ${c.grey(SYMBOL.bullet)} ${f.path}\n`);
   }
@@ -667,16 +667,57 @@ async function runFix(args: Args): Promise<number> {
   }
 
   const root = resolve(target);
-  for (const file of report.remediation.files) {
+  const plan = report.remediation;
+
+  /**
+   * `--write` is the opt-in, and it used to be decoration.
+   *
+   * `runFix` never read the flag: `annex fix .` wrote straight into the tree
+   * and reported "10 files written". The README's own transcript shows
+   * `annex fix . --write`, which tells a reader the flag gates the mutation,
+   * and it gated nothing — so anybody who ran the command without it, to see
+   * what it would do, had already had it done. On a demo machine that quietly
+   * rewrote `fixtures/hireflow`, which is the prohibited fixture the whole
+   * demo rests on.
+   *
+   * For a tool that argues a conformity claim should be checkable before it is
+   * trusted, writing to somebody's working tree on the bare command was the
+   * sharpest contradiction in the build. The default is now the plan.
+   */
+  if (!args.flags.write) {
+    process.stdout.write(
+      `\n${c.bold(`${plan.files.length} file${plan.files.length === 1 ? '' : 's'}`)} would be written, advancing ${plan.closes.length} obligation${plan.closes.length === 1 ? '' : 's'} ${c.grey(`(projected score ${plan.scoreBefore} → ${plan.scoreAfter})`)}\n\n`,
+    );
+    for (const file of plan.files) {
+      process.stdout.write(`  ${c.grey('+')} ${file.path} ${c.grey(file.description)}\n`);
+    }
+    process.stdout.write(
+      `\n${wrap('Nothing has been written. Add --write to apply this to the tree, or --patch <file> for a unified diff you can read before you apply it.', 74, '  ')}\n`,
+    );
+    process.stdout.write(
+      c.grey(
+        wrap(
+          'Every file is additive and written only where one is absent, so applying this cannot overwrite something a person wrote. What it produces is scaffolding backed by statute rather than finished compliance: each document carries an annex:unfilled marker at the points where the answer is a judgement your organisation has to make, and a scan of the applied branch caps those obligations at partial until somebody removes it.',
+          74,
+          '  ',
+        ),
+      ) + '\n',
+    );
+    return 0;
+  }
+
+  for (const file of plan.files) {
     const dest = resolve(root, file.path);
     await mkdir(dirname(dest), { recursive: true });
     await writeFile(dest, file.contents, 'utf8');
     process.stdout.write(`${c.green(SYMBOL.pass)} ${file.path} ${c.grey(file.description)}\n`);
   }
   process.stdout.write(
-    `\n${c.bold(`${report.remediation.files.length} files written`)}, closing ${report.remediation.closes.length} obligations ${c.grey(`(projected score ${report.remediation.scoreBefore} → ${report.remediation.scoreAfter})`)}\n`,
+    `\n${c.bold(`${plan.files.length} files written`)}, advancing ${plan.closes.length} obligations ${c.grey(`(projected score ${plan.scoreBefore} → ${plan.scoreAfter})`)}\n`,
   );
-  process.stdout.write(c.grey(wrap('Each file is scaffolding backed by statute, not finished compliance. The TODO markers are the points where the answer is a judgement your organisation has to make; Annex leaves them blank on purpose.', 74, '  ')) + '\n');
+  // "Closed" is the word this project exists to argue against. A scaffold
+  // advances an obligation; a human closes it.
+  process.stdout.write(c.grey(wrap('Each file is scaffolding backed by statute, not finished compliance. The annex:unfilled markers are the points where the answer is a judgement your organisation has to make; Annex leaves them blank on purpose, and will not read a document that still carries one as discharging anything.', 74, '  ')) + '\n');
   return 0;
 }
 

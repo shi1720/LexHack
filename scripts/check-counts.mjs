@@ -13,7 +13,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { ALL_PACKS } from '../packages/engine/dist/index.js';
+import { ALL_PACKS, ingestDirectory, scan } from '../packages/engine/dist/index.js';
 import { BENCHMARK } from '../packages/engine/dist/benchmark/corpus.js';
 import { SIGNAL_CATALOGUE } from '../packages/engine/dist/signals/index.js';
 
@@ -21,6 +21,23 @@ const ROOT = resolve(import.meta.dirname, '..');
 
 const controls = ALL_PACKS.flatMap((p) => p.controls);
 const withFixtures = controls.filter((c) => c.tests?.length);
+
+/**
+ * The self-scan's own size and cost, measured rather than remembered.
+ *
+ * Four documents and a headline deck stat said "191 files… ~450 ms" against a
+ * tree that had grown to 206 files and takes closer to 700, so the project was
+ * understating its own scan time by half and inviting the reader, in the same
+ * README, to run the command and see otherwise. That is exactly the drift this
+ * script exists to stop, and performance numbers were not in it.
+ *
+ * Wall-clock varies by machine, so these are checked with a tolerance rather
+ * than for equality: the claim being defended is the order of magnitude, not
+ * the millisecond. The file count is exact.
+ */
+const selfScan = scan(await ingestDirectory(ROOT, { name: 'annex' }), {
+  profile: { markets: ['eu', 'us-federal'] },
+});
 
 const FACTS = {
   obligations: controls.length,
@@ -30,7 +47,19 @@ const FACTS = {
   benchmarkCases: BENCHMARK.length,
   fixtureCases: withFixtures.reduce((n, c) => n + c.tests.length, 0),
   fixtureControls: withFixtures.length,
+  selfScanFiles: selfScan.snapshot.fileCount,
+  selfScanMs: selfScan.durationMs,
 };
+
+/**
+ * Claims that are true within a tolerance rather than exactly.
+ *
+ * A timing on somebody else's laptop is not the timing here, so a documented
+ * figure passes when it is within half an order of magnitude of the measured
+ * one. That still catches 450 against 690, which is what it is for.
+ */
+const APPROXIMATE = new Set(['selfScanMs']);
+const TOLERANCE = 0.3;
 
 /**
  * Each claim is a file, a regular expression with one capturing group holding
@@ -44,7 +73,7 @@ const CLAIMS = [
   ['README.md', /The corpus: (\d+) controls with citations/, 'obligations'],
   ['README.md', /C\[(\d+) signal detectors/, 'detectors'],
   ['README.md', /as amended by \(EU\) 2026\/1744 \| 2026\.09\.1 \| (\d+) \|/, 'euObligations'],
-  ['README.md', /Risk-tier accuracy \| \*\*100 %\*\* \((\d+)\/\d+\)/, 'benchmarkCases'],
+  ['README.md', /Risk-tier accuracy \| 100 % \((\d+)\/\d+\)/, 'benchmarkCases'],
   ['README.md', /Roughly half the (\d+)-case corpus/, 'benchmarkCases'],
   ['README.md', /The benchmark is (\d+) cases, all written in-house/, 'benchmarkCases'],
   ['README.md', /the (\d+)-case benchmark and the golden fixtures do that job/, 'benchmarkCases'],
@@ -84,6 +113,15 @@ const CLAIMS = [
   ['docs/DEVPOST.md', /Annex reads the code instead: (\d+) obligations/, 'obligations'],
   ['docs/deck/diagram-core.svg', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
   ['docs/diagram-architecture.svg', /(\d+) golden fixtures across all five packs/, 'fixtureCases'],
+  // The self-scan's size and cost, in the four places they are quoted.
+  ['docs/ARCHITECTURE.md', /A (\d+)-file repository — this one — scans in/, 'selfScanFiles'],
+  ['docs/ARCHITECTURE.md', /this one — scans in ~(\d+) ms/, 'selfScanMs'],
+  ['docs/BUSINESS.md', /A (\d+)-file repository — this one — evaluates/, 'selfScanFiles'],
+  ['docs/BUSINESS.md', /obligations in about (\d+) ms of a single core/, 'selfScanMs'],
+  ['docs/DEVPOST.md', /A (\d+)-file repository — this one — scans in/, 'selfScanFiles'],
+  ['docs/DEVPOST.md', /this one — scans in ~(\d+) ms/, 'selfScanMs'],
+  ['docs/deck/index.html', /<div class="stat s">(\d+)<span style="font-size:18px">ms<\/span>/, 'selfScanMs'],
+  ['docs/deck/index.html', /<div class="cap">to scan its own (\d+) files<\/div>/, 'selfScanFiles'],
 ];
 
 const cache = new Map();
@@ -101,8 +139,14 @@ for (const [file, pattern, fact] of CLAIMS) {
     continue;
   }
   const found = Number(match[1]);
-  if (found !== FACTS[fact]) {
-    problems.push(`${file}: says ${found} ${fact}, the corpus has ${FACTS[fact]} — ${JSON.stringify(match[0])}`);
+  const actual = FACTS[fact];
+  const wrong = APPROXIMATE.has(fact)
+    ? Math.abs(found - actual) / actual > TOLERANCE
+    : found !== actual;
+  if (wrong) {
+    problems.push(
+      `${file}: says ${found} ${fact}, this run measured ${actual}${APPROXIMATE.has(fact) ? ` (tolerance ±${Math.round(TOLERANCE * 100)} %)` : ''} — ${JSON.stringify(match[0])}`,
+    );
   }
 }
 

@@ -108,7 +108,7 @@ export function planRemediation(
 
   return {
     branchName: `${opts.branchPrefix ?? 'annex'}/conformity-${stamp}-${ctx.snapshot.id.slice(0, 7)}`,
-    title: `Close ${closes.length} AI Act conformity gap${closes.length === 1 ? '' : 's'}`,
+    title: `Scaffold ${closes.length} AI Act conformity gap${closes.length === 1 ? '' : 's'}`,
     body: buildBody({ ctx, sections, closes, scoreBefore, scoreAfter, fileCount: files.length }),
     files,
     closes,
@@ -130,7 +130,7 @@ function buildBody(input: {
 
   return `## What this is
 
-Annex scanned \`${ctx.snapshot.name}\` at \`${(ctx.snapshot.commit ?? ctx.snapshot.id).slice(0, 12)}\` and found ${closes.length} obligation${closes.length === 1 ? '' : 's'} with no supporting evidence anywhere in the codebase. This PR adds ${fileCount} file${fileCount === 1 ? '' : 's'} that close them.
+Annex scanned \`${ctx.snapshot.name}\` at \`${(ctx.snapshot.commit ?? ctx.snapshot.id).slice(0, 12)}\` and found ${closes.length} obligation${closes.length === 1 ? '' : 's'} with no supporting evidence anywhere in the codebase. This PR adds ${fileCount} file${fileCount === 1 ? '' : 's'} that answer them — as scaffolding backed by statute, not as finished compliance.
 
 **Classification:** ${cls.summary}
 **Role under Articles 3(3) and 3(4):** ${cls.role.replace('+', ' and ')}

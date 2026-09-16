@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: '%s · Annex',
   },
   description:
-    'Annex reads your codebase, decides where it falls under the EU AI Act, and proves every obligation with a file, a line and a hash. Proof, not paperwork.',
+    'Annex reads your codebase, decides where it falls under the EU AI Act, and answers every obligation with a file, a line and a hash. Proof, not paperwork.',
   applicationName: 'Annex',
   authors: [{ name: 'Shivam Gupta' }],
   keywords: ['EU AI Act', 'AI governance', 'compliance as code', 'Annex IV', 'conformity assessment', 'static analysis'],

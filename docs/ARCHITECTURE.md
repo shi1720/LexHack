@@ -82,7 +82,7 @@ definition line  >  usage  >  documentation  >  test file  >  manifest
 
 That is why the Annex III 4(a) citation lands on `rank.ts:28` — `const decision = candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject'` — rather than on `"openai"` in `package.json`, even though both are true.
 
-**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 191-file repository — this one — scans in ~450 ms; the 50-case benchmark runs in ~120 ms.
+**Performance.** Each detector carries a lowercase keyword prefilter checked against the whole file before any line is scanned. Most files never reach the line loop. A 206-file repository — this one — scans in ~690 ms; the 50-case benchmark runs in ~160 ms. Both figures are re-measured by `npm run check:counts` and fail the build when the documentation drifts away from them.
 
 ## 3. Classification — `packages/engine/src/classify/`
 
