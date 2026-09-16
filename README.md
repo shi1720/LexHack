@@ -4,6 +4,8 @@
 
 [Live Firebase demo](https://annex-evidence.web.app) · [Current submission story](docs/submission/project-story.md) · [Testing instructions](docs/submission/testing-instructions.md)
 
+[Watch the 2:45 demo](https://www.youtube.com/watch?v=BaLlSJhui1I) · [LexHack submission](https://devpost.com/software/annex-0myxl6) · [Testing instructions](docs/submission/testing-instructions.md)
+
 ### Proof, not paperwork.
 
 **Annex reads your codebase, decides where it falls under the EU AI Act, and answers every obligation with a file, a line and a hash.**

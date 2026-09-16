@@ -1,0 +1,33 @@
+Your AI policy says a person can override a decision. Does the code agree?
+
+Annex connects AI governance obligations to the source files and lines behind a system. This walkthrough follows a sample hiring product from a flagged practice to evidence review, a technical dossier, remediation, scan history and a public trust summary.
+
+Try the live app: https://annex-evidence.web.app
+Source code: https://github.com/shi1720/LexHack
+Project: https://devpost.com/software/annex-0myxl6
+
+No signup or API key is required. Choose "Enter the demo workspace" to explore four bundled systems in your own temporary workspace.
+
+0:00 The gap between a claim and the code
+0:13 Open the live workspace
+0:29 Follow a finding to its source
+0:45 Review the obligation and evidence
+1:01 Explain the finding for your audience
+1:17 Export a technical dossier
+1:34 Review a remediation patch
+1:50 Compare scan history
+2:09 Share a verifiable summary
+2:28 Try Annex
+
+Built with TypeScript, Next.js, React, Tailwind CSS, SQLite, Firebase Hosting, Google Cloud Run and OpenAI. The deterministic engine includes 52 controls across five rule packs. OpenAI is used only for optional explanations of an existing finding. It cannot change a scan verdict or evidence ledger.
+
+Validation: 461 engine tests and 45 integration checks against the hosted app. The 50-case in-house benchmark measures regressions, not general real-world accuracy. Static analysis cannot prove that a safeguard works in production or establish legal compliance.
+
+This is a narrated walkthrough of actual hosted screens using bundled sample data. The earlier timestamp in the sample history is illustrative; both fixture scans are real engine output. Narration is AI-generated using OpenAI, with synchronized English captions. Claude and OpenAI Codex assisted with development and documentation.
+
+Public demo workspaces reset after 24 hours or a service restart. Export any reports you want to keep. Use self-hosting for private code and durable storage.
+
+Annex is a technical evidence tool, not legal advice, a certification or a conformity assessment.
+
+Built by Shivam Gupta for LexHack 2026.
+#LexHack2026 #ResponsibleAI #LegalTech
