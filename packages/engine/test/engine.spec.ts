@@ -342,6 +342,38 @@ describe('exposure', () => {
     expect(e.drivers.map((d) => d.controlId)).not.toContain('eu-ai-act.art5.emotion-workplace');
   });
 
+  /**
+   * Article 99(6a) inverts paragraphs 4 and 5 for a small mid-cap, and leaves
+   * paragraph 3 alone. Reading the pack-wide SME flag across every tier would
+   * have understated an Article 5 breach by roughly four times for an operator
+   * of this size.
+   */
+  it('inverts Article 99(4) for a small mid-cap', () => {
+    const e = estimateExposure(
+      [EU_AI_ACT_PACK],
+      failing,
+      profile({ turnoverEur: 120_000_000, employees: 400, smallMidCap: true }),
+    );
+    expect(e.maxFine).toBe(3_600_000); // the *lower* of EUR 15m and 3% of EUR 120m
+  });
+
+  it('does not invert Article 99(3) for a small mid-cap', () => {
+    const breached: ControlResult = {
+      controlId: 'eu-ai-act.art5.emotion-workplace', pack: 'eu-ai-act', title: 't',
+      obligation: 'o', family: 'prohibition', severity: 'critical', weight: 10,
+      status: 'missing', score: 0, finding: 'f',
+      citations: [], evidence: [], method: 'static-analysis', remediationAvailable: false,
+      appliesFrom: '2025-02-02', inForce: true,
+    };
+    const e = estimateExposure(
+      [EU_AI_ACT_PACK],
+      [breached],
+      profile({ turnoverEur: 120_000_000, employees: 400, smallMidCap: true }),
+    );
+    // Higher of EUR 35m and 7% of EUR 120m — the inversion does not reach ¶3.
+    expect(e.maxFine).toBe(35_000_000);
+  });
+
   it('still prices a prohibition that is actually breached at the Article 99(3) tier', () => {
     const breached: ControlResult = {
       controlId: 'eu-ai-act.art5.emotion-workplace', pack: 'eu-ai-act', title: 't',

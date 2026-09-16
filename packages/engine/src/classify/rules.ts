@@ -121,6 +121,36 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       'The prohibition applies to assessments based *solely* on profiling or personality traits. Systems that support a human assessment grounded in objective, verifiable facts fall under Annex III, point 6 instead.',
   },
   {
+    id: 'art5.1a.manipulation',
+    tier: 'prohibited',
+    title: 'Subliminal, manipulative or deceptive techniques',
+    basis:
+      'The code deploys techniques designed to push a person toward a decision they would not otherwise take. Article 5(1)(a) prohibits subliminal techniques beyond a person\'s consciousness, and purposefully manipulative or deceptive techniques, where the objective or the effect is to materially distort behaviour by appreciably impairing the ability to make an informed decision, in a manner that causes or is reasonably likely to cause significant harm.',
+    citations: [aiActArticle(5, '(1)(a)', 'Prohibited AI practices — subliminal, manipulative or deceptive techniques')],
+    requires: ['domain.dark-patterns'],
+    // The prohibition is not about persuasion: it needs material distortion of
+    // behaviour *and* significant harm. A pattern name in a growth experiment
+    // is a long way from that, so this needs an AI system doing the pushing
+    // before it fires at all, and the confidence stays low on purpose.
+    requiresAny: ['ai.inference.call', 'ai.ml.training', 'ai.framework.agent'],
+    baseConfidence: 0.42,
+    caveat:
+      'Article 5(1)(a) requires the technique to materially distort behaviour by appreciably impairing informed decision-making *and* to cause, or be reasonably likely to cause, significant harm. Lawful persuasion, advertising and personalisation are outside it — Recital 29 says so in terms. Annex can see the technique; whether it distorts behaviour and causes significant harm is a judgement about your users, not about your code.',
+  },
+  {
+    id: 'art5.1b.vulnerability-exploitation',
+    tier: 'prohibited',
+    title: 'Exploiting vulnerabilities of age, disability or economic situation',
+    basis:
+      'The code segments people on the grounds Article 5(1)(b) names — age, disability, or a specific social or economic situation — while influencing their behaviour. The prohibition bites where the objective or the effect is to materially distort that behaviour in a manner causing or reasonably likely to cause significant harm.',
+    citations: [aiActArticle(5, '(1)(b)', 'Prohibited AI practices — exploitation of vulnerabilities')],
+    requires: ['domain.vulnerability-targeting'],
+    requiresAny: ['domain.dark-patterns', 'ai.inference.call', 'ai.ml.training'],
+    baseConfidence: 0.4,
+    caveat:
+      'Segmenting by age or circumstance is not by itself prohibited — accessibility features, age-appropriate design and hardship programmes all do it, and protectively. Article 5(1)(b) reaches *exploitation*: distorting behaviour to the person\'s significant detriment. That determination is not in the code.',
+  },
+  {
     id: 'art5.1g.biometric-categorisation',
     tier: 'prohibited',
     title: 'Biometric categorisation by protected attribute',

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 78 1160 482" width="1160" height="482" role="img" aria-labelledby="t d">
   <title id="t">Annex architecture: ingest, deterministic core, artefacts</title>
-  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 78 signal detectors, a rule-based classifier and 52 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
+  <desc id="d">A repository is ingested into a content-addressed snapshot, passed through 82 signal detectors, a rule-based classifier and 52 controls, hashed into an evidence ledger, and rendered as a dossier, a pull request, standards exports and a public trust page. The core never calls a model and never touches the network.</desc>
 
   <defs>
     <style>
@@ -59,7 +59,7 @@
   <text x="512" y="120" class="eyebrow" style="fill:#a11526">NO MODEL · NO NETWORK</text>
 
   <rect class="core" x="312" y="136" width="318" height="70" rx="9"/>
-  <text x="330" y="160" class="h">78 signal detectors</text>
+  <text x="330" y="160" class="h">82 signal detectors</text>
   <text x="330" y="180" class="s">ai-usage · domain · control · data · security</text>
   <text x="330" y="196" class="s" style="font-size:11px">Domain signals fire on code, never on prose</text>
 
@@ -121,7 +121,7 @@
   <text x="56" y="478" class="eyebrow">THE TWO THINGS THAT MAKE IT EVIDENCE</text>
 
   <circle cx="64" cy="500" r="3.5" class="navy"/>
-  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 74 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
+  <text x="78" y="504" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The law gets a test suite.</tspan> 75 golden fixtures across all five packs, so a detector that drifts fails the build.</text>
 
   <circle cx="64" cy="518" r="3.5" class="moss"/>
   <text x="78" y="522" class="s" style="font-size:12.5px; fill:#14181f"><tspan style="font-weight:600">The ledger is checkable.</tspan> annex verify re-derives every entry from the results; --against re-hashes each cited file off disk.</text>

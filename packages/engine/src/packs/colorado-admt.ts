@@ -243,7 +243,7 @@ const controls: Control[] = [
     id: 'colorado-admt.developer-documentation',
     title: 'Documentation handed to deployers',
     obligation:
-      'A developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures. Records must be retained for at least three years.',
+      'A developer must give each deployer technical documentation stating the intended uses and known harmful or inappropriate uses, the categories of training data, known limitations and risks, instructions for appropriate use, monitoring and meaningful human review, and the information the deployer needs for its own consumer disclosures — and must notify deployers of any material update that changes them. Records must be retained for at least three years. The corresponding deployer duty runs the other way: records of each consequential decision, and of the technology that influenced it, kept for at least three years after the decision.',
     family: 'documentation',
     severity: 'high',
     weight: 6,

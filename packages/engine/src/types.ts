@@ -394,6 +394,16 @@ export interface RulePack {
       turnoverPct?: number;
       /** Set where the statute multiplies the amount, e.g. per day or per notice. */
       multiplier?: string;
+      /**
+       * Whether Article 99(6a) inverts *this* tier for a small mid-cap.
+       *
+       * It inverts paragraphs 4 and 5 and not paragraph 3, so the flag belongs
+       * on the tier rather than on the pack. An SMC failing Article 5 faces the
+       * full higher-of €35 000 000 or 7 %, and reading the pack-wide SME flag
+       * across all tiers would have understated that by roughly four times for
+       * a €120m operator.
+       */
+      smcInversion?: boolean;
       citation: Citation;
     }[];
   };
@@ -442,6 +452,23 @@ export interface SystemProfile {
    * control.
    */
   publicBodyOrPublicService?: boolean;
+  /**
+   * Article 99(6a), inserted by the Digital Omnibus: the operator is a **small
+   * mid-cap company**.
+   *
+   * SMCs get the lower-of rule for paragraphs 4 and 5 — and **not** for
+   * paragraph 3, so an Article 5 breach by an SMC carries the full higher-of
+   * €35 000 000 or 7 %. The inversion is therefore per-tier, which is why this
+   * is a separate flag rather than a wider reading of the SME test.
+   *
+   * It is an operator attestation because the defining instrument for "small
+   * mid-cap" sits outside the AI Act and Annex does not model it; the research
+   * notes flag the thresholds as unverified. Unknown resolves to *not* an SMC,
+   * for the same reason unknown resolves to not-an-SME: the inversion lowers
+   * the ceiling, and guessing generously hands an operator a number that is
+   * too small.
+   */
+  smallMidCap?: boolean;
   /**
    * Markets the system is offered in. Drives which rule packs are evaluated:
    * a product that never touches New York should not be graded against

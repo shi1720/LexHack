@@ -113,6 +113,10 @@ ${c.bold('SCAN OPTIONS')}
                        market, not put into service there, and its output is
                        not used there. Suppresses the exposure figure.
   --scope-exclusion    research · pre-market · foss   (Art. 2(6), 2(8), 2(12))
+  --small-mid-cap      Article 99(6a): the operator is a small mid-cap, which
+                       caps Article 99(4) and 99(5) fines at the lower of the
+                       two figures — but not Article 99(3), so an Article 5
+                       breach still carries the full higher-of amount
   --public-body        Article 27(1): the deployer is a body governed by public
                        law or a private entity providing a public service, which
                        owes a fundamental rights impact assessment whatever the
@@ -160,7 +164,7 @@ const GLOBAL_FLAGS = ['help', 'h', 'version', 'v', 'quiet'];
 /** Everything `profileFrom` reads, so the registry cannot drift from it. */
 const PROFILE_FLAGS = [
   'markets', 'purpose', 'name', 'turnover', 'employees', 'balance-sheet',
-  'no-eu-nexus', 'scope-exclusion', 'article-6-3', 'public-body',
+  'no-eu-nexus', 'scope-exclusion', 'article-6-3', 'public-body', 'small-mid-cap',
 ];
 const KNOWN_FLAGS: Record<string, string[]> = {
   scan: [...PROFILE_FLAGS, 'format', 'out', 'fail-under', 'token', 'all', 'ref'],
@@ -231,6 +235,10 @@ function profileFrom(flags: Args['flags']): Partial<SystemProfile> {
   // use cases — so a municipality's recruitment tool owed a FRIA and was
   // never asked for one.
   if (flags['public-body']) profile.publicBodyOrPublicService = true;
+
+  // Article 99(6a). Separate from the SME test because the inversion it gives
+  // reaches paragraphs 4 and 5 and not paragraph 3.
+  if (flags['small-mid-cap']) profile.smallMidCap = true;
 
   // Article 2(1). The gate is opt-out rather than opt-in because most people
   // scanning are asking "does this reach me", and answering "no" for them by

@@ -332,6 +332,10 @@ export function estimateExposure(
 ): ExposureEstimate {
   const { turnoverEur } = profile;
   const isSme = isSmeUnderArticle99(profile);
+  // Not derived: "small mid-cap" is defined outside the AI Act and Annex does
+  // not model the thresholds, so it is an operator attestation and unknown
+  // resolves to not-an-SMC.
+  const isSmc = !isSme && profile.smallMidCap === true;
 
   const none = (basis: string): ExposureEstimate => ({
     maxFine: 0,
@@ -425,10 +429,17 @@ export function estimateExposure(
     const eurDenominated = p.penalty.currency === 'EUR';
     const pct = tier.turnoverPct && turnoverEur && eurDenominated ? (turnoverEur * tier.turnoverPct) / 100 : 0;
     const comparable = turnoverEur !== undefined && pct > 0;
-    // Article 99(6) inverts the higher-of rule for SMEs. GDPR Article 83 does
-    // not, and applying it there understated a €20m ceiling by two orders of
-    // magnitude.
-    const inverts = isSme && p.penalty.smeInversion === true;
+    // Article 99(6) inverts the higher-of rule for SMEs, across paragraphs 3,
+    // 4 and 5. GDPR Article 83 does not invert at all, and applying it there
+    // understated a €20m ceiling by two orders of magnitude.
+    //
+    // Article 99(6a) inverts for small mid-caps too — but only for paragraphs
+    // 4 and 5. An SMC failing Article 5 faces the full higher-of figure, so
+    // the SMC inversion is read off the tier and the SME inversion off the
+    // pack. Those are different provisions and collapsing them is a four-fold
+    // error on a €120m operator.
+    const inverts =
+      (isSme && p.penalty.smeInversion === true) || (isSmc && tier.smcInversion === true);
     const amount = comparable ? (inverts ? Math.min(flat, pct) : Math.max(flat, pct)) : flat;
     if (amount <= 0) continue;
 
@@ -467,7 +478,7 @@ export function estimateExposure(
     const flat = tier?.amount ?? 0;
     const pct = tier?.turnoverPct && turnoverEur && headline.currency === 'EUR' ? (turnoverEur * tier.turnoverPct) / 100 : 0;
     const comparable = turnoverEur !== undefined && pct > 0;
-    const inverts = isSme && pack?.penalty?.smeInversion === true;
+    const inverts = (isSme && pack?.penalty?.smeInversion === true) || (isSmc && tier?.smcInversion === true);
     const figure =
       headline.amount === Math.round(pct)
         ? `the ${tier?.turnoverPct}% turnover figure`

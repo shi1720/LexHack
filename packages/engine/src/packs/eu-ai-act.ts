@@ -1419,7 +1419,7 @@ const highRiskControls: Control[] = [
     penaltyTier: 'art99-4',
     title: 'Registration in the EU database',
     obligation:
-      'Article 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk.',
+      'Article 49(1) requires the provider of an Annex III high-risk system (other than point 2) to register itself and the system in the EU database before placing it on the market. Article 49(2) requires the same registration even where the provider concludes under Article 6(3) that the system is not high-risk. Two limbs beyond the provider: under Article 49(3) a deployer that is a public authority, or an EU institution, body, office or agency, or a person acting on their behalf, must register itself, select the system and register its use before putting it into service or using it; and under Article 49(5) an Annex III point 2 critical-infrastructure system is registered at national level rather than in the EU database. For Annex III points 1, 6 and 7 the entry goes into the secure non-public section under Article 49(4).',
     family: 'registration',
     severity: 'medium',
     weight: 4,
@@ -1429,6 +1429,8 @@ const highRiskControls: Control[] = [
       aiActArticle(49, '(1)', 'Registration of high-risk AI systems'),
       aiActArticle(49, '(2)', 'Registration where the provider claims the Article 6(3) derogation'),
       aiActArticle(6, '(4)', 'Documented assessment where a provider considers a system not high-risk'),
+      aiActArticle(49, '(3)', 'Registration by public-authority deployers'),
+      aiActArticle(49, '(5)', 'Annex III point 2 systems are registered nationally'),
     ],
     appliesWhen: whenHighRiskOrDerogated,
     evaluate: (ctx) => {
@@ -2029,7 +2031,7 @@ export const EU_AI_ACT_PACK: RulePack = {
     currency: 'EUR',
     smeInversion: true,
     description:
-      'Administrative fines under Article 99. For SMEs and start-ups, Article 99(6) inverts the rule: the cap is the lower of the two figures, not the higher.',
+      'Administrative fines under Article 99. For SMEs and start-ups, Article 99(6) inverts the rule across paragraphs 3, 4 and 5: the cap is the lower of the two figures, not the higher. Article 99(6a) extends the same inversion to small mid-caps for paragraphs 4 and 5 only — an SMC breaching Article 5 faces the full higher-of figure.',
     tiers: [
       {
         id: 'art99-3',
@@ -2040,6 +2042,9 @@ export const EU_AI_ACT_PACK: RulePack = {
       },
       {
         id: 'art99-4',
+        // Article 99(6a) inverts paragraphs 4 and 5 for small mid-caps, and
+        // not paragraph 3.
+        smcInversion: true,
         label: 'Provider, deployer and Article 50 transparency obligations (Arts. 9-15, 17 and 19 are reached through Article 16, not fined in their own right)',
         amount: 15_000_000,
         turnoverPct: 3,
@@ -2047,6 +2052,7 @@ export const EU_AI_ACT_PACK: RulePack = {
       },
       {
         id: 'art99-5',
+        smcInversion: true,
         label: 'Incorrect, incomplete or misleading information to authorities',
         amount: 7_500_000,
         turnoverPct: 1,

@@ -140,6 +140,43 @@ export async function sendMessage(text: string) {
     },
   },
   {
+    id: 'prohibited.manipulative-checkout',
+    description: 'Checkout that generates fake scarcity and a countdown tuned per shopper by a model',
+    tier: 'prohibited',
+    expectFindings: ['art5.1a.manipulation'],
+    rationale:
+      'Article 5(1)(a) prohibits purposefully manipulative or deceptive techniques whose objective or effect is to materially distort behaviour by appreciably impairing informed decision-making, in a manner causing or reasonably likely to cause significant harm. A model choosing per-shopper false scarcity is the technique; Annex flags it and says plainly that whether it distorts behaviour and causes significant harm is a judgement about users rather than about code.',
+    files: {
+      'package.json': pkg('checkout'),
+      'src/urgency.ts': `${OPENAI_CALL}
+export async function checkoutUrgency(shopper: { id: string }) {
+  const falseScarcity = await infer(\`How few items left should we claim for shopper \${shopper.id}?\`);
+  return { dark_pattern: 'false_urgency', countdown_timer: 120, claimed_stock: falseScarcity };
+}
+`,
+    },
+  },
+  {
+    id: 'carveout.accessibility-age-segmentation',
+    description: 'Age-appropriate design that switches a stricter default on for under-18 accounts',
+    tier: 'unknown',
+    forbidFindings: ['art5.1b.vulnerability-exploitation', 'art5.1a.manipulation'],
+    rationale:
+      'Article 5(1)(b) reaches the *exploitation* of a vulnerability — distorting behaviour to the person\'s significant detriment. Segmenting by age to make the product safer is the opposite, and a rule that fired on the word "minor" next to the word "segment" would flag every age-appropriate design code in Europe as a prohibited practice. The tier is `unknown` because a branch on a date of birth is not an AI system within Article 3(1) either — nothing here infers anything.',
+    files: {
+      'requirements.txt': 'django==5.1\\n',
+      'src/defaults.py': `def account_defaults(user):
+    """Age-appropriate design: under-18 accounts get the stricter defaults."""
+    minor_segment = user.age is not None and user.age < 18
+    return {
+        "profile_visibility": "private" if minor_segment else user.preference,
+        "personalised_ads": False if minor_segment else user.preference_ads,
+        "direct_messages_from_strangers": False if minor_segment else True,
+    }
+`,
+    },
+  },
+  {
     id: 'hard.biometric-hair-colour',
     description: 'Photo app that groups portraits by hair colour',
     tier: 'transparency',

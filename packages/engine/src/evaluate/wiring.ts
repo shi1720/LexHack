@@ -44,10 +44,19 @@ const RELATIVE_IMPORT = /(?:from|import|require)\s*\(?\s*['"]\.{1,2}\//;
 const FRAMEWORK_DISPATCH = [
   /^\s*@(?:\w+\.)*(?:route|get|post|put|patch|delete|app|router|bp|blueprint|api|task|schedule|on|handler|command|listen\w*)\b/im,
   /\bexport\s+(?:async\s+)?function\s+(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|handler|middleware|loader|action)\b/,
+  // Narrowed from a bare `export default`. Any module at all can have one, so
+  // the broad form was an escape hatch: a generated oversight module with a
+  // default export was read as framework-dispatched and skipped the wiring
+  // check entirely. A default export is evidence of dispatch when the file
+  // sits where a framework looks for one — a route, a page, a handler, a
+  // worker, a serverless function.
   /\bexport\s+default\s+(?:async\s+)?(?:function|class|\w+)/,
   /\b(?:urlpatterns|module\.exports\s*=\s*router|app\.(?:use|get|post)\s*\(|router\.(?:get|post|put|patch|delete)\s*\()/,
   /\bif\s+__name__\s*==\s*['"]__main__['"]/,
 ];
+
+/** Index of the `export default` pattern in FRAMEWORK_DISPATCH. */
+const DEFAULT_EXPORT_PATTERN = 2;
 
 /**
  * Does this file participate in the repository at all?
@@ -72,13 +81,23 @@ const DEFINES_BEHAVIOUR =
   /\b(?:export\s+(?:async\s+)?function|export\s+class|^\s*(?:async\s+)?def\s|^\s*class\s|=>\s*\{|function\s*\()/m;
 
 /** Directories whose contents a runner executes rather than another file importing. */
+/** Where a framework goes looking for a default export. */
+const DISPATCH_PATH =
+  /(^|\/)(pages|app|routes?|api|handlers?|functions?|workers?|middleware|server|netlify|lambda)(\/|\.)|\.(page|route|handler|worker|api)\.[a-z]+$/i;
+
 const RUNNER_DIR = /(^|\/)(evals?|tests?|__tests__|spec|e2e|scripts?|bench(marks?)?|migrations?|jobs?|workflows?)\//i;
 
 function participates(ctx: EvaluationContext, path: string): boolean {
   if (RUNNER_DIR.test(path)) return true;
   const file = ctx.snapshot.files.find((f) => f.path === path);
   if (!file) return true;
-  if (FRAMEWORK_DISPATCH.some((p) => p.test(file.text))) return true;
+  // The default-export pattern is the last one in the list and only counts
+  // where the file sits somewhere a framework dispatches from; every other
+  // pattern is self-evidencing wherever it appears.
+  const dispatch = FRAMEWORK_DISPATCH.some((pattern, i) =>
+    i === DEFAULT_EXPORT_PATTERN ? DISPATCH_PATH.test(path) && pattern.test(file.text) : pattern.test(file.text),
+  );
+  if (dispatch) return true;
   if (RELATIVE_IMPORT.test(file.text)) return true;
   const stems = new Set(
     ctx.snapshot.files

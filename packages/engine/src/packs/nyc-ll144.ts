@@ -14,7 +14,35 @@ const c = pack('nyc-ll144');
 
 const IN_FORCE = '2023-07-05';
 
-const isAedt = whenSignal('domain.employment.screening', 'domain.employment.management');
+/**
+ * What actually makes a hiring tool an AEDT.
+ *
+ * The scope test was "this repository screens candidates", which catches every
+ * HR machine-learning project in existence. The rule is narrower in two ways
+ * that most New York employers relied on to conclude Local Law 144 did not
+ * reach them, and neither was implemented:
+ *
+ *  - **6 RCNY § 5-300.** The tool has to "substantially assist or replace
+ *    discretionary decision making", which the rule defines exhaustively:
+ *    relying *solely* on a simplified output, weighting it above every other
+ *    criterion, or using it to overrule conclusions drawn from other factors
+ *    including a human's. A model that produces a number a recruiter reads
+ *    alongside five other things is not an AEDT. Translation and transcription
+ *    output is expressly not a simplified output at all.
+ *  - **Geography.** The law binds employers and employment agencies using an
+ *    AEDT *in New York City*, for candidates and employees in the city.
+ *
+ * Geography is a fact about a company rather than about code, so it arrives
+ * through the market selection the operator already makes: evaluating this
+ * pack at all is the assertion that New York City is in scope. That is stated
+ * here rather than left implied, because a scope test nobody can see is the
+ * same as no scope test.
+ */
+const isAedt = allOf(
+  whenSignal('domain.employment.screening', 'domain.employment.management'),
+  whenSignal('aedt.substantially-assists'),
+  (ctx) => !ctx.signals.hasAny('aedt.translation-only'),
+);
 
 /**
  * Fixture dates for a duty that is about elapsed time.
@@ -25,7 +53,17 @@ const isAedt = whenSignal('domain.employment.screening', 'domain.employment.mana
  * case was dated 2026-03-01 and would have started failing in March 2027.
  */
 const daysAgo = (n: number): string => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
-const AEDT = 'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n';
+/**
+ * A repository that is an AEDT within 6 RCNY § 5-300, not merely one that
+ * screens candidates.
+ *
+ * The scope test now requires the tool to substantially assist or replace
+ * discretionary decision making, so a fixture that only ranks resumes is
+ * outside the rule and every control returns `not_applicable`. This one relies
+ * solely on the score against a threshold, which is limb (i).
+ */
+const AEDT =
+  'const ADVANCE_THRESHOLD = 0.7;\n\nexport function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  const hiringDecision = resumeScore >= ADVANCE_THRESHOLD ? "advance" : "reject";\n  return { candidate: applicant.id, shortlist: hiringDecision === "advance", hiring_decision: hiringDecision };\n}\n';
 
 const controls: Control[] = [
   c({
@@ -131,10 +169,23 @@ const controls: Control[] = [
     },
     tests: [
       {
+        // The § 5-300 trigger, from the other side. A model whose number a
+        // recruiter reads alongside other things is not an AEDT, and most New
+        // York employers relied on exactly this to conclude the law did not
+        // reach them. The scope test used to be "screens candidates", which
+        // caught every HR machine-learning project in existence.
+        name: 'not_applicable when the score is advisory rather than decisive',
+        files: {
+          'src/screen.ts':
+            'export function summariseApplicant(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  // Shown to the recruiter beside the interview notes, the referral and the\n  // structured scorecard. No threshold, no ordering, no automatic outcome.\n  return { candidate: applicant.id, resume_signal: resumeScore, notes: applicant.notes };\n}\n',
+        },
+        expect: 'not_applicable',
+      },
+      {
         name: 'missing when an AEDT ships with no bias audit anywhere',
         files: {
           'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+AEDT,
         },
         expect: 'missing',
       },
@@ -144,7 +195,7 @@ const controls: Control[] = [
         name: 'partial when the team runs its own fairness tests instead',
         files: {
           'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+AEDT,
           'src/fairness.ts':
             'export function disparateImpact(results) {\n  const selectionRate = rate(results, "female");\n  return demographicParity(selectionRate);\n}\n',
         },
@@ -251,7 +302,7 @@ const controls: Control[] = [
         name: 'partial when the impact ratio is computed for sex and race but not intersectionally',
         files: {
           'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+AEDT,
           'src/audit.ts':
             'export function impactRatio(rates) {\n  const selectionRate = rates.category;\n  return selectionRate / Math.max(...Object.values(rates)); // four-fifths rule\n}\n\nexport function demographicParity(byGroup) {\n  return impactRatio(byGroup);\n}\n',
         },
@@ -261,7 +312,7 @@ const controls: Control[] = [
         name: 'satisfied only once sex x ethnicity x race is calculated as well',
         files: {
           'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+AEDT,
           'src/audit.ts':
             'export function impactRatio(rates) {\n  const selectionRate = rates.category;\n  return selectionRate / Math.max(...Object.values(rates)); // four-fifths rule\n}\n\n// 6 RCNY 5-301(b)(3): intersectional categories of sex x ethnicity x race.\nexport function intersectionalRates(rows) {\n  return group(rows, (r) => r.sex + "|" + r.ethnicity + "|" + r.race);\n}\n\nexport const demographicParity = impactRatio;\n',
         },
@@ -394,7 +445,7 @@ const controls: Control[] = [
         name: 'partial when candidates are notified but not told how to ask for an alternative process',
         files: {
           'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+AEDT,
           'src/notice.ts':
             'export const CANDIDATE_NOTICE = "We use an automated employment decision tool. You are receiving this candidate notice at least 10 business days before it is used.";\n',
         },

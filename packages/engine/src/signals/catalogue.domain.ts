@@ -18,7 +18,22 @@ import type { SourceFile } from '../types.js';
  * report the exploit in its own regression suite.
  */
 const NOT_TEST_DATA =
-  /(^|\/)(tests?|__tests__|__mocks__|spec|e2e|fixtures?|testdata|benchmark|benchmarks|examples?|samples?|mocks?)\//i;
+  /(^|\/)(tests?|__tests__|__mocks__|spec|e2e|fixtures?|testdata|benchmark|benchmarks|mocks?)\//i;
+
+/**
+ * `examples/` and `samples/` used to be on that list, and taking them off is
+ * deliberate.
+ *
+ * A directory called `tests/` or `__mocks__/` is a claim about the code inside
+ * it that the ecosystem enforces — nothing ships from there. `examples/` and
+ * `samples/` carry no such guarantee: plenty of repositories keep a working
+ * reference implementation there, and a regulated decision written in
+ * `examples/screening/` is a regulated decision. Excluding them was a
+ * false-negative vector that cost nothing to close, because the read-back
+ * problem those exclusions exist for is already handled by `.annexignore` at
+ * the repository level, where the person who knows what the directory is can
+ * say so.
+ */
 
 /** Require N distinct corroborating terms in a file before believing a domain claim. */
 function corroborate(terms: string[], min = 2) {
@@ -117,6 +132,48 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
     ],
     fileGuard: corroborate(['benefit', 'welfare', 'eligibility', 'assistance', 'claimant'], 2),
     maxEvidence: 6,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
+  }),
+  defineSignal({
+    id: 'aedt.substantially-assists',
+    label: 'A score that substantially assists or replaces a hiring decision',
+    category: 'domain',
+    description:
+      'The 6 RCNY § 5-300 trigger, which is what actually makes a hiring tool an AEDT: relying solely on a simplified output, weighting it above every other criterion, or using it to overrule conclusions drawn from other factors including human judgement.',
+    keywords: ['auto_reject', 'auto-reject', 'auto_advance', 'threshold', 'cutoff', 'cut_off', 'rank', 'shortlist', 'weight', 'override', 'final_score', 'knockout'],
+    patterns: [
+      // (i) Sole reliance: the score alone decides.
+      /\b(auto[_\s-]?(reject|advance|screen|decline|shortlist)|knock[_\s-]?out)\b/i,
+      // `candidateScore >= ADVANCE_THRESHOLD ? 'advance' : 'reject'` is the
+      // shape this is for, so the word boundaries have to survive the prefixes
+      // and suffixes real code puts on those nouns.
+      /\w*(score|rank|rating|probability)\w*\s*(>=|<=|>|<)\s*\w*(threshold|cutoff|cut_off|min_score|pass_mark|bar)\w*/i,
+      /\b\w*(threshold|cutoff|cut_off|min_score|pass_mark)\w*\s*[:=]\s*[0-9.]/i,
+      // (ii) Weighted above every other criterion.
+      /\b(weight|weighting)s?\b[^;\n]{0,40}\b(model|ai|ml|score)[_\s]?(score|output|weight)\b/i,
+      /\bmodel[_\s]?(score|output)[_\s]?weight\b/i,
+      // (iii) Overruling other factors, including a human's.
+      /\b(override|overrule|supersed\w*|takes[_\s]?precedence)\b[^;\n]{0,40}\b(recruiter|reviewer|human|manual|interview\w*)\b/i,
+    ],
+    maxEvidence: 6,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
+  }),
+  defineSignal({
+    id: 'aedt.translation-only',
+    label: 'Translation or transcription output',
+    category: 'domain',
+    description:
+      '6 RCNY § 5-300 excludes translation and transcription tools from the definition of a simplified output, so they cannot substantially assist a decision within the meaning of the rule.',
+    keywords: ['translate', 'translation', 'transcribe', 'transcription', 'subtitle', 'caption', 'whisper'],
+    patterns: [
+      /\b(translat\w*|transcri\w*|subtitle|caption)[_\s]?(text|audio|video|api|service|client|result)?\b/i,
+      /\b(whisper|deepl|libretranslate)\b/i,
+    ],
+    maxEvidence: 4,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
     ignoreComments: true,
@@ -299,6 +356,41 @@ export const DOMAIN_SIGNALS: CompiledSignal[] = [
       1,
     ),
     maxEvidence: 8,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
+  }),
+  defineSignal({
+    id: 'domain.dark-patterns',
+    label: 'Manipulative or deceptive interface techniques',
+    category: 'domain',
+    description:
+      'Techniques that push a person toward a decision they would not otherwise take — Article 5(1)(a) reaches subliminal, purposefully manipulative or deceptive techniques that materially distort behaviour and cause or are likely to cause significant harm.',
+    keywords: ['dark pattern', 'darkpattern', 'urgency', 'scarcity', 'countdown', 'fomo', 'nudge', 'confirmshaming', 'confirm_shaming', 'drip pricing', 'roach motel', 'pre-checked', 'prechecked'],
+    patterns: [
+      /\b(dark[_\s]?pattern|confirm[_\s]?shaming|roach[_\s]?motel|drip[_\s]?pricing|bait[_\s]?and[_\s]?switch)\b/i,
+      /\b(false|fake|artificial)[_\s]?(urgency|scarcity|countdown|timer|social[_\s]?proof)\b/i,
+      /\b(pre[_\s-]?checked|opt[_\s-]?out[_\s]?by[_\s]?default|hidden[_\s]?(cost|fee)s?)\b/i,
+      /\b(nudge|persuasion|manipulat\w*)[_\s]?(engine|model|score|strategy|pipeline)\b/i,
+    ],
+    maxEvidence: 6,
+    scope: 'code',
+    excludePaths: NOT_TEST_DATA,
+    ignoreComments: true,
+  }),
+  defineSignal({
+    id: 'domain.vulnerability-targeting',
+    label: 'Targeting by age, disability or economic situation',
+    category: 'domain',
+    description:
+      'Segments people on the grounds Article 5(1)(b) names — age, disability, or a specific social or economic situation — in a context where behaviour is being influenced.',
+    keywords: ['minor', 'under_18', 'under18', 'child', 'elderly', 'senior', 'disability', 'disabled', 'low_income', 'lowincome', 'debt', 'financial_distress', 'vulnerable'],
+    patterns: [
+      /\b(vulnerab\w*|at[_\s-]?risk)[_\s]?(user|customer|segment|cohort|audience|group|score)\b/i,
+      /\b(minor|under[_\s-]?(18|13)|child|elderly|senior|disabled|disability)[_\s]?(segment|target\w*|audience|cohort|list)\b/i,
+      /\b(low[_\s-]?income|financial[_\s-]?(distress|hardship)|in[_\s-]?debt|payday|subprime)[_\s]?(segment|target\w*|audience|cohort|score)\b/i,
+    ],
+    maxEvidence: 6,
     scope: 'code',
     excludePaths: NOT_TEST_DATA,
     ignoreComments: true,

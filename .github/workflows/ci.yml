@@ -87,7 +87,7 @@ jobs:
       # A regression gate on Annex's own posture, and honest about its reach:
       # Annex calls no model, so it is not an AI system and only the GDPR and
       # NIST controls apply to it. The high-risk pipeline is exercised by the
-      # 46-case benchmark and the golden fixtures in the job above, not here.
+      # 48-case benchmark and the golden fixtures in the job above, not here.
       - name: Human-readable self-scan
         run: |
           # What this actually asserts, stated plainly: Annex classifies its own
