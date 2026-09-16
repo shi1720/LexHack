@@ -109,6 +109,29 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
   const classification = classify(index, profile);
   opts.onProgress?.('classify', 1, 1, classification.tier);
 
+  /**
+   * Article 111(2), the largest scope carve-out in the amended Act.
+   *
+   * A high-risk system already on the market when Chapter III starts applying
+   * is only caught by it if the design is significantly changed afterwards —
+   * except for a public-authority system, which has to comply by 2 August 2030
+   * regardless. The Omnibus replaced the hard-coded date with a dynamic
+   * reference to Article 113, so the cut-off moved with the deferral.
+   *
+   * Annex cannot see when a system was placed on the market: that is a fact
+   * about a company, not about a repository. What it can do is stop presenting
+   * the whole Chapter III stack as settled for a legacy system, which is what
+   * it did by saying nothing.
+   */
+  if (
+    classification.tier === 'high' &&
+    classification.findings.some((f) => f.id.startsWith('annex-iii.'))
+  ) {
+    warnings.push(
+      'Article 111(2): if this system was placed on the market or put into service before 2 December 2027, the Chapter III obligations below bind it only if its design is significantly changed after that date — and a system operated by a public authority must comply by 2 August 2030 whatever happens. Annex cannot tell when a system was placed on the market, so it reports the obligations as though it were new.',
+    );
+  }
+
   const ctx = createContext({ snapshot, signals: index, classification, profile });
   const controls = evaluatePacks(packs, ctx, {
     today,

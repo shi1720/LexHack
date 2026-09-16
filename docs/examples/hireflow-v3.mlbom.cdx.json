@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:1c80279e-81f4-4c88-a80f-fb6b3936a91b",
+  "serialNumber": "urn:uuid:3b34f1e0-cf61-40c0-aba8-2c6df946e626",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-16T02:10:46.203Z",
+    "timestamp": "2026-09-16T02:43:44.169Z",
     "tools": {
       "components": [
         {
@@ -18,7 +18,7 @@
       "type": "application",
       "bom-ref": "component:hireflow-remediated",
       "name": "hireflow-remediated",
-      "version": "dca401426407"
+      "version": "69bfe0685a57"
     },
     "properties": [
       {
@@ -35,7 +35,7 @@
       },
       {
         "name": "annex:ledgerRoot",
-        "value": "a55a89a5bed7fc42ec8f3ef6300c96a8b886667dfcad6765b8466519e7664fb2"
+        "value": "3b4aa3b0abbc0e8cde0e4f51e1435a6115cb5a4930c53929d116c546b82cca31"
       }
     ]
   },

@@ -1733,6 +1733,7 @@ export const EU_AI_ACT_PACK: RulePack = {
     { date: DATES.NEW_PROHIBITIONS, label: 'New Article 5 prohibitions', note: 'Article 5(1)(ba) and (bb) — non-consensual intimate imagery and CSAM — apply from 2 December 2026.' },
     { date: DATES.HIGH_RISK_ANNEX_III, label: 'Annex III high-risk obligations', note: 'Moved from 2 August 2026 by Regulation (EU) 2026/1744.' },
     { date: DATES.HIGH_RISK_ANNEX_I, label: 'Annex I embedded high-risk obligations', note: 'Moved from 2 August 2027 by Regulation (EU) 2026/1744.' },
+    { date: '2030-08-02', label: 'Legacy public-authority high-risk systems', note: 'Article 111(2): a high-risk system already on the market when Chapter III starts applying is caught only if its design is significantly changed afterwards — but a system operated by a public authority must comply by this date regardless.' },
   ],
   penalty: {
     currency: 'EUR',

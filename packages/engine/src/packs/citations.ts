@@ -45,10 +45,24 @@ export function gdpr(locator: string, title: string, quote?: string): Citation {
   return c;
 }
 
+/**
+ * Local Law 144 lives in two places, and a citation that files one under the
+ * other does not exist.
+ *
+ * The statute is NYC Administrative Code §§ 20-870 to 20-874. The rules that
+ * implement it — where the arithmetic actually lives — are 6 RCNY §§ 5-300 to
+ * 5-304. Every locator here used to carry the Administrative Code instrument,
+ * so the product rendered "NYC Admin. Code tit. 20, ch. 5, subch. 25,
+ * § 5-301(a)", which is not a provision of anything. On a tool whose pitch is
+ * traceable citation, that is not a typo.
+ */
 export function nycLL144(locator: string, title: string, quote?: string): Citation {
+  const isRule = /^§\s*5-3/.test(locator);
   const c: Citation = {
-    instrument: 'NYC Admin. Code tit. 20, ch. 5, subch. 25 (Local Law 144 of 2021)',
-    short: 'NYC Local Law 144',
+    instrument: isRule
+      ? 'Rules of the City of New York, tit. 6, §§ 5-300 to 5-304 (implementing Local Law 144 of 2021)'
+      : 'NYC Admin. Code tit. 20, ch. 5, subch. 25 (Local Law 144 of 2021)',
+    short: isRule ? '6 RCNY' : 'NYC Admin. Code',
     locator,
     title,
     url: 'https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page',

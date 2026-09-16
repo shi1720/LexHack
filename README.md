@@ -20,7 +20,9 @@ Every EU AI Act conformity dossier in existence is a document a company wrote ab
 
 That is not a snipe at compliance teams — it is a structural fact. The Act asks whether your system logs inference, whether a human can override it, whether you examined your data for bias. Those questions have answers, and the answers are in the repository. But the people who write the dossier cannot read the repository, and the people who can read it were never asked.
 
-So the industry filled the gap with questionnaires. The IAPP's 2026 vendor census lists roughly ninety AI-governance vendors. Searching that document for `source code`, `static analysis`, `SAST`, `codebase` or `git repo` returns two hits, one of which is a GDPR privacy scanner and the other of which is the phrase "a U.S. codebase". Nobody is reading the code.
+So the industry filled the gap with questionnaires. The IAPP's 2026 vendor census lists roughly ninety AI-governance vendors. Searching that document for `source code`, `static analysis`, `SAST`, `codebase` or `git repo` returns two hits, one of which is a GDPR privacy scanner and the other of which is the phrase "a U.S. codebase". No funded vendor in that census is reading the code.
+
+Six unfunded open-source projects are — Systima Comply is the most developed, doing import, dependency, config and call-chain analysis against Articles 5, 9-15 and 50. That is the honest competitive position and it is a better one than an empty field: the mechanic is proven and nobody has claimed it. [`docs/BUSINESS.md`](docs/BUSINESS.md) names them and says what Annex does that they do not.
 
 **And most teams believe they have until December 2027.** On 27 July 2026 the Digital Omnibus — [Regulation (EU) 2026/1744](https://artificialintelligenceact.eu/ai-act-explorer/digital-omnibus/) — pushed the Annex III high-risk deadline from August 2026 out to 2 December 2027, and the compliance industry exhaled.
 
@@ -185,7 +187,7 @@ tests: [
 ]
 ```
 
-`npm test` runs every golden fixture in the corpus — 61 cases over 22 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
+`npm test` runs every golden fixture in the corpus — 64 cases over 23 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
 
 ### 3. Nothing goes green because a file exists
 
@@ -314,6 +316,17 @@ $ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
 Both sides take a git ref or a directory, so this works in CI against
 `origin/main`, and in a demo against two checked-in trees. Exit code 1 when the
 modification is substantial, which is what makes it a pull-request gate.
+
+One precision, because the product is built on not fudging these. Article 3(23)
+is a **post-market** definition — a change "after its placing on the market or
+putting into service" — and Article 43(4) reaches systems that have already
+been through a conformity assessment. Run on a system that is neither, the diff
+is not yet the Article 43(4) trigger; it is the same measurement, arriving
+before the change is expensive. Annex says which of the two it is by reporting
+what changed rather than asserting a legal conclusion. Recital 128 also carves
+out changes the provider pre-determined and assessed at the time of the
+original conformity assessment, which the diff cannot know about and does not
+claim to.
 
 
 A questionnaire cannot do this at all: it is answered once, by a person, about a system that then changes underneath it.

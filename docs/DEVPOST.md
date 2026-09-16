@@ -21,11 +21,13 @@ Every AI Act conformity dossier is a document a company wrote about itself. Anne
 
 ## Inspiration
 
-Shivam's team was filling in a security questionnaire for an enterprise customer when a new section appeared: *what role do you play under the EU AI Act, and what evidence can you provide?* We answered it the way everybody answers it — a document we wrote about ourselves, asserting things about our own system.
+*Built by Shivam Gupta, with Claude as a pair programmer. "We" below means that pair.*
 
-Nobody checked it. Nobody could have. The person writing it could not read the repository, and the people who could read the repository were never asked.
+The EU AI Act asks a handful of questions that have factual answers: does your system log inference, can a human override it, did you examine your training data for bias, do you tell people they are talking to a machine. Every one of those answers is sitting in a repository right now.
 
-That is the shape of the whole problem. The Act asks whether your system logs inference, whether a human can override it, whether you examined your data for bias. Those questions have answers, and the answers are sitting in the code. We went looking for the tool that reads them and found the IAPP's 2026 census of roughly ninety AI-governance vendors. We searched it for `source code`, `static analysis`, `SAST`, `codebase`, `git repo`. **Two hits** — one a GDPR privacy scanner, the other the phrase "a U.S. codebase."
+And every conformity dossier in existence answers them with a document the company wrote about itself. That is not a criticism of anyone's diligence — it is the only thing the process allows. The person filling in the dossier cannot read the repository, and the people who can read the repository are never asked.
+
+So we went looking for the tool that reads them, and found the IAPP's 2026 census of roughly ninety AI-governance vendors. We searched it for `source code`, `static analysis`, `SAST`, `codebase`, `git repo`. **Two hits** — one a GDPR privacy scanner, the other the phrase "a U.S. codebase." (Six unfunded open-source projects do attempt code-grounded scanning; the mechanic is proven and unclaimed, which is a better reason to build than an empty field would be. `docs/BUSINESS.md` names them.)
 
 Then, researching the deadline, we found something that changed the project. On 27 July 2026 the Digital Omnibus — Regulation (EU) 2026/1744 — pushed the Annex III high-risk deadline from August 2026 out to 2 December 2027, and the industry exhaled. **It left Article 50 exactly where it was.** If your product talks to a person or generates content, you have been in scope since 2 August 2026, with €15 million or 3 % of worldwide turnover attached. Machine-readable marking of generated content is due 2 December 2026.
 
@@ -59,7 +61,7 @@ So the two things Annex does that nobody else does:
 
 **The evidence ledger.** Every control result is reduced to a canonical line — the control, its status, the rule-pack version, the SHA-256 digest of every file it cites — and hashed into a chain. The root goes on the front page of the dossier. Re-run the scan on the same commit and you get the same root. `annex verify` re-derives every entry from the results the report describes — edit one status and it names the entry that stopped matching — and `--against <dir>` re-hashes each cited file off disk. It is a checksum chain, not a signature: it makes a silent edit detectable by anyone holding the source, not impossible.
 
-And one thing only a code-grounded tool *can* do. Article 3(23) defines a **substantial modification** as a change that affects compliance with Chapter III, and Article 43(4) then requires a new conformity assessment. `annex diff --base origin/main --head HEAD` detects it — delete the human-review gate and Annex says so, in the pull request, before it merges. A questionnaire structurally cannot.
+And one thing only a code-grounded tool *can* do. Article 3(23) defines a **substantial modification** as a change, *after the system is placed on the market or put into service*, that affects compliance with Chapter III Section 2 — and Article 43(4) then requires a new conformity assessment. `annex diff --base origin/main --head HEAD` detects the change that would be one: delete the human-review gate and Annex says so, in the pull request. On a system already on the market that is the Article 43(4) trigger; on one that is not yet, it is the same measurement arriving early enough to be cheap. A questionnaire structurally cannot do either.
 
 ## How we built it
 

@@ -274,31 +274,71 @@ const controls: Control[] = [
     penaltyTier: 'first',
     title: 'Publish the audit summary before use',
     obligation:
-      '6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit, a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Keep it posted for at least six months after the last use.',
+      '6 RCNY § 5-303: before using the tool, publish clearly and conspicuously on the employment section of the website the date of the most recent bias audit (§ 5-303(a)(1)), the **distribution date of the tool** — the date the employer began using it (§ 5-303(a)(2) with § 5-300) — and a summary of results including the source and explanation of the data, the number of individuals in an unknown category, and for all categories the number of applicants, the selection or scoring rates and the impact ratios. Where § 5-301(d) was relied on to exclude a category under 2 % of the data, the summary must carry the auditor\'s justification together with that category\'s applicant count and rate. Where the audit used **test data** rather than historical data, § 5-302(c) requires the summary to explain why historical data was not used and how the test data was generated and obtained. Keep the whole thing posted for at least six months after the last use.',
     family: 'transparency',
     severity: 'high',
     weight: 6,
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
-    citations: [nycLL144('§ 5-303', 'Published results')],
+    citations: [
+      nycLL144('§ 5-303(a)(1)', 'Published results — date of the most recent bias audit'),
+      nycLL144('§ 5-303(a)(2)', 'Published results — distribution date of the tool'),
+      nycLL144('§ 5-302(c)', 'Data requirements — explaining the use of test data'),
+      nycLL144('§ 5-301(d)', 'Excluding a category below 2 % of the data'),
+    ],
     appliesWhen: isAedt,
     evaluate: (ctx) => {
       const published = ctx.grep(/bias[_\s-]?audit[_\s-]?(summary|results|report|page|url)/i, { limit: 4 });
-      return published.length > 0
-        ? satisfied('A published bias audit summary was found.', published)
-        : missing(
+      if (published.length > 0) {
+        // § 5-303(a) lists two dates, and the second is the one everybody
+        // forgets: the *distribution date of the tool*, meaning when the
+        // employer started using it — not when the audit happened.
+        const distribution = ctx.grep(
+          /\bdistribution[_\s-]?date\b|\b(began|started|commenced)[_\s-]?(using|use)\b|\bin[_\s-]?use[_\s-]?since\b/i,
+          { limit: 3 },
+        );
+        if (distribution.length === 0) {
+          return partial(
+            'A published bias audit summary was found, but nothing records the distribution date of the tool.',
+            '6 RCNY § 5-303(a)(2) requires the published summary to carry the distribution date of the AEDT — the date you began using it — alongside the audit date in § 5-303(a)(1). It is a separate date and a separate requirement.',
+            published,
+          );
+        }
+        return satisfied('A published bias audit summary was found, carrying both the audit date and the distribution date of the tool.', [...published, ...distribution].slice(0, 5));
+      }
+      return missing(
             'No published bias audit summary was found.',
             'Publish the summary on the employment section of your website. An active hyperlink satisfies this if it is clearly identified as a link to bias audit results.',
             ['bias audit summary page', 'audit results URL'],
           );
     },
+    tests: [
+      {
+        // The second date in § 5-303(a). It is not the audit date, and a
+        // summary that carries only the audit date is not a compliant one.
+        name: 'partial when the summary is published without the distribution date of the tool',
+        files: {
+          'src/screen.ts': AEDT,
+          'src/careers.tsx': `export const BIAS_AUDIT_SUMMARY_URL = '/careers/bias-audit';\n`,
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when both the audit date and the distribution date are published',
+        files: {
+          'src/screen.ts': AEDT,
+          'src/careers.tsx': `export const BIAS_AUDIT_SUMMARY_URL = '/careers/bias-audit';\nexport const DISTRIBUTION_DATE = '${daysAgo(300)}'; // 6 RCNY 5-303(a)(2): when we began using the tool\n`,
+        },
+        expect: 'satisfied',
+      },
+    ],
   }),
   c({
     id: 'nyc-ll144.candidate-notice',
     penaltyTier: 'first',
     title: 'Ten business days notice to candidates',
     obligation:
-      '6 RCNY § 5-304 and NYC Admin. Code § 20-871(b): notify New York City resident candidates at least ten business days before use of the tool, and include instructions for how to request an alternative selection process or a reasonable accommodation, if available.',
+      '6 RCNY § 5-304 and NYC Admin. Code § 20-871(b): notify New York City resident candidates at least ten business days before use of the tool (§ 20-871(b)(1)), disclose the job qualifications and characteristics the tool will use (§ 20-871(b)(2)), and include instructions for how to request an alternative selection process or a reasonable accommodation, if available (§ 20-871(b)(3) with § 5-304(b)).',
     family: 'rights',
     severity: 'high',
     weight: 6,
@@ -306,7 +346,9 @@ const controls: Control[] = [
     appliesFrom: IN_FORCE,
     citations: [
       nycLL144('§ 5-304', 'Notice to candidates and employees'),
-      nycLL144('§ 20-871(b)', 'Notice requirements'),
+      nycLL144('§ 20-871(b)(1)', 'Ten business days notice'),
+      nycLL144('§ 20-871(b)(2)', 'Job qualifications and characteristics the tool will use'),
+      nycLL144('§ 20-871(b)(3)', 'Instructions for requesting an alternative process'),
     ],
     appliesWhen: isAedt,
     evaluate: (ctx) => {
@@ -314,8 +356,25 @@ const controls: Control[] = [
         limit: 4,
       });
       const accommodation = ctx.grep(/alternative[_\s]?(selection|process)|reasonable[_\s]?accommodation/i, { limit: 2 });
+      // § 20-871(b)(2) is the limb everybody drops: the notice has to say what
+      // the tool actually looks at, not merely that a tool is being used.
+      const qualifications = ctx.grep(
+        /\bjob[_\s-]?qualification|\bqualifications?[_\s]?and[_\s]?characteristics\b|\bcharacteristics[_\s]?(used|assessed|evaluated)\b/i,
+        { limit: 2 },
+      );
+      if (notice.length > 0 && accommodation.length > 0 && qualifications.length > 0) {
+        return satisfied('Candidate notice found, carrying both the accommodation instructions and the qualifications the tool assesses.', [
+          ...notice.slice(0, 2),
+          ...accommodation,
+          ...qualifications,
+        ]);
+      }
       if (notice.length > 0 && accommodation.length > 0) {
-        return satisfied('Candidate notice including accommodation instructions was found.', [...notice.slice(0, 3), ...accommodation]);
+        return partial(
+          'A candidate notice with accommodation instructions was found, but it does not say what the tool assesses.',
+          'NYC Admin. Code § 20-871(b)(2) requires the notice to disclose the job qualifications and characteristics the automated employment decision tool will use. Saying that a tool is used is limb (b)(1); saying what it looks at is a separate limb, and each missing notice is its own violation under § 20-872.',
+          [...notice.slice(0, 3), ...accommodation],
+        );
       }
       if (notice.length > 0) {
         return partial(
@@ -344,12 +403,21 @@ const controls: Control[] = [
       {
         // The clause everyone misreads: the rule requires the *instructions*,
         // not an actual alternative process.
-        name: 'satisfied when the notice carries the instructions the rule actually asks for',
+        // § 20-871(b) has three limbs and this notice carries two of them.
+        name: 'partial when the notice never says what the tool assesses',
         files: {
-          'src/screen.ts':
-            'export function screenCandidate(applicant) {\n  const resumeScore = rankResume(applicant.resume);\n  return { candidate: applicant.id, shortlist: resumeScore > 0.7, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'src/screen.ts': AEDT,
           'src/notice.ts':
             'export const CANDIDATE_NOTICE = "We use an automated employment decision tool. You are receiving this candidate notice at least 10 business days before it is used. To request an alternative selection process or a reasonable accommodation, email careers@example.com.";\n',
+        },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied once the notice carries all three limbs of § 20-871(b)',
+        files: {
+          'src/screen.ts': AEDT,
+          'src/notice.ts':
+            'export const CANDIDATE_NOTICE = "We use an automated employment decision tool. You are receiving this candidate notice at least 10 business days before it is used. The job qualifications and characteristics it assesses are: relevant work history, stated skills, and role-specific certifications. To request an alternative selection process or a reasonable accommodation, email careers@example.com.";\n',
         },
         expect: 'satisfied',
       },
@@ -367,7 +435,7 @@ const controls: Control[] = [
     method: 'static-analysis',
     appliesFrom: IN_FORCE,
     citations: [
-      nycLL144('6 RCNY § 5-304(d)', 'Published data retention policy, data types and sources'),
+      nycLL144('§ 5-304(d)', 'Published data retention policy, data types and sources'),
       nycLL144('§ 20-871(b)(3)', 'Enabling provision and the thirty-day response window'),
     ],
     appliesWhen: isAedt,
