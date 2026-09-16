@@ -675,6 +675,7 @@ survive checking, and a section titled "What would make me wrong", is in
 | [docs/DEVPOST.md](docs/DEVPOST.md) | The submission write-up |
 | [docs/BUSINESS.md](docs/BUSINESS.md) | Market, competition and the honest weaknesses |
 | [docs/VIDEO.md](docs/VIDEO.md) | Demo script and shot list |
+| [docs/SUBMISSION.md](docs/SUBMISSION.md) | What is left to do by hand, and what a judge can verify |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Hosting the demo, and why serverless is the one thing that will not work |
 | [docs/research/](docs/research/) | Primary-source legal reconciliation |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to add a control or a benchmark case |
