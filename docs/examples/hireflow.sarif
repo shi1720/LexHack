@@ -552,6 +552,33 @@
               }
             },
             {
+              "id": "eu-ai-act.art86.right-to-explanation",
+              "name": "EuAiActArt86RightToExplanation",
+              "shortDescription": {
+                "text": "Explain an individual decision to the person it was taken about"
+              },
+              "fullDescription": {
+                "text": "Article 86(1) gives any affected person subject to a decision the deployer takes on the basis of output from an Annex III high-risk system — other than the critical-infrastructure systems in point 2 — which produces legal effects or similarly significantly affects them in a way they consider adverse to their health, safety or fundamental rights, the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision procedure and of the main elements of the decision taken. Article 86(3) applies it only to the extent the right is not already provided for under other Union law."
+              },
+              "help": {
+                "text": "Article 86(1) gives any affected person subject to a decision the deployer takes on the basis of output from an Annex III high-risk system — other than the critical-infrastructure systems in point 2 — which produces legal effects or similarly significantly affects them in a way they consider adverse to their health, safety or fundamental rights, the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision procedure and of the main elements of the decision taken. Article 86(3) applies it only to the extent the right is not already provided for under other Union law.\n\nThis right has applied since 2 August 2026, ahead of the Chapter III duties over the same system. Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not.\n\nEU AI Act Art. 86(1) — Right to explanation of individual decision-making: https://artificialintelligenceact.eu/article/86/\nEU AI Act Art. 86(3) — The right applies only where Union law does not already provide it: https://artificialintelligenceact.eu/article/86/",
+                "markdown": "**Explain an individual decision to the person it was taken about**\nArticle 86(1) gives any affected person subject to a decision the deployer takes on the basis of output from an Annex III high-risk system — other than the critical-infrastructure systems in point 2 — which produces legal effects or similarly significantly affects them in a way they consider adverse to their health, safety or fundamental rights, the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision procedure and of the main elements of the decision taken. Article 86(3) applies it only to the extent the right is not already provided for under other Union law.\n**How to close it:** This right has applied since 2 August 2026, ahead of the Chapter III duties over the same system. Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not.\n**Citations**\n- [EU AI Act Art. 86(1) — Right to explanation of individual decision-making](https://artificialintelligenceact.eu/article/86/)\n- [EU AI Act Art. 86(3) — The right applies only where Union law does not already provide it](https://artificialintelligenceact.eu/article/86/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "rights",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
               "id": "gdpr.art22.human-intervention",
               "name": "GdprArt22HumanIntervention",
               "shortDescription": {
@@ -1130,12 +1157,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-15T20:44:20.065Z",
+          "endTimeUtc": "2026-09-16T02:10:45.653Z",
           "properties": {
             "conformityScore": 3,
             "liveScore": 3,
             "riskTier": "prohibited",
-            "ledgerRoot": "032aefc98a849185e42a9dc8f78fec1d112b2f87d266878c55fbf9f47b066b71"
+            "ledgerRoot": "d94b458c85072b4bf5d31c62a27da6301eaec37adb5b0b8104e58c121100878d"
           }
         }
       ],
@@ -1818,6 +1845,35 @@
             "appliesFrom": "2027-12-02",
             "inForce": false,
             "citation": "EU AI Act Art. 26(2)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art86.right-to-explanation",
+          "level": "error",
+          "message": {
+            "text": "Explain an individual decision to the person it was taken about: Nothing was found that would answer an affected person asking why a decision about them came out the way it did. This right has applied since 2 August 2026, ahead of the Chapter III duties over the same system. Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art86.right-to-explanation"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 86(1)"
           }
         },
         {

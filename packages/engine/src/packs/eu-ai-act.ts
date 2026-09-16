@@ -1543,6 +1543,104 @@ const highRiskControls: Control[] = [
       },
     ],
   }),
+
+  c({
+    id: 'eu-ai-act.art86.right-to-explanation',
+    // Deliberately no penalty tier. Article 99(4) enumerates the operator
+    // duties that carry the EUR 15 000 000 / 3 % administrative fine, and
+    // Article 86 is not among them: it is an individual right, exercised by
+    // the affected person against the deployer, backed by the Article 85
+    // complaint route rather than by a fine head of its own. Pricing it would
+    // be inventing an exposure figure the Regulation does not provide.
+    title: 'Explain an individual decision to the person it was taken about',
+    obligation:
+      'Article 86(1) gives any affected person subject to a decision the deployer takes on the basis of output from an Annex III high-risk system — other than the critical-infrastructure systems in point 2 — which produces legal effects or similarly significantly affects them in a way they consider adverse to their health, safety or fundamental rights, the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision procedure and of the main elements of the decision taken. Article 86(3) applies it only to the extent the right is not already provided for under other Union law.',
+    family: 'rights',
+    severity: 'high',
+    weight: 6,
+    method: 'static-analysis',
+    // Article 86 sits in Chapter IX, Section 4. Article 113 leaves Chapter IX
+    // to the general date, so this right has been exercisable since 2 August
+    // 2026 even though the Chapter III duties over the same system do not bite
+    // until 2 December 2027. It is one of the few high-risk-adjacent duties
+    // that is live today, which is exactly why it is worth evaluating.
+    appliesFrom: DATES.GENERAL,
+    citations: [
+      aiActArticle(86, '(1)', 'Right to explanation of individual decision-making'),
+      aiActArticle(86, '(3)', 'The right applies only where Union law does not already provide it'),
+    ],
+    appliesWhen: allOf(whenHighRisk, (ctx: EvaluationContext) =>
+      ctx.classification.findings.some((f) => f.id.startsWith('annex-iii.') && f.id !== 'annex-iii.2.infrastructure'),
+    ),
+    evaluate: (ctx) => {
+      const explains = evidenceFrom(ctx, 'transparency.explanation').slice(0, 3);
+      // The duty is discharged towards a person, not towards a log. A model
+      // that can produce reason codes is necessary and not sufficient: there
+      // has to be a route by which the person the decision was about can ask.
+      const route = ctx.grepDocs(
+        /\b(right to (an )?explanation|request an explanation|explanation request|how (to|you can) (request|obtain) an explanation|article 86)\b/i,
+        3,
+        /(explanation|rights|transparency|appeal|complaint|privacy|readme|notice)/i,
+      );
+
+      if (explains.length > 0 && route.length > 0) {
+        return satisfied(
+          'The system produces explanations of its outputs, and a route for an affected person to ask for one is documented.',
+          [...explains, ...route].slice(0, 5),
+        );
+      }
+      if (route.length > 0) {
+        return partial(
+          'A route for an affected person to request an explanation is documented, but nothing in the code produces one.',
+          'Article 86(1) asks for the role the system played in the decision procedure and the main elements of the decision taken. Carry the inputs that moved the outcome out of the decision path and store them with the decision, so the answer to a request is a record rather than a reconstruction.',
+          route,
+        );
+      }
+      if (explains.length > 0) {
+        return partial(
+          'The system produces explanations of its outputs, but no route was found by which the person a decision was about can ask for one.',
+          'The right is exercised by the affected person against the deployer. Publish how to ask — in the decision notice itself, or wherever you tell people about their rights — and say who answers.',
+          explains,
+        );
+      }
+      return missing(
+        'Nothing was found that would answer an affected person asking why a decision about them came out the way it did.',
+        'This right has applied since 2 August 2026, ahead of the Chapter III duties over the same system. Record, with each decision, the role the system played and the main elements of the outcome, and publish how a person asks for them. Where a GDPR Article 22(3) route already exists, Article 86(3) means extending it is enough — but Article 86 asks about the role of the system in the procedure, which Article 22(3) does not.',
+        ['right to explanation', 'Article 86', 'reason codes stored with the decision'],
+      );
+    },
+    tests: [
+      {
+        name: 'missing when a decision is returned with no explanation and no route to ask',
+        files: {
+          'src/screen.ts':
+            "export function screen(candidate) {\n  const parsedResume = parseResume(candidate.cv);\n  const rankScore = model.rank(parsedResume, jobRequisition);\n  return { candidate: candidate.id, rank_score: rankScore, decision: rankScore > 0.7 ? 'advance' : 'reject' };\n}\n",
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'missing',
+      },
+      {
+        name: 'partial when reason codes exist but nobody is told how to ask',
+        files: {
+          'src/screen.ts':
+            "export function screen(candidate) {\n  const parsedResume = parseResume(candidate.cv);\n  const rankScore = model.rank(parsedResume, jobRequisition);\n  const reasonCodes = explainRanking(parsedResume, rankScore);\n  return { candidate: candidate.id, rank_score: rankScore, reason_codes: reasonCodes, decision: rankScore > 0.7 ? 'advance' : 'reject' };\n}\n",
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when explanations are produced and the route to ask is published',
+        files: {
+          'src/screen.ts':
+            "export function screen(candidate) {\n  const parsedResume = parseResume(candidate.cv);\n  const rankScore = model.rank(parsedResume, jobRequisition);\n  const reasonCodes = explainRanking(parsedResume, rankScore);\n  return { candidate: candidate.id, rank_score: rankScore, reason_codes: reasonCodes, decision: rankScore > 0.7 ? 'advance' : 'reject' };\n}\n",
+          'docs/candidate-rights.md':
+            '# Your rights\n\n## Right to an explanation\n\nUnder Article 86 of the EU AI Act you can request an explanation of any\nscreening decision taken about you: the role the system played in the\nprocedure and the main elements of the decision. Write to\nprivacy@example.com and we answer within thirty days.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+    ],
+  }),
 ];
 
 // ===========================================================================

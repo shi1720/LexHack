@@ -86,7 +86,39 @@ Anchors, from the market as it prices today: a boutique readiness sprint is **~�
 
 A defensible starting ACV is **$25–40 k** — one or two governed systems plus seats. Below Big-4, above Vanta's ISO 42001 module (+$7.5–10 k/year on a ~$19 k base), and credible against a legal budget.
 
-## 6. Go to market
+## 6. Unit economics
+
+Every number below is a projection with its assumption written next to it. Nothing here is measured revenue — there is none. What *is* measured is the cost side, because the engine already exists and its cost per scan is a fact rather than a forecast.
+
+**Cost of goods sold is close to nothing, and that is a design consequence, not luck.** The engine is deterministic and offline: classification and control evaluation never call a model. A 188-file repository — this one — evaluates 47 obligations in about 430 ms of a single core. A customer scanning 40 systems on every push, at 200 pushes a system a month, spends about **an hour of CPU a month**. The only variable cost that scales with usage is storage of reports and ledgers, which are tens of kilobytes each.
+
+| Line | Per customer / month | Assumption |
+|---|---|---|
+| Compute (scans, dossier and export rendering) | $6–18 | 8k scans/month, burst-scheduled on shared vCPU |
+| Storage and egress (reports, ledgers, artefacts) | $2–5 | ~40 systems × 200 reports × ~80 kB, retained 24 months |
+| The one model call, when enabled | $1–4 | ~2k output tokens per rewrite, rate-limited per seat |
+| Support and success, amortised | $90–160 | 1 CSM per 45 accounts, fully loaded |
+| **Gross margin at a $30 k ACV** | **~88 %** | $2.5 k MRR against ~$300 of delivery |
+
+That 88 % is ordinary for infrastructure software and *below* what a pure-metadata GRC tool achieves, because Annex actually processes the customer's code. It is far above a consultancy, whose margin is bounded by the assessor's hourly rate — which is the point: the same deliverable, produced by a different cost structure.
+
+**Customer acquisition.** Two motions, with very different numbers.
+
+| | Self-serve (Team) | Sales-assisted (Conformity / Enterprise) |
+|---|---|---|
+| Entry | Free CLI and GitHub Action, then a card | Inbound from a failing free scan, or a security review |
+| Blended CAC | **$400–900** | **$16–24 k** |
+| Basis | Content and developer-community spend against a 2–4 % free-to-paid conversion | One AE and half an SE, fully loaded ~$280 k, closing 12–16 deals a year, plus ~$60 k of demand generation |
+| Cycle | Days | **45–90 days** (Conformity), **3–6 months** (Enterprise) |
+| Payback at ~88 % margin | Under 2 months | **7–11 months** |
+
+The sales cycle is short for compliance software for one specific reason: the buyer is the VP of Engineering or the CISO, not the General Counsel. The tool installs as a GitHub App and produces a result before the first call ends. Legal is a reviewer, not the signer — which is what separates this from the 6–12 month cycle of an assessment engagement.
+
+**Expansion is structural, not hoped for.** The account grows on three axes without a new sale: a new AI system enters the estate and is governed; a substantial modification re-opens a conformity assessment and consumes the artefact again; the trust page pulls the account into the customer's own sales process, where it stops being a compliance line item. A **115–130 % net revenue retention** is the planning assumption, and the honest caveat is that the first axis depends on estates growing, which they are, and the third is unproven by anybody.
+
+**What has to be true.** At $30 k ACV, ~$20 k CAC and 88 % margin, an LTV/CAC of 3× needs roughly **2.5 years of retained revenue per logo**. That is the number to watch, and the one most likely to be wrong, because the AI Act's own deadlines create a cliff: an account that bought for 2 December 2026 and renewed for December 2027 has to find a third reason. Substantial-modification monitoring is that reason, and it is the part of the product that is hardest to copy.
+
+## 7. Go to market
 
 **Land** on what is live today and genuinely code-detectable: Article 50 transparency and the Art. 50(2) marking deadline of 2 December 2026. Not the Annex IV dossier — nobody buys a December 2027 deliverable in 2026.
 
@@ -101,7 +133,7 @@ A defensible starting ACV is **$25–40 k** — one or two governed systems plus
 
 Step 6 is the highest-value and the most under-served: no AI-governance vendor currently gives an AI vendor a credible, code-grounded artefact to hand a prospect's security reviewer.
 
-## 7. Market size, stated honestly
+## 8. Market size, stated honestly
 
 Gartner (17 Feb 2026) puts **AI governance platform spending at $492 M in 2026**, passing **$1 bn by 2030**. Against $2.5 tn of total AI spending, governance is about 0.02 %.
 
@@ -109,14 +141,15 @@ Ninety vendors in a $492 M category implies a median vendor doing $2–5 M. Said
 
 That is the honest read, and it changes the strategy rather than the product: build the wedge that a GRC or AppSec platform cannot build itself, because their architecture reads control-plane metadata and not code. They would have to buy it.
 
-## 8. What would make me wrong
+## 9. What would make me wrong
 
+- **The Omnibus moves again.** It already moved once: Regulation (EU) 2026/1744 pushed Annex III high-risk from August 2026 to 2 December 2027 with the ink barely dry, and the pressure that produced it has not gone away. A second deferral, or a narrowing of Annex III, would take the urgency out of the Chapter III half of the product overnight. Two things blunt it. The first is that Article 50 was left untouched in the last round and is already in force, which is why the wedge is deliberately built there and not on the dossier. The second is that a deferral is a *deadline* change, not a *content* change — the obligations do not become easier to evidence, they become due later, and a tool that already evidences them is worth the same on the new date. What a deferral actually costs is a year of pipeline, which for a company at this stage is the whole thing; it is the strongest argument for the land motion being priced low enough to survive one.
 - **The regulator commoditises the deliverable.** The Omnibus mandates the Commission to publish a *simplified Annex IV form for SMEs and start-ups* — free, official, aimed at the most adoptable segment. This is why Annex sells verification, not generation.
 - **Code presence is not conformity, and assessors know it.** Detecting `recordInference()` does not prove logs are retained over the lifetime. If assessors treat code evidence as *supporting material* rather than as the dossier, the price ceiling drops. The counter is to sell assurance that the claims in the dossier are not fiction — which is unmet, because every AI Act dossier in existence today is self-attested and unverified.
 - **Platform bundling.** GitHub Advanced Security, GitLab Ultimate, Vanta or Drata could add an "AI Act" checkbox. The window is however long it takes them to decide code analysis is worth building — and Vanta's whole architecture means they would have to buy rather than build.
 - **A frontier model makes the mapping trivial.** It already does, for *generation*. It does not for *verification*, and it never will, because the value of a verification is that it did not come from a model.
 
-## 9. The one-sentence thesis
+## 10. The one-sentence thesis
 
 **Every AI Act dossier in existence is self-attested and unverified; Annex is the first thing that can check one against the system it describes, and the artefact it produces is the one an enterprise buyer is already asking AI vendors for.**
 

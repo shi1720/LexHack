@@ -257,6 +257,27 @@ export const CLASSIFICATION_RULES: ClassificationRule[] = [
       'AI systems intended to be used for biometric verification whose sole purpose is to confirm that a person is who they claim to be are outside point 1(a).',
   },
   {
+    id: 'annex-iii.1b.biometric-categorisation',
+    tier: 'high',
+    title: 'Biometrics: biometric categorisation',
+    basis:
+      'The system sorts people according to a sensitive or protected attribute inferred from their biometric data — Annex III, point 1(b).',
+    citations: [aiActAnnex('III', '1(b)', 'High-risk AI systems — biometric categorisation')],
+    requires: ['domain.biometric.categorisation'],
+    baseConfidence: 0.62,
+    // Point 1(b) and Article 5(1)(g) are not the same set, and the difference
+    // is the whole reason this rule has to exist separately. Article 5(1)(g)
+    // prohibits a closed list — race, political opinions, trade union
+    // membership, religious or philosophical beliefs, sex life, sexual
+    // orientation. Point 1(b) reaches sensitive and protected attributes more
+    // broadly, which in Union non-discrimination law includes sex and age. So
+    // an age or gender estimator over faces is high-risk under 1(b) and not
+    // prohibited under 5(1)(g) — and with only the prohibition modelled, it
+    // came out of the classifier as minimal risk.
+    caveat:
+      'Point 1(b) reaches categorisation by a sensitive or protected attribute, not by any attribute: grouping portraits by hair colour is neither. Recital 16 also leaves out categorisation that is ancillary to another commercial service and strictly necessary for objective technical reasons. Where the attribute is one of those listed in Article 5(1)(g) the practice is prohibited outright rather than high-risk.',
+  },
+  {
     id: 'annex-iii.1c.emotion',
     tier: 'high',
     title: 'Biometrics: emotion recognition',

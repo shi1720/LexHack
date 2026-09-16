@@ -66,6 +66,7 @@ const PLACEMENT: Record<number, Placement> = {
   50: 'chapter-iv', // Transparency obligations
   72: 'chapter-ix', // Post-market monitoring, information sharing, surveillance
   73: 'chapter-ix',
+  86: 'chapter-ix', // Remedies — right to explanation of individual decision-making
 };
 
 /** Article 113 maps a placement to a date. Nothing else does. */

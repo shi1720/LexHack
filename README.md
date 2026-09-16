@@ -35,11 +35,11 @@ $ annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employee
 
  PROHIBITED  Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting.
 
-  repository   hireflow · 14 files · 103 ms
+  repository   hireflow · 14 files · 100 ms
   your role    provider and deployer (Arts. 3(3), 3(4))
   conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100
-  in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  19 of 19 live obligations failing
-  ledger       9477-8E29-F283-404A
+  in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  20 of 20 live obligations failing
+  ledger       4AA4-7D3B-BA5D-D7D7
   exposure     €20,000,000 statutory ceiling, not a forecast (GDPR Art. 83(5))
                + EU AI Act: €686,000
                + NYC Local Law 144: $500 per day of use and per missing notice, each of which is a separate violation
@@ -82,7 +82,7 @@ Gaps
 ```
 
 Abridged for length — whole findings and whole gaps have been cut, but every
-line shown is verbatim. The real run prints 30 gaps, each with its citation, its
+line shown is verbatim. The real run prints 31 gaps, each with its citation, its
 evidence and its remediation. Run the command against the bundled
 `fixtures/hireflow` and you get those numbers, ledger fingerprint included, with
 only the timing moving.
@@ -145,7 +145,7 @@ flowchart LR
   subgraph Deterministic core
     B --> C[75 signal detectors<br/>code · docs · manifests]
     C --> D[Classifier<br/>Annex III / Art. 5 / Art. 50]
-    D --> E[47 controls<br/>5 rule packs]
+    D --> E[48 controls<br/>5 rule packs]
     E --> F[Hash-chained<br/>evidence ledger]
   end
   subgraph Artefacts
@@ -185,7 +185,7 @@ tests: [
 ]
 ```
 
-`npm test` runs every golden fixture in the corpus — 53 cases over 21 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
+`npm test` runs every golden fixture in the corpus — 56 cases over 22 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
 
 ### 3. Nothing goes green because a file exists
 
@@ -210,7 +210,7 @@ inside a few of them:
   that happens to contain them.
 
 The test of all three is Annex's own remediation pull request. Applying it to
-the LendWise fixture moves the score 42 → 53 — six obligations closed, and not
+the LendWise fixture moves the score 41 → 53 — six obligations closed, and not
 one of them all the way — and every control it touches says why:
 
 ```
@@ -244,10 +244,10 @@ Every control result is reduced to a canonical line — the control, its status 
 ```
 $ annex verify report.json --against fixtures/hireflow
 
- LEDGER INTACT   032A-EFC9-8A84-9185
+ LEDGER INTACT   D94B-458C-8507-2B4B
 
-  47 entries re-derived from the results they describe
-  root 032aefc98a849185e42a9dc8…
+  48 entries re-derived from the results they describe
+  root d94b458c85072b4bf5d31c62…
 
   Cited files, re-hashed from fixtures/hireflow
   6 file(s) checked
@@ -263,7 +263,7 @@ and it says so — naming the entry, and exiting 1:
   Entry 20 ("eu-ai-act.art5.emotion-workplace") does not hash to its
   recorded value: the status, score, rule version or cited evidence in this
   report is not what the ledger was built over.
-  recomputed 5f5c74b0b4a602fec086762d… vs recorded 032aefc98a849185e42a9dc8…
+  recomputed 4c17dcf22c804c17e7a00f12… vs recorded d94b458c85072b4bf5d31c62…
 ```
 
 `annex verify report.json` re-derives every entry from the results the report describes, so an edited status no longer hashes to its recorded value. `--against <dir>` re-hashes each cited file off disk, so a report that no longer describes the tree it claims to describe says so. That is the whole difference between a document and a proof.
@@ -284,7 +284,7 @@ $ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
   and Article 43(4) then requires the conformity assessment to be re-opened
   and the technical documentation updated.
 
-  conformity  80 → 3 (-77)
+  conformity  81 → 3 (-78)
   tier        high → prohibited
 
   ✖ No emotion inference in the workplace or education not_applicable → missing
@@ -303,7 +303,7 @@ $ annex diff --base fixtures/hireflow-remediated --head fixtures/hireflow
     eu-ai-act.art10.bias-examination
   ✖ Document data provenance and preparation satisfied → missing
     eu-ai-act.art10.data-governance
-  … 28 more regressions; pass --all to list them
+  … 29 more regressions; pass --all to list them
   ✔ Retain automatically generated logs for at least six months satisfied → not_applicable
 
   Article 43(4): where a high-risk AI system is substantially modified, it
@@ -320,11 +320,11 @@ A questionnaire cannot do this at all: it is answered once, by a person, about a
 
 ## What is in the corpus
 
-47 executable obligations across five jurisdictions, each reconciled against primary sources on 2026-09-15.
+48 executable obligations across five jurisdictions, each reconciled against primary sources on 2026-09-15.
 
 | Pack | Version | Obligations | Status |
 |---|---|---|---|
-| **EU AI Act** — Regulation (EU) 2024/1689 as amended by (EU) 2026/1744 | 2026.09.1 | 26 | Art. 5 in force since 2025-02-02, Art. 50 since 2026-08-02, Chapter III from 2027-12-02 |
+| **EU AI Act** — Regulation (EU) 2024/1689 as amended by (EU) 2026/1744 | 2026.09.1 | 27 | Art. 5 in force since 2025-02-02, Art. 50 since 2026-08-02, Chapter III from 2027-12-02 |
 | **GDPR** — automated decisions (Arts. 9, 13–17, 22, 35) | 2026.09.1 | 5 | In force since 2018 |
 | **NYC Local Law 144** — AEDT bias audits, 6 RCNY §§ 5-300 to 5-304 | 2026.09.1 | 5 | Enforced since 2023-07-05 |
 | **Colorado ADMT Act** — SB 26-189 | 2026.09.1 | 5 | From 2027-01-01 |
@@ -342,18 +342,20 @@ and never edited by hand.
 
 | Metric | Result |
 |---|---|
-| Risk-tier accuracy | **100 %** (42/42) |
-| Finding recall | **100 %** (22/22) |
-| Carve-out precision | **100 %** (35/35) |
+| Risk-tier accuracy | **100 %** (44/44) |
+| Finding recall | **100 %** (23/23) |
+| Carve-out precision | **100 %** (38/38) |
 
-Roughly half the 42-case corpus exists to catch **false positives**: card-fraud
+Roughly half the 44-case corpus exists to catch **false positives**: card-fraud
 detection (expressly excluded from Annex III 5(b)), one-to-one identity
 verification (excluded from 1(a)), a consumer mood-journal app (Annex III 1(c)
 high-risk, *not* the Article 5(1)(f) prohibition), campaign logistics tooling
 (excluded by point 8(b) because nobody is exposed to its output), invoice OCR
 (Article 50(2) does not reach a system that re-expresses its input without
-altering the semantics), a product recommender, and a documentation site about
-the AI Act.
+altering the semantics), a warehouse camera that sorts people by whether they
+are wearing a hard hat (Annex III 1(b) reaches a *protected* attribute, and
+personal protective equipment is not an attribute of the person), a product
+recommender, and a documentation site about the AI Act.
 
 **A clean sheet is a statement about the corpus, not about the world.** These
 labels were written by the same people who wrote the detectors, which is the
@@ -378,7 +380,7 @@ packages/engine/     No model, no framework, zero runtime dependencies.
                       fetch a GitHub tarball; a local path fetches nothing)
   signals/           75 detectors over code, docs and manifests
   classify/          Rule table mapping signals → Annex III / Art. 5 / Art. 50
-  packs/             The corpus: 47 controls with citations, dates, fixtures
+  packs/             The corpus: 48 controls with citations, dates, fixtures
   evaluate/          Control execution, weighted scoring, exposure modelling
   ledger/            SHA-256 hash chain + verification
   dossier/           Annex IV builder and renderers
@@ -413,7 +415,7 @@ Annex runs this on itself — see [`.github/workflows/ci.yml`](.github/workflows
 Being precise about what that proves: Annex calls no model, so it is not an AI
 system and only the GDPR and NIST controls bind it. The self-scan is a
 regression gate on its own posture, not a demonstration of the high-risk
-pipeline; the 42-case benchmark and the golden fixtures do that job. Its
+pipeline; the 44-case benchmark and the golden fixtures do that job. Its
 `.annexignore` excludes the rule packs, the detector catalogue, the benchmark
 corpus and the fixtures, for one reason stated in the file: a rule pack is
 source code that quotes the practice it detects.
@@ -444,7 +446,7 @@ was originally scoped against had been amended six weeks earlier.
 - **`satisfied` means the evidence is there, not that the duty is discharged.** Annex now refuses two specific ways of faking it — a module nothing in the tree reaches, and a generated document whose `_TODO_` placeholders are unfilled, both of which cap at *partial* — but it still cannot tell you that an override is reachable by a trained, authorised person, or that a log sink is durable. On an Article 14 finding, that is exactly what an assessor will ask. Reachability analysis is the fix and it is not built.
 - **Coverage is TypeScript, JavaScript and Python first.** Go, Java, Ruby, Rust, C# and PHP are detected and scanned, but the detector corpus is thinner for them.
 - **Ingest caps at 4,000 files and 32 MB,** in path order. Larger repositories are scanned partially and the report carries a warning rather than pretending to completeness — but the cut is alphabetical, so on a very large monorepo the sample is arbitrary rather than representative. Prioritising by likely relevance is a known gap.
-- **The benchmark is 42 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
+- **The benchmark is 44 cases, all written in-house.** That is enough to catch a keyword matcher and to stop a detector regressing; it is not enough to characterise behaviour on a large production monorepo, and it cannot measure what nobody thought to test.
 - **One AI system rarely maps to one repository.** Under the Act the unit is the system — a service, a model, a prompt store, a feature pipeline and a UI, often across four repositories and two teams. Annex scans one tree at a time and has no way to compose a system from several. That is the next structural thing to build.
 - **It can only ever serve the supply side.** Most Annex III obligation-holders — HR teams, lenders, schools, hospitals — buy their AI rather than build it, and have no repository to point at. Annex is for the people who ship the system, not the people who deploy it, and that is a ceiling on the market rather than a phase.
 - **What breaks first at scale:** the per-scan cost is bounded by tree size and is already tiny, so the first thing to give is *precision on unfamiliar frameworks* — an in-house ML platform with bespoke naming will under-report. The fix is customer-authored detectors, which the rule-pack format already supports; the fix is not a bigger model.

@@ -569,6 +569,48 @@ def identify_person(frame, gallery):
     },
   },
   {
+    id: 'high.biometric-categorisation-age-gender',
+    description: 'Digital-signage analytics that estimates the age and gender of passers-by from camera frames',
+    tier: 'high',
+    expectFindings: ['annex-iii.1b.biometric-categorisation'],
+    forbidFindings: ['art5.1g.biometric-categorisation'],
+    rationale:
+      'Annex III, point 1(b): biometric categorisation according to sensitive or protected attributes inferred from biometric data. Sex and age are protected grounds in Union non-discrimination law, so this is high-risk — but neither is in the closed Article 5(1)(g) list, so it is not prohibited. That gap is the whole reason point 1(b) needs a rule of its own: with only the prohibition modelled, this system classified as minimal risk.',
+    files: {
+      'requirements.txt': 'opencv-python==4.10.0\ntensorflow==2.17.0\n',
+      'src/audience.py': `import cv2
+
+def analyse_frame(frame):
+    """Estimate the demographics of whoever is looking at the screen."""
+    faces = cv2.CascadeClassifier("haar.xml").detectMultiScale(frame)
+    out = []
+    for face in faces:
+        age_estimation = AGE_MODEL.predict(face)
+        gender_classifier_result = GENDER_MODEL.predict(face)
+        out.append({"age": age_estimation, "gender": gender_classifier_result})
+    return out
+`,
+    },
+  },
+  {
+    id: 'carveout.biometric-categorisation-not-protected',
+    description: 'Warehouse camera that counts how many people on the floor are wearing a hard hat',
+    tier: 'minimal',
+    forbidFindings: ['annex-iii.1b.biometric-categorisation', 'art5.1g.biometric-categorisation'],
+    rationale:
+      'Point 1(b) reaches categorisation according to a *sensitive or protected* attribute. Personal protective equipment is not an attribute of the person at all, and a rule that fired on any camera that sorted people into buckets would make every safety system in a warehouse high-risk. Minimal rather than transparency: the system shows nobody anything and generates nothing, so no Article 50 duty is engaged either — it was labelled transparency when it was written, which the benchmark caught.',
+    files: {
+      'requirements.txt': 'opencv-python==4.10.0\n',
+      'src/ppe.py': `import cv2
+
+def count_hard_hats(frame):
+    """Count how many people on the floor are wearing a hard hat."""
+    people = DETECTOR.detect(frame)
+    return sum(1 for person in people if HARD_HAT_MODEL.predict(person) > 0.5)
+`,
+    },
+  },
+  {
     id: 'high.migration',
     description: 'Visa application risk assessment',
     tier: 'high',

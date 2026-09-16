@@ -7,8 +7,8 @@ because both are the kind of work that does not scale by being clever.
 
 ```bash
 npm install && npm run build
-npm run test:run      # 132 tests
-npm run benchmark     # 42 labelled cases, with the failures printed
+npm run test:run      # 135 tests
+npm run benchmark     # 44 labelled cases, with the failures printed
 npm run dev           # the web app on :3000
 ```
 

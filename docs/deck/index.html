@@ -185,7 +185,7 @@
 <!-- 4 ───────────────────────────────────────────────── -->
 <section class="slide">
   <p class="eyebrow">What it does</p>
-  <h2>One scan. Four artefacts. 220&nbsp;milliseconds.</h2>
+  <h2>One scan. Four artefacts. Under a tenth of a second.</h2>
   <pre>  <span class="tag bad">&nbsp;PROHIBITED&nbsp;</span>   Article 5(1)(f) — emotion inference in the workplace
 
   classification   Annex III, point 4(a) · recruitment and candidate selection    97% confidence
@@ -197,8 +197,9 @@
   <span class="red">✖ missing</span>   Art. 14        human oversight — no review step, no override, no stop control
   <span class="red">✖ missing</span>   LL 144 §5-301  no independent bias audit in the last twelve months
 
-  conformity   <span class="red">█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   4/100     in force today  4/100
-  exposure     €294,000 statutory ceiling   ledger  <span class="green">53CC-FAD4-DDAF-DD63</span>   14 files · 47 ms</pre>
+  conformity   <span class="red">█░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   2/100     in force today  1/100
+  exposure     €20,000,000 statutory ceiling <span class="grey">(GDPR Art. 83(5))</span> · EU AI Act €294,000
+  ledger       <span class="green">4AA4-7D3B-BA5D-D7D7</span>   14 files · 99 ms</pre>
   <div class="grid g4">
     <div class="card"><h3>Evidence explorer</h3><p>Statute on the left, the lines that answer it on the right.</p></div>
     <div class="card"><h3>Annex IV dossier</h3><p>Headings in EN · DE · FR, every unanswerable point left open.</p></div>
@@ -220,7 +221,7 @@
   <div class="grid g2" style="margin-top:20px">
     <div class="card navy">
       <h3>The law gets a test suite</h3>
-      <p>A control is a function, so it can be tested. 53 golden fixtures across all five packs — each a
+      <p>A control is a function, so it can be tested. 56 golden fixtures across all five packs — each a
       minimal repository and the status the control must return — plus a suite that checks every control
       against a written-down Article 113 table. If a regex gets greedier, the obligation fails the build
       rather than silently mis-reporting somebody's conformity.</p>
@@ -258,12 +259,12 @@
   43(4) then requires the conformity assessment to be re-opened and the technical
   documentation updated.
 
-  conformity  80 → 3 <span class="red">(-77)</span>
+  conformity  81 → 3 <span class="red">(-78)</span>
   tier        high → prohibited
 
   <span class="red">✖</span> No emotion inference in the workplace or education <span class="grey">not_applicable → missing</span>
     <span class="grey">eu-ai-act.art5.emotion-workplace</span>
-  <span class="grey">… 35 more regressions; pass --all to list them</span></pre>
+  <span class="grey">… 36 more regressions; pass --all to list them</span></pre>
   <p class="lead" style="margin-top:14px">
     In CI: <span class="mono">--base origin/main --head HEAD</span>, exit 1. A questionnaire cannot do this
     — and it is the event that makes the revenue recurring.
@@ -287,7 +288,7 @@
   <p class="eyebrow">Accuracy</p>
   <h2>It is a classifier, so it owes you its error rate.</h2>
   <p class="lead">
-    42 hand-labelled cases. Roughly half exist to catch <strong>false positives</strong>: card-fraud
+    44 hand-labelled cases. Roughly half exist to catch <strong>false positives</strong>: card-fraud
     detection (excluded from Annex III 5(b)), one-to-one identity verification (excluded from 1(a)),
     campaign logistics (excluded by 8(b) — nobody sees the output), invoice OCR (Art. 50(2) does not
     reach re-expression), a mood-journal app that is 1(c) high-risk and <em class="q">not</em> the
@@ -373,18 +374,18 @@
 <!-- 11 ──────────────────────────────────────────────── -->
 <section class="slide">
   <p class="eyebrow">Built for this hackathon</p>
-  <h2>47 obligations. 5 jurisdictions. 0 model calls in the core.</h2>
+  <h2>48 obligations. 5 jurisdictions. 0 model calls in the core.</h2>
   <div class="grid g4">
-    <div class="card"><div class="stat s">47</div><div class="cap">executable obligations</div></div>
+    <div class="card"><div class="stat s">48</div><div class="cap">executable obligations</div></div>
     <div class="card"><div class="stat s">75</div><div class="cap">signal detectors</div></div>
-    <div class="card"><div class="stat s">132</div><div class="cap">tests, incl. golden fixtures</div></div>
+    <div class="card"><div class="stat s">135</div><div class="cap">tests, incl. golden fixtures</div></div>
     <div class="card"><div class="stat s">430<span style="font-size:18px">ms</span></div><div class="cap">to scan its own 188 files</div></div>
   </div>
   <div class="grid g2" style="margin-top:14px">
     <div class="card">
       <h3>Rule packs, each reconciled against primary sources</h3>
       <table style="margin-top:6px">
-        <tr><td class="k">EU AI Act</td><td>26 obligations · post-Omnibus dates</td></tr>
+        <tr><td class="k">EU AI Act</td><td>27 obligations · post-Omnibus dates</td></tr>
         <tr><td class="k">GDPR</td><td>5 · Arts. 9, 13–17, 22, 35</td></tr>
         <tr><td class="k">NYC Local Law 144</td><td>5 · the arithmetic is in the rule</td></tr>
         <tr><td class="k">Colorado ADMT Act</td><td>5 · SB 26-189, from Jan 2027</td></tr>
