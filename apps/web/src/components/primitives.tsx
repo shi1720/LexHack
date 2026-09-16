@@ -70,7 +70,8 @@ export function ScoreDial({
   size = 132,
   sublabel,
 }: {
-  score: number;
+  /** `null` means not assessed — which is not zero, and must not look like it. */
+  score: number | null;
   label: string;
   size?: number;
   sublabel?: string;
@@ -81,8 +82,18 @@ export function ScoreDial({
   // A score of zero used to draw no arc at all, which reads as "failed to
   // load" rather than "measured, and it is nothing". A short stub in the
   // failing colour says the difference.
-  const dash = Math.max((score / 100) * circumference, circumference * 0.012);
-  const colour = score >= 80 ? 'var(--moss)' : score >= 50 ? 'var(--amber)' : 'var(--crimson)';
+  // Not assessed is a third state and gets its own look: a dashed grey ring
+  // and an em dash. A full green ring over nothing was the worst thing this
+  // UI could draw, and it drew it for any repository Annex could not read.
+  const assessed = score !== null;
+  const dash = assessed ? Math.max((score / 100) * circumference, circumference * 0.012) : circumference;
+  const colour = !assessed
+    ? 'var(--line-strong)'
+    : score >= 80
+      ? 'var(--moss)'
+      : score >= 50
+        ? 'var(--amber)'
+        : 'var(--crimson)';
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -99,17 +110,27 @@ export function ScoreDial({
             stroke={colour}
             strokeWidth={stroke}
             strokeLinecap="round"
-            strokeDasharray={`${dash} ${circumference}`}
+            strokeDasharray={assessed ? `${dash} ${circumference}` : '4 7'}
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span style={{ fontSize: size * 0.3, fontWeight: 650, letterSpacing: '-0.03em', lineHeight: 1 }}>
-            {score}
-            <span className="sr-only"> out of 100 — {label}</span>
+          <span
+            style={{
+              fontSize: assessed ? size * 0.3 : size * 0.26,
+              fontWeight: 650,
+              letterSpacing: '-0.03em',
+              lineHeight: 1,
+              color: assessed ? undefined : 'var(--ink-faint)',
+            }}
+          >
+            {assessed ? score : '—'}
+            <span className="sr-only">
+              {assessed ? ` out of 100 — ${label}` : ` not assessed — ${label}`}
+            </span>
           </span>
           <span className="eyebrow" aria-hidden="true" style={{ fontSize: 9.5 }}>
-            / 100
+            {assessed ? '/ 100' : 'not assessed'}
           </span>
         </div>
       </div>

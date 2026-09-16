@@ -402,15 +402,19 @@ describe('ledger signature', () => {
       appliesFrom: '2026-08-02', inForce: true,
     },
   ];
+  const summary = { score: 0, liveScore: 0, tier: 'high', maxFine: 0, currency: 'EUR' };
   const sign = (status: ControlStatus, key: string) => {
     const ledger = buildLedger(results(status), ruleVersions);
-    return { ledger, signature: signLedgerRoot(ledger.root, ledger.algorithm, ledger.entries.length, key) };
+    return {
+      ledger,
+      signature: signLedgerRoot(ledger.root, ledger.algorithm, ledger.entries.length, key, summary),
+    };
   };
 
   it('verifies a signature against the key that made it', () => {
     const kp = generateSigningKey();
     const { ledger, signature } = sign('missing', kp.privateKey);
-    const check = verifyLedgerSignature(signature, ledger.root, ledger.algorithm, ledger.entries.length, kp.publicKey);
+    const check = verifyLedgerSignature(signature, ledger.root, ledger.algorithm, ledger.entries.length, kp.publicKey, summary);
     expect(check.status).toBe('valid');
   });
 
@@ -418,7 +422,7 @@ describe('ledger signature', () => {
     const kp = generateSigningKey();
     const other = generateSigningKey();
     const { ledger, signature } = sign('missing', kp.privateKey);
-    const check = verifyLedgerSignature(signature, ledger.root, ledger.algorithm, ledger.entries.length, other.publicKey);
+    const check = verifyLedgerSignature(signature, ledger.root, ledger.algorithm, ledger.entries.length, other.publicKey, summary);
     expect(check.status).toBe('invalid');
   });
 
@@ -437,8 +441,14 @@ describe('ledger signature', () => {
     // Self-consistent, so the chain check and a key-less signature check pass.
     expect(verifyLedger(forged.ledger).valid).toBe(true);
     expect(
-      verifyLedgerSignature(forged.signature, forged.ledger.root, forged.ledger.algorithm, forged.ledger.entries.length)
-        .status,
+      verifyLedgerSignature(
+        forged.signature,
+        forged.ledger.root,
+        forged.ledger.algorithm,
+        forged.ledger.entries.length,
+        undefined,
+        summary,
+      ).status,
     ).toBe('valid');
 
     // Against the key the reader actually trusts, it does not.
@@ -448,13 +458,14 @@ describe('ledger signature', () => {
       forged.ledger.algorithm,
       forged.ledger.entries.length,
       honest.publicKey,
+      summary,
     );
     expect(check.status).toBe('invalid');
   });
 
   it('reports an unsigned ledger as unsigned rather than as valid', () => {
     const ledger = buildLedger(results('missing'), ruleVersions);
-    expect(verifyLedgerSignature(undefined, ledger.root, ledger.algorithm, ledger.entries.length).status).toBe('unsigned');
+    expect(verifyLedgerSignature(undefined, ledger.root, ledger.algorithm, ledger.entries.length, undefined, summary).status).toBe('unsigned');
   });
 
   it('signs through the scan pipeline when a key is supplied', () => {
@@ -464,6 +475,15 @@ describe('ledger signature', () => {
     const signed = scan(snapshot, { signingKey: kp.privateKey });
     expect(unsigned.ledger.signature).toBeUndefined();
     expect(signed.ledger.signature?.algorithm).toBe('ed25519');
+    // `score` is null on a trivial tree that applies no obligation; the
+    // signer maps that to -1 so "not assessed" is itself bound.
+    const live = {
+      score: signed.score ?? -1,
+      liveScore: signed.liveScore ?? -1,
+      tier: signed.classification.tier,
+      maxFine: signed.exposure.maxFine,
+      currency: signed.exposure.currency,
+    };
     expect(
       verifyLedgerSignature(
         signed.ledger.signature,
@@ -471,8 +491,69 @@ describe('ledger signature', () => {
         signed.ledger.algorithm,
         signed.ledger.entries.length,
         kp.publicKey,
+        live,
       ).status,
     ).toBe('valid');
+  });
+
+  /**
+   * The chain covers the control results; the score, the live score, the tier
+   * and the exposure are derived from them and stored beside them. With the
+   * signature over the root alone, an editor could zero every failing
+   * control's weight, mark it not-in-force, rewrite the headline to 100/100
+   * and limited risk — and the root and the signature bytes did not move.
+   */
+  it('refuses a report whose headline was rewritten under an untouched chain', () => {
+    const kp = generateSigningKey();
+    const snapshot = buildSnapshot({
+      name: 'x',
+      files: [{ path: 'src/screen.ts', bytes: Buffer.from('const T = 0.7;\nexport function screen(a) {\n  const resumeScore = rank(a.cv);\n  return { hiring_decision: resumeScore >= T ? "advance" : "reject" };\n}\n') }],
+    });
+    const honest = scan(snapshot, { profile: { tierOverride: 'high' }, signingKey: kp.privateKey });
+
+    const check = (s: { score: number; liveScore: number; tier: string; maxFine: number; currency: string }) =>
+      verifyLedgerSignature(
+        honest.ledger.signature,
+        honest.ledger.root,
+        honest.ledger.algorithm,
+        honest.ledger.entries.length,
+        kp.publicKey,
+        s,
+      ).status;
+
+    const real = {
+      score: honest.score ?? -1,
+      liveScore: honest.liveScore ?? -1,
+      tier: honest.classification.tier,
+      maxFine: honest.exposure.maxFine,
+      currency: honest.exposure.currency,
+    };
+    expect(check(real)).toBe('valid');
+    expect(check({ ...real, score: 100 })).toBe('invalid');
+    expect(check({ ...real, liveScore: 100 })).toBe('invalid');
+    expect(check({ ...real, tier: 'limited' })).toBe('invalid');
+    expect(check({ ...real, maxFine: 0 })).toBe('invalid');
+  });
+
+  /**
+   * `join('\n')` let one field's content be read as another's: the rule-pack
+   * version sits immediately before the evidence digests, so five digests
+   * could be moved into the version string and the control emptied of
+   * evidence, producing a byte-identical root and signature.
+   */
+  it('cannot be made to produce the same root from different results', () => {
+    const withEvidence: ControlResult[] = [
+      {
+        ...results('missing')[0]!,
+        evidence: [{ path: 'a.ts', line: 1, snippet: 'x', fileSha256: 'abc', kind: 'code' }],
+      },
+    ];
+    const smuggled: ControlResult[] = [{ ...results('missing')[0]!, evidence: [] }];
+    const a = buildLedger(withEvidence, ruleVersions);
+    const b = buildLedger(smuggled, {
+      'eu-ai-act': `2026.09.1\n${a.entries[0]!.evidenceDigests[0]}`,
+    });
+    expect(b.root).not.toBe(a.root);
   });
 });
 

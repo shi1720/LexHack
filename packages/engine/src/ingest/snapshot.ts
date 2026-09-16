@@ -29,6 +29,38 @@ function byteLength(bytes: Uint8Array | string): number {
 }
 
 /** Heuristic NUL-byte check — cheaper and more reliable than extension alone. */
+/**
+ * A Jupyter notebook is JSON wrapping the source that matters.
+ *
+ * Left as raw JSON its code is one long escaped string per cell and no
+ * line-anchored detector sees it, so a model that decides who gets hired was
+ * invisible in the format machine-learning work is most often written in.
+ * Flattening the cells keeps the line numbers honest enough to cite, because
+ * the joined source is what a reader of the notebook sees.
+ */
+function notebookSource(path: string, text: string): string {
+  if (!path.toLowerCase().endsWith('.ipynb')) return text;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    const cells = (parsed as { cells?: { cell_type?: string; source?: string[] | string }[] }).cells;
+    if (!Array.isArray(cells)) return text;
+    return cells
+      .map((cell) => {
+        const src = Array.isArray(cell.source) ? cell.source.join('') : (cell.source ?? '');
+        return cell.cell_type === 'markdown'
+          ? src
+              .split('\n')
+              .map((l) => `# ${l}`)
+              .join('\n')
+          : src;
+      })
+      .join('\n');
+  } catch {
+    // Not valid JSON. Scan it as text rather than dropping it.
+    return text;
+  }
+}
+
 function looksBinary(text: string): boolean {
   return text.slice(0, 4096).includes(NUL);
 }
@@ -65,7 +97,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
 
     const excluded = rules.length > 0 && isIgnored(path, rules);
     const shouldRead = !excluded && !isBinaryPath(path) && size <= INGEST_LIMITS.maxFileBytes;
-    const text = shouldRead ? toText(raw.bytes) : '';
+    const text = shouldRead ? notebookSource(path, toText(raw.bytes)) : '';
     const digest = sha256(typeof raw.bytes === 'string' ? raw.bytes : raw.bytes);
     if (excluded) ignoredCount++;
 
@@ -87,6 +119,10 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
     totalBytes += size;
   }
 
+  // A file over the size limit was silently dropped: no signal, no warning,
+  // and a 620KB comment appended to a source file took it out of the scan.
+  const oversize = files.filter((f) => f.skipped === 'too-large').map((f) => f.path);
+
   const treeDigest = sha256(files.map((f) => `${f.path}:${f.sha256}`).join('\n'));
   const snapshot: RepoSnapshot = {
     id: treeDigest,
@@ -97,6 +133,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
     totalBytes,
     truncated,
     ignoredCount,
+    oversizePaths: oversize,
     capturedAt: new Date().toISOString(),
   };
   if (input.origin) snapshot.origin = input.origin;

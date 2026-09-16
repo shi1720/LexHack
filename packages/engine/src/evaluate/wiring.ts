@@ -31,7 +31,7 @@ import type { EvaluationContext, Evidence } from '../types.js';
 const ENTRYPOINT = /(^|\/)(index|main|app|server|route|handler|__main__|cli|worker)\.[a-z]+$/i;
 
 const IMPORT_LINE = /^\s*(?:import\s|from\s|const\s+\w+\s*=\s*require\(|export\s+.*\sfrom\s)/m;
-const RELATIVE_IMPORT = /(?:from|import|require)\s*\(?\s*['"]\.{1,2}\//;
+const RELATIVE_IMPORT = /(?:from|import|require)\s*\(?\s*['"](\.{1,2}\/[^'"]*)['"]/g;
 
 /**
  * Code a framework calls, which no file in the tree imports.
@@ -85,7 +85,45 @@ const DEFINES_BEHAVIOUR =
 const DISPATCH_PATH =
   /(^|\/)(pages|app|routes?|api|handlers?|functions?|workers?|middleware|server|netlify|lambda)(\/|\.)|\.(page|route|handler|worker|api)\.[a-z]+$/i;
 
-const RUNNER_DIR = /(^|\/)(evals?|tests?|__tests__|spec|e2e|scripts?|bench(marks?)?|migrations?|jobs?|workflows?)\//i;
+// `scripts/` came off this list. An eval harness or a migration is run by
+// something outside the tree, which is the whole reason for the exemption; a
+// `scripts/` directory is where people also put modules they simply never
+// wired up, and putting the oversight gate there bought a pass for free.
+/**
+ * Does this module do anything when it is loaded?
+ *
+ * A top-level call, a server starting, a CLI guard, a framework default
+ * export. Not `export function foo() {}` repeated three times.
+ */
+const RUNS_AT_IMPORT =
+  /^(?:await\s+)?[\w.$]+\s*\(|^\s*(?:app|server|router|bot|client|cli|program)\.\w+\s*\(|\b(?:listen|createServer|serve|bootstrap|render|mount|main)\s*\(\s*\)?|^\s*if\s+__name__\s*==|^\s*export\s+default\s/m;
+
+const RUNNER_DIR = /(^|\/)(evals?|tests?|__tests__|e2e|bench(marks?)?|migrations?|jobs?|workflows?)\//i;
+
+/** Does this file import something that is actually in the tree? */
+function resolvesLocally(ctx: EvaluationContext, from: string, text: string): boolean {
+  const dir = from.split('/').slice(0, -1);
+  RELATIVE_IMPORT.lastIndex = 0;
+  for (const match of text.matchAll(RELATIVE_IMPORT)) {
+    const spec = match[1];
+    if (!spec) continue;
+    const segments = [...dir];
+    for (const part of spec.split('/')) {
+      if (part === '.' || part === '') continue;
+      if (part === '..') segments.pop();
+      else segments.push(part);
+    }
+    const target = segments.join('/').replace(/\.[cm]?[jt]sx?$/, '');
+    if (
+      ctx.snapshot.files.some(
+        (f) => f.path === target || f.path.replace(/\.[^./]+$/, '') === target || f.path.startsWith(`${target}/`),
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function participates(ctx: EvaluationContext, path: string): boolean {
   if (RUNNER_DIR.test(path)) return true;
@@ -98,7 +136,11 @@ function participates(ctx: EvaluationContext, path: string): boolean {
     i === DEFAULT_EXPORT_PATTERN ? DISPATCH_PATH.test(path) && pattern.test(file.text) : pattern.test(file.text),
   );
   if (dispatch) return true;
-  if (RELATIVE_IMPORT.test(file.text)) return true;
+  // An import has to go somewhere. Accepting the *presence* of a relative
+  // import meant `import "./does-not-exist.js";` as line one bought a module
+  // its way past the wiring check — weaker than the dead `import gate` this
+  // guard was written to reject, because the target need not exist.
+  if (resolvesLocally(ctx, path, file.text)) return true;
   const stems = new Set(
     ctx.snapshot.files
       .filter((f) => f.path !== path && f.text && !f.skipped)
@@ -138,10 +180,22 @@ export function wiredIn(ctx: EvaluationContext, evidence: Evidence[]): Wiring {
   const orphans: string[] = [];
   const importedNotCalled: string[] = [];
   for (const path of paths) {
-    if (ENTRYPOINT.test(path)) continue; // an entry point is reached by definition
     const file = ctx.snapshot.files.find((f) => f.path === path);
     if (!file) continue;
-    if (!DEFINES_BEHAVIOUR.test(file.text)) continue; // data, not a control
+    // A file that defines no behaviour cannot be the thing that runs, so it
+    // is *disqualifying* rather than exempt. This was `continue`, which meant
+    // a file with no code in it dropped out of the orphan list and the
+    // control came back wired.
+    if (!DEFINES_BEHAVIOUR.test(file.text)) {
+      orphans.push(path);
+      continue;
+    }
+    // An entry point is reached by definition — but only an entry point that
+    // actually is one. Matching the name alone meant renaming `oversight.ts`
+    // to `worker.ts` skipped the check outright, and a rename is not an
+    // implementation. A module that runs does something when it is loaded;
+    // one that only exports functions is a library with a suggestive name.
+    if (ENTRYPOINT.test(path) && RUNS_AT_IMPORT.test(file.text)) continue;
     const { calls, imports } = ctx.isReferenced(file);
     if (calls.length) {
       callSites.push(...calls.slice(0, 2));

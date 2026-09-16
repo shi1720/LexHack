@@ -99,7 +99,10 @@ export function planRemediation(
   // reviewer, so it has to be the one the next scan produces. Re-running the
   // engine over the tree as it would be after the merge costs tens of
   // milliseconds and cannot drift.
-  const scoreBefore = scoreControls(results);
+  // A plan only exists where obligations applied, so `scoreControls` cannot
+  // be null here — but the type says it can, and asserting that in one place
+  // is better than threading it through the body and the two score fields.
+  const scoreBefore = scoreControls(results) ?? 0;
   const scoreAfter = projectedScore(ctx, packs, files);
   const stamp = new Date().toISOString().slice(0, 10);
 
@@ -180,7 +183,9 @@ function projectedScore(
     classification: classify(signals, profile),
     profile,
   });
-  return scoreControls(evaluatePacks(packs, after, {}));
+  // A projection over a tree the merged plan makes unscorable is itself
+  // unscorable; the caller decides what to say about that.
+  return scoreControls(evaluatePacks(packs, after, {})) ?? 0;
 }
 
 /** Render the plan as a unified diff so it can be applied with `git apply`. */

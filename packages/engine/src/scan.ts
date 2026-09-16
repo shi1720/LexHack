@@ -1,4 +1,5 @@
 import type {
+  EvidenceLedger,
   RepoSnapshot,
   RulePack,
   ScanReport,
@@ -108,6 +109,11 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
   if (snapshot.fileCount === 0) {
     warnings.push('No readable source files were found in this repository.');
   }
+  if (snapshot.oversizePaths && snapshot.oversizePaths.length > 0) {
+    warnings.push(
+      `${snapshot.oversizePaths.length} file(s) exceeded the per-file size limit and were not analysed: ${snapshot.oversizePaths.slice(0, 5).join(', ')}${snapshot.oversizePaths.length > 5 ? ', …' : ''}. Padding a file past the limit is the cheapest way to hide it from this scan, so the paths are named.`,
+    );
+  }
 
   const signals = extractSignals(snapshot, {
     onProgress: (d, t, id) => opts.onProgress?.('signals', d, t, id),
@@ -147,16 +153,36 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
   });
 
   const ruleVersions = Object.fromEntries(packs.map((p) => [p.id, p.version]));
-  let ledger = buildLedger(controls, ruleVersions);
-  if (opts.signingKey) {
-    ledger = {
-      ...ledger,
-      signature: signLedgerRoot(ledger.root, ledger.algorithm, ledger.entries.length, opts.signingKey),
-    };
-  }
+  const liveControls = controls.filter((r) => r.inForce);
+  const ledgerBase = buildLedger(controls, ruleVersions);
+
+  // The signature has to cover the derived figures, not only the chain. They
+  // are computed here so the same values are signed and stored — a signature
+  // over numbers recomputed later would be signing something the report might
+  // not say.
+  const score = scoreControls(controls);
+  const liveScore = scoreControls(liveControls);
+  const exposure = estimateExposure(packs, controls, profile);
+  const ledger: EvidenceLedger = opts.signingKey
+    ? {
+        ...ledgerBase,
+        signature: signLedgerRoot(
+          ledgerBase.root,
+          ledgerBase.algorithm,
+          ledgerBase.entries.length,
+          opts.signingKey,
+          {
+            score: score ?? -1,
+            liveScore: liveScore ?? -1,
+            tier: classification.tier,
+            maxFine: exposure.maxFine,
+            currency: exposure.currency,
+          },
+        ),
+      }
+    : ledgerBase;
   opts.onProgress?.('ledger', 1, 1, ledger.root.slice(0, 12));
 
-  const liveControls = controls.filter((r) => r.inForce);
 
   const report: ScanReport = {
     id: sha256(
@@ -174,10 +200,10 @@ export function scan(snapshot: RepoSnapshot, opts: ScanOptions = {}): ScanReport
     signals: signals.filter((s) => s.hits > 0),
     controls,
     packs: scorePacks(packs, controls),
-    score: scoreControls(controls),
-    liveScore: scoreControls(liveControls),
+    score,
+    liveScore,
     clock: buildClock(packs, controls, today),
-    exposure: estimateExposure(packs, controls, profile),
+    exposure,
     ledger,
     warnings,
   };
@@ -259,7 +285,11 @@ export function diffReports(before: ScanReport, after: ScanReport): DriftReport 
 
   return {
     substantial,
-    scoreDelta: after.score - before.score,
+    // An unscorable side makes the delta meaningless rather than zero, and
+    // `diffReports` has no way to say "unknown" — so it reports no movement
+    // and the summary above names the tier change, which is the fact that
+    // survives.
+    scoreDelta: after.score === null || before.score === null ? 0 : after.score - before.score,
     classificationChanged,
     previousTier: before.classification.tier,
     currentTier: after.classification.tier,

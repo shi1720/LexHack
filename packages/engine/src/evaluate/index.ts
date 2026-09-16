@@ -18,6 +18,7 @@ export { wiredIn, wiringGap, type Wiring } from './wiring.js';
 
 import { wiredIn, wiringGap } from './wiring.js';
 import { deniedByItsOwnEvidence } from './denial.js';
+import { commentLines } from '../signals/define.js';
 
 const STATUS_SCORE: Record<ControlStatus, number> = {
   satisfied: 1,
@@ -105,13 +106,16 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
   //    Annex's own output.
   //  - **Dead code is not a control.** A generated `human_oversight.py` that
   //    nothing calls discharges nobody's Article 14 duty.
+  //  - **Prose is not an implementation.** A comment can corroborate a
+  //    verdict and cannot carry one; a file of four `//` lines satisfied
+  //    Article 14, the heaviest control in the corpus.
   //  - **A document that says no is not a yes.** "We have never commissioned
   //    a bias audit" contains the words a matcher is looking for and denies
   //    the thing they are looking for. This one was found by a judge in five
   //    minutes, on the obligation where each further day of use is its own
   //    penalty.
   //
-  // All three cap at `partial` rather than dropping to `missing`, because "we
+  // All four cap at `partial` rather than dropping to `missing`, because "we
   // could not see it working" is a weaker claim than "it is not there".
   // --------------------------------------------------------------------
   if (evaluation.status === 'satisfied') {
@@ -130,6 +134,46 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
         gap: `Fill in the placeholders in ${unfilled.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
         evidence: evaluation.evidence ?? [],
       };
+    }
+
+    /**
+     * Prose is not an implementation, wherever it lives.
+     *
+     * Control and transparency detectors read comments on purpose: a docstring
+     * saying "a reviewer can override the model output" is often exactly where
+     * the affordance is described. The hole that leaves is that it is *only*
+     * a description. A file containing four `//` lines and no code at all —
+     *
+     *     // human_review: every adverse decision enters the reviewer_queue.
+     *     // override_decision lets a reviewer reverse_decision.
+     *     // kill_switch: AI_ENABLED=false halts the system.
+     *
+     * — satisfied Article 14, the heaviest control in the corpus, which is
+     * this project's own thesis defeated in its own terms with the document
+     * sitting inside a `.ts` file.
+     *
+     * So a comment can corroborate a `satisfied` verdict and cannot carry one.
+     * One citation on a line that is actually code, and the verdict stands.
+     */
+    const codeCitations = cited.filter((e) => e.kind === 'code');
+    if (codeCitations.length > 0) {
+      const executable = codeCitations.filter((e) => {
+        const file = ctx.snapshot.files.find((f) => f.path === e.path);
+        if (!file) return true;
+        const lines = file.text.split('\n');
+        return !commentLines(file.text, lines).has(e.line - 1);
+      });
+      if (executable.length === 0) {
+        const first = codeCitations[0]!;
+        return {
+          ...base,
+          status: 'partial',
+          score: STATUS_SCORE.partial,
+          finding: `${evaluation.finding} But every line behind this finding is a comment: ${first.path}:${first.line} reads "${first.snippet.trim().slice(0, 100)}". A description of a control is not the control.`,
+          gap: `Either the measure exists and the detector found only the prose describing it — in which case cite the code — or the prose is all there is. Annex will corroborate a verdict with a comment and will not rest one on comments alone.`,
+          evidence: evaluation.evidence ?? [],
+        };
+      }
     }
 
     const denied = deniedByItsOwnEvidence(cited, (path) => ctx.snapshot.files.find((f) => f.path === path)?.text);
@@ -208,9 +252,24 @@ export function evaluatePacks(
  *    placed on the EU market at all, and a score that says otherwise would be
  *    a lie told in a reassuring font.
  */
-export function scoreControls(results: ControlResult[]): number {
+/**
+ * The conformity score, or `null` where there is nothing to score.
+ *
+ * Returning 100 for an empty applicable set was the most dangerous line in the
+ * engine. A repository Annex could not read — a Jupyter notebook, an R file,
+ * a `.annexignore` containing `*`, a source file one byte over the size limit,
+ * a tree whose 4,001st file is the interesting one — classifies as `unknown`,
+ * applies no obligations, scores a full green 100 and passes `--fail-under 90`
+ * in CI. Every false negative became a passing build, and the number most
+ * likely to be wrong was the one that looked best.
+ *
+ * `null` is the honest value: not "compliant", not "zero", *not assessed*.
+ * Every caller has to say so, which is the point of making it a different
+ * type rather than a different number.
+ */
+export function scoreControls(results: ControlResult[]): number | null {
   const applicable = results.filter((r) => r.status !== 'not_applicable');
-  if (applicable.length === 0) return 100;
+  if (applicable.length === 0) return null;
 
   const totalWeight = applicable.reduce((sum, r) => sum + r.weight, 0);
   const earned = applicable.reduce((sum, r) => sum + r.score * r.weight, 0);

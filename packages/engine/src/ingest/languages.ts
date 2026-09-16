@@ -11,6 +11,17 @@ const EXT_MAP: Record<string, Language> = {
   cs: 'csharp',
   php: 'php',
   sql: 'sql',
+  // Languages an AI-compliance scanner cannot afford to be blind to. A
+  // Jupyter notebook was invisible — which for a tool aimed at machine
+  // learning is the single most likely place for a regulated model to live —
+  // and so was R, the second ML language in existence. Renaming `screen.ts`
+  // to `screen.ipynb` took a system from 22 applicable obligations to none.
+  ipynb: 'notebook',
+  r: 'r', rmd: 'r',
+  scala: 'scala', sc: 'scala',
+  swift: 'swift',
+  dart: 'dart',
+  cpp: 'cpp', cc: 'cpp', cxx: 'cpp', hpp: 'cpp', c: 'cpp', h: 'cpp', m: 'cpp', mm: 'cpp',
   md: 'markdown', mdx: 'markdown', rst: 'markdown', adoc: 'markdown',
   yml: 'yaml', yaml: 'yaml',
   json: 'json', jsonc: 'json',
@@ -50,4 +61,5 @@ export const DOC_LANGUAGES: ReadonlySet<Language> = new Set<Language>(['markdown
 /** Languages whose contents we actually parse for behavioural signals. */
 export const CODE_LANGUAGES: ReadonlySet<Language> = new Set<Language>([
   'typescript', 'javascript', 'python', 'go', 'java', 'ruby', 'rust', 'csharp', 'php', 'sql',
+  'r', 'scala', 'swift', 'dart', 'cpp', 'notebook',
 ]);

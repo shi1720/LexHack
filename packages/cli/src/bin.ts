@@ -192,6 +192,26 @@ const KNOWN_FLAGS: Record<string, string[]> = {
   help: [],
 };
 
+/**
+ * Flags that take a value. Given none, they must fail rather than fall back.
+ *
+ * The parser turns `--fail-under --markets eu` into `failUnder: true`, and
+ * every consumer read that as "not supplied" — so a CI gate written with a
+ * typo'd or dropped value passed silently, which is the exact failure the
+ * unknown-flag check above exists to prevent, one step further along.
+ */
+const VALUE_FLAGS = new Set([
+  'format', 'out', 'fail-under', 'markets', 'purpose', 'name', 'turnover', 'employees',
+  'balance-sheet', 'scope-exclusion', 'article-6-3', 'token', 'ref', 'sign', 'against',
+  'pubkey', 'locale', 'base', 'head', 'patch',
+]);
+
+function valuelessFlags(args: Args): string[] {
+  return Object.entries(args.flags)
+    .filter(([name, value]) => value === true && VALUE_FLAGS.has(name))
+    .map(([name]) => name);
+}
+
 function unknownFlags(args: Args): string[] {
   const known = KNOWN_FLAGS[args.command];
   if (!known) return [];
@@ -265,6 +285,11 @@ function profileFrom(flags: Args['flags']): Partial<SystemProfile> {
   );
   if (exclusions?.length) profile.scopeExclusions = exclusions;
 
+  const locale = str(flags.locale);
+  if (locale !== undefined && !['en', 'de', 'fr'].includes(locale)) {
+    throw new Error(`--locale expects one of: en, de, fr (got "${locale}").`);
+  }
+
   const derogation = str(flags['article-6-3']);
   if (derogation) {
     const limbs = ['narrow-procedural', 'improves-human-activity', 'pattern-detection', 'preparatory'] as const;
@@ -336,24 +361,56 @@ async function runScan(args: Args): Promise<number> {
       return 2;
   }
 
+  /**
+   * The gate. Everything below is about refusing to pass rather than about
+   * passing, because a CI check that goes green over nothing is worse than no
+   * check at all — it is a check somebody is relying on.
+   */
+  if (args.flags['fail-under'] === true) {
+    process.stderr.write(c.red('--fail-under needs a number: --fail-under 70.\n'));
+    return 2;
+  }
   const floor = str(args.flags['fail-under']);
-  if (floor && Number.isNaN(Number(floor))) {
-    process.stderr.write(c.red(`--fail-under expects a number, got "${floor}".\n`));
-    return 2;
-  }
-  // A gate over nothing is the worst failure mode a CI tool has: it passes.
-  if (floor && report.snapshot.fileCount === 0) {
-    process.stderr.write(
-      `\n${c.red(SYMBOL.fail)} Nothing was analysed — the snapshot contains no readable source files.\n` +
-        c.grey('  A conformity score over an empty tree is meaningless, so --fail-under refuses it.\n'),
-    );
-    return 2;
-  }
-  if (floor && report.score < Number(floor)) {
-    process.stderr.write(
-      `\n${c.red(SYMBOL.fail)} conformity score ${c.bold(String(report.score))} is below the floor of ${c.bold(floor)}.\n`,
-    );
-    return 1;
+  if (floor !== undefined) {
+    const value = Number(floor);
+    if (!Number.isFinite(value) || value < 0 || value > 100) {
+      process.stderr.write(c.red(`--fail-under expects a number from 0 to 100, got "${floor}".\n`));
+      return 2;
+    }
+
+    // Every way a scan can be degenerate, named. Each of these used to produce
+    // `conformity 100/100 over 0 applicable obligations` and exit 0.
+    const refusals: string[] = [];
+    if (report.snapshot.fileCount === 0) refusals.push('the snapshot contains no readable source files');
+    if (report.score === null) {
+      refusals.push('no obligation applied to this repository, so there is nothing to score');
+    }
+    if (report.snapshot.truncated) {
+      refusals.push(`the tree was truncated at ${report.snapshot.fileCount} files, so part of it was never read`);
+    }
+    if (report.snapshot.ignoredCount > 0) {
+      refusals.push(`${report.snapshot.ignoredCount} file(s) were excluded by .annexignore and produced no signals`);
+    }
+    const oversize = report.snapshot.sampledPaths === undefined ? 0 : 0;
+    void oversize;
+    if (refusals.length > 0) {
+      process.stderr.write(`\n${c.red(SYMBOL.fail)} --fail-under refuses this scan:\n`);
+      for (const r of refusals) process.stderr.write(c.grey(`    · ${r}\n`));
+      process.stderr.write(
+        c.grey('  A conformity floor is a statement about a tree that was read. Fix the scan or\n') +
+          c.grey('  drop the flag; passing a gate over an unread repository is the failure this\n') +
+          c.grey('  refuses to produce.\n'),
+      );
+      return 2;
+    }
+
+    // `refusals` already returned for a null score; this narrows for the type.
+    if (report.score !== null && report.score < value) {
+      process.stderr.write(
+        `\n${c.red(SYMBOL.fail)} conformity score ${c.bold(String(report.score))} is below the floor of ${c.bold(floor)}.\n`,
+      );
+      return 1;
+    }
   }
   return 0;
 }
@@ -372,10 +429,29 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
   // Print the denominator. A score is a fraction and the numerator alone is
   // how "100/100" ends up meaning "the two obligations that apply are met" —
   // which is a true statement and a much smaller one than it looks.
-  out.write(
-    `  ${c.grey('conformity')}   ${scoreBar(report.score)}  ${c.grey(`over ${applicable.length} applicable obligation${applicable.length === 1 ? '' : 's'}`)}\n`,
-  );
-  out.write(`  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`);
+  if (report.score === null) {
+    out.write(
+      `  ${c.grey('conformity')}   ${c.yellow('not assessed')}  ${c.grey('no obligation in the selected markets applied to this repository')}\n`,
+    );
+  } else {
+    out.write(
+      `  ${c.grey('conformity')}   ${scoreBar(report.score)}  ${c.grey(`over ${applicable.length} applicable obligation${applicable.length === 1 ? '' : 's'}`)}\n`,
+    );
+    out.write(
+      `  ${c.grey('in force now')} ${scoreBar(report.liveScore ?? 0)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`,
+    );
+  }
+  // Coverage belongs beside the score, not in a warnings array below it. The
+  // auditee writes the .annexignore, and "2 files excluded" under a green bar
+  // is the whole audit in the hands of the party being audited.
+  const unread = report.snapshot.ignoredCount + (report.snapshot.truncated ? 1 : 0);
+  if (unread > 0) {
+    out.write(
+      `  ${c.grey('coverage')}     ${c.yellow(`${report.snapshot.fileCount - report.snapshot.ignoredCount} of ${report.snapshot.fileCount} files read`)}` +
+        `${report.snapshot.ignoredCount > 0 ? c.grey(`  · ${report.snapshot.ignoredCount} excluded by .annexignore`) : ''}` +
+        `${report.snapshot.truncated ? c.grey('  · tree truncated at the ingest limit') : ''}\n`,
+    );
+  }
   out.write(`  ${c.grey('ledger')}       ${c.cyan(ledgerFingerprint(report.ledger))}\n`);
   if (report.exposure.maxFine > 0) {
     // Cite whichever regime actually sets the headline ceiling — it is not
@@ -429,6 +505,14 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
         out.write('\n');
       }
     }
+  } else if (report.score === null) {
+    // "Every applicable obligation is evidenced" over an empty applicable set
+    // is true in the way a vacuous statement is true, and it reads as a pass.
+    out.write(
+      `\n  ${c.yellow(SYMBOL.warn)} No obligation applied, so nothing was assessed. That is a statement about\n` +
+        `    what Annex could read, not about this system: check the languages, the\n` +
+        `    .annexignore and the selected markets before treating it as a clean result.\n`,
+    );
   } else {
     out.write(`\n  ${c.green(SYMBOL.pass)} every applicable obligation is evidenced.\n`);
   }
@@ -639,6 +723,28 @@ async function runDiff(args: Args): Promise<number> {
  * being audited. Check its shape before touching it, so a malformed dossier
  * produces a sentence rather than a stack trace.
  */
+/**
+ * Validate the elements, not just the arrays.
+ *
+ * Checking that `controls` is an array and then dereferencing its members got
+ * an internal TypeError — "Cannot read properties of undefined (reading
+ * 'map')" — on a file that is simply not an Annex report. The user should be
+ * told that, not handed a stack frame.
+ */
+function badControl(controls: unknown[]): string | null {
+  for (const [i, value] of controls.entries()) {
+    const c = value as Record<string, unknown> | null;
+    if (!c || typeof c !== 'object') return `controls[${i}] is not an object`;
+    if (typeof c.controlId !== 'string') return `controls[${i}] has no controlId`;
+    if (typeof c.pack !== 'string') return `controls[${i}] has no pack`;
+    if (typeof c.status !== 'string') return `controls[${i}] has no status`;
+    if (typeof c.score !== 'number' || !Number.isFinite(c.score)) return `controls[${i}].score is not a number`;
+    if (typeof c.weight !== 'number' || !Number.isFinite(c.weight)) return `controls[${i}].weight is not a number`;
+    if (!Array.isArray(c.evidence)) return `controls[${i}] has no evidence array`;
+  }
+  return null;
+}
+
 function assertReportShape(value: unknown, path: string): asserts value is ScanReport {
   const r = value as Partial<ScanReport> | null;
   const problem =
@@ -650,7 +756,11 @@ function assertReportShape(value: unknown, path: string): asserts value is ScanR
           ? 'no "packs" array'
           : !r.ledger || !Array.isArray(r.ledger.entries) || typeof r.ledger.root !== 'string'
             ? 'no evidence ledger'
-            : null;
+            : !r.classification || typeof r.classification !== 'object'
+              ? 'no classification'
+              : !r.exposure || typeof r.exposure !== 'object'
+                ? 'no exposure block'
+                : badControl(r.controls);
   if (problem) throw new Error(`${path} is not an Annex scan report (${problem}).`);
 }
 
@@ -736,6 +846,7 @@ function summaryMismatches(report: ScanReport): string[] {
  */
 async function runKeygen(args: Args): Promise<number> {
   const dir = str(args.flags.out) ?? '.';
+  await mkdir(resolve(dir), { recursive: true });
   const { privateKey, publicKey } = generateSigningKey();
   const privatePath = resolve(dir, 'annex-signing.key');
   const publicPath = resolve(dir, 'annex-signing.pub');
@@ -813,6 +924,15 @@ async function runVerify(args: Args): Promise<number> {
     report.ledger.algorithm,
     report.ledger.entries.length,
     expectedKey,
+    // The report's own headline, so a rewritten score or tier breaks the
+    // signature rather than riding along beside an untouched chain.
+    {
+      score: report.score ?? -1,
+      liveScore: report.liveScore ?? -1,
+      tier: report.classification.tier,
+      maxFine: report.exposure.maxFine,
+      currency: report.exposure.currency,
+    },
   );
   if (sig.status === 'invalid') {
     process.stdout.write(`${c.bgRed(' SIGNATURE INVALID ')}\n\n`);
@@ -848,11 +968,48 @@ async function runVerify(args: Args): Promise<number> {
   }
 
   const files = await reHashCitedFiles(report, resolve(against));
-  process.stdout.write(`\n  ${c.bold('Cited files, re-hashed from')} ${c.cyan(against)}\n`);
-  process.stdout.write(`  ${files.checked} file(s) checked\n`);
+  process.stdout.write(`\n  ${c.bold('Re-read from')} ${c.cyan(against)}\n`);
+  process.stdout.write(`  ${files.checked} cited file(s) re-hashed\n`);
+
+  /**
+   * Re-ingest the whole tree, not only the files the report happens to cite.
+   *
+   * Citations cover what Annex found; a tree can gain an entire prohibited
+   * practice without touching any of them. An auditor scanned the remediated
+   * fixture, added a working `detectEmotion()` in a new file, and `--against`
+   * printed "every cited file still hashes" and exited 0 — while the README
+   * promised "a report that no longer describes the tree it claims to
+   * describe says so". The snapshot id is content-addressed over every path
+   * and digest, so comparing it is the check that sentence was describing.
+   */
+  let treeChanged: string | undefined;
+  try {
+    const now = await ingestDirectory(resolve(against), { name: report.snapshot.name });
+    if (now.id !== report.snapshot.id) {
+      const before = new Set(report.snapshot.sampledPaths ?? []);
+      const added = now.files.map((f) => f.path).filter((p2) => !before.has(p2));
+      treeChanged =
+        report.snapshot.sampledPaths && report.snapshot.sampledPaths.length > 0 && added.length > 0
+          ? `${now.fileCount} files now, ${report.snapshot.fileCount} when the report was issued`
+          : `${now.fileCount} files now, ${report.snapshot.fileCount} when the report was issued`;
+    }
+  } catch (err) {
+    process.stdout.write(`  ${c.yellow(SYMBOL.warn)} ${c.grey(`the tree could not be re-read (${(err as Error).message})`)}\n`);
+  }
+
+  if (treeChanged) {
+    process.stdout.write(`  ${c.red(SYMBOL.fail)} the tree is not the tree this report describes — ${treeChanged}\n`);
+    process.stdout.write(
+      `\n${wrap('The cited files may all still match: a repository can gain an entire prohibited practice in a file this report never mentions, because a citation covers what the scan found and not what was there. Re-scan before relying on it.', 74, '  ')}\n`,
+    );
+    return 1;
+  }
 
   if (files.changed.length === 0 && files.missing.length === 0) {
-    process.stdout.write(`  ${c.green(SYMBOL.pass)} every cited file still hashes to the digest in the report\n`);
+    process.stdout.write(
+      `  ${c.green(SYMBOL.pass)} every cited file still hashes to the digest in the report, and the tree\n` +
+        `    itself hashes to the snapshot the report was built from\n`,
+    );
     return 0;
   }
   for (const f of files.changed) process.stdout.write(`  ${c.red(SYMBOL.fail)} changed since the report: ${f}\n`);
@@ -965,6 +1122,19 @@ async function main(): Promise<void> {
       c.red(`Unknown option${stray.length > 1 ? 's' : ''} for \`annex ${args.command}\`: ${stray.map((f) => `--${f}`).join(', ')}\n`),
     );
     process.stderr.write(c.grey('Run `annex help` for the options each command accepts.\n'));
+    process.exitCode = 2;
+    return;
+  }
+
+  const empty = valuelessFlags(args);
+  if (empty.length) {
+    process.stderr.write(
+      c.red(`Option${empty.length > 1 ? 's' : ''} given without a value: ${empty.map((f) => `--${f}`).join(', ')}\n`),
+    );
+    process.stderr.write(
+      c.grey('A flag that takes a value and is given none used to be read as absent, which\n') +
+        c.grey('turned `--fail-under --markets eu` into a gate that always passed.\n'),
+    );
     process.exitCode = 2;
     return;
   }

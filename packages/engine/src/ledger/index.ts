@@ -44,6 +44,20 @@ const GENESIS = '0'.repeat(64);
  * signature says who and not when, and key distribution is still the
  * operator's problem.
  */
+/**
+ * Length-prefixed concatenation, because `join('\n')` is ambiguous.
+ *
+ * The rule-pack version comes out of the report and sits immediately before
+ * the evidence digests, so an editor could move five digests into the version
+ * string, empty the control's evidence array, and produce a byte-identical
+ * payload: same root, same signature, and a control now citing nothing while
+ * `--against` silently re-hashes fewer files. Prefixing each field with its
+ * length makes the encoding injective, so two different ledgers cannot agree.
+ */
+function canonical(fields: string[]): string {
+  return fields.map((f) => `${Buffer.byteLength(f, 'utf8')}:${f}`).join('');
+}
+
 export function buildLedger(results: ControlResult[], ruleVersions: Record<string, string>): EvidenceLedger {
   const ordered = [...results].sort((a, b) => a.controlId.localeCompare(b.controlId));
   const entries: LedgerEntry[] = [];
@@ -54,15 +68,29 @@ export function buildLedger(results: ControlResult[], ruleVersions: Record<strin
       sha256(`${e.path}|${e.line}|${e.endLine ?? ''}|${e.fileSha256}|${e.kind}|${e.snippet}`),
     );
     const ruleVersion = ruleVersions[result.pack] ?? 'unknown';
-    const payload = [
-      prevHash,
-      result.controlId,
-      result.status,
-      result.score.toFixed(4),
-      ruleVersion,
-      ...evidenceDigests,
-    ].join('\n');
-    const hash = sha256(payload);
+    const hash = sha256(
+      canonical([
+        prevHash,
+        result.controlId,
+        result.pack,
+        result.status,
+        result.score.toFixed(4),
+        // The four fields below are inputs to the numbers a reader actually
+        // looks at, and leaving them out of the chain left the headline
+        // unsigned. `scoreControls` is a weighted mean over `weight`;
+        // `liveScore` filters on `inForce`; and `family` decides whether a
+        // prohibition prices at the Article 99(3) tier. An auditor zeroed
+        // every failing control's weight, set `inForce: false`, rewrote the
+        // score to 100 and the tier to "limited" — and the root, and the
+        // signature over it, did not move.
+        result.family,
+        String(result.weight),
+        result.severity,
+        result.inForce ? 'in-force' : 'not-yet',
+        ruleVersion,
+        ...evidenceDigests,
+      ]),
+    );
 
     entries.push({
       index,

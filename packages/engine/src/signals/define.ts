@@ -84,11 +84,39 @@ const CONFIG_LANGS: ReadonlySet<Language> = new Set<Language>(['yaml', 'json', '
  */
 const LINE_COMMENT = /^\s*(\/\/|#|--|;)/;
 const BLOCK_OPEN = /\/\*|<!--/;
+
+/**
+ * Blank out string and template literals before looking for a comment opener.
+ *
+ * `export const GLOB = '/*';` is code, and reading its `/*` as the start of a
+ * block comment turned every following line in the file into prose — so one
+ * line at the top of a file erased the emotion-inference detection, the Annex
+ * III finding and the €35m tier beneath it. `const HTML = '<!--';` did the
+ * same. This is a lexer's job and this is not a lexer, but blanking quoted
+ * runs is the difference between wrong on a pathological file and wrong on an
+ * ordinary one.
+ */
+function withoutStringLiterals(line: string): string {
+  let out = '';
+  let quote: string | undefined;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]!;
+    if (quote) {
+      if (ch === '\\') { out += '  '; i++; continue; }
+      out += ch === quote ? ch : ' ';
+      if (ch === quote) quote = undefined;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === '`') { quote = ch; out += ch; continue; }
+    out += ch;
+  }
+  return out;
+}
 const BLOCK_CLOSE = /\*\/|-->/;
 const DOCSTRING = /"""|'''/;
 
 /** Indices (0-based) of lines that are prose rather than code. */
-function commentLines(text: string, lines: string[]): Set<number> {
+export function commentLines(text: string, lines: string[]): Set<number> {
   const prose = new Set<number>();
   let inBlock = false;
   let inDocstring = false;
@@ -99,7 +127,7 @@ function commentLines(text: string, lines: string[]): Set<number> {
 
     if (inBlock) {
       prose.add(i);
-      if (BLOCK_CLOSE.test(line)) inBlock = false;
+      if (BLOCK_CLOSE.test(withoutStringLiterals(line))) inBlock = false;
       continue;
     }
     if (inDocstring) {
@@ -123,11 +151,12 @@ function commentLines(text: string, lines: string[]): Set<number> {
       continue;
     }
 
-    const blockOpen = BLOCK_OPEN.exec(line);
+    const code = withoutStringLiterals(line);
+    const blockOpen = BLOCK_OPEN.exec(code);
     if (blockOpen) {
       // Only the whole-line form is prose; `foo(); /* why */` keeps its code.
       if (trimmed.startsWith('/*') || trimmed.startsWith('<!--')) prose.add(i);
-      if (!BLOCK_CLOSE.test(line.slice((blockOpen.index ?? 0) + 2))) inBlock = true;
+      if (!BLOCK_CLOSE.test(code.slice((blockOpen.index ?? 0) + 2))) inBlock = true;
     }
   }
   return prose;

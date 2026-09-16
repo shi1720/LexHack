@@ -21,6 +21,12 @@ export type Language =
   | 'csharp'
   | 'php'
   | 'sql'
+  | 'r'
+  | 'scala'
+  | 'swift'
+  | 'dart'
+  | 'cpp'
+  | 'notebook'
   | 'markdown'
   | 'yaml'
   | 'json'
@@ -68,6 +74,14 @@ export interface RepoSnapshot {
   truncated: boolean;
   /** Files excluded by `.annexignore`. Counted, so the report stays honest. */
   ignoredCount: number;
+  /**
+   * Files skipped for exceeding the per-file size limit.
+   *
+   * Recorded by path rather than counted, because this is the one skip an
+   * attacker controls with a single `cat >> file`: append padding past the
+   * limit and the file leaves the scan with no warning at all.
+   */
+  oversizePaths?: string[];
   capturedAt: string;
 }
 
@@ -552,7 +566,8 @@ export interface PackScore {
   packName: string;
   version: string;
   jurisdiction: string;
-  score: number;
+  /** `null` where no obligation in this pack applied. */
+  score: number | null;
   applicable: number;
   satisfied: number;
   partial: number;
@@ -560,7 +575,7 @@ export interface PackScore {
   notApplicable: number;
   needsReview: number;
   /** Score restricted to obligations already in force on the scan date. */
-  liveScore: number;
+  liveScore: number | null;
   liveApplicable: number;
 }
 
@@ -606,8 +621,14 @@ export interface LedgerSignature {
   publicKey: string;
   /** Base64 Ed25519 signature over the versioned payload. */
   value: string;
-  /** What was signed, so a future format change is detectable rather than silent. */
-  signedPayload: 'annex-ledger/v1';
+  /**
+   * What was signed, so a format change is detectable rather than silent.
+   *
+   * v1 covered the ledger root alone, which left the score, the tier and the
+   * exposure — every number a reader looks at — outside the signature. v2
+   * binds them. A v1 signature is now rejected rather than accepted.
+   */
+  signedPayload: 'annex-ledger/v2';
 }
 
 export interface EvidenceLedger {
@@ -639,10 +660,18 @@ export interface ScanReport {
   signals: Signal[];
   controls: ControlResult[];
   packs: PackScore[];
-  /** Weighted conformity score across every applicable obligation, 0-100. */
-  score: number;
-  /** Score across obligations already in force on the scan date, 0-100. */
-  liveScore: number;
+  /**
+   * Weighted conformity score across every applicable obligation, 0-100 — or
+   * `null` where nothing applied and there is therefore nothing to score.
+   *
+   * `null` is not zero and it is not a hundred: it says Annex did not assess
+   * this repository. A tree it could not read — an unsupported language, an
+   * `.annexignore` that excluded everything, a file over the size limit —
+   * used to score a full green 100 and pass a CI gate.
+   */
+  score: number | null;
+  /** Score across obligations already in force on the scan date, or `null`. */
+  liveScore: number | null;
   /** The next obligation deadline that bites, with days remaining. */
   clock: ComplianceClock;
   exposure: ExposureEstimate;
