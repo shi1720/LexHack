@@ -7,6 +7,9 @@ on:
 
 permissions:
   contents: read
+  # The CodeQL action reads the workflow run it is part of in order to attach
+  # the upload to a commit. Without this it fails on the read, not the write.
+  actions: read
   security-events: write
 
 jobs:
@@ -78,16 +81,16 @@ jobs:
             --markets eu,us-federal \
             --format sarif --out annex.sarif
 
-      - name: Upload findings to code scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: annex.sarif
-          category: annex-selfscan
-
       # A regression gate on Annex's own posture, and honest about its reach:
       # Annex calls no model, so it is not an AI system and only the GDPR and
       # NIST controls apply to it. The high-risk pipeline is exercised by the
       # 50-case benchmark and the golden fixtures in the job above, not here.
+      #
+      # This runs *before* the upload deliberately. The gate is the thing that
+      # can fail the build on a real regression; the upload is a convenience
+      # for reading the findings in GitHub's own UI. Ordered the other way, an
+      # ingestion problem skipped the gate — which is the failure mode where a
+      # red build tells you nothing about the code.
       - name: Human-readable self-scan
         run: |
           # What this actually asserts, stated plainly: Annex classifies its own
@@ -100,3 +103,17 @@ jobs:
             --purpose "Compiles AI regulation into executable, evidence-producing controls over a source repository." \
             --markets eu,us-federal \
             --fail-under 100
+
+      # Code scanning ingestion needs a public repository, or GitHub Advanced
+      # Security on a private one. Where neither holds, the API answers
+      # "resource not accessible by integration" — a fact about where this
+      # repository is hosted, not about the scan, which has already run and
+      # already gated the build above. So it is allowed to fail: `annex.sarif`
+      # is a real SARIF 2.1.0 document either way, and `docs/examples/` carries
+      # a committed one that any SARIF viewer will open.
+      - name: Upload findings to code scanning
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: annex.sarif
+          category: annex-selfscan
