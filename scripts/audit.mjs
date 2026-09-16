@@ -116,15 +116,16 @@ for (const [name, path] of PAGES) {
 // --------------------------------------------------------------------------
 
 process.stdout.write('\nSemantics and keyboard\n');
-const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+// Audit the same isolated workspace at both sizes. A second demo login creates
+// another owner, which must not be able to read the first workspace's systems.
+const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 }, storageState: await context.storageState() });
 const dp = await desktop.newPage();
 
-await dp.goto(`${BASE}/login`, { waitUntil: 'networkidle' });
-await dp.click('text=Enter the demo workspace');
-await dp.waitForURL('**/app', { timeout: 90_000 });
+await dp.goto(`${BASE}/app`, { waitUntil: 'networkidle' });
 
 for (const [name, path] of PAGES) {
-  await dp.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+  const response = await dp.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+  if (!response?.ok()) failures.push(`navigation ${name}: HTTP ${response?.status()}`);
   const audit = await dp.evaluate(() => {
     const problems = [];
     if (document.querySelectorAll('h1').length !== 1) problems.push(`${document.querySelectorAll('h1').length} h1 elements`);
@@ -158,7 +159,8 @@ for (const [name, path] of PAGES) {
 process.stdout.write('\nStack spacing\n');
 const collapsed = [];
 for (const [name, path] of PAGES) {
-  await dp.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+  const response = await dp.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+  if (!response?.ok()) failures.push(`navigation ${name}: HTTP ${response?.status()}`);
   const found = await dp.evaluate(() => {
     const out = [];
     for (const parent of document.querySelectorAll('[class*="space-y-"]')) {
