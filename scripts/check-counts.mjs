@@ -51,6 +51,11 @@ const CLAIMS = [
   ['README.md', /— (\d+) cases over \d+ obligations, in all five packs —/, 'fixtureCases'],
   ['README.md', /— \d+ cases over (\d+) obligations, in all five packs —/, 'fixtureControls'],
   ['docs/deck/index.html', /<h2>(\d+) obligations\. 5 instruments/, 'obligations'],
+  // The cover's four figures. They are the first numbers a reader sees and the
+  // ones nothing else on the slide would correct.
+  ['docs/deck/index.html', /<div class="stat">(\d+)<\/div>\s*<div class="cap">executable obligations/, 'obligations'],
+  ['docs/deck/index.html', /<div class="stat">(\d+)<\/div>\s*<div class="cap">rule packs/, 'packs'],
+  ['docs/deck/index.html', /<div class="stat">(\d+)<\/div>\s*<div class="cap">hand-labelled benchmark cases/, 'benchmarkCases'],
   ['docs/deck/index.html', /<div class="stat s">(\d+)<\/div><div class="cap">executable obligations/, 'obligations'],
   ['docs/deck/index.html', /<div class="stat s">(\d+)<\/div><div class="cap">signal detectors/, 'detectors'],
   ['docs/deck/index.html', /<td>(\d+) obligations · post-Omnibus dates<\/td>/, 'euObligations'],

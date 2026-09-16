@@ -5,7 +5,7 @@
   "serialNumber": "urn:uuid:07649a32-3abc-42e3-af86-7bde1aa62a6c",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-16T08:19:26.225Z",
+    "timestamp": "2026-09-16T08:22:53.160Z",
     "tools": {
       "components": [
         {
@@ -19,7 +19,7 @@
       "type": "application",
       "bom-ref": "component:hireflow-remediated",
       "name": "hireflow-remediated",
-      "version": "108dd5ecc810"
+      "version": "8fbef7419153"
     },
     "properties": [
       {

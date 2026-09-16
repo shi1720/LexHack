@@ -116,7 +116,7 @@ Worth knowing before the Q&A, because these are the claims someone will test:
 | Nothing goes green because a file exists | `npm run attack` | Four refusals with reasons, then one real call site going green |
 | It works on real code | `cat docs/WILD.md` | Five open-source products, and the four things it got wrong |
 | It survives its own check | `npm run selfscan` | 70/100, and the write-up says why it is not 100 |
-| The numbers in the docs are true | `npm run check:counts` | 38 documented claims derived from the corpus |
+| The numbers in the docs are true | `npm run check:counts` | 41 documented claims derived from the corpus |
 | The product actually runs | `npm run smoke` | 30 end-to-end checks from an empty database |
 
 ---
