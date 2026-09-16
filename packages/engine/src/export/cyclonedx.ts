@@ -20,6 +20,14 @@ import { sha256 } from '../util/hash.js';
 
 const BOM_FORMAT = 'CycloneDX';
 const SPEC_VERSION = '1.6';
+/**
+ * The document says which schema it is, so a validator does not have to be
+ * told. `cyclonedx validate` and Dependency-Track both infer it from
+ * `specVersion`, but a reviewer who opens the file in an editor gets
+ * completion and inline errors for free, and a generic JSON validator gets a
+ * document it can check at all.
+ */
+const SCHEMA = `http://cyclonedx.org/schema/bom-${SPEC_VERSION}.schema.json`;
 
 function urn(seed: string): string {
   const h = sha256(seed);
@@ -105,6 +113,7 @@ export function toAttestation(report: ScanReport, packs: RulePack[]): string {
 
   return JSON.stringify(
     {
+      $schema: SCHEMA,
       bomFormat: BOM_FORMAT,
       specVersion: SPEC_VERSION,
       serialNumber: urn(report.id),
@@ -180,6 +189,7 @@ export function toMlBom(report: ScanReport): string {
 
   return JSON.stringify(
     {
+      $schema: SCHEMA,
       bomFormat: BOM_FORMAT,
       specVersion: SPEC_VERSION,
       serialNumber: urn(`mlbom:${report.id}`),

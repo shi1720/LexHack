@@ -46,18 +46,28 @@ jobs:
       - name: Documented counts match the corpus
         run: npm run check:counts
 
-      # The accessibility and responsive audit runs against a live instance,
-      # because the things it checks — a stack whose spacing collapsed, a
-      # scroll region nobody can focus, a control border under 3:1 — are not
-      # visible in the source.
-      - name: Accessibility and responsive audit
+      # Two checks against a live instance, from an empty database.
+      #
+      # `audit` is about how the app looks — contrast, overflow, landmarks,
+      # keyboard order — because a stack whose spacing collapsed and a control
+      # border under 3:1 are not visible in the source.
+      #
+      # `smoke` is about what it does: sign up, add a system, read a finding,
+      # open the file the finding cites and check the line is really there,
+      # download the dossier and the SARIF, publish a trust page and read it
+      # signed out. 415 unit tests said nothing about any of that, and the
+      # first time it ran it found a bug that served an error page to every
+      # returning visitor after a database reset.
+      - name: Accessibility, responsive and end-to-end
         run: |
           npx playwright install --with-deps chromium
           npm run start &
           for i in $(seq 1 60); do curl -sf http://localhost:3000/ >/dev/null && break; sleep 2; done
           npm run audit
+          npm run smoke
         env:
           ANNEX_FIXTURES: ${{ github.workspace }}
+          ANNEX_DB: ${{ runner.temp }}/annex-ci.db
 
   dogfood:
     name: Annex scans Annex
@@ -95,14 +105,23 @@ jobs:
         run: |
           # What this actually asserts, stated plainly: Annex classifies its own
           # repository as an AI system of unknown tier, two obligations apply to
-          # it, and both stay satisfied. That is a regression test on the
+          # it, and the score stays at 70. That is a regression test on the
           # pipeline running end to end over a real tree — not evidence that the
           # corpus is right, which is the benchmark's job, and not a compliance
           # claim about this repository.
+          #
+          # The floor is 70 and not 100 because 70 is the number. NIST AI RMF
+          # MEASURE 2.11 comes back `partial`: the only lines in this repository
+          # that mention a bias audit are the docblock in `denial.ts` that
+          # quotes the sentence its patterns exist to catch, and Annex's own
+          # invariant says a comment can corroborate a verdict and cannot carry
+          # one. Excluding that file would make the number 100 and the claim
+          # worthless, which is the argument this project is making about
+          # everybody else's dossier.
           node packages/cli/dist/bin.js scan . \
             --purpose "Compiles AI regulation into executable, evidence-producing controls over a source repository." \
             --markets eu,us-federal \
-            --fail-under 100
+            --fail-under 70
 
       # Code scanning ingestion needs a public repository, or GitHub Advanced
       # Security on a private one. Where neither holds, the API answers

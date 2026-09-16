@@ -18,6 +18,7 @@ import {
   diffReports,
   dossierToHtml,
   dossierToMarkdown,
+  estimateExposure,
   ingestDirectory,
   ingestGitHub,
   ledgerFingerprint,
@@ -380,19 +381,45 @@ async function runScan(args: Args): Promise<number> {
 
     // Every way a scan can be degenerate, named. Each of these used to produce
     // `conformity 100/100 over 0 applicable obligations` and exit 0.
+    //
+    // A `.annexignore` exclusion is deliberately **not** on this list, and the
+    // distinction is the whole design of the flag. An exclusion is a boundary
+    // the auditee *declared*: the excluded files are still ingested, still
+    // hashed, still counted in the tree digest and now named in the report, so
+    // a reader can see exactly what was left out and the snapshot id changes
+    // the moment the list does. Truncation and an unreadable tree are
+    // different — there the scan does not know what it missed.
+    //
+    // Refusing on any exclusion at all was the earlier behaviour and it was
+    // wrong twice over. It made the flag unusable on every repository with
+    // vendored code or generated files, which is most of them; and it did not
+    // stop the attack it was written for, because anyone willing to exclude
+    // the incriminating file is willing to drop the flag. What does stop it is
+    // making the exclusion visible in an artefact the auditee cannot edit
+    // without breaking the ledger — which is what the list below prints.
     const refusals: string[] = [];
+    const read = report.snapshot.fileCount - report.snapshot.ignoredCount;
     if (report.snapshot.fileCount === 0) refusals.push('the snapshot contains no readable source files');
+    else if (read <= 0) {
+      refusals.push(`all ${report.snapshot.fileCount} files were excluded by .annexignore, so nothing was analysed`);
+    }
     if (report.score === null) {
       refusals.push('no obligation applied to this repository, so there is nothing to score');
     }
     if (report.snapshot.truncated) {
       refusals.push(`the tree was truncated at ${report.snapshot.fileCount} files, so part of it was never read`);
     }
-    if (report.snapshot.ignoredCount > 0) {
-      refusals.push(`${report.snapshot.ignoredCount} file(s) were excluded by .annexignore and produced no signals`);
+    // The cheapest way to hide a file is to make it too big to read. This
+    // check existed as `const oversize = report.snapshot.sampledPaths ===
+    // undefined ? 0 : 0;` — a no-op reading the wrong field — so appending
+    // padding to the one file containing the prohibited practice produced
+    // `100/100 over 2 applicable obligations` and exit 0 against a floor of 90.
+    const oversize = report.snapshot.oversizePaths ?? [];
+    if (oversize.length > 0) {
+      refusals.push(
+        `${oversize.length} file(s) were too large to read and were not analysed: ${oversize.slice(0, 3).join(', ')}${oversize.length > 3 ? `, and ${oversize.length - 3} more` : ''}`,
+      );
     }
-    const oversize = report.snapshot.sampledPaths === undefined ? 0 : 0;
-    void oversize;
     if (refusals.length > 0) {
       process.stderr.write(`\n${c.red(SYMBOL.fail)} --fail-under refuses this scan:\n`);
       for (const r of refusals) process.stderr.write(c.grey(`    · ${r}\n`));
@@ -402,6 +429,20 @@ async function runScan(args: Args): Promise<number> {
           c.grey('  refuses to produce.\n'),
       );
       return 2;
+    }
+
+    // A floor that passes silently over a partly-read tree is the number
+    // without its denominator. Where anything was excluded, the paths go
+    // beside the verdict rather than in a warnings block above it.
+    if (report.snapshot.ignoredCount > 0) {
+      const excluded = report.snapshot.ignoredPaths ?? [];
+      process.stderr.write(
+        c.grey(
+          `\n  ${read} of ${report.snapshot.fileCount} files were analysed; ${report.snapshot.ignoredCount} excluded by .annexignore.\n`,
+        ),
+      );
+      for (const p of excluded.slice(0, 5)) process.stderr.write(c.grey(`    · ${p}\n`));
+      if (excluded.length > 5) process.stderr.write(c.grey(`    · and ${excluded.length - 5} more, all named in the report\n`));
     }
 
     // `refusals` already returned for a null score; this narrows for the type.
@@ -438,7 +479,9 @@ function renderPretty(report: ScanReport, showAll: boolean): void {
       `  ${c.grey('conformity')}   ${scoreBar(report.score)}  ${c.grey(`over ${applicable.length} applicable obligation${applicable.length === 1 ? '' : 's'}`)}\n`,
     );
     out.write(
-      `  ${c.grey('in force now')} ${scoreBar(report.liveScore ?? 0)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`,
+      report.liveScore === null
+        ? `  ${c.grey('in force now')} ${c.yellow('not assessed')}  ${c.grey('no obligation in the selected markets is in force yet')}\n`
+        : `  ${c.grey('in force now')} ${scoreBar(report.liveScore)}  ${c.grey(`${liveFailing.length} of ${live.length} live obligations failing`)}\n`,
     );
   }
   // Coverage belongs beside the score, not in a warnings array below it. The
@@ -549,8 +592,11 @@ function renderMarkdown(report: ScanReport): string {
     '',
     `| | |`,
     `|---|---|`,
-    `| Conformity score | **${report.score}/100** |`,
-    `| Obligations in force today | ${report.liveScore}/100 |`,
+    // `null` is "not assessed", and interpolating it printed the literal
+    // word `null` into a markdown report — the mirror image of the `0` the
+    // nullable score was introduced to stop.
+    `| Conformity score | ${report.score === null ? '_not assessed_' : `**${report.score}/100**`} |`,
+    `| Obligations in force today | ${report.liveScore === null ? '_not assessed_' : `${report.liveScore}/100`} |`,
     `| Role under Articles 3(3) and 3(4) | ${report.classification.role.replace('+', ' and ')} |`,
     `| Statutory maximum administrative fine | ${money(report.exposure.maxFine, report.exposure.currency)} |`,
     `| Evidence ledger | \`${ledgerFingerprint(report.ledger)}\` |`,
@@ -834,8 +880,41 @@ function summaryMismatches(report: ScanReport): string[] {
     out.push(`the report models no exposure while ${failing.length} in-force obligation(s) are failing`);
   }
 
+  // The exposure is a pure function of the controls, the packs and the
+  // profile, all of which the report carries — so recompute it rather than
+  // checking one degenerate case. Editing `exposure.maxFine` from €15,000,000
+  // to €250,000 in an unsigned report used to pass `verify` with LEDGER
+  // INTACT and exit 0.
+  try {
+    const recomputed = estimateExposure(packsForMarkets(report.profile.markets), report.controls, report.profile);
+    if (recomputed.maxFine !== report.exposure.maxFine || recomputed.currency !== report.exposure.currency) {
+      out.push(
+        `the report states a ceiling of ${report.exposure.maxFine} ${report.exposure.currency}; its own controls and profile produce ${recomputed.maxFine} ${recomputed.currency}`,
+      );
+    }
+  } catch {
+    // An unknown market is reported by `assertReportShape`, not here.
+  }
+
+  // The tier. A report cannot be `minimal` while the obligations that only
+  // attach to a high-risk system are sitting in it marked applicable: the
+  // same edit that demoted the exposure demoted `classification.tier` from
+  // `high` to `minimal`, and nothing looked.
+  const TIER_ORDER = ['minimal', 'transparency', 'high', 'prohibited'];
+  const chapterIII = report.controls.filter(
+    (r) => r.controlId.startsWith('eu-ai-act.art') && r.status !== 'not_applicable' && HIGH_RISK_ARTICLE.test(r.controlId),
+  );
+  if (chapterIII.length >= 3 && TIER_ORDER.indexOf(report.classification.tier) < TIER_ORDER.indexOf('high')) {
+    out.push(
+      `the report is tiered "${report.classification.tier}" while ${chapterIII.length} obligations that attach only to a high-risk system are recorded as applicable`,
+    );
+  }
+
   return out;
 }
+
+/** The Chapter III, Section 2 articles — the ones only a high-risk system owes. */
+const HIGH_RISK_ARTICLE = /\.art(?:9|10|11|12|13|14|15|17|43|47|48)\./;
 
 /**
  * Create a signing key pair.
@@ -986,12 +1065,21 @@ async function runVerify(args: Args): Promise<number> {
   try {
     const now = await ingestDirectory(resolve(against), { name: report.snapshot.name });
     if (now.id !== report.snapshot.id) {
+      // `sampledPaths` is the first forty paths, so it can name *some* of what
+      // appeared and never all of it. Say which ones it can — a reader who is
+      // told "the tree changed" and not how has to go and diff it themselves —
+      // and be explicit that the list is partial rather than implying it is
+      // the whole set.
       const before = new Set(report.snapshot.sampledPaths ?? []);
-      const added = now.files.map((f) => f.path).filter((p2) => !before.has(p2));
+      const added = now.files
+        .map((f) => f.path)
+        .filter((p2) => !before.has(p2))
+        .slice(0, 3);
+      const counts = `${now.fileCount} files now, ${report.snapshot.fileCount} when the report was issued`;
       treeChanged =
-        report.snapshot.sampledPaths && report.snapshot.sampledPaths.length > 0 && added.length > 0
-          ? `${now.fileCount} files now, ${report.snapshot.fileCount} when the report was issued`
-          : `${now.fileCount} files now, ${report.snapshot.fileCount} when the report was issued`;
+        added.length > 0
+          ? `${counts}; not in the paths the report sampled: ${added.join(', ')}`
+          : counts;
     }
   } catch (err) {
     process.stdout.write(`  ${c.yellow(SYMBOL.warn)} ${c.grey(`the tree could not be re-read (${(err as Error).message})`)}\n`);

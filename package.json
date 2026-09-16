@@ -25,6 +25,7 @@
     "screenshots": "node scripts/screenshots.mjs",
     "start": "npm run start -w @annex/web",
     "audit": "node scripts/audit.mjs",
+    "smoke": "node scripts/smoke.mjs",
     "artefacts": "node scripts/artefacts.mjs",
     "check:counts": "node scripts/check-counts.mjs"
   },

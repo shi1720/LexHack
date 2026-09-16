@@ -8,6 +8,11 @@ function heading(ctx: EvaluationContext, title: string, citation: string): strin
 > **Status:** DRAFT — scaffolded by Annex from evidence found in this repository. Every _TODO_ below is a question only a human in your organisation can answer.
 > **Last reconciled with the codebase:** commit \`${(ctx.snapshot.commit ?? ctx.snapshot.id).slice(0, 12)}\`
 
+<!-- annex:unfilled — remove this line when every _TODO_ above has been answered.
+     Annex reads it as "a human has not signed off on this document yet" and
+     will not let the document close an obligation while it is here. Renaming
+     the placeholders does not remove it. -->
+
 `;
 }
 

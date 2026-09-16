@@ -12,7 +12,7 @@ import { chromium } from 'playwright';
 
 const BASE = process.argv[2] ?? 'http://localhost:3000';
 const OUT = process.argv[3] ?? 'docs/screenshots';
-const EXEC = process.env.PLAYWRIGHT_CHROMIUM ?? '/opt/pw-browsers/chromium';
+const EXEC = process.env.PLAYWRIGHT_CHROMIUM || '/opt/pw-browsers/chromium';
 
 /** Pages to capture. `prepare` runs before the shot. */
 const SHOTS = [

@@ -75,6 +75,17 @@ export interface RepoSnapshot {
   /** Files excluded by `.annexignore`. Counted, so the report stays honest. */
   ignoredCount: number;
   /**
+   * The excluded paths themselves.
+   *
+   * A count tells a reader that something was left out; it does not tell them
+   * *what*, and "103 files excluded" under a green score is the whole audit in
+   * the hands of the party being audited. The paths travel in the report so a
+   * third party who has the report and not the tree — the trust-page case —
+   * can see the boundary the auditee drew. They are also hashed into the
+   * snapshot id, so the list cannot change without the ledger root changing.
+   */
+  ignoredPaths?: string[];
+  /**
    * Files skipped for exceeding the per-file size limit.
    *
    * Recorded by path rather than counted, because this is the one skip an

@@ -7,6 +7,15 @@ import { isIgnored, parseAnnexIgnore, type IgnoreRule } from './annexignore.js';
 export interface RawFile {
   path: string;
   bytes: Uint8Array | string;
+  /**
+   * The file's real size, when `bytes` is deliberately empty.
+   *
+   * Set by the directory walker for a file past the per-file limit, which is
+   * recorded rather than read. Without it the snapshot would see a zero-byte
+   * file, decide it was small enough to analyse, and report an empty one —
+   * which is how a padded file used to disappear from the tree entirely.
+   */
+  declaredBytes?: number;
 }
 
 export interface SnapshotInput {
@@ -82,7 +91,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
     const path = raw.path.replace(/^\.\//, '').replace(/\\/g, '/');
     if (!path || path.endsWith('/')) continue;
 
-    const size = byteLength(raw.bytes);
+    const size = raw.declaredBytes ?? byteLength(raw.bytes);
     const lang = detectLanguage(path);
 
     if (files.length >= INGEST_LIMITS.maxFiles || totalBytes >= INGEST_LIMITS.maxTotalBytes) {
@@ -98,7 +107,14 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
     const excluded = rules.length > 0 && isIgnored(path, rules);
     const shouldRead = !excluded && !isBinaryPath(path) && size <= INGEST_LIMITS.maxFileBytes;
     const text = shouldRead ? notebookSource(path, toText(raw.bytes)) : '';
-    const digest = sha256(typeof raw.bytes === 'string' ? raw.bytes : raw.bytes);
+    // A file the walker declined to read has no content to hash, so its entry
+    // binds what is actually known: that a file of this size stood at this
+    // path. Appending a megabyte still moves the tree digest, which is the
+    // property `verify --against` depends on.
+    const digest =
+      raw.declaredBytes === undefined
+        ? sha256(typeof raw.bytes === 'string' ? raw.bytes : raw.bytes)
+        : sha256(`annex:unread:${path}:${size}`);
     if (excluded) ignoredCount++;
 
     if (shouldRead && looksBinary(text)) {
@@ -122,6 +138,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
   // A file over the size limit was silently dropped: no signal, no warning,
   // and a 620KB comment appended to a source file took it out of the scan.
   const oversize = files.filter((f) => f.skipped === 'too-large').map((f) => f.path);
+  const ignoredPaths = files.filter((f) => f.skipped === 'ignored').map((f) => f.path);
 
   const treeDigest = sha256(files.map((f) => `${f.path}:${f.sha256}`).join('\n'));
   const snapshot: RepoSnapshot = {
@@ -133,6 +150,7 @@ export function buildSnapshot(input: SnapshotInput): RepoSnapshot {
     totalBytes,
     truncated,
     ignoredCount,
+    ignoredPaths,
     oversizePaths: oversize,
     capturedAt: new Date().toISOString(),
   };

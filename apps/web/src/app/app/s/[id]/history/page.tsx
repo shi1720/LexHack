@@ -52,7 +52,12 @@ export default async function HistoryPage({ params }: { params: Promise<{ id: st
             <div className="grid gap-5 sm:grid-cols-3">
               <Stat
                 label="Conformity"
-                value={`${previous!.report.score} → ${latest!.report.score}`}
+                // A score of `null` is "not assessed", and interpolating it
+                // put the literal word `null` in front of a reader. An
+                // unscorable scan is a real state — every obligation in the
+                // selected markets came back not-applicable — and the em dash
+                // is how the dial and the CLI both say it.
+                value={`${previous!.report.score ?? '—'} → ${latest!.report.score ?? '—'}`}
                 tone={drift.scoreDelta >= 0 ? 'ok' : 'bad'}
               />
               <Stat label="Tier" value={`${drift.previousTier} → ${drift.currentTier}`} tone={drift.classificationChanged ? 'bad' : undefined} />

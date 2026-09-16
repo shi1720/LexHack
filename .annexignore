@@ -57,3 +57,9 @@ apps/web/src/app/hero-capture.ts
 # the remediation guard exists to break.
 docs/examples/
 docs/BENCHMARK.md
+
+# The web app's runtime database. SQLite write-ahead log files are megabytes of
+# binary that exist only on a machine where the app has been run, and are
+# gitignored — but a scan reads the disk, not the index, so on a developer's
+# tree they arrived as an oversize skip warning about a file that is not source.
+apps/web/data/

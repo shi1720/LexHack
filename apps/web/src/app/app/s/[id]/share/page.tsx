@@ -79,8 +79,10 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
               <strong>Role</strong> — {latest.report.classification.role.replace('+', ' and ')} under Article 3(3)
             </li>
             <li>
-              <strong>Conformity</strong> — {latest.report.score}/100 across{' '}
-              {latest.report.controls.filter((c) => c.status !== 'not_applicable').length} applicable obligations
+              <strong>Conformity</strong> —{' '}
+              {latest.report.score === null
+                ? 'not assessed — no obligation in the selected markets applied'
+                : `${latest.report.score}/100 across ${latest.report.controls.filter((c) => c.status !== 'not_applicable').length} applicable obligations`}
             </li>
             <li>
               <strong>Evidence ledger</strong> — <span className="code">{latest.report.ledger.root.slice(0, 32)}…</span>

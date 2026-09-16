@@ -86,19 +86,46 @@ const LINE_COMMENT = /^\s*(\/\/|#|--|;)/;
 const BLOCK_OPEN = /\/\*|<!--/;
 
 /**
- * Blank out string and template literals before looking for a comment opener.
+ * Blank out string, template and regular-expression literals before looking
+ * for a comment opener.
  *
  * `export const GLOB = '/*';` is code, and reading its `/*` as the start of a
  * block comment turned every following line in the file into prose — so one
  * line at the top of a file erased the emotion-inference detection, the Annex
  * III finding and the €35m tier beneath it. `const HTML = '<!--';` did the
- * same. This is a lexer's job and this is not a lexer, but blanking quoted
- * runs is the difference between wrong on a pathological file and wrong on an
- * ordinary one.
+ * same.
+ *
+ * Blanking quoted runs closed those two and left three more open, because a
+ * `/*` can hide in more than a quoted string:
+ *
+ *     export const SEP = /[/*]/;      // a regex literal
+ *     export const H   = /<!--/;      // a regex literal, HTML opener
+ *     const T = `line one
+ *     /* line two`;                   // a template literal's second line
+ *
+ * Each of those, placed at the top of a file, took a repository from
+ * PROHIBITED at €35,000,000 to TRANSPARENCY at €15,000,000. So this now
+ * tracks three states rather than one. It is still not a full JavaScript
+ * lexer — it does not need to be, because every construct it does not know
+ * about is read as ordinary code, which is the safe direction.
  */
-function withoutStringLiterals(line: string): string {
+interface MaskState {
+  /** An unterminated template literal carries across lines; a quote does not. */
+  template: boolean;
+}
+
+/**
+ * Can a `/` here begin a regular expression?
+ *
+ * Only where an expression may start: after an operator, an opening bracket, a
+ * comma, a colon, a semicolon, or one of the keywords that take an expression.
+ * After an identifier, a closing bracket or a number, `/` is division.
+ */
+const REGEX_ALLOWED_BEFORE = /(?:[=(,[{;:!&|?+\-*~^%<>]|\b(?:return|typeof|instanceof|in|of|case|do|else|yield|await|delete|void|new|throw))\s*$/;
+
+function withoutStringLiterals(line: string, state: MaskState = { template: false }): string {
   let out = '';
-  let quote: string | undefined;
+  let quote: string | undefined = state.template ? '`' : undefined;
   for (let i = 0; i < line.length; i++) {
     const ch = line[i]!;
     if (quote) {
@@ -108,19 +135,45 @@ function withoutStringLiterals(line: string): string {
       continue;
     }
     if (ch === '"' || ch === "'" || ch === '`') { quote = ch; out += ch; continue; }
+    // A regex literal. `//` is a line comment and `/*` a block opener, so
+    // neither can start one — everything else in expression position can.
+    if (ch === '/' && line[i + 1] !== '/' && line[i + 1] !== '*' && REGEX_ALLOWED_BEFORE.test(out)) {
+      let j = i + 1;
+      let inClass = false;
+      let closed = false;
+      for (; j < line.length; j++) {
+        const c = line[j]!;
+        if (c === '\\') { j++; continue; }
+        if (c === '[') inClass = true;
+        else if (c === ']') inClass = false;
+        else if (c === '/' && !inClass) { closed = true; break; }
+      }
+      if (closed) {
+        out += '/' + ' '.repeat(j - i - 1) + '/';
+        i = j;
+        continue;
+      }
+      // An unterminated `/` in expression position is a division sign we
+      // misread. Fall through and emit it as ordinary code.
+    }
     out += ch;
   }
+  // A single- or double-quoted string does not survive a newline in any
+  // language this reads; a template literal does.
+  state.template = quote === '`';
   return out;
 }
+
 const BLOCK_CLOSE = /\*\/|-->/;
 const DOCSTRING = /"""|'''/;
 
 /** Indices (0-based) of lines that are prose rather than code. */
-export function commentLines(text: string, lines: string[]): Set<number> {
+export function commentLines(lines: string[]): Set<number> {
   const prose = new Set<number>();
   let inBlock = false;
   let inDocstring = false;
-  void text;
+  // Carried across lines so an unterminated template literal stays masked.
+  const mask: MaskState = { template: false };
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? '';
@@ -148,22 +201,35 @@ export function commentLines(text: string, lines: string[]): Set<number> {
       continue;
     }
 
-    // A docstring that opens and closes on one line is a one-line comment.
+    // A docstring. The opener used to have to start the line, so
+    //
+    //     POLICY = """
+    //     Human review: every adverse outcome is queued for manual review.
+    //     """
+    //
+    // never entered `inDocstring` and three sentences of English were read as
+    // code — enough, with a `def main()` beneath them, to satisfy Article 14
+    // on a repository containing no oversight code at all. An opener anywhere
+    // on the line opens the docstring; only an opener that *starts* the line
+    // makes that line itself prose, because `POLICY =` is code.
     const docOpen = DOCSTRING.exec(line);
-    if (docOpen && trimmed.startsWith(docOpen[0])) {
-      prose.add(i);
+    if (docOpen) {
+      if (trimmed.startsWith(docOpen[0])) prose.add(i);
       const rest = line.slice((docOpen.index ?? 0) + 3);
       if (!DOCSTRING.test(rest)) inDocstring = true;
       continue;
     }
 
     // Masking applies to the *opener*, which is where the attack is: a `/*`
-    // inside a string literal is code and must not start a comment.
-    const code = withoutStringLiterals(line);
+    // inside a string, template or regex literal is code and must not start a
+    // comment.
+    const code = withoutStringLiterals(line, mask);
     const blockOpen = BLOCK_OPEN.exec(code);
     if (blockOpen) {
       // Only the whole-line form is prose; `foo(); /* why */` keeps its code.
-      if (trimmed.startsWith('/*') || trimmed.startsWith('<!--')) prose.add(i);
+      // `{/* … */}` is the JSX spelling of a whole-line comment and is the
+      // same thing with a brace either side.
+      if (/^[{(]?\s*(?:\/\*|<!--)/.test(trimmed)) prose.add(i);
       if (!BLOCK_CLOSE.test(line.slice((blockOpen.index ?? 0) + 2))) inBlock = true;
     }
   }
@@ -239,7 +305,7 @@ export function defineSignal(spec: SignalSpec): CompiledSignal {
         if (spec.fileGuard && !spec.fileGuard(file)) continue;
 
         const lines = file.text.split('\n');
-        const prose = spec.ignoreComments ? commentLines(file.text, lines) : undefined;
+        const prose = spec.ignoreComments ? commentLines(lines) : undefined;
         const fileHits: Omit<Hit, 'density'>[] = [];
 
         for (let i = 0; i < lines.length && fileHits.length < perFileScan; i++) {

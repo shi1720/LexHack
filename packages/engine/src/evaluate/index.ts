@@ -21,10 +21,40 @@ import { deniedByItsOwnEvidence } from './denial.js';
 import { commentLines } from '../signals/define.js';
 
 /**
- * What an unfilled placeholder looks like, in any of the forms a generated
- * scaffold or a hand-written stub uses.
+ * Annex's own mark for a judgement a human still has to supply.
+ *
+ * The regex below is a guess at other people's spellings and will always be
+ * one `sed` behind — it was case-sensitive, so `sed -i 's/TODO/todo/g'` over
+ * the generated scaffolds flipped five controls to `satisfied` without
+ * anybody supplying a judgement, and `_PENDING_`, `_TK_` and `«fill»` walk
+ * past it today. A guard against *Annex's own output* has no business
+ * guessing: `annex fix` writes this marker into every scaffold it generates,
+ * and removing it is an explicit act rather than a formatting accident.
  */
-const PLACEHOLDER = /\b_{0,2}TODO_{0,2}\b|\bTBD\b|\bFIXME\b|\bFILL[ _-]?IN\b|<[A-Z][A-Z_ ]{2,}>|\b(?:XX+|\?{3,})\b/;
+const UNFILLED_MARKER = /<!--\s*annex:unfilled\b[^>]*-->/i;
+
+/**
+ * What an unfilled placeholder looks like in a document Annex did not write.
+ *
+ * Case-insensitive, because `todo` and `TODO` are the same note to the same
+ * reader and `sed -i 's/TODO/todo/g'` used to be the whole difference between
+ * `partial` and `satisfied` on five controls.
+ */
+const PLACEHOLDER = /\b_{0,2}TODO_{0,2}\b|\bTBD\b|\bFIXME\b|\bFILL[ _-]?IN\b|_(?:PENDING|TK|TBC)_|«[^»]*»|\b(?:XX+|\?{3,})\b/i;
+
+/**
+ * The angle-bracket form, which must stay case-**sensitive**.
+ *
+ * `<NAME HERE>` is a placeholder; `<Session>`, `<ScreeningResult>`, `<strong>`
+ * and `<table>` are a type parameter and two HTML tags. Folding case here
+ * capped nine controls across the remediated fixture on ordinary TSX.
+ */
+const BRACKET_PLACEHOLDER = /<[A-Z][A-Z_ ]{2,}>/;
+
+/** Does this document still carry a judgement nobody has made? */
+function unfilled(text: string): boolean {
+  return UNFILLED_MARKER.test(text) || PLACEHOLDER.test(text) || BRACKET_PLACEHOLDER.test(text);
+}
 
 const STATUS_SCORE: Record<ControlStatus, number> = {
   satisfied: 1,
@@ -120,6 +150,15 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
   //    the thing they are looking for. This one was found by a judge in five
   //    minutes, on the obligation where each further day of use is its own
   //    penalty.
+  //  - **A duty about running code needs running code.** The previous
+  //    invariant only fires on a control that cited *some* code, so the
+  //    cheaper attack was to cite none: five lines of `docs/oversight.md`
+  //    describing a review queue, an override and a kill switch satisfied
+  //    Article 14 over a repository containing no oversight code at all. It
+  //    was easier than the comment-only file it was written to stop, because
+  //    the attacker simply does not write the file. Where a control declares
+  //    `requiresWiring` it is a claim about what happens at run time, and a
+  //    document is not that.
   //
   // All four cap at `partial` rather than dropping to `missing`, because "we
   // could not see it working" is a weaker claim than "it is not there".
@@ -139,13 +178,15 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
      */
     const caps: { finding: string; gap: string }[] = [];
 
-    const unfilled = paths.filter((path) =>
-      PLACEHOLDER.test(ctx.snapshot.files.find((f) => f.path === path)?.text ?? ''),
-    );
-    if (unfilled.length > 0) {
+    const unfilledDocs = paths.filter((path) => unfilled(ctx.snapshot.files.find((f) => f.path === path)?.text ?? ''));
+    if (unfilledDocs.length > 0) {
       caps.push({
-        finding: `${unfilled.length === paths.length ? 'Every document' : `${unfilled.length} of the ${paths.length} documents`} behind this finding still carries unfilled placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
-        gap: `Fill in the placeholders in ${unfilled.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
+        finding: `${
+          unfilledDocs.length === paths.length
+            ? 'Every document behind this finding still carries'
+            : `${unfilledDocs.length} of the ${paths.length} documents behind this finding ${unfilledDocs.length === 1 ? 'still carries' : 'still carry'}`
+        } unfilled placeholders, so the scaffold exists but the judgements it asks for have not been made.`,
+        gap: `Fill in the placeholders in ${unfilledDocs.slice(0, 3).join(', ')}. A generated template is a starting point; on its own it evidences nothing.`,
       });
     }
 
@@ -154,7 +195,7 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
       const executable = codeCitations.filter((e) => {
         const file = ctx.snapshot.files.find((f) => f.path === e.path);
         if (!file) return true;
-        return !commentLines(file.text, file.text.split('\n')).has(e.line - 1);
+        return !commentLines(file.text.split('\n')).has(e.line - 1);
       });
       if (executable.length === 0) {
         const first = codeCitations[0]!;
@@ -171,6 +212,18 @@ export function evaluateControl(control: Control, ctx: EvaluationContext, today:
       caps.push({
         finding: `The documentation this rests on denies or defers the thing it is being read as evidence of: ${first.path}:${first.line} reads "${first.snippet.slice(0, 140)}".`,
         gap: 'Either the measure exists and that sentence is out of date, or the sentence is right and the measure does not exist. Annex cannot tell which from prose, and will not read a denial as a discharge.',
+      });
+    }
+
+    // `wiredIn` returns `{ wired: true, checked: false }` when there is no
+    // code to check, which is right for a documentation control and wrong
+    // here: a control that demands wiring and cites nothing executable has
+    // not been shown to be wired, it has been shown to be described.
+    if (control.requiresWiring && codeCitations.length === 0) {
+      const doc = cited.find((e) => e.kind === 'doc') ?? cited[0];
+      caps.push({
+        finding: `This obligation is about what the system does while it runs, and every line behind this finding is documentation${doc ? `: ${doc.path}:${doc.line}` : ''}. No code in this repository was found implementing it.`,
+        gap: 'Cite the implementation, not the description of it. A policy that says an adverse outcome is queued for review is evidence that somebody wrote the policy.',
       });
     }
 

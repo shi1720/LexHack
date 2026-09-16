@@ -40,7 +40,7 @@ run(['scan', REMEDIATED, '--format', 'mlbom', '--out', 'docs/examples/hireflow-v
 run(['dossier', FIXTURE, '--html', '--out', '/tmp/annex-dossier.html']);
 
 const browser = await chromium
-  .launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM ?? '/opt/pw-browsers/chromium' })
+  .launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM || '/opt/pw-browsers/chromium' })
   .catch(() => chromium.launch());
 
 const pdf = async (input, output, landscape) => {

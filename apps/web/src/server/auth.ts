@@ -129,10 +129,14 @@ export async function destroySession(): Promise<void> {
  */
 export async function requireUser(): Promise<User> {
   const user = await currentUser();
-  if (!user) {
-    await destroySession();
-    redirect('/login');
-  }
+  // Deliberately does *not* clear the stale cookie. Doing that here threw
+  // `Cookies can only be modified in a Server Action or Route Handler` during
+  // render, so the page a signed-out visitor got was an error page rather than
+  // the login form — on exactly the path this function exists to make safe. A
+  // cookie pointing at a row that is gone is inert: `currentUser` already
+  // returns undefined for it, `/login` renders normally, and the next
+  // successful sign-in overwrites it.
+  if (!user) redirect('/login');
   return user;
 }
 

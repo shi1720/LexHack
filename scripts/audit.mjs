@@ -63,7 +63,7 @@ for (const [name, fg, bg, min] of PAIRS) {
 await mkdir(OUT, { recursive: true });
 
 const browser = await chromium
-  .launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM ?? '/opt/pw-browsers/chromium' })
+  .launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM || '/opt/pw-browsers/chromium' })
   .catch(() => chromium.launch());
 
 // --------------------------------------------------------------------------

@@ -20,7 +20,7 @@ if (!input || !output) {
 const landscape = flags.includes('--landscape');
 
 const browser = await chromium
-  .launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM ?? '/opt/pw-browsers/chromium' })
+  .launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM || '/opt/pw-browsers/chromium' })
   .catch(() => chromium.launch());
 
 const page = await browser.newPage();

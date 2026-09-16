@@ -48,7 +48,7 @@ $ annex scan fixtures/hireflow --markets eu,us-nyc --turnover 9800000 --employee
 
  PROHIBITED  Contains a practice prohibited by Article 5: emotion inference in the workplace or an education setting.
 
-  repository   hireflow · 14 files · 130 ms
+  repository   hireflow · 14 files · 140 ms
   your role    provider and deployer (Arts. 3(3), 3(4))
   conformity   █░░░░░░░░░░░░░░░░░░░░░░░░░░░   2/100  over 35 applicable obligations
   in force now ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1/100  24 of 24 live obligations failing
@@ -301,7 +301,7 @@ $ annex verify report.json --pubkey annex-signing.pub
 
   52 entries re-derived from the results they describe
   root bb84d9868248452a4a835bb4…
-  ✔ signed by 18BB-5A71-761A-9B7B (ed25519)
+  ✔ signed by 80DC-D72A-BA5C-3176 (ed25519)
   checked against the key you supplied, so this report carries that holder's results.
 ```
 <!-- /capture:sign -->

@@ -10,10 +10,13 @@ import type {
   SystemProfile,
 } from '../types.js';
 import { DOC_LANGUAGES } from '../ingest/languages.js';
-import { trimSnippet } from '../signals/define.js';
+import { commentLines, trimSnippet } from '../signals/define.js';
 
 const DOC_FILE = /\.(md|mdx|rst|txt|adoc)$/i;
-const HEADING = /^\s{0,3}(#{1,6}\s+|={2,}\s*$|[A-Z][^\n]{0,80}\n\s*[-=]{3,}\s*$)/;
+// One line at a time, so the multi-line setext alternative that used to be
+// here could never match. The setext case is handled where it belongs — by a
+// lookahead at the *next* line, in `eligibleLines`.
+const HEADING = /^\s{0,3}(#{1,6}\s+|={2,}\s*$)/;
 
 /**
  * Which document may answer which duty.
@@ -148,7 +151,18 @@ export function createContext(input: {
       if (calls.length >= 3 && imports.length >= 3) break;
       if (other.path === file.path) continue;
       const lines = other.text.split('\n');
+      // A call site in a comment is not a call site.
+      //
+      // The import guard below was here and this one was not, so two lines of
+      // `// Follow-up: we should call gate(outcome) from screenCandidate one
+      // day.` were enough to make a generated, entirely unreached
+      // `human-oversight.ts` read as wired — and the gap sentence that said
+      // "nothing in the repository reaches it" simply disappeared. On one
+      // fixture that moved the score from 36 to 53 and flipped Articles 12
+      // and 14 from `partial` to `satisfied`.
+      const prose = commentLines(lines);
       for (let i = 0; i < lines.length; i++) {
+        if (prose.has(i)) continue;
         const line = lines[i] ?? '';
         if (line.length > 2000) continue;
         // A call inside an import statement is the import, not a call site.

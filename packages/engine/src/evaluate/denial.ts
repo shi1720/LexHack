@@ -69,6 +69,19 @@ const DENIES = [
   /\b(?:cancelled|canceled|abandoned|deferred|postponed|declined|withdrew|withdrawn|lapsed|expired)\b/i,
   // "Status: none", "Bias audit: n/a"
   /\b(?:status|result|outcome|state)\b[^.\n]{0,30}:\s*(?:none|n\/a|nil|nothing|not applicable)\b/i,
+  // A table cell whose whole content is the denial:
+  //
+  //     | Independent bias audit | None | 2026-06-01 |
+  //
+  // read as satisfied, on the one obligation where each further day of use is
+  // a separate $500 violation, because a status table is not a sentence and
+  // every pattern above wants a sentence.
+  /(?:^|\|)\s*(?:none|n\/a|nil|nothing|not applicable|not performed|not started|not conducted|no)\s*\|/im,
+  // "Has a bias audit been commissioned? Not yet." — a two-word answer.
+  /\bnot\s+yet\b\s*[.!]?\s*(?:$|\n)/im,
+  // "There is none.", "We have none." The `\bno\b` pattern above stops at the
+  // word boundary and never sees "none".
+  /\b(?:there|we|the \w+)\s+(?:is|are|ha(?:ve|s))\s+(?:currently\s+)?(?:none|nothing)\b/i,
   // Bare "none" or "not applicable" as the answer to a heading.
   /^\s*(?:none|n\/a|nil|not applicable|to be confirmed)\s*\.?\s*$/i,
   // Deferred rather than denied — a plan is not a control.
@@ -92,13 +105,58 @@ export function deniesTheDuty(text: string): boolean {
  * sitting in the file.
  */
 const HEADING_LINE = /^\s{0,3}#{1,6}\s/;
+/** A setext heading — the underlined form. `eligibleLines` already knows it. */
+const SETEXT_UNDERLINE = /^\s{0,3}[-=]{3,}\s*$/;
+
+function isHeading(lines: string[], i: number): boolean {
+  return HEADING_LINE.test(lines[i] ?? '') || SETEXT_UNDERLINE.test(lines[i + 1] ?? '');
+}
 
 function sectionAround(lines: string[], index: number): string {
   let first = index;
   let last = index;
-  while (first > 0 && !HEADING_LINE.test(lines[first] ?? '')) first--;
-  while (last < lines.length - 1 && !HEADING_LINE.test(lines[last + 1] ?? '')) last++;
+  while (first > 0 && !isHeading(lines, first)) first--;
+  while (last < lines.length - 1 && !isHeading(lines, last + 1)) last++;
   return lines.slice(first, last + 1).join(' ');
+}
+
+const STOPWORD = new Set([
+  'about','after','under','which','their','there','these','those','where','while','with','from','that','this',
+  'have','has','been','were','was','are','the','and','for','not','but','its','our','any','all','act','per',
+  'regulation','article','articles','annex','section','system','systems','document','documentation','notes',
+]);
+
+/**
+ * The words a document's title is about.
+ *
+ * Used to decide whether a denial *outside* the cited section is a denial of
+ * the same thing. `docs/bias-audit.md` opens `# Bias audit`, so "we have never
+ * commissioned a bias audit" three headings down is the document contradicting
+ * itself and must count — that was the bypass, and moving the sentence under a
+ * `## Notes` heading was the whole attack.
+ *
+ * Reading the whole file unconditionally is the obvious fix and it is wrong: a
+ * role-determination document that says, under a heading of its own, "we have
+ * not obtained a written undertaking [from the model supplier]" is denying a
+ * different thing, and capping the role determination on it is a false finding
+ * against exactly the careful, candid documentation this tool wants to see
+ * more of. So a distant denial has to be *about the document's subject*.
+ */
+function titleWords(lines: string[]): string[] {
+  const title = lines.find((l) => HEADING_LINE.test(l)) ?? lines[0] ?? '';
+  return [...new Set(title.toLowerCase().match(/[a-z]{3,}/g) ?? [])].filter((w) => !STOPWORD.has(w));
+}
+
+/** The section around the citation, plus any distant denial on the same subject. */
+function scopeFor(lines: string[], index: number): string {
+  const section = sectionAround(lines, index);
+  const subject = titleWords(lines);
+  if (subject.length === 0) return section;
+  const distant = lines.filter((line) => {
+    const lower = line.toLowerCase();
+    return subject.some((w) => lower.includes(w)) && deniesTheDuty(line);
+  });
+  return distant.length > 0 ? `${section} ${distant.join(' ')}` : section;
 }
 
 /** A heading names a topic; it does not assert anything about it. */
@@ -149,7 +207,7 @@ export function deniedByItsOwnEvidence(
     if (text === undefined) continue;
     const lines = text.split('\n');
     const index = Math.max(0, Math.min(lines.length - 1, e.line - 1));
-    if (!deniesTheDuty(sectionAround(lines, index))) continue;
+    if (!deniesTheDuty(scopeFor(lines, index))) continue;
 
     // Quote the assertion rather than the heading the control happened to
     // cite, so the finding names the sentence a reader should look at.

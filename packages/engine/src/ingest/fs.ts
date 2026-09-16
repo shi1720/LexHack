@@ -1,4 +1,4 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { IGNORED_DIRS, INGEST_LIMITS } from './ignore.js';
 import { buildSnapshot, type RawFile, type SnapshotInput } from './snapshot.js';
@@ -19,6 +19,10 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
   const maxFiles = opts.maxFiles ?? INGEST_LIMITS.maxFiles;
 
   const visited = new Set<string>();
+
+  // Resolved once. Every symlink target is checked against this, so the walk
+  // cannot leave the directory the caller named.
+  const realRoot = await realpath(root).catch(() => root);
 
   /** Source before everything else, so a truncated walk truncates the noise. */
   const rank = (name: string): number =>
@@ -66,12 +70,32 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
       let isFile = entry.isFile();
       if (entry.isSymbolicLink()) {
         try {
+          // A symlink that leaves the tree is not part of the repository, and
+          // following one is a confidentiality bug rather than a coverage
+          // feature: `ln -s /tmp/secrets vendor` made `scan` read and then
+          // *quote* files outside the directory the user named, into a report
+          // people publish. Worse, it supplied evidence — a one-line
+          // `notes.md` outside the tree satisfied Article 14.
+          const real = await realpath(full);
+          if (real !== realRoot && !real.startsWith(realRoot + sep)) continue;
           const target = await stat(full);
           const key = `${target.dev}:${target.ino}`;
           if (visited.has(key)) continue;
           visited.add(key);
           isDir = target.isDirectory();
           isFile = target.isFile();
+        } catch {
+          continue;
+        }
+      } else if (isDir) {
+        // Real directories were never recorded, so `ln -s src src2` ingested
+        // the subtree twice: double the file count, double the signal density,
+        // and a tree pushed that much closer to the truncation limit.
+        try {
+          const self = await stat(full);
+          const key = `${self.dev}:${self.ino}`;
+          if (visited.has(key)) continue;
+          visited.add(key);
         } catch {
           continue;
         }
@@ -85,9 +109,25 @@ export async function ingestDirectory(root: string, opts: LocalIngestOptions = {
       if (!isFile) continue;
       try {
         const info = await stat(full);
-        if (info.size > INGEST_LIMITS.maxFileBytes * 4) continue;
+        const path = relative(root, full).split(sep).join('/');
+        // A file past the hard limit is *recorded* and not read.
+        //
+        // It used to be dropped here, before the snapshot existed — so it was
+        // absent from `oversizePaths`, produced no warning, and did not change
+        // the tree digest. Appending two megabytes of padding to the one file
+        // containing `detectEmotion()` therefore took a repository from
+        // PROHIBITED, €35,000,000 to MINIMAL RISK, 100/100, €0, and
+        // `verify --against` still called the tree unchanged.
+        //
+        // Recording an empty body with the real byte length puts it back in
+        // the digest and in `oversizePaths`, where the scan warns about it by
+        // name and `--fail-under` refuses over it.
+        if (info.size > INGEST_LIMITS.maxFileBytes) {
+          files.push({ path, bytes: new Uint8Array(0), declaredBytes: info.size });
+          continue;
+        }
         const buf = await readFile(full);
-        files.push({ path: relative(root, full).split(sep).join('/'), bytes: new Uint8Array(buf) });
+        files.push({ path, bytes: new Uint8Array(buf) });
       } catch {
         /* unreadable file: skip */
       }
