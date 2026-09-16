@@ -39,10 +39,57 @@ export default async function RemediationPage({ params }: { params: Promise<{ id
     ALL_PACKS.flatMap((p) => p.controls).map((c) => [c.id, { title: c.title, citation: c.citations[0] }]),
   );
 
+  /*
+    A prohibited practice is not a remediation problem.
+
+    On a system Annex has just classified under Article 5, the first thing on
+    this tab was "obligations closed: 10 · projected score 3 → 25", which reads
+    as a route to compliance. There is no such route: Article 5 prohibits the
+    practice outright, the only carve-out in 5(1)(f) is a medical or safety
+    purpose, and no file Annex writes touches any of that. The pull request is
+    still worth having for everything else, but it is not the headline and it
+    must not be mistaken for one.
+  */
+  const prohibited = latest.report.classification.tier === 'prohibited';
+  const prohibitions = latest.report.controls.filter(
+    (c) => c.family === 'prohibition' && c.status === 'missing',
+  );
+
   return (
     <div className="space-y-5">
+      {prohibited ? (
+        <Panel title="Start here: this is not a remediation problem">
+          <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '76ch' }}>
+            Annex classified this system as containing a practice <strong>prohibited by Article 5</strong>. A
+            prohibition is not closed by adding files: no amount of disclosure, consent, documentation or human
+            review cures it, and nothing in the pull request below addresses it. The system is unlawful to place
+            on the Union market or put into service in its current form.
+          </p>
+          <ul className="mt-4 space-y-3" style={{ listStyle: 'none', margin: '16px 0 0', padding: 0 }}>
+            {prohibitions.map((c) => (
+              <li key={c.controlId}>
+                <p style={{ fontSize: 14, fontWeight: 620, margin: 0 }}>{c.title}</p>
+                <p className="legal" style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '4px 0 0', maxWidth: '76ch' }}>
+                  {c.gap ?? c.finding}
+                </p>
+                {c.citations[0] ? (
+                  <p style={{ margin: '6px 0 0' }}>
+                    <Citation {...c.citations[0]} />
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+          <p className="legal" style={{ fontSize: 13, color: 'var(--ink-faint)', margin: '16px 0 0', maxWidth: '76ch' }}>
+            The remainder of this page plans the obligations that <em>can</em> be closed by code. Doing that work
+            while the prohibited practice is still in the product raises the score and changes nothing that
+            matters.
+          </p>
+        </Panel>
+      ) : null}
+
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
-        <Panel title="The pull request Annex would open">
+        <Panel title={prohibited ? 'What the pull request does close' : 'The pull request Annex would open'}>
           <p className="legal" style={{ fontSize: 14.5, color: 'var(--ink-soft)', margin: 0, maxWidth: '76ch' }}>
             Every file here is additive and written only when absent, so applying this can never overwrite
             something a person wrote. The files are scaffolding backed by statute, not finished compliance:

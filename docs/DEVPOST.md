@@ -15,7 +15,7 @@ Proof, not paperwork — Annex reads your codebase, decides where it falls under
 
 ## Elevator pitch (Devpost's short description, ~200 characters)
 
-Every AI Act conformity dossier is a document a company wrote about itself. Annex reads the code instead: 48 obligations, cited to the line, hash-chained so anyone can re-verify.
+Every AI Act conformity dossier is a document a company wrote about itself. Annex reads the code instead: 52 obligations, cited to the line, hash-chained so anyone can re-verify.
 
 ---
 
@@ -65,7 +65,7 @@ And one thing only a code-grounded tool *can* do. Article 3(23) defines a **subs
 
 ## How we built it
 
-**A deterministic engine with zero runtime dependencies.** `packages/engine` is pure TypeScript: a first-party tar reader (a compliance tool that pulls in forty packages to read a `.tar.gz` is making an argument against itself), 78 signal detectors, a readable classification rule table, 48 controls, the hash chain, the dossier builder and the exporters. The analysis never touches the network and never calls a model; fetching a GitHub tarball is the one network call, and it happens before any analysis begins. The same commit always produces the same ledger root — not a performance optimisation, but the reason the output is usable as evidence.
+**A deterministic engine with zero runtime dependencies.** `packages/engine` is pure TypeScript: a first-party tar reader (a compliance tool that pulls in forty packages to read a `.tar.gz` is making an argument against itself), 78 signal detectors, a readable classification rule table, 52 controls, the hash chain, the dossier builder and the exporters. The analysis never touches the network and never calls a model; fetching a GitHub tarball is the one network call, and it happens before any analysis begins. The same commit always produces the same ledger root — not a performance optimisation, but the reason the output is usable as evidence.
 
 **Three pieces of engineering we are glad we did:**
 

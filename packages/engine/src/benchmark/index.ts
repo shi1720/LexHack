@@ -91,6 +91,7 @@ const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 /** Markdown report, written to docs/BENCHMARK.md by `npm run benchmark`. */
 export function benchmarkMarkdown(summary: BenchmarkSummary): string {
   const wrong = summary.outcomes.filter((o) => !o.tierCorrect || o.missedFindings.length || o.falseFindings.length);
+  const caught = BENCHMARK.filter((c): c is BenchmarkCase & { caught: string } => Boolean(c.caught));
 
   return [
     '# Benchmark',
@@ -114,6 +115,18 @@ export function benchmarkMarkdown(summary: BenchmarkSummary): string {
     `| Finding recall | **${pct(summary.recall)}** (${summary.recalledFindings}/${summary.expectedFindings}) | Classification findings a competent reader would make, that Annex makes |`,
     `| Carve-out precision | **${pct(summary.carveOutPrecision)}** (${summary.forbiddenChecks - summary.forbiddenViolations}/${summary.forbiddenChecks}) | Findings the statute expressly excludes, that Annex correctly does not make |`,
     `| Runtime | ${summary.durationMs} ms | The whole corpus, single-threaded, no network |`,
+    '',
+    '## What this corpus has already caught',
+    '',
+    caught.length === 0
+      ? 'Nothing yet.'
+      : [
+          'A clean sheet on a self-authored benchmark is close to zero evidence on its own.',
+          'What is worth something is the list of defects this corpus found before a user did,',
+          'including cases whose own labels turned out to be wrong:',
+          '',
+          ...caught.map((c) => `- **\`${c.id}\`** — ${c.caught}`),
+        ].join('\n'),
     '',
     '## Cases Annex gets wrong',
     '',

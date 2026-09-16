@@ -2,12 +2,31 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useCallback, useRef } from 'react';
 
 export function Tabs({ base, items }: { base: string; items: { href: string; label: string }[] }) {
   const pathname = usePathname();
+  const strip = useRef<HTMLElement>(null);
+
+  /**
+   * Drop the trailing fade once there is nothing left to scroll to, so the
+   * hint is never lying about there being more.
+   */
+  const onScroll = useCallback(() => {
+    const el = strip.current;
+    if (!el) return;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+    el.style.setProperty('--fade-end', atEnd ? '0px' : '22px');
+  }, []);
 
   return (
-    <nav className="scroll-x border-b" style={{ borderColor: 'var(--line)' }} aria-label="System sections">
+    <nav
+      ref={strip}
+      className="scroll-x scroll-fade border-b"
+      style={{ borderColor: 'var(--line)' }}
+      aria-label="System sections"
+      onScroll={onScroll}
+    >
       <ul className="flex gap-1" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {items.map((item) => {
           const href = `${base}${item.href}`;

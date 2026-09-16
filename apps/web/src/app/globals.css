@@ -318,6 +318,32 @@ textarea.input { height: auto; padding: 9px 11px; line-height: 1.5; resize: vert
 
 .scroll-x { overflow-x: auto; }
 
+/*
+  A horizontal scroller that shows no sign of being one.
+
+  The system tab strip overflows below about 480px and the last tab was cut
+  clean at the edge — "Re…" with nothing to suggest there was more to the
+  right. A fade on the trailing edge is the affordance, and because it is
+  painted by a mask it cannot be mistaken for content. `--fade-end` is set to
+  0 once the element is scrolled to the end, so the hint disappears when it
+  stops being true.
+
+  Scroll snapping keeps a tab from coming to rest half-cut, and the thin
+  scrollbar stays visible where the platform draws one.
+*/
+.scroll-fade {
+  --fade-end: 22px;
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - var(--fade-end)), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - var(--fade-end)), transparent 100%);
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.scroll-fade > * > * { scroll-snap-align: start; }
+@media (min-width: 720px) {
+  /* No overflow at this width, so no hint. */
+  .scroll-fade { --fade-end: 0px; }
+}
+
 /* Screen-reader-only text for icon-only affordances. */
 .sr-only {
   position: absolute;

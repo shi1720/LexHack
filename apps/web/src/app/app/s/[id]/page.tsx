@@ -29,17 +29,27 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
   return (
     <div className="space-y-6">
       {/* Headline ------------------------------------------------------- */}
-      <div className="grid items-start gap-4 lg:grid-cols-[auto_1fr]">
-        <div className="card flex items-center justify-center gap-8 p-6">
-          <ScoreDial score={report.score} label="Conformity" sublabel={`${applicable.length} obligations`} />
-          <ScoreDial
-            score={report.liveScore}
-            label="In force today"
-            sublabel={`${liveFailing.length} failing now`}
-          />
-        </div>
+      {/*
+        Two columns, not three side by side.
 
-        <div className="grid items-start gap-4 sm:grid-cols-2">
+        The dials, the role and the exposure used to sit in one row with
+        `items-start`, and the role card is a short one: it ended roughly three
+        hundred pixels above the exposure card beside it, leaving a visible
+        hole under it. Stacking the two short cards in the left column and
+        giving the tall one its own column makes the heights meet without
+        stretching anything to fill space it does not need.
+      */}
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(320px,0.9fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <div className="card flex items-center justify-center gap-8 p-6">
+            <ScoreDial score={report.score} label="Conformity" sublabel={`${applicable.length} obligations`} />
+            <ScoreDial
+              score={report.liveScore}
+              label="In force today"
+              sublabel={`${liveFailing.length} failing now`}
+            />
+          </div>
+
           <Panel title="Your role">
             <p style={{ fontSize: 22, fontWeight: 650, letterSpacing: '-0.02em', margin: 0, lineHeight: 1.25 }}>
               {report.classification.role.replace('+', ' and ')}
@@ -66,8 +76,9 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
               </p>
             </details>
           </Panel>
+        </div>
 
-          <Panel title="Statutory maximum">
+        <Panel title="Statutory maximum">
             <p style={{ fontSize: 26, fontWeight: 660, letterSpacing: '-0.03em', color: report.exposure.maxFine > 0 ? 'var(--crimson)' : 'var(--moss)', margin: 0, lineHeight: 1.2 }}>
               {money(report.exposure.maxFine, report.exposure.currency)}
             </p>
@@ -102,13 +113,12 @@ export default async function Overview({ params }: { params: Promise<{ id: strin
                 </p>
               </details>
             ) : null}
-            {report.exposure.citations[0] ? (
-              <p style={{ margin: '8px 0 0' }}>
-                <Citation {...report.exposure.citations[0]} />
-              </p>
-            ) : null}
-          </Panel>
-        </div>
+          {report.exposure.citations[0] ? (
+            <p style={{ margin: '8px 0 0' }}>
+              <Citation {...report.exposure.citations[0]} />
+            </p>
+          ) : null}
+        </Panel>
       </div>
 
       {/* Classification -------------------------------------------------- */}

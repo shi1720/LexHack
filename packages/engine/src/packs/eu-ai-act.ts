@@ -1615,6 +1615,296 @@ const highRiskControls: Control[] = [
   }),
 
   c({
+    id: 'eu-ai-act.art43.conformity-assessment',
+    penaltyTier: 'art99-4',
+    title: 'Conformity assessment before placing on the market',
+    obligation:
+      'Article 43 requires a conformity assessment before a high-risk system is placed on the market or put into service. The route depends on the Annex III point. For point 1 (biometrics), Article 43(1) lets a provider that applied harmonised standards or common specifications choose internal control under Annex VI, and *requires* notified-body involvement under Annex VII where no harmonised standard exists, where the provider did not apply one or applied it only in part, or where a published standard carries a restriction. For **Annex III points 2 to 8, Article 43(2) allows internal control under Annex VI only — no notified body is involved at all**. Article 43(4) reopens the assessment on a substantial modification.',
+    family: 'quality-management',
+    severity: 'high',
+    weight: 6,
+    method: 'documentation',
+    // Chapter III Section 5: Article 113 leaves it at the general date.
+    appliesFrom: DATES.GENERAL,
+    citations: [
+      aiActArticle(43, '(1)', 'Conformity assessment — Annex III point 1 biometrics'),
+      aiActArticle(43, '(2)', 'Conformity assessment — Annex III points 2 to 8, internal control only'),
+      aiActArticle(43, '(4)', 'A substantial modification reopens the assessment'),
+    ],
+    appliesWhen: allOf(whenHighRisk, whenProvider),
+    evaluate: (ctx) => {
+      const biometric = ctx.classification.findings.some(
+        (f) => f.id === 'annex-iii.1a.biometric-id' || f.id === 'annex-iii.1b.biometric-categorisation' || f.id === 'annex-iii.1c.emotion',
+      );
+      const record = ctx.grepDocs(
+        /\bconformity[_\s-]?assessment\b|\bannex[_\s]?(vi|vii)\b|\binternal[_\s-]?control\b|\bnotified[_\s-]?body\b/i,
+        4,
+        /(conformity|assessment|annex|notified|ce|declaration|readme)/i,
+      );
+      if (record.length > 0) {
+        // A route is a plan; a date is a completed assessment. The difference
+        // is the whole distinction the product sells, so it is a status
+        // boundary rather than a sentence in the gap text.
+        const completion = ctx.grepDocs(
+          /\b(assessment|procedure)?\s*(completed|concluded|carried out|signed off)\b[^.\n]{0,60}\b20\d{2}-\d{2}-\d{2}\b/i,
+          2,
+          /(conformity|assessment|annex|declaration|readme)/i,
+        );
+        const completed = completion.length > 0;
+        if (completed && !biometric) {
+          return satisfied('A completed internal-control conformity assessment under Annex VI is recorded, with a date.', [...completion, ...record].slice(0, 5));
+        }
+        return partial(
+          completed
+            ? 'A completed conformity assessment is recorded, but this is an Annex III point 1 system.'
+            : 'The repository records a conformity assessment route, but not a completed assessment.',
+          biometric
+            ? 'This is an Annex III point 1 system, so Article 43(1) is the harder branch: internal control under Annex VI is available only where you applied harmonised standards or common specifications in full. Record which standard, which version, and where you departed from it — otherwise Annex VII and a notified body are mandatory.'
+            : 'Record the completed assessment and its date, not the intention. For an Annex III point 2 to 8 system this is Annex VI internal control and you run it yourself.',
+          record,
+        );
+      }
+      return missing(
+        'No conformity assessment route is recorded anywhere in the repository.',
+        biometric
+          ? `This is an Annex III point 1 system. Article 43(1) permits internal control under Annex VI only where harmonised standards or common specifications were applied; otherwise Annex VII applies and a notified body has to be involved. Decide which, and write down why. ${TIMING_HEDGE}`
+          : `Worth knowing before you budget for it: under Article 43(2) an Annex III point 2 to 8 system self-certifies through internal control under Annex VI. No notified body is involved, and the overwhelming majority of high-risk systems are in that range. Document the procedure you followed and the date you completed it. ${TIMING_HEDGE}`,
+        ['conformity assessment', 'Annex VI internal control', 'notified body'],
+      );
+    },
+    tests: [
+      {
+        name: 'missing when a high-risk system records no conformity assessment route',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'missing',
+      },
+      {
+        name: 'partial when the route is named but the assessment is not recorded as completed',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/conformity-assessment.md':
+            '# Conformity assessment\n\nWe will follow the internal control procedure in Annex VI, as permitted by Article 43(2) for Annex III points 2 to 8.\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'partial',
+      },
+      {
+        // A route is a plan; a date is a completed assessment. The product's
+        // whole argument is that the difference is visible, so it is a status
+        // boundary rather than a sentence in the gap text.
+        name: 'satisfied once the Annex VI assessment is recorded as completed, with a date',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/conformity-assessment.md':
+            '# Conformity assessment\n\nArticle 43(2) permits internal control under Annex VI for an Annex III point 4(a) system; no notified body is involved.\n\nAssessment completed 2026-07-09 by the accountable person named in the quality management system.\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'satisfied',
+      },
+    ],
+  }),
+
+  c({
+    id: 'eu-ai-act.art47.declaration-of-conformity',
+    penaltyTier: 'art99-4',
+    title: 'EU declaration of conformity, machine-readable and signed',
+    obligation:
+      'Article 47(1) requires a written, machine-readable, physically or electronically signed EU declaration of conformity for each high-risk AI system, kept available to national competent authorities for ten years after the system is placed on the market or put into service, with a copy supplied on request. Article 47(2) requires it to state that the system meets the Section 2 requirements, to contain the information in Annex V, and to be translated into a language the competent authorities of each Member State concerned can easily understand. Article 47(3) allows a single declaration to cover all applicable Union law. Under Article 47(4) drawing it up is itself the assumption of responsibility for compliance, and it has to be kept up to date.',
+    family: 'documentation',
+    severity: 'high',
+    weight: 5,
+    method: 'documentation',
+    appliesFrom: DATES.GENERAL,
+    citations: [
+      aiActArticle(47, '(1)', 'EU declaration of conformity — form and ten-year retention'),
+      aiActArticle(47, '(2)', 'Content: Section 2 conformity, Annex V information, translation'),
+      aiActArticle(47, '(4)', 'Drawing it up assumes responsibility for compliance'),
+    ],
+    appliesWhen: allOf(whenHighRisk, whenProvider),
+    evaluate: (ctx) => {
+      const doc = ctx.grepDocs(
+        /\b(eu[_\s]?)?declaration[_\s-]?of[_\s-]?conformity\b|\bannex[_\s]?v\b/i,
+        4,
+        /(declaration|conformity|annex|ce|readme)/i,
+      );
+      if (doc.length === 0) {
+        return missing(
+          'No EU declaration of conformity was found.',
+          `Article 47 asks for a specific artefact, not a statement in a README: written, machine-readable, signed, carrying the Annex V information, and retained for ten years. Article 47(4) means signing it is the act by which you take responsibility. ${TIMING_HEDGE}`,
+          ['EU declaration of conformity', 'Annex V', 'machine-readable'],
+        );
+      }
+      const machineReadable = ctx.grep(/\bdeclaration[_\s-]?of[_\s-]?conformity\b/i, {
+        paths: /\.(json|xml|ya?ml|cdx\.json|jsonld)$/i,
+        limit: 2,
+      });
+      if (machineReadable.length === 0) {
+        return partial(
+          'A declaration of conformity is documented in prose, but no machine-readable form was found.',
+          'Article 47(1) requires the declaration to be machine-readable as well as written. Annex already emits a CycloneDX attestation from the same evidence — `annex scan --format cdxa` — which is a reasonable carrier for it.',
+          doc,
+        );
+      }
+      return satisfied('A machine-readable EU declaration of conformity was found.', [...doc.slice(0, 2), ...machineReadable]);
+    },
+    tests: [
+      {
+        name: 'missing when no declaration of conformity exists',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'missing',
+      },
+      {
+        name: 'partial when the declaration exists only as prose',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/declaration-of-conformity.md':
+            '# EU declaration of conformity\n\nThis system meets the requirements of Chapter III Section 2. Signed by the VP Engineering on 2026-08-14. Annex V information is set out below.\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'partial',
+      },
+      {
+        name: 'satisfied when a machine-readable declaration is present alongside it',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/declaration-of-conformity.md':
+            '# EU declaration of conformity\n\nThis system meets the requirements of Chapter III Section 2. Signed by the VP Engineering on 2026-08-14. Annex V information is set out below.\n',
+          'conformity/declaration-of-conformity.json':
+            '{\n  "declarationOfConformity": {\n    "system": "screener",\n    "signedBy": "VP Engineering",\n    "signedOn": "2026-08-14",\n    "annexV": { "provider": "Example Ltd", "conformsTo": "Regulation (EU) 2024/1689 Chapter III Section 2" }\n  }\n}\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'satisfied',
+      },
+    ],
+  }),
+
+  c({
+    id: 'eu-ai-act.art48.ce-marking',
+    penaltyTier: 'art99-4',
+    title: 'CE marking, digital where the system is provided digitally',
+    obligation:
+      'Article 48 requires the CE marking to be affixed subject to the general principles in Article 30 of Regulation (EC) No 765/2008. Article 48(2) is the limb that matters for software: **for high-risk AI systems provided digitally, a digital CE marking is to be used, and only where it can easily be accessed via the interface from which the system is accessed, or via an easily accessible machine-readable code or other electronic means**. Article 48(3) requires it to be visible, legible and indelible, or on the packaging or accompanying documentation where that is not possible. Where a notified body was involved, Article 48(4) requires its identification number to follow the marking and to appear in any promotional material claiming CE conformity.',
+    family: 'documentation',
+    severity: 'medium',
+    weight: 4,
+    method: 'documentation',
+    appliesFrom: DATES.GENERAL,
+    citations: [
+      aiActArticle(48, '(2)', 'Digital CE marking for systems provided digitally'),
+      aiActArticle(48, '(3)', 'Visible, legible and indelible'),
+      aiActArticle(48, '(4)', 'Notified body identification number'),
+    ],
+    appliesWhen: allOf(whenHighRisk, whenProvider),
+    evaluate: (ctx) => {
+      const marking = ctx.grep(/\bce[_\s-]?mark(ing|ed)?\b/i, { limit: 4 });
+      if (marking.length === 0) {
+        return missing(
+          'No CE marking was found in the interface or the documentation.',
+          `Article 48(2) is specific about software: a system provided digitally takes a **digital** CE marking, reachable from the interface the system is accessed through or via an easily accessible machine-readable code. Putting it in a PDF nobody opens does not meet that. ${TIMING_HEDGE}`,
+          ['CE marking', 'digital CE marking', 'machine-readable code'],
+        );
+      }
+      const inInterface = ctx.grep(/\bce[_\s-]?mark(ing|ed)?\b/i, {
+        paths: /\.(tsx|jsx|vue|svelte|html)$/i,
+        limit: 2,
+      });
+      if (inInterface.length === 0) {
+        return partial(
+          'The CE marking is referenced, but not from the interface the system is accessed through.',
+          'Article 48(2) requires a digital marking to be easily accessible via that interface, or via an easily accessible machine-readable code. A mention in a document is not the same requirement.',
+          marking,
+        );
+      }
+      return satisfied('A CE marking reachable from the product interface was found.', [...marking.slice(0, 2), ...inInterface]);
+    },
+    tests: [
+      {
+        name: 'missing when nothing carries a CE marking',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'missing',
+      },
+      {
+        name: 'partial when the CE marking lives only in documentation',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/ce-marking.md': '# CE marking\n\nThe CE marking for this system is recorded here.\n',
+        },
+        profile: { tierOverride: 'high', role: 'provider' },
+        expect: 'partial',
+      },
+    ],
+  }),
+
+  c({
+    id: 'eu-ai-act.art85.complaint-route',
+    // No penalty tier: Chapter IX, Section 4 — a right of complaint, not an
+    // operator duty inside the Article 99(4) list.
+    title: 'A route for anyone to complain to the market surveillance authority',
+    obligation:
+      'Article 85 gives any person with grounds to consider that the Regulation has been infringed the right to submit a complaint to the relevant market surveillance authority, which handles it under its Regulation (EU) 2019/1020 procedures. It pairs with Article 86: the explanation is what an affected person asks you for, and the complaint is where they go when you do not give it.',
+    family: 'rights',
+    severity: 'medium',
+    weight: 3,
+    method: 'documentation',
+    appliesFrom: DATES.GENERAL,
+    citations: [aiActArticle(85, '', 'Right to lodge a complaint with a market surveillance authority')],
+    appliesWhen: whenHighRisk,
+    evaluate: (ctx) => {
+      const route = ctx.grepDocs(
+        /\bmarket[_\s-]?surveillance[_\s-]?authorit(y|ies)\b|\bright[_\s-]?to[_\s-]?(lodge[_\s-]?a[_\s-]?)?complain\w*\b|\barticle[_\s]?85\b/i,
+        3,
+        /(complaint|rights|contact|authority|privacy|readme|notice|incident)/i,
+      );
+      return route.length > 0
+        ? satisfied('A route to the market surveillance authority is documented.', route)
+        : missing(
+            'Nothing tells an affected person where to complain.',
+            `Article 85 does not require you to build anything — the right exists whether or not you mention it. What it makes cheap is telling people, in the same place you tell them about the Article 86 explanation, which authority handles complaints about this system and how to reach it. A complaint that arrives at the authority before it arrives at you is the expensive ordering. ${TIMING_HEDGE}`,
+            ['market surveillance authority', 'right to lodge a complaint', 'Article 85'],
+          );
+    },
+    tests: [
+      {
+        name: 'missing when nothing names a complaint route',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'missing',
+      },
+      {
+        name: 'satisfied when the complaint route is published alongside the rights notice',
+        files: {
+          'src/score.ts':
+            'export function scoreApplicant(applicant) {\n  const resumeScore = model.predict(applicant.resume);\n  return { candidate: applicant.id, hiring_decision: resumeScore > 0.7 ? "advance" : "reject" };\n}\n',
+          'docs/your-rights.md':
+            '# Your rights\n\n## Complaints\n\nIf you believe this system infringes the AI Act you have the right to lodge a complaint with the market surveillance authority in your Member State. Ours is the Irish National Standards Authority; we will also answer directly at privacy@example.com.\n',
+        },
+        profile: { tierOverride: 'high' },
+        expect: 'satisfied',
+      },
+    ],
+  }),
+
+  c({
     id: 'eu-ai-act.art86.right-to-explanation',
     // Deliberately no penalty tier. Article 99(4) enumerates the operator
     // duties that carry the EUR 15 000 000 / 3 % administrative fine, and

@@ -44,6 +44,19 @@ export function CandidateNotice() {
         <a href="mailto:accommodations@hireflow.example">accommodations@hireflow.example</a>.
       </p>
       <p>
+        {/*
+          Article 48(2): a high-risk AI system provided digitally takes a digital
+          CE marking, and it has to be easily accessible from the interface the
+          system is accessed through — not buried in a PDF.
+        */}
+        <a href="/conformity/declaration-of-conformity.json" aria-label="CE marking and EU declaration of conformity">
+          CE
+        </a>{' '}
+        marking and EU declaration of conformity (Articles 47 and 48). If you believe this system infringes
+        the AI Act you have the right to lodge a complaint with your national market surveillance authority
+        under Article 85.
+      </p>
+      <p>
         <a href={BIAS_AUDIT_SUMMARY_URL}>Read our most recent bias audit results</a> (published 2026-07-14).
         We began using this tool on {DISTRIBUTION_DATE}.
       </p>

@@ -552,6 +552,114 @@
               }
             },
             {
+              "id": "eu-ai-act.art43.conformity-assessment",
+              "name": "EuAiActArt43ConformityAssessment",
+              "shortDescription": {
+                "text": "Conformity assessment before placing on the market"
+              },
+              "fullDescription": {
+                "text": "Article 43 requires a conformity assessment before a high-risk system is placed on the market or put into service. The route depends on the Annex III point. For point 1 (biometrics), Article 43(1) lets a provider that applied harmonised standards or common specifications choose internal control under Annex VI, and *requires* notified-body involvement under Annex VII where no harmonised standard exists, where the provider did not apply one or applied it only in part, or where a published standard carries a restriction. For **Annex III points 2 to 8, Article 43(2) allows internal control under Annex VI only — no notified body is involved at all**. Article 43(4) reopens the assessment on a substantial modification."
+              },
+              "help": {
+                "text": "Article 43 requires a conformity assessment before a high-risk system is placed on the market or put into service. The route depends on the Annex III point. For point 1 (biometrics), Article 43(1) lets a provider that applied harmonised standards or common specifications choose internal control under Annex VI, and *requires* notified-body involvement under Annex VII where no harmonised standard exists, where the provider did not apply one or applied it only in part, or where a published standard carries a restriction. For **Annex III points 2 to 8, Article 43(2) allows internal control under Annex VI only — no notified body is involved at all**. Article 43(4) reopens the assessment on a substantial modification.\n\nThis is an Annex III point 1 system. Article 43(1) permits internal control under Annex VI only where harmonised standards or common specifications were applied; otherwise Annex VII applies and a notified body has to be involved. Decide which, and write down why. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n\nEU AI Act Art. 43(1) — Conformity assessment — Annex III point 1 biometrics: https://artificialintelligenceact.eu/article/43/\nEU AI Act Art. 43(2) — Conformity assessment — Annex III points 2 to 8, internal control only: https://artificialintelligenceact.eu/article/43/\nEU AI Act Art. 43(4) — A substantial modification reopens the assessment: https://artificialintelligenceact.eu/article/43/",
+                "markdown": "**Conformity assessment before placing on the market**\nArticle 43 requires a conformity assessment before a high-risk system is placed on the market or put into service. The route depends on the Annex III point. For point 1 (biometrics), Article 43(1) lets a provider that applied harmonised standards or common specifications choose internal control under Annex VI, and *requires* notified-body involvement under Annex VII where no harmonised standard exists, where the provider did not apply one or applied it only in part, or where a published standard carries a restriction. For **Annex III points 2 to 8, Article 43(2) allows internal control under Annex VI only — no notified body is involved at all**. Article 43(4) reopens the assessment on a substantial modification.\n**How to close it:** This is an Annex III point 1 system. Article 43(1) permits internal control under Annex VI only where harmonised standards or common specifications were applied; otherwise Annex VII applies and a notified body has to be involved. Decide which, and write down why. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n**Citations**\n- [EU AI Act Art. 43(1) — Conformity assessment — Annex III point 1 biometrics](https://artificialintelligenceact.eu/article/43/)\n- [EU AI Act Art. 43(2) — Conformity assessment — Annex III points 2 to 8, internal control only](https://artificialintelligenceact.eu/article/43/)\n- [EU AI Act Art. 43(4) — A substantial modification reopens the assessment](https://artificialintelligenceact.eu/article/43/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "quality-management",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art47.declaration-of-conformity",
+              "name": "EuAiActArt47DeclarationOfConformity",
+              "shortDescription": {
+                "text": "EU declaration of conformity, machine-readable and signed"
+              },
+              "fullDescription": {
+                "text": "Article 47(1) requires a written, machine-readable, physically or electronically signed EU declaration of conformity for each high-risk AI system, kept available to national competent authorities for ten years after the system is placed on the market or put into service, with a copy supplied on request. Article 47(2) requires it to state that the system meets the Section 2 requirements, to contain the information in Annex V, and to be translated into a language the competent authorities of each Member State concerned can easily understand. Article 47(3) allows a single declaration to cover all applicable Union law. Under Article 47(4) drawing it up is itself the assumption of responsibility for compliance, and it has to be kept up to date."
+              },
+              "help": {
+                "text": "Article 47(1) requires a written, machine-readable, physically or electronically signed EU declaration of conformity for each high-risk AI system, kept available to national competent authorities for ten years after the system is placed on the market or put into service, with a copy supplied on request. Article 47(2) requires it to state that the system meets the Section 2 requirements, to contain the information in Annex V, and to be translated into a language the competent authorities of each Member State concerned can easily understand. Article 47(3) allows a single declaration to cover all applicable Union law. Under Article 47(4) drawing it up is itself the assumption of responsibility for compliance, and it has to be kept up to date.\n\nArticle 47 asks for a specific artefact, not a statement in a README: written, machine-readable, signed, carrying the Annex V information, and retained for ten years. Article 47(4) means signing it is the act by which you take responsibility. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n\nEU AI Act Art. 47(1) — EU declaration of conformity — form and ten-year retention: https://artificialintelligenceact.eu/article/47/\nEU AI Act Art. 47(2) — Content: Section 2 conformity, Annex V information, translation: https://artificialintelligenceact.eu/article/47/\nEU AI Act Art. 47(4) — Drawing it up assumes responsibility for compliance: https://artificialintelligenceact.eu/article/47/",
+                "markdown": "**EU declaration of conformity, machine-readable and signed**\nArticle 47(1) requires a written, machine-readable, physically or electronically signed EU declaration of conformity for each high-risk AI system, kept available to national competent authorities for ten years after the system is placed on the market or put into service, with a copy supplied on request. Article 47(2) requires it to state that the system meets the Section 2 requirements, to contain the information in Annex V, and to be translated into a language the competent authorities of each Member State concerned can easily understand. Article 47(3) allows a single declaration to cover all applicable Union law. Under Article 47(4) drawing it up is itself the assumption of responsibility for compliance, and it has to be kept up to date.\n**How to close it:** Article 47 asks for a specific artefact, not a statement in a README: written, machine-readable, signed, carrying the Annex V information, and retained for ten years. Article 47(4) means signing it is the act by which you take responsibility. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n**Citations**\n- [EU AI Act Art. 47(1) — EU declaration of conformity — form and ten-year retention](https://artificialintelligenceact.eu/article/47/)\n- [EU AI Act Art. 47(2) — Content: Section 2 conformity, Annex V information, translation](https://artificialintelligenceact.eu/article/47/)\n- [EU AI Act Art. 47(4) — Drawing it up assumes responsibility for compliance](https://artificialintelligenceact.eu/article/47/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "documentation",
+                  "in-force"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art48.ce-marking",
+              "name": "EuAiActArt48CeMarking",
+              "shortDescription": {
+                "text": "CE marking, digital where the system is provided digitally"
+              },
+              "fullDescription": {
+                "text": "Article 48 requires the CE marking to be affixed subject to the general principles in Article 30 of Regulation (EC) No 765/2008. Article 48(2) is the limb that matters for software: **for high-risk AI systems provided digitally, a digital CE marking is to be used, and only where it can easily be accessed via the interface from which the system is accessed, or via an easily accessible machine-readable code or other electronic means**. Article 48(3) requires it to be visible, legible and indelible, or on the packaging or accompanying documentation where that is not possible. Where a notified body was involved, Article 48(4) requires its identification number to follow the marking and to appear in any promotional material claiming CE conformity."
+              },
+              "help": {
+                "text": "Article 48 requires the CE marking to be affixed subject to the general principles in Article 30 of Regulation (EC) No 765/2008. Article 48(2) is the limb that matters for software: **for high-risk AI systems provided digitally, a digital CE marking is to be used, and only where it can easily be accessed via the interface from which the system is accessed, or via an easily accessible machine-readable code or other electronic means**. Article 48(3) requires it to be visible, legible and indelible, or on the packaging or accompanying documentation where that is not possible. Where a notified body was involved, Article 48(4) requires its identification number to follow the marking and to appear in any promotional material claiming CE conformity.\n\nArticle 48(2) is specific about software: a system provided digitally takes a **digital** CE marking, reachable from the interface the system is accessed through or via an easily accessible machine-readable code. Putting it in a PDF nobody opens does not meet that. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n\nEU AI Act Art. 48(2) — Digital CE marking for systems provided digitally: https://artificialintelligenceact.eu/article/48/\nEU AI Act Art. 48(3) — Visible, legible and indelible: https://artificialintelligenceact.eu/article/48/\nEU AI Act Art. 48(4) — Notified body identification number: https://artificialintelligenceact.eu/article/48/",
+                "markdown": "**CE marking, digital where the system is provided digitally**\nArticle 48 requires the CE marking to be affixed subject to the general principles in Article 30 of Regulation (EC) No 765/2008. Article 48(2) is the limb that matters for software: **for high-risk AI systems provided digitally, a digital CE marking is to be used, and only where it can easily be accessed via the interface from which the system is accessed, or via an easily accessible machine-readable code or other electronic means**. Article 48(3) requires it to be visible, legible and indelible, or on the packaging or accompanying documentation where that is not possible. Where a notified body was involved, Article 48(4) requires its identification number to follow the marking and to appear in any promotional material claiming CE conformity.\n**How to close it:** Article 48(2) is specific about software: a system provided digitally takes a **digital** CE marking, reachable from the interface the system is accessed through or via an easily accessible machine-readable code. Putting it in a PDF nobody opens does not meet that. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n**Citations**\n- [EU AI Act Art. 48(2) — Digital CE marking for systems provided digitally](https://artificialintelligenceact.eu/article/48/)\n- [EU AI Act Art. 48(3) — Visible, legible and indelible](https://artificialintelligenceact.eu/article/48/)\n- [EU AI Act Art. 48(4) — Notified body identification number](https://artificialintelligenceact.eu/article/48/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "documentation",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "eu-ai-act.art85.complaint-route",
+              "name": "EuAiActArt85ComplaintRoute",
+              "shortDescription": {
+                "text": "A route for anyone to complain to the market surveillance authority"
+              },
+              "fullDescription": {
+                "text": "Article 85 gives any person with grounds to consider that the Regulation has been infringed the right to submit a complaint to the relevant market surveillance authority, which handles it under its Regulation (EU) 2019/1020 procedures. It pairs with Article 86: the explanation is what an affected person asks you for, and the complaint is where they go when you do not give it."
+              },
+              "help": {
+                "text": "Article 85 gives any person with grounds to consider that the Regulation has been infringed the right to submit a complaint to the relevant market surveillance authority, which handles it under its Regulation (EU) 2019/1020 procedures. It pairs with Article 86: the explanation is what an affected person asks you for, and the complaint is where they go when you do not give it.\n\nArticle 85 does not require you to build anything — the right exists whether or not you mention it. What it makes cheap is telling people, in the same place you tell them about the Article 86 explanation, which authority handles complaints about this system and how to reach it. A complaint that arrives at the authority before it arrives at you is the expensive ordering. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n\nEU AI Act Art. 85 — Right to lodge a complaint with a market surveillance authority: https://artificialintelligenceact.eu/article/85/",
+                "markdown": "**A route for anyone to complain to the market surveillance authority**\nArticle 85 gives any person with grounds to consider that the Regulation has been infringed the right to submit a complaint to the relevant market surveillance authority, which handles it under its Regulation (EU) 2019/1020 procedures. It pairs with Article 86: the explanation is what an affected person asks you for, and the complaint is where they go when you do not give it.\n**How to close it:** Article 85 does not require you to build anything — the right exists whether or not you mention it. What it makes cheap is telling people, in the same place you tell them about the Article 86 explanation, which authority handles complaints about this system and how to reach it. A complaint that arrives at the authority before it arrives at you is the expensive ordering. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify.\n**Citations**\n- [EU AI Act Art. 85 — Right to lodge a complaint with a market surveillance authority](https://artificialintelligenceact.eu/article/85/)\n_In force from 2026-08-02._"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "compliance",
+                  "eu-ai-act",
+                  "rights",
+                  "in-force"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
               "id": "eu-ai-act.art86.right-to-explanation",
               "name": "EuAiActArt86RightToExplanation",
               "shortDescription": {
@@ -1157,12 +1265,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-16T02:50:40.961Z",
+          "endTimeUtc": "2026-09-16T05:59:01.877Z",
           "properties": {
             "conformityScore": 3,
             "liveScore": 3,
             "riskTier": "prohibited",
-            "ledgerRoot": "d94b458c85072b4bf5d31c62a27da6301eaec37adb5b0b8104e58c121100878d"
+            "ledgerRoot": "7e2986dfa029729337ec758eaa45fc9735fa409988706f080699873b28d5d282"
           }
         }
       ],
@@ -1845,6 +1953,122 @@
             "appliesFrom": "2027-12-02",
             "inForce": false,
             "citation": "EU AI Act Art. 26(2)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art43.conformity-assessment",
+          "level": "error",
+          "message": {
+            "text": "Conformity assessment before placing on the market: No conformity assessment route is recorded anywhere in the repository. This is an Annex III point 1 system. Article 43(1) permits internal control under Annex VI only where harmonised standards or common specifications were applied; otherwise Annex VII applies and a notified body has to be involved. Decide which, and write down why. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art43.conformity-assessment"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 43(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art47.declaration-of-conformity",
+          "level": "error",
+          "message": {
+            "text": "EU declaration of conformity, machine-readable and signed: No EU declaration of conformity was found. Article 47 asks for a specific artefact, not a statement in a README: written, machine-readable, signed, carrying the Annex V information, and retained for ten years. Article 47(4) means signing it is the act by which you take responsibility. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art47.declaration-of-conformity"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 47(1)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art48.ce-marking",
+          "level": "warning",
+          "message": {
+            "text": "CE marking, digital where the system is provided digitally: No CE marking was found in the interface or the documentation. Article 48(2) is specific about software: a system provided digitally takes a **digital** CE marking, reachable from the interface the system is accessed through or via an easily accessible machine-readable code. Putting it in a PDF nobody opens does not meet that. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art48.ce-marking"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 48(2)"
+          }
+        },
+        {
+          "ruleId": "eu-ai-act.art85.complaint-route",
+          "level": "warning",
+          "message": {
+            "text": "A route for anyone to complain to the market surveillance authority: Nothing tells an affected person where to complain. Article 85 does not require you to build anything — the right exists whether or not you mention it. What it makes cheap is telling people, in the same place you tell them about the Article 86 explanation, which authority handles complaints about this system and how to reach it. A complaint that arrives at the authority before it arrives at you is the expensive ordering. Timing: this duty carries the general application date because of where it sits in the Regulation, but it is predicated on a system being high-risk under Annex III, and Article 6(2) — the provision that makes it so — is deferred to 2 December 2027. Treat the date as the outer limit of your exposure rather than as a duty that bites on a system nobody has yet had to classify."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "annexControl": "eu-ai-act.art85.complaint-route"
+          },
+          "properties": {
+            "pack": "eu-ai-act",
+            "status": "missing",
+            "appliesFrom": "2026-08-02",
+            "inForce": true,
+            "citation": "EU AI Act Art. 85"
           }
         },
         {

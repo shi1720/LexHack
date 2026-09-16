@@ -28,7 +28,7 @@ sequenceDiagram
     S-->>C: SignalIndex with line-anchored evidence
     C->>C: rule table → Annex III / Art. 5 / Art. 50
     C-->>E: Classification + confidence + citations
-    E->>E: 48 controls, each with its own application date
+    E->>E: 52 controls, each with its own application date
     E-->>L: ControlResult[] with evidence or absence
     L->>L: SHA-256 chain over canonical lines
     L-->>A: root
@@ -109,7 +109,7 @@ Confidence is derived, not asserted: base confidence, plus corroborating signals
 
 ## 4. Controls — `packages/engine/src/packs/`
 
-48 obligations across five instruments. A control is:
+52 obligations across five instruments. A control is:
 
 ```ts
 {

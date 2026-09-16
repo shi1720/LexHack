@@ -30,6 +30,16 @@ It left **Article 50 exactly where it was.**
 
 If your product talks to a person, or generates text, images, audio or video, you have been in scope since 2 August 2026, with **€15 million or 3 % of worldwide turnover** attached under Article 99(4)(g). Machine-readable marking of generated content is due **2 December 2026**. Those are not future problems.
 
+> **Where this comes from, and how far to trust it.** The whole timing argument
+> rests on one amending instrument, and the corpus was reconciled at a point
+> when EUR-Lex could not be reached — so Regulation (EU) 2026/1744 was read
+> through secondary sources rather than the Official Journal text. The
+> underlying Regulation (EU) 2024/1689 provisions were checked against primary
+> sources. Every item that could not be is marked in
+> [`docs/research/`](docs/research/), which opens by saying so. If you are
+> relying on the dates rather than reading about them, check the ELI before you
+> do: <http://data.europa.eu/eli/reg/2024/1689/oj>.
+
 ## What Annex does
 
 ```
@@ -147,7 +157,7 @@ flowchart LR
   subgraph Deterministic core
     B --> C[78 signal detectors<br/>code · docs · manifests]
     C --> D[Classifier<br/>Annex III / Art. 5 / Art. 50]
-    D --> E[48 controls<br/>5 rule packs]
+    D --> E[52 controls<br/>5 rule packs]
     E --> F[Hash-chained<br/>evidence ledger]
   end
   subgraph Artefacts
@@ -187,7 +197,7 @@ tests: [
 ]
 ```
 
-`npm test` runs every golden fixture in the corpus — 64 cases over 23 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
+`npm test` runs every golden fixture in the corpus — 74 cases over 27 obligations, in all five packs — plus a suite that checks each EU AI Act control against a written-down Article 113 table, so a control cannot quietly sit on the wrong application date. If a regex gets greedier or a keyword gets dropped, the obligation fails here rather than silently mis-reporting somebody's conformity.
 
 ### 3. Nothing goes green because a file exists
 
@@ -333,11 +343,11 @@ A questionnaire cannot do this at all: it is answered once, by a person, about a
 
 ## What is in the corpus
 
-48 executable obligations across five instruments and three jurisdictions, each reconciled against primary sources on 2026-09-15. Two of the instruments are EU law and one is a voluntary US framework, which is worth saying plainly: "five jurisdictions" would be a nicer headline and would not be true.
+52 executable obligations across five instruments and three jurisdictions, each reconciled against primary sources on 2026-09-15. Two of the instruments are EU law and one is a voluntary US framework, which is worth saying plainly: "five jurisdictions" would be a nicer headline and would not be true.
 
 | Pack | Version | Obligations | Status |
 |---|---|---|---|
-| **EU AI Act** — Regulation (EU) 2024/1689 as amended by (EU) 2026/1744 | 2026.09.1 | 27 | Art. 5 in force since 2025-02-02, Art. 50 since 2026-08-02, Chapter III from 2027-12-02 |
+| **EU AI Act** — Regulation (EU) 2024/1689 as amended by (EU) 2026/1744 | 2026.09.1 | 31 | Art. 5 in force since 2025-02-02, Art. 50 since 2026-08-02, Chapter III from 2027-12-02 |
 | **GDPR** — automated decisions (Arts. 9, 13–17, 22, 35) | 2026.09.1 | 5 | In force since 2018 |
 | **NYC Local Law 144** — AEDT bias audits, 6 RCNY §§ 5-300 to 5-304 | 2026.09.1 | 5 | Enforced since 2023-07-05 |
 | **Colorado ADMT Act** — SB 26-189 | 2026.09.1 | 5 | From 2027-01-01 |
@@ -393,7 +403,7 @@ packages/engine/     No model, no framework, zero runtime dependencies.
                       fetch a GitHub tarball; a local path fetches nothing)
   signals/           75 detectors over code, docs and manifests
   classify/          Rule table mapping signals → Annex III / Art. 5 / Art. 50
-  packs/             The corpus: 48 controls with citations, dates, fixtures
+  packs/             The corpus: 52 controls with citations, dates, fixtures
   evaluate/          Control execution, weighted scoring, exposure modelling
   ledger/            SHA-256 hash chain + verification
   dossier/           Annex IV builder and renderers
@@ -412,6 +422,12 @@ A language model is used in exactly one place, and the UI labels it: rewriting a
 ## Continuous conformity
 
 ```yaml
+# `annex diff` resolves --base with `git archive`, so the base ref has to
+# exist locally. actions/checkout defaults to a depth-1 clone, where it
+# does not.
+- uses: actions/checkout@v4
+  with: { fetch-depth: 0 }
+
 - name: AI Act conformity
   run: npx @annex/cli scan . --format sarif --out annex.sarif --fail-under 70
 

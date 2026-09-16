@@ -1,0 +1,32 @@
+{
+  "declarationOfConformity": {
+    "specVersion": "Regulation (EU) 2024/1689, Annex V",
+    "system": {
+      "name": "HireFlow",
+      "version": "3.2.0",
+      "intendedPurpose": "Ranks and prioritises job applicants against a posting for recruiters. Human review on every adverse outcome."
+    },
+    "provider": {
+      "legalName": "HireFlow Technologies Ltd",
+      "address": "12 Fenian Street, Dublin 2, D02 RY62, Ireland"
+    },
+    "statement": "This high-risk AI system is in conformity with Regulation (EU) 2024/1689 and meets the requirements set out in Chapter III, Section 2.",
+    "otherUnionLegislation": ["Regulation (EU) 2016/679"],
+    "conformityAssessment": {
+      "procedure": "Internal control, Annex VI (Article 43(2))",
+      "notifiedBody": null,
+      "completedOn": "2026-07-09"
+    },
+    "harmonisedStandards": [],
+    "signature": {
+      "signedBy": "Accountable person, HireFlow Technologies Ltd",
+      "role": "VP Engineering",
+      "place": "Dublin",
+      "date": "2026-07-10"
+    },
+    "retention": {
+      "years": 10,
+      "note": "Article 47(1): kept at the disposal of the national competent authorities for ten years after placing on the market."
+    }
+  }
+}

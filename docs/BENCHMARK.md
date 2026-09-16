@@ -18,7 +18,17 @@ it, plus a documentation site that merely *writes about* prohibited practices.
 | Risk-tier accuracy | **100.0%** (46/46) | The tier Annex assigns matches the label |
 | Finding recall | **100.0%** (23/23) | Classification findings a competent reader would make, that Annex makes |
 | Carve-out precision | **100.0%** (41/41) | Findings the statute expressly excludes, that Annex correctly does not make |
-| Runtime | 129 ms | The whole corpus, single-threaded, no network |
+| Runtime | 132 ms | The whole corpus, single-threaded, no network |
+
+## What this corpus has already caught
+
+A clean sheet on a self-authored benchmark is close to zero evidence on its own.
+What is worth something is the list of defects this corpus found before a user did,
+including cases whose own labels turned out to be wrong:
+
+- **`carveout.demographics-without-biometrics`** — Fired on a gender classifier over names and an age inference from a date-of-birth column, with no biometrics anywhere — switching on the whole Chapter III stack, Article 49 registration and Article 86. The modality guard in `domain.biometric.categorisation` came from this case.
+- **`carveout.biometric-categorisation-not-protected`** — Its own label. It was written as `transparency` and the system shows nobody anything and generates nothing, so no Article 50 duty is engaged and `minimal` is the answer.
+- **`carveout.wellbeing-journal`** — Its own label, again. The case was labelled high-risk in an earlier version of the corpus — which is how a benchmark can be at 100 % and still be wrong.
 
 ## Cases Annex gets wrong
 

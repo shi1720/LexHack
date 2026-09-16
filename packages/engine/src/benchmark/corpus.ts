@@ -33,6 +33,17 @@ export interface BenchmarkCase {
   forbidFindings?: string[];
   /** Why the label is what it is. Shown in the benchmark report. */
   rationale: string;
+  /**
+   * What this case caught, where it caught something.
+   *
+   * A clean sheet on a self-authored corpus is close to zero evidence on its
+   * own, and saying so in a caveat is cheap. What is not cheap is the list of
+   * defects the corpus has actually found — a case whose label was wrong when
+   * it was written, or a detector it falsified. Recording those keeps the
+   * 100 % honest: it is 100 % *after* the corpus did its job, and the report
+   * prints the job.
+   */
+  caught?: string;
 }
 
 const pkg = (name: string, deps: Record<string, string> = { openai: '^4.0.0' }) =>
@@ -597,6 +608,8 @@ def analyse_frame(frame):
     description: 'CRM enrichment that guesses gender from a first name and age from a date of birth',
     tier: 'minimal',
     forbidFindings: ['annex-iii.1b.biometric-categorisation', 'art5.1g.biometric-categorisation'],
+    caught:
+      'Fired on a gender classifier over names and an age inference from a date-of-birth column, with no biometrics anywhere — switching on the whole Chapter III stack, Article 49 registration and Article 86. The modality guard in `domain.biometric.categorisation` came from this case.',
     rationale:
       'Article 3(40) defines biometric categorisation as assigning people to categories **on the basis of their biometric data**, and Annex III point 1 is the biometrics point. A name and a date of birth are personal data and are not biometric data, so neither point 1(b) nor Article 5(1)(g) is engaged — this is a GDPR problem, not an AI Act high-risk classification. Without the modality guard the attribute keywords alone switched on the whole Chapter III stack, Article 49 registration and Article 86.',
     files: {
@@ -614,6 +627,8 @@ def analyse_frame(frame):
     description: 'Warehouse camera that counts how many people on the floor are wearing a hard hat',
     tier: 'minimal',
     forbidFindings: ['annex-iii.1b.biometric-categorisation', 'art5.1g.biometric-categorisation'],
+    caught:
+      'Its own label. It was written as `transparency` and the system shows nobody anything and generates nothing, so no Article 50 duty is engaged and `minimal` is the answer.',
     rationale:
       'Point 1(b) reaches categorisation according to a *sensitive or protected* attribute. Personal protective equipment is not an attribute of the person at all, and a rule that fired on any camera that sorted people into buckets would make every safety system in a warehouse high-risk. Minimal rather than transparency: the system shows nobody anything and generates nothing, so no Article 50 duty is engaged either — it was labelled transparency when it was written, which the benchmark caught.',
     files: {
@@ -810,6 +825,8 @@ export async function extractReceipt(image: string) {
     description: 'Consumer mood journalling app',
     tier: 'transparency',
     forbidFindings: ['annex-iii.1c.emotion', 'art5.1f.emotion-workplace'],
+    caught:
+      'Its own label, again. The case was labelled high-risk in an earlier version of the corpus — which is how a benchmark can be at 100 % and still be wrong.',
     rationale:
       'Article 3(39) defines an emotion recognition system as one inferring emotions or intentions **on the basis of biometric data**, and Annex III point 1(c) uses that defined term. Sentiment over text a person typed is not biometric data, so neither the high-risk classification nor the Article 5(1)(f) prohibition is engaged. This case was labelled high-risk in an earlier version of the corpus, which is how a benchmark can be at 100% and still be wrong.',
     files: {
